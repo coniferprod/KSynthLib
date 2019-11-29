@@ -17,13 +17,13 @@ namespace KSynthLib.K5
 
     }
 
-    public class Multi: Patch
+    public class MultiPatch: Patch
     {
         public const int NumTracks = 16;
 
         public Track[] Tracks;
 
-        public Multi()
+        public MultiPatch()
         {
             Tracks = new Track[NumTracks];
         }

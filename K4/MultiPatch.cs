@@ -6,7 +6,7 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K4
 {
-    class Multi
+    public class MultiPatch
     {
         public const int DataSize = 77;
 
@@ -21,7 +21,7 @@ namespace KSynthLib.K4
 
         public string Name => name;
 
-        public Multi(byte[] data)
+        public MultiPatch(byte[] data)
         {
             sections = new Section[SectionCount];
 

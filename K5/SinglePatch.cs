@@ -102,7 +102,7 @@ namespace KSynthLib.K5
         }
     }
     
-    public class Single: Patch
+    public class SinglePatch: Patch
     {
         const int FormantLevelCount = 11;
 
@@ -125,7 +125,7 @@ namespace KSynthLib.K5
 
         public byte Filler;  // retain the byte before the checksum (should be zero but not guaranteed)
 
-        public Single()
+        public SinglePatch()
         {
             Source1Settings = new SourceSettings();
             Source2Settings = new SourceSettings();
@@ -135,7 +135,7 @@ namespace KSynthLib.K5
             FormantLevels = new int[FormantLevelCount];
         }
 
-        public Single(byte[] data)
+        public SinglePatch(byte[] data)
         {
             int offset = 0;
             byte b = 0;  // will be reused when getting the next byte

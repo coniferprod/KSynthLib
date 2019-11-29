@@ -6,7 +6,7 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K5000
 {
-    public class Single
+    public class SinglePatch
     {
         public byte CheckSum;
 
@@ -15,7 +15,7 @@ namespace KSynthLib.K5000
         public Source[] Sources;
 
         // Initialize a single patch with default settings
-        public Single()
+        public SinglePatch()
         {
             Common = new CommonSettings();
             Common.NumSources = 1;
@@ -26,7 +26,7 @@ namespace KSynthLib.K5000
             }
         }
 
-        public Single(byte[] data)
+        public SinglePatch(byte[] data)
         {
             int offset = 0;
             byte b = 0;

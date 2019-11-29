@@ -257,7 +257,7 @@ namespace KSynthLib.K4
         }
     }
 
-    public class Single
+    public class SinglePatch
     {
         public const int DataSize = 131;
 
@@ -273,7 +273,7 @@ namespace KSynthLib.K4
 
         public byte Checksum;
 
-        public Single()
+        public SinglePatch()
         {
             Common = new CommonSettings();
             Sources = new Source[NumSources];
@@ -283,7 +283,7 @@ namespace KSynthLib.K4
             Checksum = 0;
         }
 
-        public Single(byte[] data)
+        public SinglePatch(byte[] data)
         {
             //System.Console.WriteLine(String.Format("Starting to parse single patch from data (length = {0})", data.Length));
 

@@ -6,12 +6,12 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K1
 {
-    public class Multi
+    public class MultiPatch
     {
         public string Name;
         public int Volume;
 
-        public Multi(byte[] data)
+        public MultiPatch(byte[] data)
         {
             int offset = 0;
             byte b = 0;  // will be reused when getting the next byte

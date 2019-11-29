@@ -46,7 +46,7 @@ namespace KSynthLib.K1
         Speed
     }
 
-    public class Single
+    public class SinglePatch
     {
         public const int DataSize = 88;
         public const int NumSources = 4;
@@ -75,7 +75,7 @@ namespace KSynthLib.K1
 
         public byte Checksum;
 
-        public Single(byte[] data)
+        public SinglePatch(byte[] data)
         {
             int offset = 0;
             byte b = 0;  // will be reused when getting the next byte
