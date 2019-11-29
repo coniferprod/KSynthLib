@@ -366,9 +366,9 @@ namespace KSynthLib.K4
         {
             byte sum = 0;
             byte[] data = CollectData();
-            for (int i = 0; i < data.Length; i++)
+            foreach (byte b in data)
             {
-                sum += data[i];
+                sum += b;
             }
             sum += 0xA5;
             return sum;
@@ -379,6 +379,10 @@ namespace KSynthLib.K4
             List<byte> data = new List<byte>();
             
             data.AddRange(Common.ToData());
+
+            // The source data are interleaved, with one byte from each first,
+            // then the second, etc. That's why they are emitted in this slightly
+            // inelegant way. The same applies for DCA and DCF data.
 
             byte[] source1Data = Sources[0].ToData();
             byte[] source2Data = Sources[1].ToData();
