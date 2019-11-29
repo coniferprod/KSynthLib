@@ -39,11 +39,10 @@ namespace KSynthLib.Common
             return (byte)(b ^ (1 << pos));
         }
  
-        public static string ToBinaryString(this byte b)
+        public static string ToBinaryString(this byte b, int padding = 8)
         {
-            return Convert.ToString(b, 2).PadLeft(8, '0');
+            return Convert.ToString(b, 2).PadLeft(padding, '0');
         }
-
         public static sbyte ToSignedByte(this byte b)
         {
             return unchecked((sbyte)b);
