@@ -63,7 +63,7 @@ namespace KSynthLib.K4
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(String.Format("single = {0}, recv ch = {1}, play mode = {2}\n", GetPatchName(singlePatch), receiveChannel + 1, playMode));
+            builder.Append(String.Format("single = {0}, recv ch = {1}, play mode = {2}\n", PatchUtil.GetPatchName(singlePatch), receiveChannel + 1, playMode));
             builder.Append(String.Format("zone = {0} to {1}, vel sw = {2}\n", GetNoteName(zoneLow), GetNoteName(zoneHigh), velocitySwitch));
             builder.Append(String.Format("level = {0}, transpose = {1}, tune = {2}\n", level, transpose, tune));
             builder.Append(String.Format("submix ch = {0}\n", output));
@@ -74,16 +74,32 @@ namespace KSynthLib.K4
         {
             List<byte> data = new List<byte>();
 
+            data.Add((byte)singlePatch);
+            data.Add((byte)zoneLow);
+            data.Add((byte)zoneHigh);
+
+            // Combine rcv ch, velo sw and section mute into one byte for M15/M23 etc.
+            byte vb = (byte)velocitySwitch;
+            byte rb = (byte)receiveChannel;
+            byte vbp = (byte)(vb << 4);
+            byte m15 = (byte)(rb | vbp);
+            if (isMuted)
+            {
+                m15.SetBit(6);
+            }
+            data.Add(m15);
+
+            // TODO: Combine out select and mode into one byte for M16/M24 etc.
+            byte os = (byte)output;
+            byte m = (byte)playMode;
+            byte m16 = (byte)(os | m);
+            data.Add(m16);
+
+            data.Add((byte)level);
+            data.Add((byte)transpose);
+            data.Add((byte)tune);
+
             return data.ToArray();
-        }
-
-        private string GetPatchName(int p, int patchCount = 16)
-        {
-        	int bankIndex = p / patchCount;
-	        char bankLetter = "ABCD"[bankIndex];
-	        int patchIndex = (p % patchCount) + 1;
-
-	        return String.Format("{0}-{1,2}", bankLetter, patchIndex);
         }
 
         // This is bogus; should be 0 ~ 127 / C-2 ~ G8

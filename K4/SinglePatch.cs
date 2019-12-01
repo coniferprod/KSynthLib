@@ -33,8 +33,6 @@ namespace KSynthLib.K4
 
         public char Output; // 0~7 / A~H (on K4r)
 
-        public string Name;
-        
         public SourceMode SourceMode;
 
         public PolyphonyMode PolyphonyMode;
@@ -66,7 +64,6 @@ namespace KSynthLib.K4
             Volume = 80;
             Effect = 1;  // use range 1~32
             Output = 'A';
-            Name = "NewSound";
             SourceMode = SourceMode.Normal;
             PolyphonyMode = PolyphonyMode.Poly1;
             AMS1ToS2 = false;
@@ -82,11 +79,9 @@ namespace KSynthLib.K4
 
         public CommonSettings(byte[] data)
         {
-            int offset = 0;
+            int offset = 10; // name is s00 to s09
             byte b = 0;  // will be reused when getting the next byte
 
-            Name = GetName(data, offset);
-            offset += 10;  // name is s00 to s09
             (b, offset) = Util.GetNextByte(data, offset);
             Volume = b;
 
@@ -170,13 +165,6 @@ namespace KSynthLib.K4
             PressureFreq = (b & 0x7f) - 50; // 0~100 to ±50
         }
         
-        private string GetName(byte[] data, int offset)
-        {
-            // Brute-force the name in s0 ... s9
-            byte[] bytes = { data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9] };
-        	return Encoding.ASCII.GetString(bytes);
-        }
-
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
@@ -257,7 +245,7 @@ namespace KSynthLib.K4
         }
     }
 
-    public class SinglePatch
+    public class SinglePatch: Patch
     {
         public const int DataSize = 131;
 
@@ -271,10 +259,10 @@ namespace KSynthLib.K4
         public Filter Filter1;
         public Filter Filter2;
 
-        public byte Checksum;
-
         public SinglePatch()
         {
+            this.name = "NewSound";
+
             Common = new CommonSettings();
             Sources = new Source[NumSources];
             Amplifiers = new Amplifier[NumSources];
@@ -286,8 +274,9 @@ namespace KSynthLib.K4
         public SinglePatch(byte[] data)
         {
             //System.Console.WriteLine(String.Format("Starting to parse single patch from data (length = {0})", data.Length));
-
             int offset = 0;
+            this.name = GetName(data, offset);
+
             Common = new CommonSettings(data);
             offset += CommonSettings.DataSize;
 
@@ -333,7 +322,7 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
             (b, offset) = Util.GetNextByte(data, offset);
             // "Check sum value (s130) is the sum of the A5H and s0 ~ s129".
-            Checksum = b;
+            this.Checksum = b;
 
             /*
             byte sum = ComputeChecksum();
@@ -347,6 +336,8 @@ namespace KSynthLib.K4
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
+            builder.Append(Name);
+            builder.Append("\n");
             builder.Append(Common.ToString());
             for (int i = 0; i < NumSources; i++)
             {
@@ -362,19 +353,7 @@ namespace KSynthLib.K4
             return builder.ToString();
         }
 
-        private byte ComputeChecksum()
-        {
-            byte sum = 0;
-            byte[] data = CollectData();
-            foreach (byte b in data)
-            {
-                sum += b;
-            }
-            sum += 0xA5;
-            return sum;
-        }
-
-        private byte[] CollectData()
+        protected override byte[] CollectData()
         {
             List<byte> data = new List<byte>();
             
@@ -419,15 +398,6 @@ namespace KSynthLib.K4
             }
 
             return data.ToArray();
-        }
-
-        public byte[] ToData()
-        {
-            byte sum = ComputeChecksum();
-            List<byte> allData = new List<byte>();
-            allData.AddRange(CollectData());
-            allData.Add(sum);
-            return allData.ToArray();
         }
     }
 }
