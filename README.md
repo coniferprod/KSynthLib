@@ -17,7 +17,7 @@ containing your NuGet packages to your NuGet.Config file, like this:
 Build the library, then package it up with `dotnet pack`. Then add it to your local
 NuGet repository:
 
-    nuget add bin/Debug/KSynthLib.x.y.z.nupkg -source /Your/NuGet/Folder
+    nuget add KSynthLib/bin/Debug/KSynthLib.x.y.z.nupkg -source /Your/NuGet/Folder
 
 where "x.y.z" is the version of the library.
 
