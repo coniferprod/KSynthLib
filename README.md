@@ -24,6 +24,3 @@ where "x.y.z" is the version of the library.
 Finally, install the package into your project like any NuGet package:
 
     dotnet add package KSynthLib
-
-Note that currently there is a conflict between the .NET Single class
-and the KSynthLib.Single class, so the latter needs to be fully qualified.
