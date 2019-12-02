@@ -53,7 +53,7 @@ namespace KSynthLib.K4
 
         protected abstract byte[] CollectData();
 
-        protected byte[] ToData()
+        public byte[] ToData()
         {
             List<byte> allData = new List<byte>();
 

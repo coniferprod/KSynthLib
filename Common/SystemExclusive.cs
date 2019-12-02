@@ -1,9 +1,13 @@
 using System;
+using System.Collections.Generic;
 
 namespace KSynthLib.Common
 {
     public class SystemExclusiveHeader
     {
+        public const byte Initiator = 0xF0;
+        public const byte Terminator = 0xF7;
+
         public const int DataSize = 8;
 
         public byte ManufacturerID;
@@ -13,6 +17,11 @@ namespace KSynthLib.Common
 	    public byte MachineID;
 	    public byte Substatus1;
 	    public byte Substatus2;
+
+        public SystemExclusiveHeader()
+        {
+
+        }
 
         public SystemExclusiveHeader(byte[] data)
         {
@@ -29,6 +38,19 @@ namespace KSynthLib.Common
         public override string ToString()
         {
             return String.Format("ManufacturerID = {0,2:X2}h, Channel = {1,2:X2}h, Function = {2,2:X2}h, Group = {3,2:X2}h, MachineID = {4,2:X2}h, Substatus1 = {5,2:X2}h, Substatus2 = {6,2:X2}h", ManufacturerID, Channel, Function, Group, MachineID, Substatus1, Substatus2);
+        }
+
+        public byte[] ToData()
+        {
+            List<byte> data = new List<byte>();
+            data.Add(ManufacturerID);
+            data.Add(Channel);
+            data.Add(Function);
+            data.Add(Group);
+            data.Add(MachineID);
+            data.Add(Substatus1);
+            data.Add(Substatus2);
+            return data.ToArray();
         }
     }
 }
