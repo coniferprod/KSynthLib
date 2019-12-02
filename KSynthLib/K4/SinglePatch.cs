@@ -364,6 +364,9 @@ namespace KSynthLib.K4
         {
             List<byte> data = new List<byte>();
             
+            byte[] nameBytes = Encoding.ASCII.GetBytes(this.Name.PadRight(10));
+            data.AddRange(nameBytes);
+
             data.AddRange(Common.ToData());
 
             // The source data are interleaved, with one byte from each first,
