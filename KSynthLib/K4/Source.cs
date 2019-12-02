@@ -32,6 +32,16 @@ namespace KSynthLib.K4
 
         public Source()
         {
+            Delay = 0;
+            WaveNumber = 10;  // "SAW 1"
+            KeyScalingCurve = 0;
+            Coarse = 24;
+            KeyTracking = true;
+            FixedKey = 0;
+            Fine = 50;
+            PressureToFrequencySwitch = true;
+            VibratoSwitch = false;
+            VelocityCurve = 0;
         }
 
         public Source(byte[] data)

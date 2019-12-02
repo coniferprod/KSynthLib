@@ -22,6 +22,21 @@ namespace KSynthLib.K4
         private int transpose;
         private int tune;
 
+        public Section()
+        {
+            singlePatch = 0;
+            zoneLow = 0;
+            zoneHigh = 127;
+            receiveChannel = 0;
+            velocitySwitch = 0;
+            isMuted = false;
+            output = 0;
+            playMode = 0;
+            level = 80;
+            transpose = 24;
+            tune = 50;
+        }
+
         public Section(byte[] data)
         {
             int offset = 0;

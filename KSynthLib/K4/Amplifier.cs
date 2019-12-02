@@ -81,6 +81,7 @@ namespace KSynthLib.K4
         public Amplifier()
         {
             Env = new Envelope(0, 0, 0, 0);
+            EnvelopeLevel = 100;
             LevelMod = new LevelModulation(0, 0, 0);
             TimeMod = new TimeModulation(0, 0, 0);
         }

@@ -264,8 +264,15 @@ namespace KSynthLib.K4
             this.name = "NewSound";
 
             Common = new CommonSettings();
+
             Sources = new Source[NumSources];
             Amplifiers = new Amplifier[NumSources];
+            for (int i = 0; i < NumSources; i++)
+            {
+                Sources[i] = new Source();
+                Amplifiers[i] = new Amplifier();
+            }
+
             Filter1 = new Filter();
             Filter2 = new Filter();
             Checksum = 0;

@@ -36,6 +36,12 @@ namespace KSynthLib.K4
             this.name = "Init";
             this.volume = 80;
             this.effectPatch = 1;
+
+            sections = new Section[SectionCount];
+            for (int i = 0; i < SectionCount; i++)
+            {
+                sections[i] = new Section();
+            }
         }
 
         public MultiPatch(byte[] data)
