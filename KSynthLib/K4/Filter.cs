@@ -13,8 +13,20 @@ namespace KSynthLib.K4
 
         public int Cutoff;  // 0~100
 
-        public int Resonance; // 0 ~ 7 / 1 ~ 8
+        private int resonance; // 0 ~ 7 / 1 ~ 8
 
+        public int Resonance
+        {
+            get
+            {
+                return resonance + 1;
+            }
+
+            set
+            {
+                resonance = value - 1;
+            }
+        }
         public LevelModulation CutoffMod;
 
         public bool IsLFO;  // 0/off, 1/on
@@ -30,7 +42,7 @@ namespace KSynthLib.K4
         public Filter()
         {
             Cutoff = 99;
-            Resonance = 0;
+            Resonance = 1;
             CutoffMod = new LevelModulation();
             IsLFO = false;
             Env = new Envelope();
@@ -48,7 +60,7 @@ namespace KSynthLib.K4
             Cutoff = b & 0x7f;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Resonance = (b & 0x07) + 1;
+            Resonance = b & 0x07;
             IsLFO = b.IsBitSet(3);
 
             CutoffMod = new LevelModulation();
@@ -109,9 +121,9 @@ namespace KSynthLib.K4
             
             StringBuilder b104 = new StringBuilder("0000");
             b104.Append(IsLFO ? "1" : "0");
-            string resString = Convert.ToString(Resonance - 1, 2);
+            string resString = Convert.ToString(Resonance, 2);
             Debug.WriteLine(String.Format("Filter resonance = {0}, as bit string = '{1}'", Resonance - 1, resString));
-            b104.Append(Convert.ToString(Resonance - 1, 2).PadLeft(3, '0'));
+            b104.Append(Convert.ToString(Resonance, 2).PadLeft(3, '0'));
             data.Add(Convert.ToByte(b104.ToString(), 2));
             
             data.Add((byte)CutoffMod.VelocityDepth);

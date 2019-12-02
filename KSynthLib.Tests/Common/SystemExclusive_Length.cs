@@ -1,7 +1,7 @@
 using Xunit;
 using KSynthLib.Common;
 
-namespace KSynthLib.Tests
+namespace KSynthLib.Common.Tests
 {
     public class SystemExclusive_Length
     {
