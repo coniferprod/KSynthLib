@@ -6,7 +6,7 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K5000
 {
-    public class SinglePatch
+    public class SinglePatch : Patch
     {
         public byte CheckSum;
 
@@ -83,9 +83,7 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        // Convert this single patch into SysEx data.
-        // "BANK A, D, E, F: (check sum) + (COMMON) + (SOURCE)*(2~8)" (probably should be ~2*6?)
-        public byte[] ToData()
+        protected override byte[] CollectData()
         {
             List<byte> data = new List<byte>();
 
@@ -104,14 +102,13 @@ namespace KSynthLib.K5000
                 }
             }
 
-            // Compute check sum and add it as the first byte
-            byte checkSum = ComputeCheckSum(data.ToArray());
-            data.Insert(0, checkSum);
-
             return data.ToArray();
         }
 
-        private byte ComputeCheckSum(byte[] data)
+        // Convert this single patch into SysEx data.
+        // "BANK A, D, E, F: (check sum) + (COMMON) + (SOURCE)*(2~8)" (probably should be ~2*6?)
+
+        protected override byte ComputeChecksum(byte[] data)
         {
             // BANK A, D, E, F: check sum = [(common sum) + (source1 sum) [ + (source2~8 sum)] + 0xa5) & 0x7f
             byte total = 0;
