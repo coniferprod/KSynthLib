@@ -8,64 +8,55 @@ namespace KSynthLib.K5000
 {
     public class SinglePatch : Patch
     {
-        public byte CheckSum;
-
-        public CommonSettings Common;
+        // Common is inherited from Patch
+        public SingleCommonSettings SingleCommon;
 
         public Source[] Sources;
 
         // Initialize a single patch with default settings
-        public SinglePatch()
+        public SinglePatch() : base()
         {
-            Common = new CommonSettings();
-            Common.NumSources = 1;
-            Sources = new Source[Common.NumSources];
-            for (int i = 0; i < Common.NumSources; i++)
+            //Common = new CommonSettings();  // initialized by superclass constructor
+
+            SingleCommon = new SingleCommonSettings();
+            SingleCommon.NumSources = 1;
+
+            Sources = new Source[SingleCommon.NumSources];
+            for (int i = 0; i < SingleCommon.NumSources; i++)
             {
                 Sources[i] = new Source();
             }
         }
 
-        public SinglePatch(byte[] data)
+        public SinglePatch(byte[] data) : base(data)
         {
-            int offset = 0;
-            byte b = 0;
-            (b, offset) = Util.GetNextByte(data, offset);
-            CheckSum = b;
-            System.Console.WriteLine(String.Format("{0:X8} check sum = {1:X2}", offset, CheckSum));
-
-            byte[] commonData = new byte[CommonSettings.DataSize];
-            Buffer.BlockCopy(data, offset, commonData, 0, CommonSettings.DataSize);
-            Common = new CommonSettings(commonData);
-            offset += CommonSettings.DataSize;
-            System.Console.WriteLine(String.Format("{0:X8} parsed {1} ({1:X4}h) bytes of common data", offset, CommonSettings.DataSize));
-
-            Sources = new Source[Common.NumSources];
-            for (int i = 0; i < Common.NumSources; i++)
+            int offset = 0;            
+            Sources = new Source[SingleCommon.NumSources];
+            for (int i = 0; i < SingleCommon.NumSources; i++)
             {
                 byte[] sourceData = new byte[Source.DataSize];
 
                 // BlockCopy argument list: Array src, int srcOffset, Array dst, int dstOffset, int count
                 Buffer.BlockCopy(data, offset, sourceData, 0, Source.DataSize);
-                System.Console.WriteLine(String.Format("Source {0} data:\n{1}", i + 1, Util.HexDump(sourceData)));
+                Console.WriteLine(String.Format("Source {0} data:\n{1}", i + 1, Util.HexDump(sourceData)));
                 Source source = new Source(sourceData);
                 Sources[i] = source;
                 offset += Source.DataSize;
-                System.Console.WriteLine(String.Format("{0:X6} parsed {1} bytes of source data", offset, Source.DataSize));
+                Console.WriteLine(String.Format("{0:X6} parsed {1} bytes of source data", offset, Source.DataSize));
             }
 
-            for (int i = 0; i < Common.NumSources; i++)
+            for (int i = 0; i < SingleCommon.NumSources; i++)
             {
                 Source source = Sources[i];
                 if (source.DCO.WaveNumber == AdditiveKit.WaveNumber)  // ADD source, so include wave kit size in calculation
                 {
                     byte[] additiveData = new byte[AdditiveKit.DataSize];
-                    System.Console.WriteLine(String.Format("About to copy from data at offset {0:X4} to start of new buffer", offset));
+                    Console.WriteLine(String.Format("About to copy from data at offset {0:X4} to start of new buffer", offset));
                     Buffer.BlockCopy(data, offset, additiveData, 0, AdditiveKit.DataSize);
-                    System.Console.WriteLine(String.Format("{0:X6} Source {1} ADD data:\n{2}", offset, i + 1, Util.HexDump(additiveData)));
+                    Console.WriteLine(String.Format("{0:X6} Source {1} ADD data:\n{2}", offset, i + 1, Util.HexDump(additiveData)));
                     source.ADD = new AdditiveKit(additiveData);
                     offset += AdditiveKit.DataSize;
-                    System.Console.WriteLine(String.Format("{0:X6} parsed {1} bytes of ADD data", offset, AdditiveKit.DataSize));
+                    Console.WriteLine(String.Format("{0:X6} parsed {1} bytes of ADD data", offset, AdditiveKit.DataSize));
                 }
             }
         }
@@ -74,8 +65,9 @@ namespace KSynthLib.K5000
         {
             StringBuilder builder = new StringBuilder();
             builder.Append(Common.ToString());
+            builder.Append(SingleCommon.ToString());
             builder.Append("SOURCES:\n");
-            for (int i = 0; i < Common.NumSources; i++)
+            for (int i = 0; i < SingleCommon.NumSources; i++)
             {
                 builder.Append(String.Format("S{0}:\n{1}\n", i + 1, Sources[i].ToString()));
             }
@@ -87,19 +79,13 @@ namespace KSynthLib.K5000
         {
             List<byte> data = new List<byte>();
 
-            byte[] commonData = Common.ToData();
-            foreach (byte b in commonData)
-            {
-                data.Add(b);
-            }
+            data.AddRange(Common.ToData());
+            data.AddRange(SingleCommon.ToData());
 
-            for (int i = 0; i < Common.NumSources; i++)
+            for (int i = 0; i < SingleCommon.NumSources; i++)
             {
                 byte[] sourceData = Sources[i].ToData();
-                foreach (byte b in sourceData)
-                {
-                    data.Add(b);
-                }
+                data.AddRange(sourceData);
             }
 
             return data.ToArray();
@@ -123,7 +109,7 @@ namespace KSynthLib.K5000
             total += commonSum;
 
             // For each source, compute the sum of source data and add it to the total:
-            for (int i = 0; i < Common.NumSources; i++)
+            for (int i = 0; i < SingleCommon.NumSources; i++)
             {
                 byte[] sourceData = Sources[i].ToData();
                 byte sourceSum = 0;

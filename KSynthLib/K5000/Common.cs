@@ -5,11 +5,6 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K5000
 {
-    public enum PolyphonyMode {
-        Poly,
-        Solo1,
-        Solo2
-    }
 
     public enum EffectDestination
     {
@@ -137,7 +132,6 @@ namespace KSynthLib.K5000
             builder.Append(String.Format("DEST1 = {0}, Depth = {1}. DEST2 = {2}, Depth = {3}", Param1.Type, Param1.Depth, Param2.Type, Param2.Depth));
             return builder.ToString();
         }
-
     }
 
     public enum Switch {
@@ -162,45 +156,20 @@ namespace KSynthLib.K5000
 
     public class CommonSettings
     {
-        public static int DataSize = 81;
+        public static int DataSize = 48;
         public const int MaxSources = 6;
 
-        public string Name;
-        public byte Volume;
         public byte EffectAlgorithm;  // 0 ~ 3
-
         public ReverbSettings Reverb;
         public EffectSettings Effect1;
         public EffectSettings Effect2;
         public EffectSettings Effect3;
         public EffectSettings Effect4;
-
         public GEQSettings GEQ;
+        public bool DrumMark;
+        public string Name;
+        public byte Volume;
 
-        public PolyphonyMode Poly;
-
-        public int NumSources;
-
-        public bool[] IsSourceMuted;  // 0=muted, 1=not muted - store the inverse here
-
-        public byte AM;  // 0=off, value=1~5(src2~6)
-
-        public EffectControl EffectControl1;
-        public EffectControl EffectControl2;
-
-        public bool IsPortamentoEnabled;  // 0=off, 1=on
-        public int PortamentoSpeed;  // 0 ~ 127
-
-        // TODO: Add macro controllers
-        public MacroController Macro1;
-        public MacroController Macro2;
-        public MacroController Macro3;
-        public MacroController Macro4;
-
-        public Switch Switch1;
-        public Switch Switch2;
-        public Switch FootSwitch1;
-        public Switch FootSwitch2;
 
         public CommonSettings()
         {
@@ -211,13 +180,6 @@ namespace KSynthLib.K5000
             Effect3 = new EffectSettings();
             Effect4 = new EffectSettings();
             GEQ = new GEQSettings();
-            IsSourceMuted = new bool[MaxSources];
-            EffectControl1 = new EffectControl();
-            EffectControl2 = new EffectControl();
-            Macro1 = new MacroController();
-            Macro2 = new MacroController();
-            Macro3 = new MacroController();
-            Macro4 = new MacroController();
         }
 
         public CommonSettings(byte[] data)
@@ -228,49 +190,42 @@ namespace KSynthLib.K5000
             Effect3 = new EffectSettings();
             Effect4 = new EffectSettings();
             GEQ = new GEQSettings();
-            IsSourceMuted = new bool[MaxSources];
-            EffectControl1 = new EffectControl();
-            EffectControl2 = new EffectControl();
-            Macro1 = new MacroController();
-            Macro2 = new MacroController();
-            Macro3 = new MacroController();
-            Macro4 = new MacroController();
 
-            System.Console.WriteLine(String.Format("Common data:\n{0}", Util.HexDump(data)));
+            Console.WriteLine(String.Format("Common data:\n{0}", Util.HexDump(data)));
 
             int offset = 0;
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);  
             EffectAlgorithm = b; // 0 ~ 3
-            System.Console.WriteLine(String.Format("Effect Algorithm = {0}", EffectAlgorithm));
+            Console.WriteLine(String.Format("Effect Algorithm = {0}", EffectAlgorithm));
 
             Reverb = GetReverb(data, offset);
             offset += 6;
-            System.Console.WriteLine(String.Format("Reverb = {0}", Reverb.ToString()));
+            Console.WriteLine(String.Format("Reverb = {0}", Reverb.ToString()));
 
             Effect1 = GetEffect(data, offset);
             offset += 6;
-            System.Console.WriteLine(String.Format("E1 = {0}", Effect1.ToString()));
+            Console.WriteLine(String.Format("E1 = {0}", Effect1.ToString()));
 
             Effect2 = GetEffect(data, offset);
             offset += 6;
-            System.Console.WriteLine(String.Format("E2 = {0}", Effect2.ToString()));
+            Console.WriteLine(String.Format("E2 = {0}", Effect2.ToString()));
 
             Effect3 = GetEffect(data, offset);
             offset += 6;
-            System.Console.WriteLine(String.Format("E3 = {0}", Effect3.ToString()));
+            Console.WriteLine(String.Format("E3 = {0}", Effect3.ToString()));
 
             Effect4 = GetEffect(data, offset);
             offset += 6;
-            System.Console.WriteLine(String.Format("E4 = {0}", Effect4.ToString()));
+            Console.WriteLine(String.Format("E4 = {0}", Effect4.ToString()));
 
             GEQ = GetGEQ(data, offset);
             offset += 7;
-            System.Console.WriteLine(String.Format("GEQ = {0}", GEQ.ToString()));
+            Console.WriteLine(String.Format("GEQ = {0}", GEQ.ToString()));
 
-            // "drum_mark" can be ignored
             (b, offset) = Util.GetNextByte(data, offset);
+            DrumMark = (b == 1);
 
             Name = GetName(data, offset);
             offset += 8;
@@ -278,111 +233,12 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);
             Volume = b;
 
-            (b, offset) = Util.GetNextByte(data, offset);
-            Poly = (PolyphonyMode) b; // 0=POLY, 1=SOLO1, 2=SOLO2
-
-            // "no use" can be ignored
-            (b, offset) = Util.GetNextByte(data, offset);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            NumSources = b;
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            for (int i = 0; i < MaxSources; i++)
-            {
-                bool isNotMuted = b.IsBitSet(i);
-                IsSourceMuted[i] = ! isNotMuted;
-            }
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            AM = b;
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            EffectControl1.Source = (ControlSource)b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            EffectControl1.Destination = (EffectDestination)b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            EffectControl1.Depth = (sbyte)(b - 64);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            EffectControl2.Source = (ControlSource)b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            EffectControl2.Destination = (EffectDestination)b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            EffectControl2.Depth = (sbyte)(b - 64);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            IsPortamentoEnabled = (b == 1);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            PortamentoSpeed = b;
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro1.Param1.Type = (MacroControllerType)b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro1.Param2.Type = (MacroControllerType)b;
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro2.Param1.Type = (MacroControllerType)b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro2.Param2.Type = (MacroControllerType)b;
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro3.Param1.Type = (MacroControllerType)b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro3.Param2.Type = (MacroControllerType)b;
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro4.Param1.Type = (MacroControllerType)b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro4.Param2.Type = (MacroControllerType)b;
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro1.Param1.Depth = (sbyte)(b - 64);
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro1.Param2.Depth = (sbyte)(b - 64);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro2.Param1.Depth = (sbyte)(b - 64);
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro2.Param2.Depth = (sbyte)(b - 64);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro3.Param1.Depth = (sbyte)(b - 64);
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro3.Param2.Depth = (sbyte)(b - 64);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro4.Param1.Depth = (sbyte)(b - 64);
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro4.Param2.Depth = (sbyte)(b - 64);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            Switch1 = (Switch)b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            Switch2 = (Switch)b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            FootSwitch1 = (Switch)b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            FootSwitch2 = (Switch)b;
-
-            System.Console.WriteLine(String.Format("Common data parsed, offset = {0:X2} ({0})", offset));
         }
 
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
             builder.Append(String.Format("Name = '{0}' Volume = {1}\n", Name, Volume));
-            builder.Append(String.Format("Poly = {0}\n", Poly));
-            builder.Append(String.Format("Portamento = {0}, speed = {1}\n", IsPortamentoEnabled ? "ON" : "OFF", PortamentoSpeed));
-            builder.Append(String.Format("Sources = {0}\n", NumSources));
-            builder.Append(String.Format("AM = {0}\n", (AM == 0) ? "OFF" : Convert.ToString(AM)));
-            builder.Append("Macro controllers:\n");
-            builder.Append(String.Format("User 1: {0}\n", Macro1.ToString()));
-            builder.Append(String.Format("User 2: {0}\n", Macro2.ToString()));
-            builder.Append(String.Format("User 3: {0}\n", Macro3.ToString()));
-            builder.Append(String.Format("User 4: {0}\n", Macro4.ToString()));
-            builder.Append(String.Format("SW1 = {0}  SW2 = {1}  F.SW1 = {2}  F.SW2 = {3}\n", Switch1, Switch2, FootSwitch1, FootSwitch2));
 
             builder.Append(String.Format("REVERB:\n{0}\n", Reverb.ToString()));
             builder.Append(String.Format("Effect algorithm = {0}\n", EffectAlgorithm + 1));
@@ -442,60 +298,6 @@ namespace KSynthLib.K5000
             }
 
             data.Add(Volume);
-            data.Add((byte)Poly);
-            data.Add(0); // "no use"
-            data.Add((byte)NumSources);
-
-            byte sourceMute = 0;
-            for (int i = 0; i < MaxSources; i++)
-            {
-                if (IsSourceMuted[i])
-                {
-                    sourceMute.SetBit(i);
-                }
-            }
-            data.Add(sourceMute);
-
-            data.Add(AM);
-
-            byte[] effectControl1Data = EffectControl1.ToData();
-            foreach (byte b in effectControl1Data)
-            {
-                data.Add(b);
-            }
-
-            byte[] effectControl2Data = EffectControl2.ToData();
-            foreach (byte b in effectControl2Data)
-            {
-                data.Add(b);
-            }
-            
-            data.Add((byte)(IsPortamentoEnabled ? 1 : 0));  // only bit 0 is used for this
-            data.Add((byte)PortamentoSpeed);
-
-            data.Add((byte)Macro1.Param1.Type);
-            data.Add((byte)Macro1.Param2.Type);
-            data.Add((byte)Macro2.Param1.Type);
-            data.Add((byte)Macro2.Param2.Type);
-            data.Add((byte)Macro3.Param1.Type);
-            data.Add((byte)Macro3.Param2.Type);
-            data.Add((byte)Macro4.Param1.Type);
-            data.Add((byte)Macro4.Param2.Type);
-
-            data.Add((byte)(Macro1.Param1.Depth + 64));
-            data.Add((byte)(Macro1.Param2.Depth + 64));
-            data.Add((byte)(Macro2.Param1.Depth + 64));
-            data.Add((byte)(Macro2.Param2.Depth + 64));
-            data.Add((byte)(Macro3.Param1.Depth + 64));
-            data.Add((byte)(Macro3.Param2.Depth + 64));
-            data.Add((byte)(Macro4.Param1.Depth + 64));
-            data.Add((byte)(Macro4.Param2.Depth + 64));
-
-            data.Add((byte)Switch1);
-            data.Add((byte)Switch2);
-            data.Add((byte)FootSwitch1);
-            data.Add((byte)FootSwitch2);
-
             return data.ToArray();
         }
 

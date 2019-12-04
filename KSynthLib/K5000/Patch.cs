@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 
+using KSynthLib.Common;
+
 namespace KSynthLib.K5000
 {
     public abstract class Patch
     {
-        protected string name;
-        
-        public string Name => name;
+        public CommonSettings Common;
 
         private byte checksum;
 
@@ -29,7 +29,26 @@ namespace KSynthLib.K5000
             {
                 checksum = value;
             }
+        }
 
+        public Patch()
+        {
+            Common = new CommonSettings();
+        }
+
+        public Patch(byte[] data)
+        {
+            int offset = 0;
+            byte b = 0;
+            (b, offset) = Util.GetNextByte(data, offset);
+            Checksum = b;
+            Console.WriteLine(String.Format("{0:X8} check sum = {1:X2}", offset, Checksum));
+
+            byte[] commonData = new byte[CommonSettings.DataSize];
+            Buffer.BlockCopy(data, offset, commonData, 0, CommonSettings.DataSize);
+            Common = new CommonSettings(commonData);
+            offset += CommonSettings.DataSize;
+            Console.WriteLine(String.Format("{0:X8} parsed {1} ({1:X4}h) bytes of common data", offset, CommonSettings.DataSize));
         }
 
         protected abstract byte[] CollectData();
