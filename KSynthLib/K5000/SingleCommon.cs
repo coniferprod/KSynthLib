@@ -192,17 +192,8 @@ namespace KSynthLib.K5000
 
             data.Add(AM);
 
-            byte[] effectControl1Data = EffectControl1.ToData();
-            foreach (byte b in effectControl1Data)
-            {
-                data.Add(b);
-            }
-
-            byte[] effectControl2Data = EffectControl2.ToData();
-            foreach (byte b in effectControl2Data)
-            {
-                data.Add(b);
-            }
+            data.AddRange(EffectControl1.ToData());
+            data.AddRange(EffectControl2.ToData());
             
             data.Add((byte)(IsPortamentoEnabled ? 1 : 0));  // only bit 0 is used for this
             data.Add((byte)PortamentoSpeed);

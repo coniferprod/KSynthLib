@@ -140,11 +140,7 @@ namespace KSynthLib.K5000
             data.Add((byte)FixedKey);
             data.Add((byte)KSPitch);
 
-            byte[] envData = Envelope.ToData();
-            foreach (byte b in envData)
-            {
-                data.Add(b);
-            }
+            data.AddRange(Envelope.ToData());
 
             return data.ToArray();
         }

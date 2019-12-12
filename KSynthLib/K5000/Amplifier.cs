@@ -170,23 +170,9 @@ namespace KSynthLib.K5000
 
             data.Add((byte)(VelocityCurve - 1));  // adjust value to 0 ~ 11
 
-            byte[] envData = Envelope.ToData();
-            foreach (byte b in envData)
-            {
-                data.Add(b);
-            }
-
-            byte[] ksData = KeyScaling.ToData();
-            foreach (byte b in ksData)
-            {
-                data.Add(b);
-            }
-
-            byte[] velData = VelocitySensitivity.ToData();
-            foreach (byte b in velData)
-            {
-                data.Add(b);
-            }
+            data.AddRange(Envelope.ToData());
+            data.AddRange(KeyScaling.ToData());
+            data.AddRange(VelocitySensitivity.ToData());
 
             return data.ToArray();
         }

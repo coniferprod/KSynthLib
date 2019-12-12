@@ -156,11 +156,7 @@ namespace KSynthLib.K5000
             data.Add((byte)(CutoffVelocityDepth + 64));
             data.Add((byte)(EnvelopeDepth + 64));
 
-            byte[] envData = Envelope.ToData();
-            foreach (byte b in envData)
-            {
-                data.Add(b);
-            }
+            data.AddRange(Envelope.ToData());
 
             data.Add((byte)KSToEnvAttackTime);
             data.Add((byte)KSToEnvDecay1Time);

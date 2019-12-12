@@ -232,7 +232,6 @@ namespace KSynthLib.K5000
             
             (b, offset) = Util.GetNextByte(data, offset);
             Volume = b;
-
         }
 
         public override string ToString()
@@ -254,41 +253,13 @@ namespace KSynthLib.K5000
             List<byte> data = new List<byte>();
             data.Add(EffectAlgorithm);
 
-            byte[] reverbData = Reverb.ToData();
-            foreach (byte b in reverbData)
-            {
-                data.Add(b);
-            }
+            data.AddRange(Reverb.ToData());
+            data.AddRange(Effect1.ToData());
+            data.AddRange(Effect2.ToData());
+            data.AddRange(Effect3.ToData());
+            data.AddRange(Effect4.ToData());
 
-            byte[] effect1Data = Effect1.ToData();
-            foreach (byte b in effect1Data)
-            {
-                data.Add(b);
-            }
-
-            byte[] effect2Data = Effect2.ToData();
-            foreach (byte b in effect2Data)
-            {
-                data.Add(b);
-            }
-
-            byte[] effect3Data = Effect3.ToData();
-            foreach (byte b in effect3Data)
-            {
-                data.Add(b);
-            }
-
-            byte[] effect4Data = Effect4.ToData();
-            foreach (byte b in effect4Data)
-            {
-                data.Add(b);
-            }
-
-            byte[] geqData = GEQ.ToData();
-            foreach (byte b in geqData)
-            {
-                data.Add(b);
-            }
+            data.AddRange(GEQ.ToData());
 
             data.Add(0); // drum_mark, 0=normal(not drum)
 
@@ -298,6 +269,7 @@ namespace KSynthLib.K5000
             }
 
             data.Add(Volume);
+
             return data.ToArray();
         }
 

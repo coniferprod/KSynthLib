@@ -20,12 +20,31 @@ namespace KSynthLib.K5000
         public byte Time3;
         public byte Time4;
         public EnvelopeLoopType LoopType;
+
+        public byte[] ToData()
+        {
+            List<byte> data = new List<byte>();
+            data.Add(Time1);
+            data.Add(Time2);
+            data.Add(Time3);
+            data.Add(Time4);
+            data.Add((byte)LoopType);
+            return data.ToArray();
+        }
     }
 
     public class HarmonicCopyParameters
     {
         public byte PatchNumber;
         public byte SourceNumber;
+
+        public byte[] ToData()
+        {
+            List<byte> data = new List<byte>();
+            data.Add(PatchNumber);
+            data.Add(SourceNumber);
+            return data.ToArray();
+        }
     }
 
     public class HarmonicParameters
@@ -67,20 +86,12 @@ namespace KSynthLib.K5000
             data.Add(BalanceVelocityCurve);
             data.Add(BalanceVelocityDepth);
 
-            data.Add(Copy1.PatchNumber);
-            data.Add(Copy1.SourceNumber);
-            data.Add(Copy2.PatchNumber);
-            data.Add(Copy2.SourceNumber);
-            data.Add(Copy3.PatchNumber);
-            data.Add(Copy3.SourceNumber);
-            data.Add(Copy4.PatchNumber);
-            data.Add(Copy4.SourceNumber);
+            data.AddRange(Copy1.ToData());
+            data.AddRange(Copy2.ToData());
+            data.AddRange(Copy3.ToData());
+            data.AddRange(Copy4.ToData());
 
-            data.Add(MORFEnvelope.Time1);
-            data.Add(MORFEnvelope.Time2);
-            data.Add(MORFEnvelope.Time3);
-            data.Add(MORFEnvelope.Time4);
-            data.Add((byte)MORFEnvelope.LoopType);
+            data.AddRange(MORFEnvelope.ToData());
 
             return data.ToArray();
         }
@@ -159,11 +170,7 @@ namespace KSynthLib.K5000
             data.Add((byte)EnvLFOSel);
             data.Add((byte)(EnvelopeDepth + 64));
 
-            byte[] envData = Envelope.ToData();
-            foreach (byte b in envData)
-            {
-                data.Add(b);
-            }
+            data.AddRange(Envelope.ToData());
 
             data.Add((byte)(VelocitySensitivityEnvelopeDepth + 64));
             data.Add((byte)(KeyScalingEnvelopeDepth + 64));
@@ -442,17 +449,8 @@ namespace KSynthLib.K5000
         {
             List<byte> data = new List<byte>();
 
-            byte[] harmonicsData = Harmonics.ToData();
-            foreach (byte b in harmonicsData)
-            {
-                data.Add(b);
-            }
-
-            byte[] formantParameterData = Formant.ToData();
-            foreach (byte b in formantParameterData)
-            {
-                data.Add(b);
-            }
+            data.AddRange(Harmonics.ToData());
+            data.AddRange(Formant.ToData());
 
             foreach (byte b in SoftHarmonics)
             {
@@ -469,11 +467,7 @@ namespace KSynthLib.K5000
 
             for (int i = 0; i < NumHarmonics; i++)
             {
-                byte[] harmonicEnvelopeData = HarmonicEnvelopes[i].ToData();
-                foreach (byte b in harmonicEnvelopeData)
-                {
-                    data.Add(b);
-                }
+                data.AddRange(HarmonicEnvelopes[i].ToData());
             }
 
             byte[] allData = data.ToArray();
@@ -539,6 +533,5 @@ namespace KSynthLib.K5000
 
             return (byte)(total & 0x7f);
         }
-
     }
 }

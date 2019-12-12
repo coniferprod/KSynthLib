@@ -103,6 +103,18 @@ namespace KSynthLib.K5000
             Destination1 = new ModulationSettings();
             Destination2 = new ModulationSettings();
         }
+
+        public byte[] ToData()
+        {
+            List<byte> data = new List<byte>();
+
+            data.Add((byte)Destination1.Destination);
+            data.Add((byte)Destination1.Depth);
+            data.Add((byte)Destination2.Destination);
+            data.Add((byte)Destination2.Depth);
+
+            return data.ToArray();
+        }
     }
 
     public class AssignableController
@@ -113,6 +125,17 @@ namespace KSynthLib.K5000
         public AssignableController()
         {
             Target = new ModulationSettings();
+        }
+
+        public byte[] ToData()
+        {
+            List<byte> data = new List<byte>();
+
+            data.Add((byte)Source);
+            data.Add((byte)Target.Destination);
+            data.Add((byte)Target.Depth);
+
+            return data.ToArray();
         }
     }
 
@@ -338,64 +361,25 @@ namespace KSynthLib.K5000
             data.Add(BenderPitch);
             data.Add(BenderCutoff);
 
-            data.Add((byte)Press.Destination1.Destination);
-            data.Add((byte)Press.Destination1.Depth);
-            data.Add((byte)Press.Destination2.Destination);
-            data.Add((byte)Press.Destination2.Depth);
+            data.AddRange(Press.ToData());
+            data.AddRange(Wheel.ToData());
+            data.AddRange(Express.ToData());
 
-            data.Add((byte)Wheel.Destination1.Destination);
-            data.Add((byte)Wheel.Destination1.Depth);
-            data.Add((byte)Wheel.Destination2.Destination);
-            data.Add((byte)Wheel.Destination2.Depth);
-            
-            data.Add((byte)Express.Destination1.Destination);
-            data.Add((byte)Express.Destination1.Depth);
-            data.Add((byte)Express.Destination2.Destination);
-            data.Add((byte)Express.Destination2.Depth);
-
-            data.Add((byte)Assign1.Source);
-            data.Add((byte)Assign1.Target.Destination);
-            data.Add((byte)Assign1.Target.Depth);
-
-            data.Add((byte)Assign2.Source);
-            data.Add((byte)Assign2.Target.Destination);
-            data.Add((byte)Assign2.Target.Depth);
+            data.AddRange(Assign1.ToData());
+            data.AddRange(Assign2.ToData());
 
             data.Add((byte)KeyOnDelay);
             data.Add((byte)Pan);
             data.Add((byte)(NormalPanValue + 64));
 
-            byte[] dcoData = DCO.ToData();
-            foreach (byte b in dcoData)
-            {
-                data.Add(b);
-            }
-
-            byte[] dcfData = DCF.ToData();
-            foreach (byte b in dcfData)
-            {
-                data.Add(b);
-            }
-
-            byte[] dcaData = DCA.ToData();
-            foreach (byte b in dcaData)
-            {
-                data.Add(b);
-            }
-
-            byte[] lfoData = LFO.ToData();
-            foreach (byte b in lfoData)
-            {
-                data.Add(b);
-            }
+            data.AddRange(DCO.ToData());
+            data.AddRange(DCF.ToData());
+            data.AddRange(DCA.ToData());
+            data.AddRange(LFO.ToData());
 
             if (DCO.WaveNumber == AdditiveKit.WaveNumber)
             {
-                byte[] additiveData = ADD.ToData();
-                foreach (byte b in additiveData)
-                {
-                    data.Add(b);
-                }
+                data.AddRange(ADD.ToData());
             }
 
             return data.ToArray();
