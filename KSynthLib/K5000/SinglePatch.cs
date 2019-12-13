@@ -9,9 +9,19 @@ namespace KSynthLib.K5000
     public class SinglePatch : Patch
     {
         // Common is inherited from Patch
+
         public SingleCommonSettings SingleCommon;
 
         public Source[] Sources;
+
+        public int DataSize
+        {
+            get 
+            {
+                int sourcesSize = Sources.Length * Source.DataSize;
+                return CommonSettings.DataSize + SingleCommonSettings.DataSize + sourcesSize;
+            }
+        }
 
         // Initialize a single patch with default settings
         public SinglePatch() : base()
@@ -30,7 +40,14 @@ namespace KSynthLib.K5000
 
         public SinglePatch(byte[] data) : base(data)
         {
-            int offset = 0;            
+            int offset = CommonSettings.DataSize;  // skip the common data parsed by superclass
+
+            byte[] singleCommonData = new byte[SingleCommonSettings.DataSize];
+            Buffer.BlockCopy(data, offset, singleCommonData, 0, SingleCommonSettings.DataSize);
+            SingleCommon = new SingleCommonSettings(singleCommonData);
+
+            offset += SingleCommonSettings.DataSize;
+
             Sources = new Source[SingleCommon.NumSources];
             for (int i = 0; i < SingleCommon.NumSources; i++)
             {
@@ -48,10 +65,10 @@ namespace KSynthLib.K5000
             for (int i = 0; i < SingleCommon.NumSources; i++)
             {
                 Source source = Sources[i];
-                if (source.DCO.WaveNumber == AdditiveKit.WaveNumber)  // ADD source, so include wave kit size in calculation
+                if (source.IsAdditive)  // ADD source, so include wave kit size in calculation
                 {
                     byte[] additiveData = new byte[AdditiveKit.DataSize];
-                    Console.WriteLine(String.Format("About to copy from data at offset {0:X4} to start of new buffer", offset));
+                    //Console.WriteLine(String.Format("About to copy from data at offset {0:X4} to start of new buffer", offset));
                     Buffer.BlockCopy(data, offset, additiveData, 0, AdditiveKit.DataSize);
                     Console.WriteLine(String.Format("{0:X6} Source {1} ADD data:\n{2}", offset, i + 1, Util.HexDump(additiveData)));
                     source.ADD = new AdditiveKit(additiveData);

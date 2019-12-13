@@ -14,6 +14,8 @@ namespace KSynthLib.K5000
 
     public class SingleCommonSettings
     {
+        public const int DataSize = 33;
+
         public const int MaxSources = 6;
 
         public PolyphonyMode Poly;
@@ -30,7 +32,6 @@ namespace KSynthLib.K5000
         public bool IsPortamentoEnabled;  // 0=off, 1=on
         public int PortamentoSpeed;  // 0 ~ 127
 
-        // TODO: Add macro controllers
         public MacroController Macro1;
         public MacroController Macro2;
         public MacroController Macro3;
@@ -50,18 +51,21 @@ namespace KSynthLib.K5000
             Macro2 = new MacroController();
             Macro3 = new MacroController();
             Macro4 = new MacroController();
+            Poly = PolyphonyMode.Poly;
+
+            NumSources = 1;
+            IsSourceMuted = new bool[1] { false };
+            AM = 0;
+            IsPortamentoEnabled = false;
+            PortamentoSpeed = 0;
+            Switch1 = Switch.Off;
+            Switch2 = Switch.Off;
+            FootSwitch1 = Switch.Off;
+            FootSwitch2 = Switch.Off;
         }
 
-        public SingleCommonSettings(byte[] data)
+        public SingleCommonSettings(byte[] data) : this()
         {
-            IsSourceMuted = new bool[MaxSources];
-            EffectControl1 = new EffectControl();
-            EffectControl2 = new EffectControl();
-            Macro1 = new MacroController();
-            Macro2 = new MacroController();
-            Macro3 = new MacroController();
-            Macro4 = new MacroController();
-
             int offset = 0;
             byte b = 0;
 

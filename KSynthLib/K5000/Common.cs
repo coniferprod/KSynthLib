@@ -5,7 +5,6 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K5000
 {
-
     public enum EffectDestination
     {
         Effect1DryWet,
@@ -156,7 +155,7 @@ namespace KSynthLib.K5000
 
     public class CommonSettings
     {
-        public static int DataSize = 48;
+        public const int DataSize = 48;
         public const int MaxSources = 6;
 
         public byte EffectAlgorithm;  // 0 ~ 3
@@ -170,16 +169,16 @@ namespace KSynthLib.K5000
         public string Name;
         public byte Volume;
 
-
         public CommonSettings()
         {
-            Name = "Init    ";
             Reverb = new ReverbSettings();
             Effect1 = new EffectSettings();
             Effect2 = new EffectSettings();
             Effect3 = new EffectSettings();
             Effect4 = new EffectSettings();
             GEQ = new GEQSettings();
+            Name = "Init    ";
+            Volume = 80;
         }
 
         public CommonSettings(byte[] data)

@@ -176,6 +176,14 @@ namespace KSynthLib.K5000
 
         public AdditiveKit ADD;
 
+        public bool IsAdditive
+        {
+            get
+            {
+                return DCO.WaveNumber == AdditiveKit.WaveNumber;
+            }
+        }
+
         public Source()
         {
             ZoneLow = 0;
@@ -377,7 +385,7 @@ namespace KSynthLib.K5000
             data.AddRange(DCA.ToData());
             data.AddRange(LFO.ToData());
 
-            if (DCO.WaveNumber == AdditiveKit.WaveNumber)
+            if (IsAdditive)
             {
                 data.AddRange(ADD.ToData());
             }

@@ -1,7 +1,7 @@
 using Xunit;
 using KSynthLib.K4;
 
-namespace KSynthLib.K4.Tests
+namespace KSynthLib.Tests.K4
 {
     public class Filter_Data
     {
