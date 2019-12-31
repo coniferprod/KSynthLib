@@ -214,6 +214,13 @@ namespace KSynthLib.Common
             return (data[offset], offset + 1);
         }
 
+        public static (byte[], int) GetNextBytes(byte[] data, int offset, int count = 1)
+        {
+            byte[] slice = new byte[count];
+            Array.Copy(data, offset, slice, 0, count);
+            return (slice, offset + count);
+        }
+
         public static (bool, int) ByteArrayCompare(byte[] a1, byte[] a2)
         {
             if (a1.Length != a2.Length)

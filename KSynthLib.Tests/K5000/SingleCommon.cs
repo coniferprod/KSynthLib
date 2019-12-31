@@ -16,7 +16,7 @@ namespace KSynthLib.Tests.K5000
         public void DataLength_IsCorrect()
         {
             int length = _singleCommon.ToData().Length;
-            Assert.Equal(7, length);
+            Assert.Equal(33, length);
 
         }
 

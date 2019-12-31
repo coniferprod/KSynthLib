@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
+using System.Linq;
 
 using KSynthLib.Common;
 
@@ -44,7 +45,6 @@ namespace KSynthLib.K5000
         
         public SingleCommonSettings()
         {
-            IsSourceMuted = new bool[MaxSources];
             EffectControl1 = new EffectControl();
             EffectControl2 = new EffectControl();
             Macro1 = new MacroController();
@@ -54,7 +54,7 @@ namespace KSynthLib.K5000
             Poly = PolyphonyMode.Poly;
 
             NumSources = 1;
-            IsSourceMuted = new bool[1] { false };
+            IsSourceMuted = new bool[MaxSources] { false, false, false, false, false, false };
             AM = 0;
             IsPortamentoEnabled = false;
             PortamentoSpeed = 0;
@@ -88,19 +88,13 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);
             AM = b;
 
-            (b, offset) = Util.GetNextByte(data, offset);
-            EffectControl1.Source = (ControlSource)b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            EffectControl1.Destination = (EffectDestination)b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            EffectControl1.Depth = (sbyte)(b - 64);
+            byte[] ec1Data = null;
+            (ec1Data, offset) = Util.GetNextBytes(data, offset, 3);
+            EffectControl1 = new EffectControl(ec1Data);
 
-            (b, offset) = Util.GetNextByte(data, offset);
-            EffectControl2.Source = (ControlSource)b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            EffectControl2.Destination = (EffectDestination)b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            EffectControl2.Depth = (sbyte)(b - 64);
+            byte[] ec2Data = null;
+            (ec2Data, offset) = Util.GetNextBytes(data, offset, 3);
+            EffectControl2 = new EffectControl(ec2Data);
 
             (b, offset) = Util.GetNextByte(data, offset);
             IsPortamentoEnabled = (b == 1);
@@ -108,45 +102,28 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);
             PortamentoSpeed = b;
 
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro1.Param1.Type = (MacroControllerType)b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro1.Param2.Type = (MacroControllerType)b;
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro2.Param1.Type = (MacroControllerType)b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro2.Param2.Type = (MacroControllerType)b;
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro3.Param1.Type = (MacroControllerType)b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro3.Param2.Type = (MacroControllerType)b;
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro4.Param1.Type = (MacroControllerType)b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro4.Param2.Type = (MacroControllerType)b;
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro1.Param1.Depth = (sbyte)(b - 64);
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro1.Param2.Depth = (sbyte)(b - 64);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro2.Param1.Depth = (sbyte)(b - 64);
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro2.Param2.Depth = (sbyte)(b - 64);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro3.Param1.Depth = (sbyte)(b - 64);
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro3.Param2.Depth = (sbyte)(b - 64);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro4.Param1.Depth = (sbyte)(b - 64);
-            (b, offset) = Util.GetNextByte(data, offset);
-            Macro4.Param2.Depth = (sbyte)(b - 64);
+            // The four macro definitions are packed into 16 bytes like this:
+            // m1 p1 t, m1 p2 t, m2 p1 t, m2 p2 t, m3 p1 t, m3 p2 t, m4 p1 t, m4 p2 t
+            // m1 p1 d, m1 p2 d, m2 p1 d, m2 p2 d, m3 p1 d, m3 p2 d, m4 p1 d, m4 p2 d
+            // m = macro, p = parameter, t = type, d = depth
+            byte[] bs = null;
+            (bs, offset) = Util.GetNextBytes(data, offset, 16);
+            Macro1 = new MacroController(
+                new MacroControllerParameter(bs[0], bs[8]),
+                new MacroControllerParameter(bs[1], bs[9])
+            );
+            Macro2 = new MacroController(
+                new MacroControllerParameter(bs[2], bs[10]),
+                new MacroControllerParameter(bs[3], bs[11])
+            );
+            Macro3 = new MacroController(
+                new MacroControllerParameter(bs[4], bs[12]),
+                new MacroControllerParameter(bs[5], bs[13])
+            );
+            Macro4 = new MacroController(
+                new MacroControllerParameter(bs[6], bs[14]),
+                new MacroControllerParameter(bs[7], bs[15])
+            );
 
             (b, offset) = Util.GetNextByte(data, offset);
             Switch1 = (Switch)b;
@@ -202,23 +179,32 @@ namespace KSynthLib.K5000
             data.Add((byte)(IsPortamentoEnabled ? 1 : 0));  // only bit 0 is used for this
             data.Add((byte)PortamentoSpeed);
 
-            data.Add((byte)Macro1.Param1.Type);
-            data.Add((byte)Macro1.Param2.Type);
-            data.Add((byte)Macro2.Param1.Type);
-            data.Add((byte)Macro2.Param2.Type);
-            data.Add((byte)Macro3.Param1.Type);
-            data.Add((byte)Macro3.Param2.Type);
-            data.Add((byte)Macro4.Param1.Type);
-            data.Add((byte)Macro4.Param2.Type);
+            var m1p1 = Macro1.Param1.Bytes;
+            var m1p2 = Macro1.Param2.Bytes;
+            var m2p1 = Macro2.Param1.Bytes;
+            var m2p2 = Macro2.Param2.Bytes;
+            var m3p1 = Macro3.Param1.Bytes;
+            var m3p2 = Macro3.Param2.Bytes;
+            var m4p1 = Macro4.Param1.Bytes;
+            var m4p2 = Macro4.Param2.Bytes;
 
-            data.Add((byte)(Macro1.Param1.Depth + 64));
-            data.Add((byte)(Macro1.Param2.Depth + 64));
-            data.Add((byte)(Macro2.Param1.Depth + 64));
-            data.Add((byte)(Macro2.Param2.Depth + 64));
-            data.Add((byte)(Macro3.Param1.Depth + 64));
-            data.Add((byte)(Macro3.Param2.Depth + 64));
-            data.Add((byte)(Macro4.Param1.Depth + 64));
-            data.Add((byte)(Macro4.Param2.Depth + 64));
+            data.Add(m1p1.Type);
+            data.Add(m1p2.Type);
+            data.Add(m2p1.Type);
+            data.Add(m2p2.Type);
+            data.Add(m3p1.Type);
+            data.Add(m3p2.Type);
+            data.Add(m4p1.Type);
+            data.Add(m3p2.Type);
+
+            data.Add(m1p1.Depth);
+            data.Add(m1p2.Depth);
+            data.Add(m2p1.Depth);
+            data.Add(m2p2.Depth);
+            data.Add(m3p1.Depth);
+            data.Add(m3p2.Depth);
+            data.Add(m4p1.Depth);
+            data.Add(m4p2.Depth);
 
             data.Add((byte)Switch1);
             data.Add((byte)Switch2);

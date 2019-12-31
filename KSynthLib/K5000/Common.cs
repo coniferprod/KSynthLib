@@ -63,9 +63,23 @@ namespace KSynthLib.K5000
 
     public class EffectControl
     {
-        public ControlSource Source;
-        public EffectDestination Destination;
-        public sbyte Depth;  // (~31)33 ~ (+31)95
+        public ControlSource Source { get; }
+        public EffectDestination Destination { get; }
+        public int Depth { get; }  // (-31)33 ~ (+31)95
+
+        public EffectControl()
+        {
+            this.Source = ControlSource.Bender;
+            this.Destination = EffectDestination.ReverbDryWet1;
+            this.Depth = 0;
+        }
+
+        public EffectControl(byte[] data)
+        {
+            this.Source = (ControlSource)data[0];
+            this.Destination = (EffectDestination)data[1];
+            this.Depth = data[2] - 64;
+        }
 
         public override string ToString()
         {
@@ -77,9 +91,9 @@ namespace KSynthLib.K5000
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
-            data.Add((byte)Source);
-            data.Add((byte)Destination);
-            data.Add((byte)(Depth + 64));  // bring to range 33 ~ 95 again
+            data.Add((byte)this.Source);
+            data.Add((byte)this.Destination);
+            data.Add((byte)(this.Depth + 64));  // bring to range 33 ~ 95 again
             return data.ToArray();
         }
     }
@@ -108,21 +122,72 @@ namespace KSynthLib.K5000
         HarmonicOddOffset
     }
 
+    // Use C# 6.0 read-only auto-properties
+    // to make some classes immutable.
+    // See https://docs.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-6
+
     public class MacroControllerParameter
     {
-        public MacroControllerType Type;
-        public sbyte Depth;
+        public MacroControllerType Type { get; }
+        public int Depth { get; }
+
+        public MacroControllerParameter(byte type, byte depth)
+        {
+            this.Type = (MacroControllerType)type;
+
+            if (depth < 33 || depth > 95)
+            {
+                throw new ArgumentException("Parameter depth must be [33 ... 95]");
+            }
+
+            // fold 33 ... 95 into -31 ... 31
+            this.Depth = (int)depth - 64;
+        }
+
+        public MacroControllerParameter(MacroControllerType type, int depth)
+        {
+            this.Type = type;
+            this.Depth = depth;
+        }
+
+        public MacroControllerParameter()
+        {
+            this.Type = MacroControllerType.Level;
+            this.Depth = 0;  // halfway between -31 and 31
+        }
+
+        public byte[] ToData()
+        {
+            List<byte> data = new List<byte>();
+            data.Add((byte)this.Type);
+            data.Add((byte)(this.Depth + 64));
+            return data.ToArray();
+        }
+
+        public (byte Type, byte Depth) Bytes
+        {
+            get
+            {
+                return ((byte)this.Type, (byte)(this.Depth + 64));
+            }
+        }
     }
 
     public class MacroController
     {
-        public MacroControllerParameter Param1;
-        public MacroControllerParameter Param2;
+        public MacroControllerParameter Param1 { get; }
+        public MacroControllerParameter Param2 { get; }
+
+        public MacroController(MacroControllerParameter param1, MacroControllerParameter param2)
+        {
+            this.Param1 = param1;
+            this.Param2 = param2;
+        }
 
         public MacroController()
         {
-            Param1 = new MacroControllerParameter();
-            Param2 = new MacroControllerParameter();
+            this.Param1 = new MacroControllerParameter();
+            this.Param2 = new MacroControllerParameter();
         }
 
         public override string ToString()
@@ -130,6 +195,14 @@ namespace KSynthLib.K5000
             StringBuilder builder = new StringBuilder();
             builder.Append(String.Format("DEST1 = {0}, Depth = {1}. DEST2 = {2}, Depth = {3}", Param1.Type, Param1.Depth, Param2.Type, Param2.Depth));
             return builder.ToString();
+        }
+
+        public byte[] ToData()
+        {
+            List<byte> data = new List<byte>();
+            data.AddRange(this.Param1.ToData());
+            data.AddRange(this.Param2.ToData());
+            return data.ToArray();
         }
     }
 
