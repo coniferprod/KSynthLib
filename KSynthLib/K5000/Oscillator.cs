@@ -6,7 +6,7 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K5000
 {
-        public enum KeyScalingToPitch
+    public enum KeyScalingToPitch
     {
         ZeroCent,
         TwentyFiveCent,
@@ -16,6 +16,8 @@ namespace KSynthLib.K5000
 
     public class PitchEnvelope
     {
+        public const int DataSize = 6;
+
         public sbyte StartLevel;  // (-63)1 ~ (+63)127
         public byte AttackTime;  // 0 ~ 127
         public sbyte AttackLevel; // (-63)1 ~ (+63)127
@@ -23,11 +25,26 @@ namespace KSynthLib.K5000
         public sbyte TimeVelocitySensitivity; // (-63)1 ~ (+63)127
         public sbyte LevelVelocitySensitivity; // (-63)1 ~ (+63)127
 
+        public PitchEnvelope(byte[] data, int offset)
+        {
+            byte b = 0;
+            (b, offset) = Util.GetNextByte(data, offset);
+            Envelope.StartLevel = (sbyte)(b - 64);
+            (b, offset) = Util.GetNextByte(data, offset);
+            Envelope.AttackTime = b;
+            (b, offset) = Util.GetNextByte(data, offset);
+            Envelope.AttackLevel = (sbyte)(b - 64);
+            (b, offset) = Util.GetNextByte(data, offset);
+            Envelope.DecayTime = b;
+            (b, offset) = Util.GetNextByte(data, offset);
+            Envelope.TimeVelocitySensitivity = (sbyte)(b - 64);
+            (b, offset) = Util.GetNextByte(data, offset);
+            Envelope.LevelVelocitySensitivity = (sbyte)(b - 64);
+        }
+
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
-            builder.Append(String.Format("Start Level = {0}, Atak T = {1}, Atak L = {2}, Dcay T = {3}", StartLevel, AttackTime, AttackLevel, DecayTime));
-            return builder.ToString();
+            return String.Format("Start Level = {0}, Atak T = {1}, Atak L = {2}, Dcay T = {3}", StartLevel, AttackTime, AttackLevel, DecayTime);
         }
 
         public byte[] ToData()
@@ -48,8 +65,42 @@ namespace KSynthLib.K5000
     public class DCOSettings
     {
         public int WaveNumber;
-        public sbyte Coarse;
-        public sbyte Fine;
+
+        private int coarse;
+        public int Coarse
+        {
+            get
+            {
+                return this.coarse;
+            }
+
+            set
+            {
+                if (value < -24 || value > 24)
+                {
+                    throw new ArgumentException("Coarse must be -24...24");
+                }
+                this.coarse = value;
+            }
+        }
+
+        private int fine;
+        public int Fine
+        {
+            get
+            {
+                return this.fine;
+            }
+
+            set
+            {
+                if (value < -63 || value > 63)
+                {
+                    throw new ArgumentException("Fine must be -63...63");
+                }
+                this.fine = value;
+            }
+        }
         public byte FixedKey;  // 0=OFF, 21 ~ 108=ON(A-1 ~ C7)
         public KeyScalingToPitch KSPitch;
         public PitchEnvelope Envelope;
@@ -80,27 +131,16 @@ namespace KSynthLib.K5000
             WaveNumber = waveNumber;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Coarse = (sbyte)(b - 64);
+            Coarse = (int)b - 24;
             (b, offset) = Util.GetNextByte(data, offset);
-            Fine = (sbyte)(b - 64);
+            Fine = (int)b - 64;
             (b, offset) = Util.GetNextByte(data, offset);
             FixedKey = b;
             (b, offset) = Util.GetNextByte(data, offset);
             KSPitch = (KeyScalingToPitch)b;
 
-            Envelope = new PitchEnvelope();
-            (b, offset) = Util.GetNextByte(data, offset);
-            Envelope.StartLevel = (sbyte)(b - 64);
-            (b, offset) = Util.GetNextByte(data, offset);
-            Envelope.AttackTime = b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            Envelope.AttackLevel = (sbyte)(b - 64);
-            (b, offset) = Util.GetNextByte(data, offset);
-            Envelope.DecayTime = b;
-            (b, offset) = Util.GetNextByte(data, offset);
-            Envelope.TimeVelocitySensitivity = (sbyte)(b - 64);
-            (b, offset) = Util.GetNextByte(data, offset);
-            Envelope.LevelVelocitySensitivity = (sbyte)(b - 64);
+            Envelope = new PitchEnvelope(data, offset);
+            offset += PitchEnvelope.DataSize;
         }
 
         public override string ToString()
@@ -135,8 +175,8 @@ namespace KSynthLib.K5000
             string lsbBitString = waveBitString.Substring(3);
             data.Add(Convert.ToByte(lsbBitString, 2));
 
-            data.Add((byte)Coarse);
-            data.Add((byte)Fine);
+            data.Add((byte)(Coarse + 24));
+            data.Add((byte)(Fine + 64));
             data.Add((byte)FixedKey);
             data.Add((byte)KSPitch);
 
