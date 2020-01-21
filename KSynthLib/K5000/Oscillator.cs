@@ -17,29 +17,142 @@ namespace KSynthLib.K5000
     public class PitchEnvelope
     {
         public const int DataSize = 6;
+        public int startLevel; // (-63)1 ~ (+63)127
+        public int StartLevel
+        {
+            get
+            {
+                return this.startLevel;
+            }
 
-        public sbyte StartLevel;  // (-63)1 ~ (+63)127
-        public byte AttackTime;  // 0 ~ 127
-        public sbyte AttackLevel; // (-63)1 ~ (+63)127
-        public byte DecayTime;  // 0 ~ 127
-        public sbyte TimeVelocitySensitivity; // (-63)1 ~ (+63)127
-        public sbyte LevelVelocitySensitivity; // (-63)1 ~ (+63)127
+            set
+            {
+                if (value < -63 || value > 63)
+                {
+                    throw new ArgumentException("Start level must be -63...63");
+                }
+                this.startLevel = value;
+            }
+        }
+
+        public int attackTime;   // 0 ~ 127
+        public int AttackTime
+        {
+            get
+            {
+                return this.attackTime;
+            }
+
+            set
+            {
+                if (value < 0 || value > 127)
+                {
+                    throw new ArgumentException("Attack time must be 0...127");
+                }
+                this.attackTime = value;
+            }
+        }
+
+        public int attackLevel;  // (-63)1 ~ (+63)127
+        public int AttackLevel
+        {
+            get
+            {
+                return this.attackLevel;
+            }
+
+            set
+            {
+                if (value < -63 || value > 63)
+                {
+                    throw new ArgumentException("Attack level must be -63...63");
+                }
+                this.attackLevel = value;
+            }
+        }
+
+        public int decayTime;          // 0 ~ 127
+
+        public int DecayTime
+        {
+            get
+            {
+                return this.decayTime;
+            }
+
+            set
+            {
+                if (value < 0 || value > 127)
+                {
+                    throw new ArgumentException("Decay time must be 0...127");
+                }
+                this.decayTime = value;
+            }
+        }
+
+        public int timeVelocitySensitivity; // (-63)1 ~ (+63)127
+
+        public int TimeVelocitySensitivity
+        {
+            get
+            {
+                return this.timeVelocitySensitivity;
+            }
+
+            set
+            {
+                if (value < -63 || value > 63)
+                {
+                    throw new ArgumentException("Time velocity sensitivity must be -63...63");
+                }
+                this.timeVelocitySensitivity = value;
+            }
+        }
+
+        public int levelVelocitySensitivity; // (-63)1 ~ (+63)127
+
+        public int LevelVelocitySensitivity
+        {
+            get
+            {
+                return this.levelVelocitySensitivity;
+            }
+
+            set
+            {
+                if (value < -63 || value > 63)
+                {
+                    throw new ArgumentException("Level velocity sensitivity must be -63...63");
+                }
+                this.levelVelocitySensitivity = value;
+            }
+        }
+
+        public PitchEnvelope()
+        {
+            StartLevel = 0;
+            AttackTime = 64;
+            AttackLevel = 63;
+            DecayTime = 64;
+            TimeVelocitySensitivity = 64;
+            LevelVelocitySensitivity = 64;
+        }
 
         public PitchEnvelope(byte[] data, int offset)
         {
             byte b = 0;
             (b, offset) = Util.GetNextByte(data, offset);
-            Envelope.StartLevel = (sbyte)(b - 64);
+            StartLevel = (int)b - 64;
             (b, offset) = Util.GetNextByte(data, offset);
-            Envelope.AttackTime = b;
+            AttackTime = b;
             (b, offset) = Util.GetNextByte(data, offset);
-            Envelope.AttackLevel = (sbyte)(b - 64);
+            AttackLevel = (int)b - 64;
             (b, offset) = Util.GetNextByte(data, offset);
-            Envelope.DecayTime = b;
+            DecayTime = b;
             (b, offset) = Util.GetNextByte(data, offset);
-            Envelope.TimeVelocitySensitivity = (sbyte)(b - 64);
+            TimeVelocitySensitivity = (int)b - 64;
             (b, offset) = Util.GetNextByte(data, offset);
-            Envelope.LevelVelocitySensitivity = (sbyte)(b - 64);
+            LevelVelocitySensitivity = (int)b - 64;
         }
 
         public override string ToString()
@@ -52,9 +165,9 @@ namespace KSynthLib.K5000
             List<byte> data = new List<byte>();
 
             data.Add((byte)(StartLevel + 64));
-            data.Add(AttackTime);
+            data.Add((byte)AttackTime);
             data.Add((byte)(AttackLevel + 64));
-            data.Add(DecayTime);
+            data.Add((byte)DecayTime);
             data.Add((byte)(TimeVelocitySensitivity + 64));
             data.Add((byte)(LevelVelocitySensitivity + 64));
 

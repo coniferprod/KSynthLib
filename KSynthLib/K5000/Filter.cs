@@ -125,6 +125,16 @@ namespace KSynthLib.K5000
             }
         }
 
+        public FilterEnvelope()
+        {
+            AttackTime = 0;
+            Decay1Time = 63;
+            Decay1Level = 32;
+            Decay2Time = 63;
+            Decay2Level = 32;
+            ReleaseTime = 63;
+        }
+
         public FilterEnvelope(byte[] data, int offset)
         {
             byte b = 0;  // will be reused when getting the next byte
