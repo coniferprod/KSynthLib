@@ -137,7 +137,7 @@ namespace KSynthLib.K5000
 
             if (depth < 33 || depth > 95)
             {
-                throw new ArgumentException("Parameter depth must be [33 ... 95]");
+                throw new ArgumentException("Parameter depth must be 33... 95");
             }
 
             // fold 33 ... 95 into -31 ... 31
