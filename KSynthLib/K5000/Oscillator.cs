@@ -131,11 +131,11 @@ namespace KSynthLib.K5000
         public PitchEnvelope()
         {
             StartLevel = 0;
-            AttackTime = 64;
+            AttackTime = 0;
             AttackLevel = 63;
             DecayTime = 64;
-            TimeVelocitySensitivity = 64;
-            LevelVelocitySensitivity = 64;
+            TimeVelocitySensitivity = 0;
+            LevelVelocitySensitivity = 0;
         }
 
         public PitchEnvelope(byte[] data, int offset)
