@@ -27,7 +27,19 @@ namespace KSynthLib.K4
         public const int DataSize = 30;
         private const string OutputNames = "ABCDEFGH";
 
-        public int Volume;  // 0~100
+        private LevelType volume;
+        public int Volume  // 0~100
+        {
+            get
+            {
+                return volume.Value;
+            }
+
+            set
+            {
+                volume.Value = value;
+            }
+        }
 
         public int Effect;  // 0~31 / 1~32 (on K4)
 
@@ -49,7 +61,19 @@ namespace KSynthLib.K4
 
         public WheelAssign WheelAssign; // 0/VIB, 1/LFO, 2/DCF
 
-        public int WheelDepth; // 0~100 (±50)
+        private DepthType wheelDepth;
+        public int WheelDepth // 0~100 (±50)
+        {
+            get
+            {
+                return wheelDepth.Value;
+            }
+
+            set
+            {
+                wheelDepth.Value = value;
+            }
+        }
 
         public AutoBendSettings AutoBend;  // same as portamento?
 
@@ -57,11 +81,24 @@ namespace KSynthLib.K4
 
         public VibratoSettings Vibrato;
 
-        public int PressureFreq; // 0~100 (±50)
+        private DepthType pressureFreq;
+        public int PressureFreq // 0~100 (±50)
+        {
+            get
+            {
+                return pressureFreq.Value;
+            }
+
+            set
+            {
+                pressureFreq.Value = value;
+            }
+        }
 
         public CommonSettings()
         {
-            Volume = 80;
+            volume = new LevelType(80);
+
             Effect = 1;  // use range 1~32
             Output = 'A';
             SourceMode = SourceMode.Normal;
@@ -70,11 +107,11 @@ namespace KSynthLib.K4
             AMS3ToS4 = false;
             PitchBend = 2;
             WheelAssign = WheelAssign.Vibrato;
-            WheelDepth = 0;
+            wheelDepth = new DepthType(0);
             Vibrato = new VibratoSettings();
             LFO = new LFOSettings();
             AutoBend = new AutoBendSettings();
-            PressureFreq = 0;
+            pressureFreq = new DepthType();
         }
 
         public CommonSettings(byte[] data)
@@ -83,7 +120,7 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Volume = b;
+            volume = new LevelType(b);
 
             // effect = s11 bits 0...4
             (b, offset) = Util.GetNextByte(data, offset);
@@ -123,7 +160,7 @@ namespace KSynthLib.K4
 
             // Wheel depth = s17 bits 0...6
             (b, offset) = Util.GetNextByte(data, offset);
-            WheelDepth = (b & 0x7f) - 50;  // 0~100 to ±50
+            wheelDepth = new DepthType((b & 0x7f) - 50);  // 0~100 to ±50
 
             AutoBend = new AutoBendSettings();
             (b, offset) = Util.GetNextByte(data, offset);
@@ -162,7 +199,7 @@ namespace KSynthLib.K4
             LFO.PressureDepth = (b & 0x7f) - 50; // 0~100 to ±50
 
             (b, offset) = Util.GetNextByte(data, offset);
-            PressureFreq = (b & 0x7f) - 50; // 0~100 to ±50
+            pressureFreq = new DepthType((b & 0x7f) - 50); // 0~100 to ±50
         }
         
         public override string ToString()
@@ -174,7 +211,7 @@ namespace KSynthLib.K4
             builder.Append(String.Format("POLY MODE  ={0}\n", Enum.GetNames(typeof(PolyphonyMode))[(int)PolyphonyMode]));
             builder.Append(String.Format("BNDR RANGE = {0,2}\n", PitchBend));
             builder.Append(String.Format("PRESS>FREQ = {0,2}\n", PressureFreq));
-            builder.Append(String.Format("WHEEL\nASSIGN     ={0}\nDEPTH      ={1,2}\n", Enum.GetNames(typeof(WheelAssign))[(int)WheelAssign], WheelDepth - 50));
+            builder.Append(String.Format("WHEEL\nASSIGN     ={0}\nDEPTH      ={1,2}\n", Enum.GetNames(typeof(WheelAssign))[(int)WheelAssign], WheelDepth));
             builder.Append(String.Format("AUTO BEND\n{0}\n", AutoBend.ToString()));
             builder.Append(String.Format("Sources: {0}\n", GetSourceMuteString(S1Mute, S2Mute, S3Mute, S4Mute)));
             builder.Append(String.Format("VIBRATO\n{0}\n", Vibrato.ToString()));

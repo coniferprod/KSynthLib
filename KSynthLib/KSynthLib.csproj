@@ -4,11 +4,15 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
 
     <PackageId>KSynthLib</PackageId>
-    <Version>0.2.0</Version>
+    <Version>0.2.4</Version>
     <Authors>Jere Käpyaho</Authors>
     <Company>Conifer Productions Oy</Company>
 
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Range.NET" Version="1.1.0" />
+  </ItemGroup>
 
 </Project>

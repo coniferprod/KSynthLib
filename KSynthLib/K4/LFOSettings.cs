@@ -17,20 +17,76 @@ namespace KSynthLib.K4
     {
         public LFOShape Shape;
 
-        public int Speed;  // 0~100
+        private LevelType speed;
+        public int Speed  // 0~100
+        {
+            get
+            {
+                return speed.Value;
+            }
 
-        public int Delay;  // 0~100
+            set
+            {
+                speed.Value = value;
+            }
+        }
 
-        public int Depth; // 0~100 (±50)
+        private LevelType delay;
+        public int Delay  // 0~100
+        {
+            get
+            {
+                return delay.Value;
+            }
+
+            set
+            {
+                delay.Value = value;
+            }
+        }
+
+        private DepthType depth;
+        public int Depth // 0~100 (±50)
+        {
+            get
+            {
+                return depth.Value;
+            }
+
+            set
+            {
+                depth.Value = value;
+            }
+        }
         
-        public int PressureDepth; // 0~100 (±50)
+        private DepthType pressureDepth;
+        public int PressureDepth // 0~100 (±50)
+        {
+            get
+            {
+                return pressureDepth.Value;
+            }
+
+            set
+            {
+                pressureDepth.Value = value;
+            }
+        }
+
+        public LFOSettings()
+        {
+            speed = new LevelType();
+            delay = new LevelType();
+            depth = new DepthType();
+            pressureDepth = new DepthType();
+        }
 
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
             builder.Append(String.Format("SHAPE      ={0}\nSPEED     ={1,3}\nDELAY     ={2,3}\nDEPTH     ={3,3}, PRESS DEPTH={4,3}", 
                 Enum.GetNames(typeof(LFOShape))[(int)Shape],
-                Speed, Delay, Depth - 50, PressureDepth - 50));
+                Speed, Delay, Depth, PressureDepth));
             return builder.ToString();
         }    
     }

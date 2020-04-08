@@ -10,7 +10,19 @@ namespace KSynthLib.K4
     {
         public const int DataSize = 7;
 
-        public int Delay;  // 0~100
+        private LevelType delay;
+        public int Delay  // 0~100
+        {
+            get
+            {
+                return delay.Value;
+            }
+
+            set
+            {
+                delay.Value = value;
+            }
+        }
 
         public int WaveNumber;  // combined from two bytes
 
@@ -21,8 +33,20 @@ namespace KSynthLib.K4
         public bool KeyTracking; 
 
         public int FixedKey; // 0 ~ 115 / C-1 ~ G8
-        
-        public int Fine; // 0~100 / ±50
+
+        private DepthType fine;        
+        public int Fine // 0~100 / ±50
+        {
+            get
+            {
+                return fine.Value;
+            }
+
+            set
+            {
+                fine.Value = value;
+            }
+        }
 
         public bool PressureToFrequencySwitch; 
 
@@ -32,13 +56,13 @@ namespace KSynthLib.K4
 
         public Source()
         {
-            Delay = 0;
+            delay = new LevelType();
             WaveNumber = 10;  // "SAW 1"
             KeyScalingCurve = 0;
             Coarse = 24;
             KeyTracking = true;
             FixedKey = 0;
-            Fine = 50;
+            fine = new DepthType();
             PressureToFrequencySwitch = true;
             VibratoSwitch = false;
             VelocityCurve = 0;
@@ -50,7 +74,7 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Delay = b & 0x7f;
+            delay = new LevelType(b & 0x7f);
 
             int waveSelectHigh = 0;
             int waveSelectLow = 0;
@@ -80,7 +104,7 @@ namespace KSynthLib.K4
             FixedKey = b & 0x7f;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Fine = b & 0x7f;
+            fine = new DepthType((b & 0x7f) - 50);
 
             (b, offset) = Util.GetNextByte(data, offset);
             PressureToFrequencySwitch = b.IsBitSet(0);
@@ -98,7 +122,7 @@ namespace KSynthLib.K4
             builder.Append("DCO\n");
             builder.Append(String.Format("WAVE       ={0,3} ({1})\n", WaveNumber + 1, Wave.Instance[WaveNumber]));
             builder.Append(String.Format("KEY TRACK  ={0}\n", KeyTracking ? "ON" : "OFF"));
-            builder.Append(String.Format("COARSE     ={0,3}\nFINE       ={1,3}\n", Coarse - 24, Fine - 50));
+            builder.Append(String.Format("COARSE     ={0,3}\nFINE       ={1,3}\n", Coarse - 24, Fine));
             builder.Append(String.Format("FIXED KEY  ={0} ({1})\n", GetNoteName(FixedKey), FixedKey));
             builder.Append(String.Format("PRESS      ={0}\nVIB/A.BEND ={1}\n", PressureToFrequencySwitch ? "ON" : "OFF", VibratoSwitch ? "ON" : "OFF"));
             return builder.ToString();
@@ -134,7 +158,7 @@ namespace KSynthLib.K4
             data.Add(Convert.ToByte(b42.ToString(), 2));
 
             data.Add((byte)FixedKey);
-            data.Add((byte)Fine);
+            data.Add((byte)(Fine + 50));
 
             // Pack the velocity curve and a few other values into one byte
             StringBuilder b54 = new StringBuilder();

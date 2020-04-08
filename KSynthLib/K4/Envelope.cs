@@ -8,28 +8,76 @@ namespace KSynthLib.K4
 {
     public class Envelope
     {
-        public int Attack; // 0~100
+        private LevelType attack;
+        public int Attack // 0~100
+        {
+            get
+            {
+                return attack.Value;
+            }
 
-        public int Decay; // 0~100
+            set
+            {
+                attack.Value = value;
+            }
+        }
 
-        public int Sustain; // 0~100
+        private LevelType decay;
+        public int Decay // 0~100
+        {
+            get
+            {
+                return decay.Value;
+            }
 
-        public int Release; // 0~100
+            set
+            {
+                decay.Value = value;
+            }
+        }
+
+        private LevelType sustain;
+        public int Sustain // 0~100
+        {
+            get
+            {
+                return sustain.Value;
+            }
+
+            set
+            {
+                sustain.Value = value;
+            }
+        }
+
+        private LevelType release;
+        public int Release // 0~100
+        {
+            get
+            {
+                return release.Value;
+            }
+
+            set
+            {
+                release.Value = value;
+            }
+        }
 
         public Envelope()
         {
-            Attack = 0;
-            Decay = 0;
-            Sustain = 0;
-            Release = 0;
+            attack = new LevelType();
+            decay = new LevelType();
+            sustain = new LevelType();
+            release = new LevelType();
         }
 
         public Envelope(int a, int d, int s, int r)
-        {
-            Attack = a;
-            Decay = d;
-            Sustain = s;
-            Release = r;
+        {            
+            attack = new LevelType(a);
+            decay = new LevelType(d);
+            sustain = new LevelType(s);
+            release = new LevelType(r);
         }
 
         public override string ToString()
@@ -48,6 +96,5 @@ namespace KSynthLib.K4
             data.Add((byte)Release);
             return data.ToArray();
         }
-
     }
 }

@@ -11,7 +11,19 @@ namespace KSynthLib.K4
     {
         public const int DataSize = 14;
 
-        public int Cutoff;  // 0~100
+        private LevelType cutoff;
+        public int Cutoff  // 0~100
+        {
+            get
+            {
+                return cutoff.Value;
+            }
+
+            set
+            {
+                cutoff.Value = value;
+            }
+        }
 
         private int resonance; // 0 ~ 7 / 1 ~ 8
 
@@ -33,21 +45,45 @@ namespace KSynthLib.K4
 
         public Envelope Env;
 
-        public int EnvelopeDepth; // 0 ~ 100 (±50)
+        private DepthType envelopeDepth;
+        public int EnvelopeDepth // 0 ~ 100 (±50)
+        {
+            get
+            {
+                return envelopeDepth.Value;
+            }
 
-        public int EnvelopeVelocityDepth; // 0 ~ 100 (±50)
+            set 
+            {
+                envelopeDepth.Value = value;
+            }
+        }
+
+        private DepthType envelopeVelocityDepth;
+        public int EnvelopeVelocityDepth // 0 ~ 100 (±50)
+        {
+            get
+            {
+                return envelopeVelocityDepth.Value;
+            }
+
+            set
+            {
+                envelopeVelocityDepth.Value = value;
+            }
+        }
 
         public TimeModulation TimeMod;
 
         public Filter()
         {
-            Cutoff = 99;
+            cutoff = new LevelType(88);
             Resonance = 1;
             CutoffMod = new LevelModulation();
             IsLFO = false;
             Env = new Envelope();
-            EnvelopeDepth = 0;
-            EnvelopeVelocityDepth = 0;
+            envelopeDepth = new DepthType();
+            envelopeVelocityDepth = new DepthType();
             TimeMod = new TimeModulation();
         }
 
@@ -57,7 +93,7 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Cutoff = b & 0x7f;
+            cutoff = new LevelType(b & 0x7f);
 
             (b, offset) = Util.GetNextByte(data, offset);
             Resonance = b & 0x07;
@@ -65,19 +101,19 @@ namespace KSynthLib.K4
 
             CutoffMod = new LevelModulation();
             (b, offset) = Util.GetNextByte(data, offset);
-            CutoffMod.VelocityDepth = b & 0x7f;
+            CutoffMod.VelocityDepth = (b & 0x7f) - 50;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            CutoffMod.PressureDepth = b & 0x7f;
+            CutoffMod.PressureDepth = (b & 0x7f) - 50;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            CutoffMod.KeyScalingDepth = b & 0x7f;
+            CutoffMod.KeyScalingDepth = (b & 0x7f) - 50;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            EnvelopeDepth = b & 0x7f;
+            envelopeDepth = new DepthType((b & 0x7f) - 50);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            EnvelopeVelocityDepth = b & 0x7f;
+            envelopeVelocityDepth = new DepthType((b & 0x7f) - 50);
 
             Env = new Envelope();
             (b, offset) = Util.GetNextByte(data, offset);
@@ -94,13 +130,13 @@ namespace KSynthLib.K4
 
             TimeMod = new TimeModulation();
             (b, offset) = Util.GetNextByte(data, offset);
-            TimeMod.AttackVelocity = b & 0x7f;
+            TimeMod.AttackVelocity = (b & 0x7f) - 50;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            TimeMod.ReleaseVelocity = b & 0x7f;
+            TimeMod.ReleaseVelocity = (b & 0x7f) - 50;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            TimeMod.KeyScaling = b & 0x7f;
+            TimeMod.KeyScaling = (b & 0x7f) - 50;
         }
 
         public override string ToString()
@@ -126,18 +162,18 @@ namespace KSynthLib.K4
             b104.Append(Convert.ToString(Resonance, 2).PadLeft(3, '0'));
             data.Add(Convert.ToByte(b104.ToString(), 2));
             
-            data.Add((byte)CutoffMod.VelocityDepth);
-            data.Add((byte)CutoffMod.PressureDepth);
-            data.Add((byte)CutoffMod.KeyScalingDepth);
-            data.Add((byte)EnvelopeDepth);
-            data.Add((byte)EnvelopeVelocityDepth);
+            data.Add((byte)(CutoffMod.VelocityDepth + 50));
+            data.Add((byte)(CutoffMod.PressureDepth + 50));
+            data.Add((byte)(CutoffMod.KeyScalingDepth + 50));
+            data.Add((byte)(EnvelopeDepth + 50));
+            data.Add((byte)(EnvelopeVelocityDepth + 50));
             data.Add((byte)Env.Attack);
             data.Add((byte)Env.Decay);
             data.Add((byte)Env.Sustain);
             data.Add((byte)Env.Release);
-            data.Add((byte)TimeMod.AttackVelocity);
-            data.Add((byte)TimeMod.ReleaseVelocity);
-            data.Add((byte)TimeMod.KeyScaling);
+            data.Add((byte)(TimeMod.AttackVelocity + 50));
+            data.Add((byte)(TimeMod.ReleaseVelocity + 50));
+            data.Add((byte)(TimeMod.KeyScaling + 50));
                         
             return data.ToArray();
         }
