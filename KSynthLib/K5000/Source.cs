@@ -6,74 +6,6 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K5000
 {
-    public enum LFOWaveform
-    {
-        Triangle,
-        Square,
-        Sawtooth,
-        Sine,
-        Random
-    }
-
-    public class LFOControl
-    {
-        public byte Depth; // 0 ~ 63
-        public sbyte KeyScaling; // (-63)1 ~ (+63)127
-    }
-
-    public class LFOSettings
-    {
-        public LFOWaveform Waveform;
-        public byte Speed;
-        public byte DelayOnset;
-        public byte FadeInTime;
-        public byte FadeInToSpeed;
-        public LFOControl Vibrato;
-        public LFOControl Growl;
-        public LFOControl Tremolo;
-
-        public LFOSettings()
-        {
-            Vibrato = new LFOControl();
-            Growl = new LFOControl();
-            Tremolo = new LFOControl();
-        }
-
-        public override string ToString()
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.Append(String.Format("Waveform={0}  Speed={1}  Delay Onset={2}\n", Waveform, Speed, DelayOnset));
-            builder.Append(String.Format("Fade In Time={0}  Fade In To Speed={1}\n", FadeInTime, FadeInToSpeed));
-            builder.Append("LFO Modulation:\n");
-            builder.Append(String.Format("Vibrato(DCO) = {0}   KS To Vibrato={1}\n", Vibrato.Depth, Vibrato.KeyScaling));
-            builder.Append(String.Format("Growl(DCF) = {0}   KS To Growl={1}\n", Growl.Depth, Growl.KeyScaling));
-            builder.Append(String.Format("Tremolo(DCA) = {0}   KS To Tremolo={1}\n", Tremolo.Depth, Tremolo.KeyScaling));
-            return builder.ToString();
-        }
-
-        public byte[] ToData()
-        {
-            List<byte> data = new List<byte>();
-
-            data.Add((byte)Waveform);
-            data.Add(Speed);
-            data.Add(DelayOnset);
-            data.Add(FadeInTime);
-            data.Add(FadeInToSpeed);
-
-            data.Add(Vibrato.Depth);
-            data.Add((byte)(Vibrato.KeyScaling + 64));
-
-            data.Add(Growl.Depth);
-            data.Add((byte)(Growl.KeyScaling + 64));
-
-            data.Add(Tremolo.Depth);
-            data.Add((byte)(Tremolo.KeyScaling + 64));
-
-            return data.ToArray();
-        }
-    }
-
     public enum VelocitySwitchType
     {
         Off,
@@ -151,13 +83,49 @@ namespace KSynthLib.K5000
     {
         public static int DataSize = 86;
 
-        public byte ZoneLow;
-        public byte ZoneHigh;
+        private PositiveLevelType _zoneLow;
+        public byte ZoneLow
+        {
+            get => _zoneLow.Value;
+            set => _zoneLow.Value = value;
+        }
+
+        private PositiveLevelType _zoneHigh;
+        public byte ZoneHigh
+        {
+            get => _zoneHigh.Value;
+            set => _zoneHigh.Value = value;
+        }
+
         public VelocitySwitchSettings VelocitySwitch;
-        public byte EffectPath;
-        public byte Volume;
-        public byte BenderPitch;
-        public byte BenderCutoff;
+
+        private EffectPathType _effectPath;
+        public byte EffectPath
+        {
+            get => _effectPath.Value;
+            set => _effectPath.Value = value;
+        }
+
+        private PositiveLevelType _volume;
+        public byte Volume
+        {
+            get => _volume.Value;
+            set => _volume.Value = value;
+        }
+
+        private BenderPitchType _benderPitch;
+        public byte BenderPitch
+        {
+            get => _benderPitch.Value;
+            set => _benderPitch.Value = value;
+        }
+
+        private BenderCutoffType _benderCutoff;
+        public byte BenderCutoff
+        {
+            get => _benderCutoff.Value;
+            set => _benderCutoff.Value = value;
+        }
 
         public ControllerSettings Press;
         public ControllerSettings Wheel;
@@ -165,9 +133,21 @@ namespace KSynthLib.K5000
         public AssignableController Assign1;        
         public AssignableController Assign2;
 
-        public int KeyOnDelay;
+        private PositiveLevelType _keyOnDelay;
+        public byte KeyOnDelay
+        {
+            get => _keyOnDelay.Value;
+            set => _keyOnDelay.Value = value;
+        }
+
         public PanType Pan;
-        public sbyte NormalPanValue;  // (63L)1 ~ (63R)127
+
+        private SignedLevelType _normalPanValue;
+        public sbyte NormalPanValue  // (63L)1 ~ (63R)127
+        {
+            get => _normalPanValue.Value;
+            set => _normalPanValue.Value = value;
+        }
 
         public DCOSettings DCO;
         public DCFSettings DCF;
@@ -186,15 +166,27 @@ namespace KSynthLib.K5000
 
         public Source()
         {
-            ZoneLow = 0;
-            ZoneHigh = 127;
+            _zoneLow = new PositiveLevelType();
+            _zoneHigh = new PositiveLevelType(127);
+
             VelocitySwitch = new VelocitySwitchSettings();
-            Volume = 120;
+            _effectPath = new EffectPathType();
+
+            _volume = new PositiveLevelType(120);
+
+            _benderPitch = new BenderPitchType();
+            _benderCutoff = new BenderCutoffType();
+
             Press = new ControllerSettings();
             Wheel = new ControllerSettings();
             Express = new ControllerSettings();
             Assign1 = new AssignableController();
             Assign2 = new AssignableController();
+
+            _keyOnDelay = new PositiveLevelType();
+
+            _normalPanValue = new SignedLevelType();
+
             DCO = new DCOSettings();
             DCF = new DCFSettings();
             DCA = new DCASettings();
@@ -202,7 +194,7 @@ namespace KSynthLib.K5000
             ADD = new AdditiveKit();
         }
 
-        public Source(byte[] data)
+        public Source(byte[] data) : this()  // call other ctor to get all members initialized
         {
             int offset = 0;
             byte b = 0;  // will be reused when getting the next byte
@@ -217,7 +209,7 @@ namespace KSynthLib.K5000
             VelocitySwitch = new VelocitySwitchSettings();
             VelocitySwitch.Type = (VelocitySwitchType)(b >> 5);
             VelocitySwitch.Velocity = (b & 0x1F);
-            System.Console.WriteLine(String.Format("velo sw original value = {0:X2}", b));
+            Console.WriteLine($"velo sw original value = {b:X2}");
             
             (b, offset) = Util.GetNextByte(data, offset);
             EffectPath = b;

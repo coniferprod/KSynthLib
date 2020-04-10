@@ -17,122 +17,56 @@ namespace KSynthLib.K5000
     {
         public const int DataSize = 6;
 
-        private int attackTime; // 0~127
-        public int AttackTime
+        private PositiveLevelType _attackTime; // 0~127
+        public byte AttackTime
         {
-            get
-            {
-                return this.attackTime;
-            }
-
-            set
-            {
-                if (value < 0 || value > 127)
-                {
-                    throw new ArgumentException("Attack time must be 0...127");
-                }
-                this.attackTime = value;
-            }
+            get => _attackTime.Value;
+            set => _attackTime.Value = value;
         }
 
-        private int decay1Time;
-        public int Decay1Time
+        private PositiveLevelType _decay1Time;
+        public byte Decay1Time
         {
-            get
-            {
-                return this.decay1Time;
-            }
-
-            set
-            {
-                if (value < 0 || value > 127)
-                {
-                    throw new ArgumentException("Decay 1 time must be 0...127");
-                }
-                this.decay1Time = value;
-            }
+            get => _decay1Time.Value;
+            set => _decay1Time.Value = value;
         }
 
-        private int decay1Level;
-        public int Decay1Level
+        private SignedLevelType _decay1Level;
+        public sbyte Decay1Level
         {
-            get
-            {
-                return this.decay1Level;
-            }
-
-            set
-            {
-                if (value < -63 || value > 63)
-                {
-                    throw new ArgumentException("Decay 1 level must be -63...63");
-                }
-                this.decay1Level = value;
-            }
+            get => _decay1Level.Value;
+            set => _decay1Level.Value = value;
         }
 
-        private int decay2Time;
-        public int Decay2Time
+        private PositiveLevelType _decay2Time;
+        public byte Decay2Time
         {
-            get
-            {
-                return this.decay2Time;
-            }
-
-            set
-            {
-                if (value < 0 || value > 127)
-                {
-                    throw new ArgumentException("Decay 2 time must be 0...127");
-                }
-                this.decay2Time = value;
-            }
+            get => _decay2Time.Value;
+            set => _decay2Time.Value = value;
         }
 
-        private int decay2Level;
-        public int Decay2Level
+        private SignedLevelType _decay2Level;
+        public sbyte Decay2Level
         {
-            get
-            {
-                return this.decay2Level;
-            }
-
-            set
-            {
-                if (value < -63 || value > 63)
-                {
-                    throw new ArgumentException("Decay 2 level must be -63...63");
-                }
-                this.decay2Level = value;
-            }
+            get => _decay2Level.Value;
+            set => _decay2Level.Value = value;
         }
 
-        private int releaseTime; // 0~127
-        public int ReleaseTime
+        private PositiveLevelType _releaseTime;
+        public byte ReleaseTime
         {
-            get
-            {
-                return this.releaseTime;
-            }
-
-            set
-            {
-                if (value < 0 || value > 127)
-                {
-                    throw new ArgumentException("Release time must be 0...127");
-                }
-                this.releaseTime = value;
-            }
+            get => _releaseTime.Value;
+            set => _releaseTime.Value = value;
         }
 
         public FilterEnvelope()
         {
-            AttackTime = 0;
-            Decay1Time = 63;
-            Decay1Level = 32;
-            Decay2Time = 63;
-            Decay2Level = 32;
-            ReleaseTime = 63;
+            _attackTime = new PositiveLevelType();
+            _decay1Time = new PositiveLevelType(63);
+            _decay1Level = new SignedLevelType(32);
+            _decay2Time = new PositiveLevelType(63);
+            _decay2Level = new SignedLevelType(32);
+            _releaseTime = new PositiveLevelType(63);
         }
 
         public FilterEnvelope(byte[] data, int offset)
@@ -146,13 +80,13 @@ namespace KSynthLib.K5000
             Decay1Time = b;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Decay1Level = (int)b - 64;
+            Decay1Level = (sbyte)(b - 64);
 
             (b, offset) = Util.GetNextByte(data, offset);
             Decay2Time = b;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Decay2Level = (int)b - 64;
+            Decay2Level = (sbyte)(b - 64);
 
             (b, offset) = Util.GetNextByte(data, offset);
             ReleaseTime = b;
@@ -160,7 +94,7 @@ namespace KSynthLib.K5000
 
         public override string ToString()
         {
-            return String.Format("A={0}, D1=T{1} L{2}, D2=T{3} L{4}, R={5}", AttackTime, Decay1Time, Decay1Level, Decay2Time, Decay2Level, ReleaseTime);
+            return $"A={AttackTime}, D1=T{Decay1Time} L{Decay1Level}, D2=T{Decay2Time} L{Decay2Level}, R={ReleaseTime}";
         }
 
         public byte[] ToData()
@@ -183,215 +117,108 @@ namespace KSynthLib.K5000
         public bool IsActive;
         public FilterMode Mode;
 
-        private int velocityCurve;
-
-        public int VelocityCurve   // 0 ~ 11 (1 ~ 12)
+        private VelocityCurveType _velocityCurve;
+        public byte VelocityCurve   // 0 ~ 11 (1 ~ 12)
         {
-            get
-            {
-                return this.velocityCurve;
-            }
-
-            set
-            {
-                if (value < 1 || value > 12)
-                {
-                    throw new ArgumentException("Velocity curve must be 1...12");
-                }
-                this.velocityCurve = value;
-            }
+            get => _velocityCurve.Value;
+            set => _velocityCurve.Value = value;
         }
 
-        private int resonance; // 0 ~ 7
-
-        public int Resonance
+        private ResonanceType _resonance; // 0 ~ 7
+        public byte Resonance
         {
-            get
-            {
-                return this.resonance;
-            }
-
-            set
-            {
-                if (value < 0 || value > 7)
-                {
-                    throw new ArgumentException("Resonance must be 0...7");
-                }
-                this.resonance = value;
-            }
+            get => _resonance.Value;
+            set => _resonance.Value = value;
         }
 
-        public int Level;
-
-        private int cutoff;
-        public int Cutoff
+        private ResonanceType _level;  // TODO: maybe make a dedicated type for this
+        public byte Level
         {
-            get
-            {
-                return this.cutoff;
-            }
-
-            set
-            {
-                if (value < 0 || value > 127)
-                {
-                    throw new ArgumentException("Cutoff must be 0...127");
-                }
-                this.cutoff = value;
-            }
+            get => _level.Value;
+            set => _level.Value = value;
         }
 
-        private int cutoffKeyScalingDepth;
-
-        public int CutoffKeyScalingDepth // (-63)1 ~ (+63)127
+        private PositiveLevelType _cutoff;
+        public byte Cutoff
         {
-            get
-            {
-                return this.cutoffKeyScalingDepth;
-            }
-
-            set
-            {
-                if (value < -63 || value > 63)
-                {
-                    throw new ArgumentException("Cutoff KS depth must be -63...+63");
-                }
-                this.cutoffKeyScalingDepth = value;
-            }
+            get => _cutoff.Value;
+            set => _cutoff.Value = value;
         }
 
-        private int cutoffVelocityDepth; // (-63)1 ~ (+63)127
-        public int CutoffVelocityDepth
+        private SignedLevelType _cutoffKeyScalingDepth;
+        public sbyte CutoffKeyScalingDepth // (-63)1 ~ (+63)127
         {
-            get
-            {
-                return this.cutoffVelocityDepth;
-            }
-
-            set
-            {
-                if (value < -63 || value > 63)
-                {
-                    throw new ArgumentException("Cutoff vel depth must be -63...+63");
-                }
-                this.cutoffVelocityDepth = value;
-            }
+            get => _cutoffKeyScalingDepth.Value;
+            set => _cutoffKeyScalingDepth.Value = value;
         }
 
-        private int envelopeDepth; // (-63)1 ~ (+63)127
-        public int EnvelopeDepth
+        private SignedLevelType _cutoffVelocityDepth; // (-63)1 ~ (+63)127
+        public sbyte CutoffVelocityDepth
         {
-            get
-            {
-                return this.envelopeDepth;
-            }
-
-            set
-            {
-                if (value < -63 || value > 63)
-                {
-                    throw new ArgumentException("Envelope depth must be -63...+63");
-                }
-                this.envelopeDepth = value;
-            }
+            get => _cutoffVelocityDepth.Value;
+            set => _cutoffVelocityDepth.Value = value;
         }
 
+        private SignedLevelType _envelopeDepth; // (-63)1 ~ (+63)127
+        public sbyte EnvelopeDepth
+        {
+            get => _envelopeDepth.Value;
+            set => _envelopeDepth.Value = value;
+        }
 
         public FilterEnvelope Envelope;
 
-        private int keyScalingToEnvelopeAttackTime;
-        public int KSToEnvAttackTime
+        private SignedLevelType _keyScalingToEnvelopeAttackTime;
+        public sbyte KSToEnvAttackTime
         {
-            get
-            {
-                return this.keyScalingToEnvelopeAttackTime;
-            }
-
-            set
-            {
-                if (value < -63 || value > 63)
-                {
-                    throw new ArgumentException("KS to Env Attack Time must be -63...+63");
-                }
-                this.keyScalingToEnvelopeAttackTime = value;
-            }
+            get => _keyScalingToEnvelopeAttackTime.Value;
+            set => _keyScalingToEnvelopeAttackTime.Value = value;
         }
 
-        private int keyScalingToEnvelopeDecay1Time;
-        public int KSToEnvDecay1Time
+        private SignedLevelType _keyScalingToEnvelopeDecay1Time;
+        public sbyte KSToEnvDecay1Time
         {
-            get
-            {
-                return this.keyScalingToEnvelopeDecay1Time;
-            }
-
-            set
-            {
-                if (value < -63 || value > 63)
-                {
-                    throw new ArgumentException("KS to Env Decay 1 Time must be -63...+63");
-                }
-                this.keyScalingToEnvelopeDecay1Time = value;
-            }
+            get => _keyScalingToEnvelopeDecay1Time.Value;
+            set => _keyScalingToEnvelopeDecay1Time.Value = value;
         }
 
-        private int velocityToEnvelopeDepth;
-        public int VelocityToEnvDepth
+        private SignedLevelType _velocityToEnvDepth;
+        public sbyte VelocityToEnvDepth
         {
-            get
-            {
-                return this.velocityToEnvelopeDepth;
-            }
-
-            set
-            {
-                if (value < -63 || value > 63)
-                {
-                    throw new ArgumentException("Velo to Env Depth must be -63...+63");
-                }
-                this.velocityToEnvelopeDepth = value;
-            }
+            get => _velocityToEnvDepth.Value;
+            set => _velocityToEnvDepth.Value = value;
         }
 
-        private int velocityToEnvelopeAttackTime;
-        public int VelocityToEnvAttackTime
+        private SignedLevelType _velocityToEnvAttackTime;
+        public sbyte VelocityToEnvAttackTime
         {
-            get
-            {
-                return this.velocityToEnvelopeAttackTime;
-            }
-
-            set
-            {
-                if (value < -63 || value > 63)
-                {
-                    throw new ArgumentException("Velo to Env Attack Time must be -63...+63");
-                }
-                this.velocityToEnvelopeDepth = value;
-            }
+            get => _velocityToEnvAttackTime.Value;
+            set => _velocityToEnvAttackTime.Value = value;
         }
 
-        private int velocityToEnvelopeDecay1Time;
-        public int VelocityToEnvDecay1Time
+        private SignedLevelType _velocityToEnvDecay1Time;
+        public sbyte VelocityToEnvDecay1Time
         {
-            get
-            {
-                return this.velocityToEnvelopeDecay1Time;
-            }
-
-            set
-            {
-                if (value < -63 || value > 63)
-                {
-                    throw new ArgumentException("Velo to Env Attack Time must be -63...+63");
-                }
-                this.velocityToEnvelopeDecay1Time = value;
-            }
+            get => _velocityToEnvDecay1Time.Value;
+            set => _velocityToEnvDecay1Time.Value = value;
         }
 
         public DCFSettings()
         {
             Envelope = new FilterEnvelope();
+
+            _velocityCurve = new VelocityCurveType();
+            _resonance = new ResonanceType();
+            _level = new ResonanceType();
+            _cutoff = new PositiveLevelType();
+            _cutoffKeyScalingDepth = new SignedLevelType();
+            _cutoffVelocityDepth = new SignedLevelType();
+            _envelopeDepth = new SignedLevelType();
+            _keyScalingToEnvelopeAttackTime = new SignedLevelType();
+            _keyScalingToEnvelopeDecay1Time = new SignedLevelType();
+            _velocityToEnvDepth = new SignedLevelType();
+            _velocityToEnvAttackTime = new SignedLevelType();
+            _velocityToEnvDecay1Time = new SignedLevelType();
         }
 
         public DCFSettings(byte[] data, int offset)
@@ -404,55 +231,56 @@ namespace KSynthLib.K5000
             Mode = (FilterMode)b;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            VelocityCurve = (int)b + 1;  // 0~11 (1~12)
+            _velocityCurve = new VelocityCurveType((byte)(b + 1)); // 0~11 to 1~12
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Resonance = (int)b;  // 0~7
+            _resonance = new ResonanceType(b); // 0~7
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Level = b;  // 0~7 (7~0)
+            _level = new ResonanceType(b); // 0~7 (7~0)
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Cutoff = (int)b;
+            _cutoff = new PositiveLevelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            CutoffKeyScalingDepth = (int)b - 64;
+            _cutoffKeyScalingDepth = new SignedLevelType((sbyte)(b - 64));
 
             (b, offset) = Util.GetNextByte(data, offset);
-            CutoffVelocityDepth = (int)b - 64;
+            _cutoffVelocityDepth = new SignedLevelType((sbyte)(b - 64));
 
             (b, offset) = Util.GetNextByte(data, offset);
-            EnvelopeDepth = (int)b - 64;
+            _envelopeDepth = new SignedLevelType((sbyte)(b - 64));
 
             Envelope = new FilterEnvelope(data, offset);
             offset += FilterEnvelope.DataSize;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            KSToEnvAttackTime = (int)b - 64;
+            _keyScalingToEnvelopeAttackTime = new SignedLevelType((sbyte)(b - 64));
 
             (b, offset) = Util.GetNextByte(data, offset);
-            KSToEnvDecay1Time = (int)b - 64;
+            _keyScalingToEnvelopeDecay1Time = new SignedLevelType((sbyte)(b - 64));
 
             (b, offset) = Util.GetNextByte(data, offset);
-            VelocityToEnvDepth = (int)b - 64;
+            _velocityToEnvDepth = new SignedLevelType((sbyte)(b - 64));
 
             (b, offset) = Util.GetNextByte(data, offset);
-            VelocityToEnvAttackTime = (int)b - 64;
+            _velocityToEnvAttackTime = new SignedLevelType((sbyte)(b - 64));
 
             (b, offset) = Util.GetNextByte(data, offset);
-            VelocityToEnvDecay1Time = (int)b - 64;
+            _velocityToEnvDecay1Time = new SignedLevelType((sbyte)(b - 64));
         }
 
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(String.Format("active = {0}, mode = {1}\n", IsActive ? "YES" : "NO", Mode));
-            builder.Append(String.Format("velocity curve = {0}\n", VelocityCurve));
-            builder.Append(String.Format("resonance = {0}, level = {1}, cutoff = {2}\n", Resonance, Level, Cutoff));
-            builder.Append(String.Format("cutoff KS depth = {0}, cutoff vel depth = {1}\n", CutoffKeyScalingDepth, CutoffVelocityDepth));
-            builder.Append(String.Format("envelope = {0}\n", Envelope.ToString()));
-            builder.Append(String.Format("DCF Mod.: KS to Attack = {0}  KS to Dcy1 = {1}  Vel to Env = {2}  Vel to Atk = {3}  Vel to Dcy1 = {4}\n", 
-                KSToEnvAttackTime, KSToEnvDecay1Time, VelocityToEnvDepth, VelocityToEnvAttackTime, VelocityToEnvDecay1Time));
+            string activeSettings = IsActive ? "YES" : "NO";
+            builder.Append($"active = {activeSettings}, mode = {Mode}\n");
+            builder.Append($"velocity curve = {VelocityCurve}\n");
+            builder.Append($"resonance = {Resonance}, level = {Level}, cutoff = {Cutoff}\n");
+            builder.Append($"cutoff KS depth = {CutoffKeyScalingDepth}, cutoff vel depth = {CutoffVelocityDepth}\n");
+            builder.Append($"envelope = {Envelope}\n");
+            builder.Append($"DCF Mod.: KS to Attack = {KSToEnvAttackTime}  KS to Dcy1 = {KSToEnvDecay1Time}\n");
+            builder.Append($"          Vel to Env = {VelocityToEnvDepth}  Vel to Atk = {VelocityToEnvAttackTime}  Vel to Dcy1 = {VelocityToEnvDecay1Time}\n");
             return builder.ToString();
         }
 

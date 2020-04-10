@@ -11,34 +11,34 @@ namespace KSynthLib.K4
     {
         public const int DataSize = 14;
 
-        private LevelType cutoff;
+        private LevelType _cutoff;
         public int Cutoff  // 0~100
         {
             get
             {
-                return cutoff.Value;
+                return _cutoff.Value;
             }
 
             set
             {
-                cutoff.Value = value;
+                _cutoff.Value = value;
             }
         }
 
-        private int resonance; // 0 ~ 7 / 1 ~ 8
-
+        private EightLevelType _resonance; // 0 ~ 7 / 1 ~ 8
         public int Resonance
         {
             get
             {
-                return resonance + 1;
+                return _resonance.Value;
             }
 
             set
             {
-                resonance = value - 1;
+                _resonance.Value = value;
             }
         }
+
         public LevelModulation CutoffMod;
 
         public bool IsLFO;  // 0/off, 1/on
@@ -77,8 +77,8 @@ namespace KSynthLib.K4
 
         public Filter()
         {
-            cutoff = new LevelType(88);
-            Resonance = 1;
+            _cutoff = new LevelType(88);
+            _resonance = new EightLevelType();
             CutoffMod = new LevelModulation();
             IsLFO = false;
             Env = new Envelope();
@@ -93,10 +93,10 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            cutoff = new LevelType(b & 0x7f);
+            _cutoff = new LevelType(b & 0x7f);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Resonance = b & 0x07;
+            _resonance = new EightLevelType((b & 0x07) + 1);  // from 0...7 to 1...8
             IsLFO = b.IsBitSet(3);
 
             CutoffMod = new LevelModulation();
@@ -153,13 +153,15 @@ namespace KSynthLib.K4
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
+            
             data.Add((byte)Cutoff);
             
             StringBuilder b104 = new StringBuilder("0000");
             b104.Append(IsLFO ? "1" : "0");
-            string resString = Convert.ToString(Resonance, 2);
-            Debug.WriteLine(String.Format("Filter resonance = {0}, as bit string = '{1}'", Resonance - 1, resString));
-            b104.Append(Convert.ToString(Resonance, 2).PadLeft(3, '0'));
+            int resonance = Resonance - 1;  // from 1...8 to 0...7
+            string resonanceString = Convert.ToString(resonance, 2);
+            //Debug.WriteLine(String.Format("Filter resonance = {0}, as bit string = '{1}'", resonance, resonanceString));
+            b104.Append(resonanceString.PadLeft(3, '0'));
             data.Add(Convert.ToByte(b104.ToString(), 2));
             
             data.Add((byte)(CutoffMod.VelocityDepth + 50));

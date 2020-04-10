@@ -39,3 +39,10 @@ where "x.y.z" is the version of the library you want to use.
 Finally, install the package into your project like any NuGet package:
 
     dotnet add package KSynthLib
+
+## Testing
+
+There is an associated test project with unit tests created using xUnit.
+Run the unit tests with:
+
+    dotnet test

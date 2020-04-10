@@ -55,11 +55,12 @@ namespace KSynthLib.K5000
 
                 // BlockCopy argument list: Array src, int srcOffset, Array dst, int dstOffset, int count
                 Buffer.BlockCopy(data, offset, sourceData, 0, Source.DataSize);
-                Console.WriteLine(String.Format("Source {0} data:\n{1}", i + 1, Util.HexDump(sourceData)));
+                string hex = Util.HexDump(sourceData);
+                Console.WriteLine($"Source {i + 1} data:\n{hex}");
                 Source source = new Source(sourceData);
                 Sources[i] = source;
                 offset += Source.DataSize;
-                Console.WriteLine(String.Format("{0:X6} parsed {1} bytes of source data", offset, Source.DataSize));
+                Console.WriteLine($"{offset:X6} parsed {Source.DataSize} bytes of source data");
             }
 
             for (int i = 0; i < SingleCommon.NumSources; i++)
@@ -70,10 +71,11 @@ namespace KSynthLib.K5000
                     byte[] additiveData = new byte[AdditiveKit.DataSize];
                     //Console.WriteLine(String.Format("About to copy from data at offset {0:X4} to start of new buffer", offset));
                     Buffer.BlockCopy(data, offset, additiveData, 0, AdditiveKit.DataSize);
-                    Console.WriteLine(String.Format("{0:X6} Source {1} ADD data:\n{2}", offset, i + 1, Util.HexDump(additiveData)));
+                    string hex = Util.HexDump(additiveData);
+                    Console.WriteLine($"{offset:X6} Source {i + 1} ADD data:\n{hex}");
                     source.ADD = new AdditiveKit(additiveData);
                     offset += AdditiveKit.DataSize;
-                    Console.WriteLine(String.Format("{0:X6} parsed {1} bytes of ADD data", offset, AdditiveKit.DataSize));
+                    Console.WriteLine($"{offset:X6} parsed {AdditiveKit.DataSize} bytes of ADD data");
                 }
             }
         }
@@ -81,12 +83,12 @@ namespace KSynthLib.K5000
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(Common.ToString());
-            builder.Append(SingleCommon.ToString());
+            builder.Append(Common);
+            builder.Append(SingleCommon);
             builder.Append("SOURCES:\n");
             for (int i = 0; i < SingleCommon.NumSources; i++)
             {
-                builder.Append(String.Format("S{0}:\n{1}\n", i + 1, Sources[i].ToString()));
+                builder.Append($"S{i + 1}:\n{Sources[i]}\n");
             }
             builder.Append("\n");
             return builder.ToString();

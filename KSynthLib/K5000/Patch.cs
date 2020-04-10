@@ -42,13 +42,14 @@ namespace KSynthLib.K5000
             byte b = 0;
             (b, offset) = Util.GetNextByte(data, offset);
             Checksum = b;
-            Console.WriteLine(String.Format("{0:X8} check sum = {1:X2}", offset, Checksum));
+            Console.WriteLine($"{offset:X8} check sum = {Checksum:X2}");
 
             byte[] commonData = new byte[CommonSettings.DataSize];
             Buffer.BlockCopy(data, offset, commonData, 0, CommonSettings.DataSize);
             Common = new CommonSettings(commonData);
-            offset += CommonSettings.DataSize;
-            Console.WriteLine(String.Format("{0:X8} parsed {1} ({1:X4}h) bytes of common data", offset, CommonSettings.DataSize));
+            int dataSize = CommonSettings.DataSize;
+            offset += dataSize;
+            Console.WriteLine($"{offset:X8} parsed {dataSize} ({dataSize:X4}h) bytes of common data");
         }
 
         protected abstract byte[] CollectData();

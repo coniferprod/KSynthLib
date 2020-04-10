@@ -14,13 +14,42 @@ namespace KSynthLib.K5000
 
     public class ReverbSettings
     {
-        public byte Type;  // 0 ~ 10
-        public byte DryWet;  // 0 ~ 100
+        public byte ReverbType;  // 0 ~ 10
+
+        private EffectDepthType _dryWet;
+        public byte DryWet  // 0 ~ 100
+        {
+            get => _dryWet.Value;
+            set => _dryWet.Value = value;
+        }
         
-        public byte Param1;  // 0 ~ 127
-        public byte Param2;  // 0 ~ 127
-        public byte Param3;  // 0 ~ 127
-        public byte Param4;  // 0 ~ 127
+        private PositiveLevelType _param1;
+        public byte Param1  // 0 ~ 127
+        {
+            get => _param1.Value;
+            set => _param1.Value = value;
+        }
+
+        private PositiveLevelType _param2;
+        public byte Param2  // 0 ~ 127
+        {
+            get => _param2.Value;
+            set => _param2.Value = value;
+        }
+
+        private PositiveLevelType _param3;
+        public byte Param3  // 0 ~ 127
+        {
+            get => _param3.Value;
+            set => _param3.Value = value;
+        }
+
+        private PositiveLevelType _param4;
+        public byte Param4  // 0 ~ 127
+        {
+            get => _param4.Value;
+            set => _param4.Value = value;
+        }
 
         public static ReverbName[] ReverbNames = 
         {
@@ -39,30 +68,31 @@ namespace KSynthLib.K5000
 
         public ReverbSettings()
         {
-            Type = 0;
-            DryWet = 50;
-            Param1 = 50;
-            Param2 = 64;
-            Param3 = 64;
-            Param4 = 64;
+            ReverbType = 0;
+
+            _dryWet = new EffectDepthType(50);
+            _param1 = new PositiveLevelType(64);
+            _param2 = new PositiveLevelType(64);
+            _param3 = new PositiveLevelType(64);
+            _param4 = new PositiveLevelType(64);
         }
 
         public override string ToString()
         {
-            ReverbName name = ReverbNames[Type];
+            ReverbName name = ReverbNames[ReverbType];
             StringBuilder builder = new StringBuilder();
-            builder.Append(String.Format("{0}, dry/wet = {1}\n", name.Name, DryWet));
-            builder.Append(String.Format("P1 {0} = {1}\n", name.ParameterNames[0], Param1));
-            builder.Append(String.Format("P2 {0} = {1}\n", name.ParameterNames[1], Param2));
-            builder.Append(String.Format("P3 {0} = {1}\n", name.ParameterNames[2], Param3));
-            builder.Append(String.Format("P4 {0} = {1}\n", name.ParameterNames[3], Param4));
+            builder.Append(string.Format("{0}, dry/wet = {1}\n", name.Name, DryWet));
+            builder.Append(string.Format("P1 {0} = {1}\n", name.ParameterNames[0], Param1));
+            builder.Append(string.Format("P2 {0} = {1}\n", name.ParameterNames[1], Param2));
+            builder.Append(string.Format("P3 {0} = {1}\n", name.ParameterNames[2], Param3));
+            builder.Append(string.Format("P4 {0} = {1}\n", name.ParameterNames[3], Param4));
             return builder.ToString();
         }
 
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
-            data.Add(Type);
+            data.Add(ReverbType);
             data.Add(DryWet);
             data.Add(Param1);
             data.Add(Param2);

@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
 
     <PackageId>KSynthLib</PackageId>
-    <Version>0.2.4</Version>
+    <Version>0.2.5</Version>
     <Authors>Jere Käpyaho</Authors>
     <Company>Conifer Productions Oy</Company>
 

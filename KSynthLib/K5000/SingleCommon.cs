@@ -31,7 +31,13 @@ namespace KSynthLib.K5000
         public EffectControl EffectControl2;
 
         public bool IsPortamentoEnabled;  // 0=off, 1=on
-        public int PortamentoSpeed;  // 0 ~ 127
+
+        private PositiveLevelType _portamentoSpeed;
+        public byte PortamentoSpeed  // 0 ~ 127
+        {
+            get => _portamentoSpeed.Value;
+            set => _portamentoSpeed.Value = value;
+        }
 
         public MacroController Macro1;
         public MacroController Macro2;
@@ -56,8 +62,10 @@ namespace KSynthLib.K5000
             NumSources = 1;
             IsSourceMuted = new bool[MaxSources] { false, false, false, false, false, false };
             AM = 0;
+
             IsPortamentoEnabled = false;
-            PortamentoSpeed = 0;
+            _portamentoSpeed = new PositiveLevelType();
+
             Switch1 = Switch.Off;
             Switch2 = Switch.Off;
             FootSwitch1 = Switch.Off;
@@ -134,22 +142,24 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);
             FootSwitch2 = (Switch)b;
 
-            Console.WriteLine(String.Format("Common data parsed, offset = {0:X2} ({0})", offset));
+            Console.WriteLine(string.Format("Common data parsed, offset = {0:X2} ({0})", offset));
         }
 
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(String.Format("Poly = {0}\n", Poly));
-            builder.Append(String.Format("Portamento = {0}, speed = {1}\n", IsPortamentoEnabled ? "ON" : "OFF", PortamentoSpeed));
-            builder.Append(String.Format("Sources = {0}\n", NumSources));
-            builder.Append(String.Format("AM = {0}\n", (AM == 0) ? "OFF" : Convert.ToString(AM)));
+            builder.Append($"Poly = {Poly}\n");
+            string portamentoSettingString = IsPortamentoEnabled ? "ON" : "OFF";
+            builder.Append($"Portamento = {portamentoSettingString}, speed = {PortamentoSpeed}\n");
+            builder.Append($"Sources = {NumSources}\n");
+            string amSettingString = (AM == 0) ? "OFF" : Convert.ToString(AM);
+            builder.Append($"AM = {amSettingString}\n");
             builder.Append("Macro controllers:\n");
-            builder.Append(String.Format("User 1: {0}\n", Macro1.ToString()));
-            builder.Append(String.Format("User 2: {0}\n", Macro2.ToString()));
-            builder.Append(String.Format("User 3: {0}\n", Macro3.ToString()));
-            builder.Append(String.Format("User 4: {0}\n", Macro4.ToString()));
-            builder.Append(String.Format("SW1 = {0}  SW2 = {1}  F.SW1 = {2}  F.SW2 = {3}\n", Switch1, Switch2, FootSwitch1, FootSwitch2));
+            builder.Append($"User 1: {Macro1}\n");
+            builder.Append($"User 2: {Macro2}\n");
+            builder.Append($"User 3: {Macro3}\n");
+            builder.Append($"User 4: {Macro4}\n");
+            builder.Append($"SW1 = {Switch1}  SW2 = {Switch2}  F.SW1 = {FootSwitch1}  F.SW2 = {FootSwitch2}\n");
             return builder.ToString();
         }
 

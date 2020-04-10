@@ -27,21 +27,19 @@ namespace KSynthLib.K4
         public const int DataSize = 30;
         private const string OutputNames = "ABCDEFGH";
 
-        private LevelType volume;
+        private LevelType _volume;
         public int Volume  // 0~100
         {
-            get
-            {
-                return volume.Value;
-            }
-
-            set
-            {
-                volume.Value = value;
-            }
+            get => _volume.Value;
+            set => _volume.Value = value;
         }
 
-        public int Effect;  // 0~31 / 1~32 (on K4)
+        private EffectNumberType _effect;
+        public int Effect  // 0~31 / 1~32 (on K4)
+        {
+            get => _effect.Value;
+            set =>_effect.Value = value;
+        }
 
         public char Output; // 0~7 / A~H (on K4r)
 
@@ -57,22 +55,20 @@ namespace KSynthLib.K4
         public bool S3Mute;
         public bool S4Mute;
 
-        public int PitchBend;  // 0~12
+        private PitchBendType _pitchBend;
+        public int PitchBend  // 0~12
+        {
+            get => _pitchBend.Value;
+            set => _pitchBend.Value = value;
+        }
 
         public WheelAssign WheelAssign; // 0/VIB, 1/LFO, 2/DCF
 
-        private DepthType wheelDepth;
+        private DepthType _wheelDepth;
         public int WheelDepth // 0~100 (±50)
         {
-            get
-            {
-                return wheelDepth.Value;
-            }
-
-            set
-            {
-                wheelDepth.Value = value;
-            }
+            get => _wheelDepth.Value;
+            set => _wheelDepth.Value = value;
         }
 
         public AutoBendSettings AutoBend;  // same as portamento?
@@ -81,37 +77,29 @@ namespace KSynthLib.K4
 
         public VibratoSettings Vibrato;
 
-        private DepthType pressureFreq;
+        private DepthType _pressureFreq;
         public int PressureFreq // 0~100 (±50)
         {
-            get
-            {
-                return pressureFreq.Value;
-            }
-
-            set
-            {
-                pressureFreq.Value = value;
-            }
+            get => _pressureFreq.Value;
+            set => _pressureFreq.Value = value;
         }
 
         public CommonSettings()
         {
-            volume = new LevelType(80);
-
-            Effect = 1;  // use range 1~32
+            _volume = new LevelType(80);
+            _effect = new EffectNumberType(1);  // 1~32
             Output = 'A';
             SourceMode = SourceMode.Normal;
             PolyphonyMode = PolyphonyMode.Poly1;
             AMS1ToS2 = false;
             AMS3ToS4 = false;
-            PitchBend = 2;
+            _pitchBend = new PitchBendType(2);
             WheelAssign = WheelAssign.Vibrato;
-            wheelDepth = new DepthType(0);
+            _wheelDepth = new DepthType(0);
             Vibrato = new VibratoSettings();
             LFO = new LFOSettings();
             AutoBend = new AutoBendSettings();
-            pressureFreq = new DepthType();
+            _pressureFreq = new DepthType();
         }
 
         public CommonSettings(byte[] data)
@@ -120,11 +108,11 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            volume = new LevelType(b);
+            _volume = new LevelType(b);
 
             // effect = s11 bits 0...4
             (b, offset) = Util.GetNextByte(data, offset);
-            Effect = (int)(b & 0x1f) + 1; // 0b00011111
+            _effect = new EffectNumberType((int)(b & 0x1f) + 1); // 0b00011111
             // use range 1~32 when storing the value, 0~31 in SysEx data
 
             // output select = s12 bits 0...2
@@ -150,7 +138,7 @@ namespace KSynthLib.K4
 
             (b, offset) = Util.GetNextByte(data, offset);
             // Pitch bend = s15 bits 0...3
-            PitchBend = (int)(b & 0x0f);
+            _pitchBend = new PitchBendType(b & 0x0f);
             // Wheel assign = s15 bits 4...5
             WheelAssign = (WheelAssign)((b >> 4) & 0x03);
 
@@ -160,7 +148,7 @@ namespace KSynthLib.K4
 
             // Wheel depth = s17 bits 0...6
             (b, offset) = Util.GetNextByte(data, offset);
-            wheelDepth = new DepthType((b & 0x7f) - 50);  // 0~100 to ±50
+            _wheelDepth = new DepthType((b & 0x7f) - 50);  // 0~100 to ±50
 
             AutoBend = new AutoBendSettings();
             (b, offset) = Util.GetNextByte(data, offset);
@@ -199,23 +187,23 @@ namespace KSynthLib.K4
             LFO.PressureDepth = (b & 0x7f) - 50; // 0~100 to ±50
 
             (b, offset) = Util.GetNextByte(data, offset);
-            pressureFreq = new DepthType((b & 0x7f) - 50); // 0~100 to ±50
+            _pressureFreq = new DepthType((b & 0x7f) - 50); // 0~100 to ±50
         }
         
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(String.Format("VOLUME     ={0,3}\nEFFECT PACH= {1,2}\nSUBMIX CH  =  {2}\n", Volume, Effect + 1, Output));
-            builder.Append(String.Format("SOURCE MODE={0}\n", Enum.GetNames(typeof(SourceMode))[(int)SourceMode]));
-            builder.Append(String.Format("AM 1>2     ={0}\nAM 3>4     ={1}\n", AMS1ToS2 ? "ON" : "OFF", AMS3ToS4 ? "ON" : "OFF"));
-            builder.Append(String.Format("POLY MODE  ={0}\n", Enum.GetNames(typeof(PolyphonyMode))[(int)PolyphonyMode]));
-            builder.Append(String.Format("BNDR RANGE = {0,2}\n", PitchBend));
-            builder.Append(String.Format("PRESS>FREQ = {0,2}\n", PressureFreq));
-            builder.Append(String.Format("WHEEL\nASSIGN     ={0}\nDEPTH      ={1,2}\n", Enum.GetNames(typeof(WheelAssign))[(int)WheelAssign], WheelDepth));
-            builder.Append(String.Format("AUTO BEND\n{0}\n", AutoBend.ToString()));
-            builder.Append(String.Format("Sources: {0}\n", GetSourceMuteString(S1Mute, S2Mute, S3Mute, S4Mute)));
-            builder.Append(String.Format("VIBRATO\n{0}\n", Vibrato.ToString()));
-            builder.Append(String.Format("LFO\n{0}\n", LFO.ToString()));
+            builder.Append($"VOLUME     ={Volume:3}\nEFFECT PACH= {Effect:2}\nSUBMIX CH  =  {Output}\n");
+            builder.Append(string.Format("SOURCE MODE={0}\n", Enum.GetNames(typeof(SourceMode))[(int)SourceMode]));
+            builder.Append(string.Format("AM 1>2     ={0}\nAM 3>4     ={1}\n", AMS1ToS2 ? "ON" : "OFF", AMS3ToS4 ? "ON" : "OFF"));
+            builder.Append(string.Format("POLY MODE  ={0}\n", Enum.GetNames(typeof(PolyphonyMode))[(int)PolyphonyMode]));
+            builder.Append(string.Format("BNDR RANGE = {0,2}\n", PitchBend));
+            builder.Append(string.Format("PRESS>FREQ = {0,2}\n", PressureFreq));
+            builder.Append(string.Format("WHEEL\nASSIGN     ={0}\nDEPTH      ={1,2}\n", Enum.GetNames(typeof(WheelAssign))[(int)WheelAssign], WheelDepth));
+            builder.Append($"AUTO BEND\n{AutoBend}\n");
+            builder.Append(string.Format("Sources: {0}\n", GetSourceMuteString(S1Mute, S2Mute, S3Mute, S4Mute)));
+            builder.Append($"VIBRATO\n{Vibrato}\n");
+            builder.Append($"LFO\n{LFO}\n");
             return builder.ToString();
         }
 
@@ -224,7 +212,7 @@ namespace KSynthLib.K4
             List<byte> data = new List<byte>();
 
             data.Add((byte)Volume);
-            data.Add((byte)(Effect - 1));  // use range 0~31 in SysEx data
+            data.Add((byte)(Effect - 1));  // convert from 1~32 to 0~31 for SysEx data
             data.Add((byte)(OutputNames.IndexOf(Output)));  // convert 'A', 'B' ... 'H' to 0~7
 
             // s13 combines source mode, poly mode, and source AM into one byte.
@@ -267,7 +255,7 @@ namespace KSynthLib.K4
             data.Add((byte)(PressureFreq + 50)); // ±50 to 0...100
 
             var arr = data.ToArray();
-            Debug.WriteLine(String.Format("Common settings = {0} bytes", arr.Length));
+            Debug.WriteLine($"Common settings = {arr.Length} bytes");
             return arr;
         }
 
@@ -324,13 +312,13 @@ namespace KSynthLib.K4
             Common = new CommonSettings(data);
             offset += CommonSettings.DataSize;
 
-            byte[] allSourceData = new byte[Source.DataSize * 4];
-            Array.Copy(data, offset, allSourceData, 0, Source.DataSize * 4);
-
-            List<byte> source1Data = Util.EveryNthElement(new List<byte>(allSourceData), 4, 0);
-            List<byte> source2Data = Util.EveryNthElement(new List<byte>(allSourceData), 4, 1);
-            List<byte> source3Data = Util.EveryNthElement(new List<byte>(allSourceData), 4, 2);
-            List<byte> source4Data = Util.EveryNthElement(new List<byte>(allSourceData), 4, 3);
+            byte[] sourceData = new byte[Source.DataSize * 4];
+            Array.Copy(data, offset, sourceData, 0, Source.DataSize * 4);
+            List<byte> allSourceData = new List<byte>(sourceData);
+            List<byte> source1Data = Util.EveryNthElement(allSourceData, 4, 0);
+            List<byte> source2Data = Util.EveryNthElement(allSourceData, 4, 1);
+            List<byte> source3Data = Util.EveryNthElement(allSourceData, 4, 2);
+            List<byte> source4Data = Util.EveryNthElement(allSourceData, 4, 3);
             
             Sources = new Source[NumSources];
             Sources[0] = new Source(source1Data.ToArray());
@@ -340,12 +328,13 @@ namespace KSynthLib.K4
 
             offset += Source.DataSize * 4;
 
-            byte[] allAmpData = new byte[Amplifier.DataSize * 4];
-            Array.Copy(data, offset, allAmpData, 0, Amplifier.DataSize * 4);
-            List<byte> amp1Data = Util.EveryNthElement(new List<byte>(allAmpData), 4, 0);
-            List<byte> amp2Data = Util.EveryNthElement(new List<byte>(allAmpData), 4, 1);
-            List<byte> amp3Data = Util.EveryNthElement(new List<byte>(allAmpData), 4, 2);
-            List<byte> amp4Data = Util.EveryNthElement(new List<byte>(allAmpData), 4, 3);
+            byte[] ampData = new byte[Amplifier.DataSize * 4];
+            Array.Copy(data, offset, ampData, 0, Amplifier.DataSize * 4);
+            List<byte> allAmpData = new List<byte>(ampData);
+            List<byte> amp1Data = Util.EveryNthElement(allAmpData, 4, 0);
+            List<byte> amp2Data = Util.EveryNthElement(allAmpData, 4, 1);
+            List<byte> amp3Data = Util.EveryNthElement(allAmpData, 4, 2);
+            List<byte> amp4Data = Util.EveryNthElement(allAmpData, 4, 3);
             Amplifiers = new Amplifier[NumSources];
             Amplifiers[0] = new Amplifier(amp1Data.ToArray());
             Amplifiers[1] = new Amplifier(amp2Data.ToArray());
@@ -355,10 +344,11 @@ namespace KSynthLib.K4
             offset += Amplifier.DataSize * 4;
 
             // DCF
-            byte[] allFilterData = new byte[Filter.DataSize * 2];
-            Array.Copy(data, offset, allFilterData, 0, Filter.DataSize * 2);
-            List<byte> filter1Data = Util.EveryNthElement(new List<byte>(allFilterData), 2, 0);
-            List<byte> filter2Data = Util.EveryNthElement(new List<byte>(allFilterData), 2, 1);
+            byte[] filterData = new byte[Filter.DataSize * 2];
+            Array.Copy(data, offset, filterData, 0, Filter.DataSize * 2);
+            List<byte> allFilterData = new List<byte>(filterData);
+            List<byte> filter1Data = Util.EveryNthElement(allFilterData, 2, 0);
+            List<byte> filter2Data = Util.EveryNthElement(allFilterData, 2, 1);
             Filter1 = new Filter(filter1Data.ToArray());
             Filter2 = new Filter(filter2Data.ToArray());
             offset += Filter.DataSize * 2;
@@ -380,20 +370,20 @@ namespace KSynthLib.K4
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(Name);
-            builder.Append("\n");
-            builder.Append(Common.ToString());
-            for (int i = 0; i < NumSources; i++)
-            {
-                builder.Append(String.Format("Source {0}:\n{1}", i + 1, Sources[i].ToString()));
-            }
-            for (int i = 0; i < NumSources; i++)
-            {
-                builder.Append(String.Format("DCA: {0}", Amplifiers[i].ToString()));
-            }
+            builder.Append($"{Name}\n{Common}");
 
-            builder.Append(String.Format("F1: {0}\n", Filter1.ToString()));
-            builder.Append(String.Format("F2: {0}\n", Filter2.ToString()));
+            StringBuilder sourceString = new StringBuilder();
+            StringBuilder ampString = new StringBuilder();
+            for (int i = 0; i < NumSources; i++)
+            {
+                sourceString.Append($"Source {i+1}:\n{Sources[i]}");
+                ampString.Append($"DCA: {Amplifiers[i]}");
+            }
+            builder.Append(sourceString.ToString());
+            builder.Append(ampString.ToString());
+
+            builder.Append($"F1: {Filter1}\n");
+            builder.Append($"F2: {Filter2}\n");
             return builder.ToString();
         }
 

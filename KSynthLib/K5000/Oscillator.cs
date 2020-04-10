@@ -17,147 +17,85 @@ namespace KSynthLib.K5000
     public class PitchEnvelope
     {
         public const int DataSize = 6;
-        public int startLevel; // (-63)1 ~ (+63)127
-        public int StartLevel
-        {
-            get
-            {
-                return this.startLevel;
-            }
 
-            set
-            {
-                if (value < -63 || value > 63)
-                {
-                    throw new ArgumentException("Start level must be -63...63");
-                }
-                this.startLevel = value;
-            }
+        private SignedLevelType _startLevel; // (-63)1 ~ (+63)127
+        public sbyte StartLevel
+        {
+            get => _startLevel.Value;
+            set => _startLevel.Value = value;
         }
 
-        public int attackTime;   // 0 ~ 127
-        public int AttackTime
+        private PositiveLevelType _attackTime; // 0 ~ 127
+        public byte AttackTime
         {
-            get
-            {
-                return this.attackTime;
-            }
-
-            set
-            {
-                if (value < 0 || value > 127)
-                {
-                    throw new ArgumentException("Attack time must be 0...127");
-                }
-                this.attackTime = value;
-            }
+            get => _attackTime.Value;
+            set => _attackTime.Value = value;
         }
 
-        public int attackLevel;  // (-63)1 ~ (+63)127
-        public int AttackLevel
+        private SignedLevelType _attackLevel; // (-63)1 ~ (+63)127
+        public sbyte AttackLevel
         {
-            get
-            {
-                return this.attackLevel;
-            }
-
-            set
-            {
-                if (value < -63 || value > 63)
-                {
-                    throw new ArgumentException("Attack level must be -63...63");
-                }
-                this.attackLevel = value;
-            }
+            get => _attackLevel.Value;
+            set => _attackLevel.Value = value;
         }
 
-        public int decayTime;          // 0 ~ 127
-
-        public int DecayTime
+        private PositiveLevelType _decayTime; // 0 ~ 127
+        public byte DecayTime
         {
-            get
-            {
-                return this.decayTime;
-            }
-
-            set
-            {
-                if (value < 0 || value > 127)
-                {
-                    throw new ArgumentException("Decay time must be 0...127");
-                }
-                this.decayTime = value;
-            }
+            get => _decayTime.Value;
+            set => _decayTime.Value = value;
         }
 
-        public int timeVelocitySensitivity; // (-63)1 ~ (+63)127
-
-        public int TimeVelocitySensitivity
+        private SignedLevelType _timeVelocitySensitivity; // (-63)1 ~ (+63)127
+        public sbyte TimeVelocitySensitivity
         {
-            get
-            {
-                return this.timeVelocitySensitivity;
-            }
-
-            set
-            {
-                if (value < -63 || value > 63)
-                {
-                    throw new ArgumentException("Time velocity sensitivity must be -63...63");
-                }
-                this.timeVelocitySensitivity = value;
-            }
+            get => _timeVelocitySensitivity.Value;
+            set => _timeVelocitySensitivity.Value = value;
         }
 
-        public int levelVelocitySensitivity; // (-63)1 ~ (+63)127
-
-        public int LevelVelocitySensitivity
+        private SignedLevelType _levelVelocitySensitivity; // (-63)1 ~ (+63)127
+        public sbyte LevelVelocitySensitivity
         {
-            get
-            {
-                return this.levelVelocitySensitivity;
-            }
-
-            set
-            {
-                if (value < -63 || value > 63)
-                {
-                    throw new ArgumentException("Level velocity sensitivity must be -63...63");
-                }
-                this.levelVelocitySensitivity = value;
-            }
+            get => _levelVelocitySensitivity.Value;
+            set => _levelVelocitySensitivity.Value = value;
         }
 
         public PitchEnvelope()
         {
-            StartLevel = 0;
-            AttackTime = 0;
-            AttackLevel = 63;
-            DecayTime = 64;
-            TimeVelocitySensitivity = 0;
-            LevelVelocitySensitivity = 0;
+            _startLevel = new SignedLevelType();
+            _attackTime = new PositiveLevelType();
+            _attackLevel = new SignedLevelType(63);
+            _decayTime = new PositiveLevelType(64);
+            _timeVelocitySensitivity = new SignedLevelType();
+            _levelVelocitySensitivity = new SignedLevelType();
         }
 
         public PitchEnvelope(byte[] data, int offset)
         {
             byte b = 0;
+
             (b, offset) = Util.GetNextByte(data, offset);
-            StartLevel = (int)b - 64;
+            _startLevel = new SignedLevelType((sbyte)(b - 64));
+
             (b, offset) = Util.GetNextByte(data, offset);
-            AttackTime = b;
+            _attackTime = new PositiveLevelType(b);
+
             (b, offset) = Util.GetNextByte(data, offset);
-            AttackLevel = (int)b - 64;
+            _attackLevel = new SignedLevelType((sbyte)(b - 64));
+
             (b, offset) = Util.GetNextByte(data, offset);
-            DecayTime = b;
+            _decayTime = new PositiveLevelType(b);
+
             (b, offset) = Util.GetNextByte(data, offset);
-            TimeVelocitySensitivity = (int)b - 64;
+            _timeVelocitySensitivity = new SignedLevelType((sbyte)(b - 64));
+
             (b, offset) = Util.GetNextByte(data, offset);
-            LevelVelocitySensitivity = (int)b - 64;
+            _levelVelocitySensitivity = new SignedLevelType((sbyte)(b - 64));
         }
 
         public override string ToString()
         {
-            return String.Format("Start Level = {0}, Atak T = {1}, Atak L = {2}, Dcay T = {3}", StartLevel, AttackTime, AttackLevel, DecayTime);
+            return $"Start Level = {StartLevel}, Atak T = {AttackTime}, Atak L = {AttackLevel}, Dcay T = {DecayTime}";
         }
 
         public byte[] ToData()
@@ -179,41 +117,20 @@ namespace KSynthLib.K5000
     {
         public int WaveNumber;
 
-        private int coarse;
+        private CoarseType _coarse;
         public int Coarse
         {
-            get
-            {
-                return this.coarse;
-            }
-
-            set
-            {
-                if (value < -24 || value > 24)
-                {
-                    throw new ArgumentException("Coarse must be -24...24");
-                }
-                this.coarse = value;
-            }
+            get => _coarse.Value;
+            set => _coarse.Value = value; 
         }
 
-        private int fine;
-        public int Fine
+        private SignedLevelType _fine;
+        public sbyte Fine
         {
-            get
-            {
-                return this.fine;
-            }
-
-            set
-            {
-                if (value < -63 || value > 63)
-                {
-                    throw new ArgumentException("Fine must be -63...63");
-                }
-                this.fine = value;
-            }
+            get => _fine.Value;
+            set => _fine.Value = value;
         }
+
         public byte FixedKey;  // 0=OFF, 21 ~ 108=ON(A-1 ~ C7)
         public KeyScalingToPitch KSPitch;
         public PitchEnvelope Envelope;
@@ -221,6 +138,8 @@ namespace KSynthLib.K5000
         public DCOSettings()
         {
             Envelope = new PitchEnvelope();
+            _coarse = new CoarseType();
+            _fine = new SignedLevelType();
         }
 
         public DCOSettings(byte[] data, int offset)
@@ -238,17 +157,20 @@ namespace KSynthLib.K5000
             string waveLSBBitString = Convert.ToString(waveLSB, 2).PadLeft(7, '0');
             string waveBitString = waveMSBBitString + waveLSBBitString;
             int waveNumber = Convert.ToInt32(waveBitString, 2);
-            System.Console.WriteLine(String.Format("wave kit MSB = {0:X2} | {1}, LSB = {2:X2} | {3}, combined = {4}, result = {5}", 
+            System.Console.WriteLine(string.Format("wave kit MSB = {0:X2} | {1}, LSB = {2:X2} | {3}, combined = {4}, result = {5}", 
                 waveMSB, waveMSBBitString, waveLSB, waveLSBBitString, waveBitString, waveNumber));
 
             WaveNumber = waveNumber;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Coarse = (int)b - 24;
+            _coarse = new CoarseType(b - 24);
+
             (b, offset) = Util.GetNextByte(data, offset);
-            Fine = (int)b - 64;
+            _fine = new SignedLevelType((sbyte)(b - 64));
+
             (b, offset) = Util.GetNextByte(data, offset);
             FixedKey = b;
+
             (b, offset) = Util.GetNextByte(data, offset);
             KSPitch = (KeyScalingToPitch)b;
 
@@ -264,15 +186,16 @@ namespace KSynthLib.K5000
             {
                 waveName = "ADD";
             } 
-            builder.Append(String.Format("Wave Type = {0}  ", waveName));
+            builder.Append($"Wave Type = {waveName}  ");
             if (waveName.Equals("PCM"))
             {
-                builder.Append(String.Format("{0} ({1})\n", Wave.Instance[WaveNumber], WaveNumber + 1));
+                builder.Append(string.Format("{0} ({1})\n", Wave.Instance[WaveNumber], WaveNumber + 1));
             }
-            builder.Append(String.Format("Coarse = {0}  Fine = {1}\n", Coarse, Fine));
-            builder.Append(String.Format("KS Pitch = {0}  Fixed Key = {1}\n", KSPitch, FixedKey == 0 ? "OFF" : Convert.ToString(FixedKey)));
-            builder.Append(String.Format("Pitch Env: {0}\n", Envelope.ToString()));
-            builder.Append(String.Format("Vel To: Level = {0}  Time = {1}\n", Envelope.LevelVelocitySensitivity, Envelope.TimeVelocitySensitivity));
+            builder.Append($"Coarse = {Coarse}  Fine = {Fine}\n");
+            string fixedKeySetting = FixedKey == 0 ? "OFF" : Convert.ToString(FixedKey);
+            builder.Append($"KS Pitch = {KSPitch}  Fixed Key = {fixedKeySetting}\n");
+            builder.Append($"Pitch Env: {Envelope}\n");
+            builder.Append($"Vel To: Level = {Envelope.LevelVelocitySensitivity}  Time = {Envelope.TimeVelocitySensitivity}\n");
 
             return builder.ToString();
         }

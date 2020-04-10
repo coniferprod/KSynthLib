@@ -420,26 +420,26 @@ namespace KSynthLib.K5000
         public override string ToString() 
         {
             StringBuilder b = new StringBuilder();
-            b.Append(String.Format("MORF is {0}\n", Harmonics.Morf ? "ON" : "OFF"));
-            b.Append(String.Format("Total Gain = {0}\n", Harmonics.TotalGain));
-            b.Append(String.Format("Harm group = {0}\n", Harmonics.Group));
+            b.Append(string.Format("MORF is {0}\n", Harmonics.Morf ? "ON" : "OFF"));
+            b.Append($"Total Gain = {Harmonics.TotalGain}\n");
+            b.Append($"Harm group = {Harmonics.Group}\n");
             b.Append("Soft harmonics:\n");
             for (int i = 0; i < NumHarmonics; i++)
             {
-                b.Append(String.Format("{0}: {1}\n", i, SoftHarmonics[i]));
+                b.Append($"{i}: {SoftHarmonics[i]}\n");
             }
             b.Append("Loud harmonics:\n");
             for (int i = 0; i < NumHarmonics; i++)
             {
-                b.Append(String.Format("{0}: {1}\n", i, LoudHarmonics[i]));
+                b.Append($"{i}: {LoudHarmonics[i]}\n");
             }
 
             b.Append("Harmonic envelopes:\n    Atk  Dc1  Dc2  Rls\n");
             for (int i = 0; i < NumHarmonics; i++)
             {
                 HarmonicEnvelope env = HarmonicEnvelopes[i];
-                b.Append(String.Format("{0}: Level {1}  {2}  {3}  {4}\n", i + 1, env.Segment0.Level, env.Segment1.Level, env.Segment2.Level, env.Segment3.Level));
-                b.Append(String.Format("   Rate  {0}  {1}  {2}  {3}\n", env.Segment0.Rate, env.Segment1.Rate, env.Segment2.Rate, env.Segment3.Rate));
+                b.Append(string.Format("{0}: Level {1}  {2}  {3}  {4}\n", i + 1, env.Segment0.Level, env.Segment1.Level, env.Segment2.Level, env.Segment3.Level));
+                b.Append(string.Format("   Rate  {0}  {1}  {2}  {3}\n", env.Segment0.Rate, env.Segment1.Rate, env.Segment2.Rate, env.Segment3.Rate));
             }
 
             return b.ToString();

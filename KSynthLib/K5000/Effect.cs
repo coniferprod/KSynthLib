@@ -54,12 +54,48 @@ namespace KSynthLib.K5000
 
     public class EffectSettings
     {
-        public byte Type;  // 11 ~ 47 -- seems like the values are actually 0 ~ 36? For example, Long Delay is 10h in SysEx.
-        public byte Depth;  // 0 ~ 100
-        public byte Param1; // 0 ~ 127
-        public byte Param2; // 0 ~ 127
-        public byte Param3; // 0 ~ 127
-        public byte Param4; // 0 ~ 127
+        private int _type;  // 0~36 (in SysEx 11~47)
+
+        public EffectType Type
+        {
+            get => (EffectType)_type;
+            set => _type = (int)value;
+        }
+        
+        private EffectDepthType _depth;
+        public byte Depth  // 0 ~ 100
+        {
+            get => _depth.Value;
+            set => _depth.Value = value;
+        }
+
+        private PositiveLevelType _param1;
+        public byte Param1 // 0 ~ 127
+        {
+            get => _param1.Value;
+            set => _param1.Value = value;
+        }
+
+        private PositiveLevelType _param2;
+        public byte Param2 // 0 ~ 127
+        {
+            get => _param2.Value;
+            set => _param2.Value = value;
+        }
+
+        private PositiveLevelType _param3;
+        public byte Param3 // 0 ~ 127
+        {
+            get => _param3.Value;
+            set => _param3.Value = value;
+        }
+
+        private PositiveLevelType _param4;
+        public byte Param4 // 0 ~ 127
+        {
+            get => _param4.Value;
+            set => _param4.Value = value;
+        }
 
         public static EffectName[] EffectNames = 
         {
@@ -74,7 +110,6 @@ namespace KSynthLib.K5000
             /*  8 */ new EffectName { Name = "Plate 3", ParameterNames = new string[] { "Dry/Wet 2", "Reverb Time", "Predelay Time", "High Frequency Damping" } },
             /*  9 */ new EffectName { Name = "Reverse", ParameterNames = new string[] { "Dry/Wet 2", "Feedback", "Predelay Time", "High Frequency Damping" } },
             /* 10 */ new EffectName { Name = "Long Delay", ParameterNames = new string[]{ "Dry/Wet 2", "Feedback", "Delay Time", "High Frequency Damping" } },
-
             /* 11 */ new EffectName { Name = "Early Reflection 1", ParameterNames = new string[] { "Slope", "Predelay Time", "Feedback", "?" } },
             /* 12 */ new EffectName { Name = "Early Reflection 2", ParameterNames = new string[] { "Slope", "Predelay Time", "Feedback", "?" } },
             /* 13 */ new EffectName { Name = "Tap Delay 1", ParameterNames = new string[] { "Delay Time 1", "Tap Level", "Delay Time 2", "?" } },
@@ -117,31 +152,33 @@ namespace KSynthLib.K5000
         // Create an effect with sensible default settings.
         public EffectSettings()
         {
-            Type = 15;  // Single Delay
-            Depth = 50;
-            Param1 = 50;
-            Param2 = 50;
-            Param3 = 50;
-            Param4 = 50;
+            Type = EffectType.SingleDelay;
+
+            _depth = new EffectDepthType(50);
+            _param1 = new PositiveLevelType(50);
+            _param2 = new PositiveLevelType(50);
+            _param3 = new PositiveLevelType(50);
+            _param4 = new PositiveLevelType(50);
         }
+
 
         public override string ToString()
         {
-            System.Console.WriteLine(String.Format("Effect type = {0} ({0:X2}h)", Type));
-            EffectName name = EffectNames[Type];
+            System.Console.WriteLine(string.Format("Effect type = {0} ({0:X2}h)", _type));
+            EffectName name = EffectNames[_type];
             StringBuilder builder = new StringBuilder();
-            builder.Append(String.Format("{0}, depth = {1}\n", name.Name, Depth));
-            builder.Append(String.Format("P1 {0} = {1}\n", name.ParameterNames[0], Param1));
-            builder.Append(String.Format("P2 {0} = {1}\n", name.ParameterNames[1], Param2));
-            builder.Append(String.Format("P3 {0} = {1}\n", name.ParameterNames[2], Param3));
-            builder.Append(String.Format("P4 {0} = {1}\n", name.ParameterNames[3], Param4));
+            builder.Append(string.Format("{0}, depth = {1}\n", name.Name, Depth));
+            builder.Append(string.Format("P1 {0} = {1}\n", name.ParameterNames[0], Param1));
+            builder.Append(string.Format("P2 {0} = {1}\n", name.ParameterNames[1], Param2));
+            builder.Append(string.Format("P3 {0} = {1}\n", name.ParameterNames[2], Param3));
+            builder.Append(string.Format("P4 {0} = {1}\n", name.ParameterNames[3], Param4));
             return builder.ToString();
         }
 
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
-            data.Add(Type);
+            data.Add((byte)(_type + 11));
             data.Add(Depth);
             data.Add(Param1);
             data.Add(Param2);
@@ -154,18 +191,70 @@ namespace KSynthLib.K5000
     // Tthe graphical EQ settings of a patch.
     public class GEQSettings
     {
-        public sbyte Freq1;  // 58(-6) ~ 70(+6), so 64 = 0
-        public sbyte Freq2;
-        public sbyte Freq3;
-        public sbyte Freq4;
-        public sbyte Freq5;
-        public sbyte Freq6;
-        public sbyte Freq7;
+        private FreqType _freq1; // 58(-6) ~ 70(+6), so 64 = 0
+        public sbyte Freq1
+        {
+            get => _freq1.Value;
+            set => _freq1.Value = value;
+        }
+
+        private FreqType _freq2;
+        public sbyte Freq2
+        {
+            get => _freq2.Value;
+            set => _freq2.Value = value;
+        }
+
+        private FreqType _freq3;
+        public sbyte Freq3
+        {
+            get => _freq3.Value;
+            set => _freq3.Value = value;
+        }
+
+        private FreqType _freq4;
+        public sbyte Freq4
+        {
+            get => _freq4.Value;
+            set => _freq4.Value = value;
+        }
+
+        private FreqType _freq5;
+        public sbyte Freq5
+        {
+            get => _freq5.Value;
+            set => _freq5.Value = value;
+        }
+
+        private FreqType _freq6;
+        public sbyte Freq6
+        {
+            get => _freq6.Value;
+            set => _freq6.Value = value;
+        }
+
+        private FreqType _freq7;
+        public sbyte Freq7
+        {
+            get => _freq7.Value;
+            set => _freq7.Value = value;
+        }
+
+        public GEQSettings()
+        {
+            _freq1 = new FreqType();
+            _freq2 = new FreqType();
+            _freq3 = new FreqType();
+            _freq4 = new FreqType();
+            _freq5 = new FreqType();
+            _freq6 = new FreqType();
+            _freq7 = new FreqType();
+        }
 
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(String.Format("{0} {1} {2} {3} {4} {5} {6}\n", Freq1, Freq2, Freq3, Freq4, Freq5, Freq6, Freq7));
+            builder.Append($"{Freq1} {Freq2} {Freq3} {Freq4} {Freq5} {Freq6} {Freq7}\n");
             // TODO: Add the sign, like "+6" or "-6"
             return builder.ToString();
         }

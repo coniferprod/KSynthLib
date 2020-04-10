@@ -11,43 +11,22 @@ namespace KSynthLib.K4
         private DepthType velocityDepth;
         public int VelocityDepth
         {
-            get
-            {
-                return velocityDepth.Value;
-            }
-
-            set
-            {
-                velocityDepth.Value = value;
-            }
+            get => velocityDepth.Value;
+            set => velocityDepth.Value = value;
         }
 
         private DepthType pressureDepth;
         public int PressureDepth // 0~100 (±50)
         {
-            get
-            {
-                return pressureDepth.Value;
-            }
-
-            set
-            {
-                pressureDepth.Value = value;
-            }
+            get => pressureDepth.Value;
+            set => pressureDepth.Value = value;
         }
 
         private DepthType keyScalingDepth;
         public int KeyScalingDepth // 0~100 (±50)
         {
-            get
-            {
-                return keyScalingDepth.Value;
-            }
-
-            set
-            {
-                keyScalingDepth.Value = value;
-            }
+            get => keyScalingDepth.Value;
+            set => keyScalingDepth.Value = value;
         }
 
         public LevelModulation()
@@ -62,6 +41,11 @@ namespace KSynthLib.K4
             velocityDepth = new DepthType(vel);
             pressureDepth = new DepthType(prs);
             keyScalingDepth = new DepthType(ks);
+        }
+
+        public override string ToString()
+        {
+            return $"VEL DEP = {VelocityDepth}, PRS = {PressureDepth}, KS = {KeyScalingDepth}";
         }
 
         public byte[] ToData()
@@ -82,43 +66,22 @@ namespace KSynthLib.K4
         private DepthType attackVelocity;
         public int AttackVelocity // 0~100 (±50)
         {
-            get
-            {
-                return attackVelocity.Value;
-            }
-
-            set
-            {
-                attackVelocity.Value = value;
-            }
+            get => attackVelocity.Value;
+            set => attackVelocity.Value = value;
         }
 
         private DepthType releaseVelocity;
         public int ReleaseVelocity // 0~100 (±50)
         {
-            get
-            {
-                return releaseVelocity.Value;
-            }
-            
-            set
-            {
-                releaseVelocity.Value = value;
-            }
+            get => releaseVelocity.Value;
+            set => releaseVelocity.Value = value;
         }
 
         private DepthType keyScaling;
         public int KeyScaling // 0~100 (±50)
         {
-            get
-            {
-                return keyScaling.Value;
-            }
-
-            set 
-            {
-                keyScaling.Value = value;
-            }
+            get => keyScaling.Value;
+            set => keyScaling.Value = value;
         }
 
         public TimeModulation()
@@ -133,6 +96,11 @@ namespace KSynthLib.K4
             attackVelocity = new DepthType(a);
             releaseVelocity = new DepthType(r);
             keyScaling = new DepthType(ks);
+        }
+
+        public override string ToString()
+        {
+            return $"ATK VEL = {AttackVelocity}, RLS VEL = {ReleaseVelocity}, KS = {KeyScaling}";
         }
 
         public byte[] ToData()
@@ -158,15 +126,8 @@ namespace KSynthLib.K4
         private LevelType envelopeLevel;
         public int EnvelopeLevel // 0~100
         {
-            get
-            {
-                return envelopeLevel.Value;
-            }
-
-            set 
-            {
-                envelopeLevel.Value = value;
-            }
+            get => envelopeLevel.Value;
+            set => envelopeLevel.Value = value;
         }
 
         public LevelModulation LevelMod;
@@ -233,9 +194,9 @@ namespace KSynthLib.K4
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(String.Format("envelope = {0}, level = {1}\n", Env.ToString(), EnvelopeLevel));
-            builder.Append(String.Format("level modulation: velocity = {0}, pressure = {1}, key scaling = {2}\n", LevelMod.VelocityDepth, LevelMod.PressureDepth, LevelMod.KeyScalingDepth));
-            builder.Append(String.Format("time modulation: attack velocity = {0}, release velocity = {1}, key scaling = {2}\n", TimeMod.AttackVelocity, TimeMod.ReleaseVelocity, TimeMod.KeyScaling));
+            builder.Append($"envelope = {Env}, level = {EnvelopeLevel}\n");
+            builder.Append($"level modulation: {LevelMod}\n");
+            builder.Append($"time modulation: {TimeMod}\n");
             return builder.ToString();
         }
 
