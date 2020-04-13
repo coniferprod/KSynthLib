@@ -134,7 +134,7 @@ namespace KSynthLib.K5000
     {
         public MacroControllerType Type { get; }
 
-        private MacroDepthType _depth;        
+        private MacroDepthType _depth;
         public sbyte Depth
         {
             get => _depth.Value;
@@ -260,12 +260,13 @@ namespace KSynthLib.K5000
             Effect2 = new EffectSettings();
             Effect3 = new EffectSettings();
             Effect4 = new EffectSettings();
+            DrumMark = false;
             GEQ = new GEQSettings();
             Name = "Init    ";
             _volume = new PositiveLevelType(80);
         }
 
-        public CommonSettings(byte[] data)
+        public CommonSettings(byte[] data) : this()
         {
             Reverb = new ReverbSettings();
             Effect1 = new EffectSettings();
@@ -279,7 +280,7 @@ namespace KSynthLib.K5000
             int offset = 0;
             byte b = 0;  // will be reused when getting the next byte
 
-            (b, offset) = Util.GetNextByte(data, offset);  
+            (b, offset) = Util.GetNextByte(data, offset);
             EffectAlgorithm = b; // 0 ~ 3
             Console.WriteLine($"Effect Algorithm = {EffectAlgorithm}");
 
@@ -312,7 +313,7 @@ namespace KSynthLib.K5000
 
             Name = GetName(data, offset);
             offset += 8;
-            
+
             (b, offset) = Util.GetNextByte(data, offset);
             _volume = new PositiveLevelType(b);
         }
@@ -400,19 +401,19 @@ namespace KSynthLib.K5000
         private string GetName(byte[] data, int offset)
         {
             // Brute-forcing the name in from params 40 ... 47
-            byte[] bytes = 
-            { 
-                data[offset], 
-                data[offset + 1], 
-                data[offset + 2], 
-                data[offset + 3], 
-                data[offset + 4], 
-                data[offset + 5], 
-                data[offset + 6], 
+            byte[] bytes =
+            {
+                data[offset],
+                data[offset + 1],
+                data[offset + 2],
+                data[offset + 3],
+                data[offset + 4],
+                data[offset + 5],
+                data[offset + 6],
                 data[offset + 7]
             };
             string name = Encoding.ASCII.GetString(bytes);
             return name;
-        }        
+        }
     }
 }
