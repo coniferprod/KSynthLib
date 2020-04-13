@@ -121,6 +121,7 @@ namespace KSynthLib.K5
         }
     }
 
+    // Used for harmonic levels
     public class LevelType
     {
         private Range<byte> range;
@@ -272,6 +273,158 @@ namespace KSynthLib.K5
         }
 
         public HarmonicNumberType(byte v) : this()
+        {
+            this.Value = v;
+        }
+    }
+
+    public class KeyNumberType
+    {
+        private Range<byte> range;
+
+        private byte _value;
+        public byte Value
+        {
+            get 
+            {
+                return _value;
+            }
+
+            set
+            {
+                if (range.Contains(value))
+                {
+                    _value = value;
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("Value",
+                        string.Format("Value must be in range {0} (was {1})", 
+                            this.range.ToString(), value));
+                }
+            }
+        }
+
+        public KeyNumberType()
+        {
+            this.range = new Range<byte>(0, 127);
+        }
+
+        public KeyNumberType(byte v) : this()
+        {
+            this.Value = v;
+        }
+    }
+
+        public class EnvelopeDepthType
+    {
+        private Range<sbyte> range;
+
+        private sbyte _value;
+        public sbyte Value
+        {
+            get 
+            {
+                return _value;
+            }
+
+            set
+            {
+                if (range.Contains(value))
+                {
+                    _value = value;
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("Value",
+                        string.Format("Value must be in range {0} (was {1})", 
+                            this.range.ToString(), value));
+                }
+            }
+        }
+
+        public EnvelopeDepthType()
+        {
+            this.range = new Range<sbyte>(-24, 24);
+        }
+
+        public EnvelopeDepthType(sbyte v) : this()
+        {
+            this.Value = v;
+        }
+    }
+    public class BenderDepthType
+    {
+        private Range<byte> range;
+
+        private byte _value;
+        public byte Value
+        {
+            get 
+            {
+                return _value;
+            }
+
+            set
+            {
+                if (range.Contains(value))
+                {
+                    _value = value;
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("Value",
+                        string.Format("Value must be in range {0} (was {1})", 
+                            this.range.ToString(), value));
+                }
+            }
+        }
+
+        public BenderDepthType()
+        {
+            this.range = new Range<byte>(0, 24);
+        }
+
+        public BenderDepthType(byte v) : this()
+        {
+            this.Value = v;
+        }
+    }
+
+    public class EnvelopeNumberType
+    {
+        private Range<byte> range;
+
+        private byte _value;
+        public byte Value
+        {
+            get 
+            {
+                return _value;
+            }
+
+            set
+            {
+                if (range.Contains(value))
+                {
+                    _value = value;
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("Value",
+                        string.Format("Value must be in range {0} (was {1})", 
+                            this.range.ToString(), value));
+                }
+            }
+        }
+
+        public EnvelopeNumberType()
+        {
+            this.range = new Range<byte>(1, 4);
+            _value = 1; // zero default would be out of range
+        }
+
+        public EnvelopeNumberType(byte v) : this()
         {
             this.Value = v;
         }

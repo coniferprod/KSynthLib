@@ -76,7 +76,12 @@ namespace KSynthLib.K5
             _envelopeDepth = new DepthType();
             _velocityEnvelopeDepth = new DepthType();
             _lfoDepth = new PositiveDepthType();
-            
+
+            EnvelopeSegments = new FilterEnvelopeSegment[Source.FilterEnvelopeSegmentCount];
+            for (int i = 0; i < Source.FilterEnvelopeSegmentCount; i++)
+            {
+                EnvelopeSegments[i] = new FilterEnvelopeSegment();
+            }
         }
 
         public override string ToString()

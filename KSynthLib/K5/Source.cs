@@ -12,68 +12,6 @@ namespace KSynthLib.K5
         Fixed
     }
 
-    public class PitchEnvelopeSegment  // DFG ENV
-    {
-        private PositiveDepthType _rate; // 0~31
-        public byte Rate
-        {
-            get => _rate.Value;
-            set => _rate.Value = value;
-        }
-
-        private DepthType _level; // 0~±31
-        public sbyte Level
-        {
-            get => _level.Value;
-            set => _level.Value = value;
-        }
-
-        public PitchEnvelopeSegment()
-        {
-            _rate = new PositiveDepthType();
-            _level = new DepthType();
-        }
-
-        public override string ToString()
-        {
-            return $"Rate={Rate} Level={Level}";
-        }
-    }
-
-    public class PitchEnvelope
-    {
-        public PitchEnvelopeSegment[] Segments;
-        public bool IsLooping;
-
-        public PitchEnvelope()
-        {
-
-        }
-
-        public override string ToString()
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.Append("*DFG ENV*\n");
-            builder.Append("    SEG  | 1 | 2 | 3 | 4 | 5 | 6 |\n");
-            builder.Append("    ------------------------------\n");
-            builder.Append("    RATE |");
-            for (int i = 0; i < Segments.Length; i++)
-            {
-                builder.Append($"{Segments[i].Rate,3}|");
-            }
-            builder.Append("\n");
-            builder.Append("    LEVEL|");
-            for (int i = 0; i < Segments.Length; i++)
-            {
-                builder.Append($"{Segments[i].Level,3}|");
-            }
-            builder.Append("\n\n");
-            builder.Append("    LOOP<3-4>=");
-            builder.Append(IsLooping ? "YES" : "--");
-            builder.Append("\n\n");
-            return builder.ToString();
-        }
-    }
 
     public struct EnvelopeSegment
     {
@@ -84,140 +22,11 @@ namespace KSynthLib.K5
         public bool IsMax;
         public bool IsMod;
     }
-    
 
-    public class PitchSettings
+    public enum SourceMode
     {
-        private CoarseType _coarse; // 0~±48
-        public sbyte Coarse
-        {
-            get => _coarse.Value;
-            set => _coarse.Value = value;
-        }
-
-        private DepthType _fine; // 0~±31
-        public sbyte Fine
-        {
-            get => _fine.Value;
-            set => _fine.Value = value;
-        }
-
-        public KeyTracking KeyTracking;  // enumeration
-        public byte Key;  // the keytracking key, zero if not used
-        public sbyte EnvelopeDepth; // 0~±24
-
-        private DepthType _pressureDepth; // 0~±31
-        public sbyte PressureDepth
-        {
-            get => _pressureDepth.Value;
-            set => _pressureDepth.Value = value;
-        }
-
-        public byte BenderDepth; // 0~24
-
-        private DepthType _velocityEnvelopeDepth; // 0~±31
-        public sbyte VelocityEnvelopeDepth
-        {
-            get => _velocityEnvelopeDepth.Value;
-            set => _velocityEnvelopeDepth.Value = value;
-        }
-
-        private PositiveDepthType _lfoDepth; // 0~31
-        public byte LFODepth
-        {
-            get => _lfoDepth.Value;
-            set => _lfoDepth.Value = value;
-        }
-
-        private DepthType _pressureLFODepth; // 0~±31
-        public sbyte PressureLFODepth
-        {
-            get => _pressureLFODepth.Value;
-            set => _pressureLFODepth.Value = value;
-        }
-
-        public PitchEnvelope PitchEnvelope;
-
-        const int DataLength = 21;
-
-        public PitchSettings()
-        {
-            _coarse = new CoarseType();
-            _fine = new DepthType();
-            _pressureDepth = new DepthType();
-            _velocityEnvelopeDepth = new DepthType();
-            _lfoDepth = new PositiveDepthType();
-            _pressureLFODepth = new DepthType();
-        }
-
-        public override string ToString()
-        {
-            return string.Format(
-                "*DFG*              \n\n" +
-                "COARSE= {0,2}        <DEPTH>\n" + 
-                "FINE  = {1,2}        ENV= {2,2}-VEL {3}\n" + 
-                "                  PRS= {4}\n" + 
-                "                  LFO= {5,2}-PRS= {6,3}\n" + 
-                "KEY    ={7}     BND= {8}\n" + 
-                "FIXNO  ={9}\n\n", 
-                Coarse, Fine, EnvelopeDepth, VelocityEnvelopeDepth,
-                PressureDepth, LFODepth, PressureLFODepth,
-                KeyTracking, BenderDepth,
-                Key) + 
-                PitchEnvelope;
-        }
-
-        public byte[] ToData()
-        {
-            List<byte> data = new List<byte>();
-            byte b = 0;
-            data.Add(Coarse.ToByte());
-            data.Add(Fine.ToByte());
-            b = Key;  // the tracking key if fixed, 0 if track
-            if (KeyTracking == KeyTracking.Fixed)
-            {
-                b = b.SetBit(7);
-            }
-            else
-            {
-                b = b.UnsetBit(7);
-            }
-            data.Add(b);
-            data.Add(EnvelopeDepth.ToByte());
-            data.Add(PressureDepth.ToByte());
-            data.Add(BenderDepth);
-            data.Add(VelocityEnvelopeDepth.ToByte());
-            data.Add(LFODepth);
-            data.Add(PressureLFODepth.ToByte());
-
-            for (int i = 0; i < Source.PitchEnvelopeSegmentCount; i++)
-            {
-                b = PitchEnvelope.Segments[i].Rate;
-
-                // Set the envelope looping bit for the first rate only:
-                if (i == 0)
-                {
-                    if (PitchEnvelope.IsLooping)
-                    {
-                        b = b.SetBit(7);
-                    }
-                }
-                data.Add(b);
-            }
-
-            for (int i = 0; i < Source.PitchEnvelopeSegmentCount; i++)
-            {
-                sbyte sb = PitchEnvelope.Segments[i].Level;
-                data.Add(sb.ToByte());
-            }
-
-            if (data.Count != DataLength)
-            {
-                System.Console.WriteLine(String.Format("WARNING: DFG length, expected = {0}, actual = {1}", DataLength, data.Count));
-            }
-
-            return data.ToArray();
-        }
+        Twin,
+        Full
     }
 
     public class Source
@@ -249,19 +58,23 @@ namespace KSynthLib.K5
             Amplifier = new Amplifier();
         }
 
+        /// <summary>Constructs a Source from binary data.</summary>
+        /// <param name="number">The source number, must be 1 or 2.</param>
+        /// <remarks>Calls the no-argument constructor to initialize members.</remarks>
         public Source(byte[] data, int number) : this()
         {
             SourceNumber = number;
 
-            System.Console.WriteLine($"S{SourceNumber} data:");
-            System.Console.WriteLine(Util.HexDump(data));
+            //Console.WriteLine($"S{SourceNumber} data:");
+            //Console.WriteLine(Util.HexDump(data));
 
             int offset = 0;
             byte b = 0;  // reused when getting the next byte
-            List<byte> buf = new List<byte>();
+            //List<byte> buf = new List<byte>();
 
-            // DFG
-            Pitch = new PitchSettings();
+            // DFG (S21 ... S62)
+
+            //Pitch = new PitchSettings();  // created by no-arg ctor
 
             (b, offset) = Util.GetNextByte(data, offset);
             Pitch.Coarse = b.ToSignedByte();
@@ -300,36 +113,38 @@ namespace KSynthLib.K5
             (b, offset) = Util.GetNextByte(data, offset);
             Pitch.PressureLFODepth = b.ToSignedByte();
 
-            Pitch.PitchEnvelope.Segments = new PitchEnvelopeSegment[PitchEnvelopeSegmentCount];
+            Pitch.Envelope.Segments = new PitchEnvelopeSegment[PitchEnvelopeSegmentCount];
             for (int i = 0; i < PitchEnvelopeSegmentCount; i++)
             {
                 (b, offset) = Util.GetNextByte(data, offset);
-                buf.Add(b);
+                //buf.Add(b);
                 if (i == 0)
                 {
-                    Pitch.PitchEnvelope.IsLooping = b.IsBitSet(7);
-                    Pitch.PitchEnvelope.Segments[i].Rate = (byte)(b & 0x7f);
+                    Pitch.Envelope.IsLooping = b.IsBitSet(7);
+                    Pitch.Envelope.Segments[i].Rate = (byte)(b & 0x7f);
                 }
                 else
                 {
-                    Pitch.PitchEnvelope.Segments[i].Rate = b;
+                    Pitch.Envelope.Segments[i].Rate = b;
                 }
             }
 
             for (int i = 0; i < PitchEnvelopeSegmentCount; i++)
             {
                 (b, offset) = Util.GetNextByte(data, offset);
-                buf.Add(b);
-                Pitch.PitchEnvelope.Segments[i].Level = b.ToSignedByte();
+                //buf.Add(b);
+                Pitch.Envelope.Segments[i].Level = b.ToSignedByte();
             }
 
-            // DHG
+            // DHG (S63 ... S380)
 
-            Harmonics = new Harmonic[HarmonicCount];
+            //Harmonics = new Harmonic[HarmonicCount]; // created by no-arg ctor
             for (int i = 0; i < HarmonicCount; i++)
             {
+                Harmonic harm = new Harmonic();
                 (b, offset) = Util.GetNextByte(data, offset);
-                Harmonics[i].Level = b;
+                harm.Level = b;
+                Harmonics[i] = harm;
             }
 
             // The values are packed into 31 + 1 bytes. The first 31 bytes contain the settings
@@ -354,7 +169,7 @@ namespace KSynthLib.K5
 	        (b, offset) = Util.GetNextByte(data, offset);
             (highNybble, lowNybble) = Util.NybblesFromByte(b);
             harmData.Add(highNybble);
-            Harmonic63bis = new Harmonic();
+            //Harmonic63bis = new Harmonic(); // created by no-arg ctor
             Harmonic63bis.IsModulationActive = lowNybble.IsBitSet(2);
             Harmonic63bis.EnvelopeNumber = (byte)(lowNybble + 1);
             Harmonic63bis.Level = 99;  // don't care really
@@ -390,9 +205,11 @@ namespace KSynthLib.K5
             harmSet.Envelopes = new HarmonicEnvelope[HarmonicEnvelopeCount];
             for (int i = 0; i < HarmonicEnvelopeCount; i++) 
             {
+                HarmonicEnvelope he = new HarmonicEnvelope();
     	        (b, offset) = Util.GetNextByte(data, offset);
-                harmSet.Envelopes[i].IsActive = b.IsBitSet(7);
-			    harmSet.Envelopes[i].Effect = (byte)(b & 0x1f);
+                he.IsActive = b.IsBitSet(7);
+			    he.Effect = (byte)(b & 0x1f);
+                harmSet.Envelopes[i] = he;
 		    }
 
             // The master modulation setting is packed with the harmonic selection value 
@@ -426,39 +243,38 @@ namespace KSynthLib.K5
             // Harmonic envelope selections = 0/1, 1/2, 2/3, 3/4
     	    (b, offset) = Util.GetNextByte(data, offset);
             (highNybble, lowNybble) = Util.NybblesFromByte(b);
+
             // odd and even are in the same byte
-        	harmSet.Odd = new HarmonicModulation 
-            { 
-                IsOn = highNybble.IsBitSet(3), 
-                EnvelopeNumber = (byte)((highNybble & 0b00000011) + 1) 
-            };
-	        harmSet.Even = new HarmonicModulation 
-            {
-		        IsOn = lowNybble.IsBitSet(3),
-		        EnvelopeNumber = (byte)((lowNybble & 0b00000011) + 1)
-	        };
+            HarmonicModulation odd = new HarmonicModulation();
+            odd.IsOn = highNybble.IsBitSet(3);
+            odd.EnvelopeNumber = (byte)((highNybble & 0b00000011) + 1);
+        	harmSet.Odd = odd;
+
+            HarmonicModulation even = new HarmonicModulation();
+            even.IsOn = lowNybble.IsBitSet(3);
+            even.EnvelopeNumber = (byte)((lowNybble & 0b00000011) + 1);
+            harmSet.Even = even;
 
     	    (b, offset) = Util.GetNextByte(data, offset);
             (highNybble, lowNybble) = Util.NybblesFromByte(b);
+
             // octave and fifth are in the same byte
-        	harmSet.Octave = new HarmonicModulation 
-            {
-		        IsOn = highNybble.IsBitSet(3),
-		        EnvelopeNumber = (byte)((highNybble & 0b00000011) + 1)
-            };
-        	harmSet.Fifth = new HarmonicModulation
-            {
-		        IsOn = lowNybble.IsBitSet(3),
-		        EnvelopeNumber = (byte)((lowNybble & 0b00000011) + 1)
-            };
+            HarmonicModulation octave = new HarmonicModulation();
+            octave.IsOn = highNybble.IsBitSet(3);
+            octave.EnvelopeNumber = (byte)((highNybble & 0b00000011) + 1);
+            harmSet.Octave = octave;
+
+            HarmonicModulation fifth = new HarmonicModulation();
+            fifth.IsOn = lowNybble.IsBitSet(3);
+            fifth.EnvelopeNumber = (byte)((lowNybble & 0b00000011) + 1);
+            harmSet.Fifth = fifth;
 
     	    (b, offset) = Util.GetNextByte(data, offset);
             (highNybble, lowNybble) = Util.NybblesFromByte(b);
-        	harmSet.All = new HarmonicModulation
-            {
-		        IsOn = highNybble.IsBitSet(3),
-		        EnvelopeNumber = (byte)((highNybble & 0b00000011) + 1)
-            };
+            HarmonicModulation all = new HarmonicModulation();
+            all.IsOn = highNybble.IsBitSet(3);
+            all.EnvelopeNumber = (byte)((highNybble & 0b00000011) + 1);
+        	harmSet.All = all;
 
     	    (b, offset) = Util.GetNextByte(data, offset);
             switch (b)
@@ -490,14 +306,17 @@ namespace KSynthLib.K5
                 HarmonicEnvelopeSegment[] segments = new HarmonicEnvelopeSegment[HarmonicEnvelopeSegmentCount];
                 for (int si = 0; si < HarmonicEnvelopeSegmentCount; si++)
                 {
+                    HarmonicEnvelopeSegment segment = new HarmonicEnvelopeSegment();
             	    (b, offset) = Util.GetNextByte(data, offset);
                     harmonicEnvelopeDataCount++;
                     if (si == 0)
                     {
                         shadow = b.IsBitSet(7);
                     }
-                    segments[si].IsMaxSegment = b.IsBitSet(6);
-                    segments[si].Level = (byte)(b & 0b00111111);
+                    segment.IsMaxSegment = b.IsBitSet(6);
+                    segment.Level = (byte)(b & 0b00111111);
+
+                    segments[si] = segment;
                 }
 
                 for (int si = 0; si < HarmonicEnvelopeSegmentCount; si++)
@@ -511,19 +330,9 @@ namespace KSynthLib.K5
             }
             if (harmonicEnvelopeDataCount != desiredHarmonicEnvelopeDataCount)
             {
-                Console.WriteLine($"Should have {desiredHarmonicEnvelopeDataCount} bytes of HE data, have {harmonicEnvelopeDataCount} bytes");
+                Console.WriteLine($"WARNING: Should have {desiredHarmonicEnvelopeDataCount} bytes of HE data, have {harmonicEnvelopeDataCount} bytes");
             }
             harmSet.IsShadowOn = shadow;
-
-            /*
-            for (int ei = 0; ei < HarmonicEnvelopeCount; ei++)
-            {
-                for (int si = 0; si < HarmonicEnvelopeSegmentCount; si++)
-                {
-                    Console.WriteLine(string.Format("env{0} seg{1} rate = {2} level = {3}{4}", ei + 1, si + 1, harmSet.Envelopes[ei].Segments[si].Rate, harmSet.Envelopes[ei].Segments[si].Level, harmSet.Envelopes[ei].Segments[si].IsMaxSegment ? "*": ""));
-                }
-            }
-             */
 
 	        HarmonicSettings = harmSet;  // finally we get to assign this to the source
 
@@ -556,8 +365,10 @@ namespace KSynthLib.K5
             Filter.EnvelopeSegments = new FilterEnvelopeSegment[FilterEnvelopeSegmentCount];
             for (int i = 0; i < FilterEnvelopeSegmentCount; i++)
             {
+                FilterEnvelopeSegment segment = new FilterEnvelopeSegment();
         	    (b, offset) = Util.GetNextByte(data, offset);
-                Filter.EnvelopeSegments[i].Rate = b;
+                segment.Rate = b;
+                Filter.EnvelopeSegments[i] = segment;
             }
             for (int i = 0; i < FilterEnvelopeSegmentCount; i++)
             {
@@ -596,9 +407,11 @@ namespace KSynthLib.K5
             // First, the amp envelope rates:
             for (int i = 0; i < AmplifierEnvelopeSegmentCount; i++)
             {
+                AmplifierEnvelopeSegment segment = new AmplifierEnvelopeSegment();
         	    (b, offset) = Util.GetNextByte(data, offset);
-                Amplifier.Envelope.Segments[i].IsRateModulationOn = b.IsBitSet(6);
-                Amplifier.Envelope.Segments[i].Rate = (byte)(b & 0b00111111);
+                segment.IsRateModulationOn = b.IsBitSet(6);
+                segment.Rate = (byte)(b & 0b00111111);
+                Amplifier.Envelope.Segments[i] = segment;
             }
 
             // Then, the amp envelope levels and max settings:
@@ -619,16 +432,6 @@ namespace KSynthLib.K5
 
         public override string ToString()
         {
-            /*
-            StringBuilder harmonicBuilder = new StringBuilder();
-            harmonicBuilder.Append("Harmonics:\n");
-            for (int i = 0; i < HarmonicCount; i++)
-            {
-                harmonicBuilder.Append(String.Format("{0,2}: {1,2} {2}\n", i, Harmonics[i].Level, Harmonics[i].IsModulationActive ? "Y" : "N"));
-            }
-            harmonicBuilder.Append("\n");
-             */
-
             return $"{Pitch}{HarmonicSettings}{Filter}{Amplifier}";
         }
 
@@ -658,7 +461,7 @@ namespace KSynthLib.K5
 
                 count++;
 
-                highNybble = (byte)(Harmonics[count].EnvelopeNumber - 1);
+                highNybble = (byte)(Harmonics[count].EnvelopeNumber - 1); // 1~4 to 0~3
                 highNybble = highNybble.UnsetBit(2);
                 if (Harmonics[count].IsModulationActive)
                 {
@@ -672,7 +475,7 @@ namespace KSynthLib.K5
             }
 
             // harmonic 63 (count = 62)
-            b = (byte)(Harmonics[count].EnvelopeNumber - 1);
+            b = (byte)(Harmonics[count].EnvelopeNumber - 1); // 1~4 to 0~3
             byte originalByte = b;
             b = b.UnsetBit(3);
             if (Harmonics[count].IsModulationActive)
@@ -680,7 +483,7 @@ namespace KSynthLib.K5
                 b = b.SetBit(3);
             }
 
-            byte extraByte = (byte)(Harmonic63bis.EnvelopeNumber - 1);
+            byte extraByte = (byte)(Harmonic63bis.EnvelopeNumber - 1); // 1~4 to 0~3
             if (Harmonic63bis.IsModulationActive)
             {
                 extraByte = extraByte.SetBit(3);

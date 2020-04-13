@@ -6,11 +6,30 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K5
 {
-    public struct Harmonic
+    public class Harmonic
     {
-        public byte Level;
+        private LevelType _level;
+        public byte Level
+        {
+            get => _level.Value;
+            set => _level.Value = value;
+        }
+
 	    public bool IsModulationActive;  // true if modulation is on for the containing source
-	    public byte EnvelopeNumber; // user harmonic envelope number 0/1, 1/2, 2/3 or 3/4
+
+        private EnvelopeNumberType _envelopeNumber;
+	    public byte EnvelopeNumber // user harmonic envelope number 0/1, 1/2, 2/3 or 3/4
+        {
+            get => _envelopeNumber.Value;
+            set => _envelopeNumber.Value = value;
+        }
+
+        public Harmonic()
+        {
+            _level = new LevelType();
+            IsModulationActive = false;
+            _envelopeNumber = new EnvelopeNumberType(1);
+        }
     }
 
     public class HarmonicEnvelopeSegment
@@ -88,10 +107,22 @@ namespace KSynthLib.K5
         All
     }
 
-    public struct HarmonicModulation
+    public class HarmonicModulation
     {
         public bool IsOn;  // will the selected harmonic be modulated (provided that master mod is on)
-	    public byte EnvelopeNumber;  // assigns the selected harmonic to one of the four DHG envelopes
+
+        private EnvelopeNumberType _envelopeNumber;
+	    public byte EnvelopeNumber  // assigns the selected harmonic to one of the four DHG envelopes
+        {
+            get => _envelopeNumber.Value;
+            set => _envelopeNumber.Value = value;
+        }
+
+        public HarmonicModulation()
+        {
+            IsOn = false;
+            _envelopeNumber = new EnvelopeNumberType(1);
+        }
     }
 
     public enum HarmonicAngle

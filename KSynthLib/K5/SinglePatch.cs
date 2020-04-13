@@ -1,6 +1,5 @@
 using System;
 using System.Text;
-using System.Linq;
 using System.Collections.Generic;
 
 using KSynthLib.Common;
@@ -16,12 +15,6 @@ namespace KSynthLib.K5
         Off
     }
 
-    public enum SourceMode
-    {
-        Twin,
-        Full
-    }
-
     public enum PicMode
     {
         S1,
@@ -29,20 +22,39 @@ namespace KSynthLib.K5
         Both
     }
 
-    public struct KeyScaling
+    public class KeyScaling
     {
-        public sbyte Right;
-        public sbyte Left;
-        public byte Breakpoint;
+        private DepthType _right; // 0~±31
+        public sbyte Right
+        {
+            get => _right.Value;
+            set => _right.Value = value;
+        }
+
+        private DepthType _left; // 0~±31
+        public sbyte Left
+        {
+            get => _left.Value;
+            set => _left.Value = value;
+        }
+
+        private KeyNumberType _breakpoint;
+        public byte Breakpoint
+        {
+            get => _breakpoint.Value;
+            set => _breakpoint.Value = value;
+        }
+
+        public KeyScaling()
+        {
+            _right = new DepthType();
+            _left = new DepthType();
+            _breakpoint = new KeyNumberType();
+        }
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
-
-            builder.Append("*KS CURVE*\n\n");
-            builder.Append($"LEFT={Left,3}    B.POINT={Breakpoint,3}    RIGHT={Right,3}\n");
-
-            return builder.ToString();
+            return $"*KS CURVE*\nLEFT={Left,3}    B.POINT={Breakpoint,3}    RIGHT={Right,3}";
         }
     }
 
@@ -70,7 +82,7 @@ namespace KSynthLib.K5
         }
 
         public ModulationAssign PedalAssign;  // enumeration
-        public ModulationAssign WheelAssign;
+        public ModulationAssign WheelAssign;  // enumeration
         public KeyScaling KeyScaling;
 
         public SourceSettings()
@@ -78,6 +90,7 @@ namespace KSynthLib.K5
             _delay = new PositiveDepthType();
             _pedalDepth = new DepthType();
             _wheelDepth = new DepthType();
+            KeyScaling = new KeyScaling();
         }
 
         public override string ToString()
@@ -89,8 +102,14 @@ namespace KSynthLib.K5
     public class SinglePatch: Patch
     {
         const int FormantLevelCount = 11;
+        public static readonly int NameLength = 8;
 
-        public string Name;
+        private string _name;
+        public string Name
+        {
+            get => _name.Substring(0, NameLength);
+            set => _name = value.Substring(0, NameLength);
+        }
 
         private VolumeType _volume;   // 0~63
         public byte Volume
@@ -108,10 +127,18 @@ namespace KSynthLib.K5
 
         public SourceSettings Source1Settings;
         public SourceSettings Source2Settings;
+
         public bool Portamento;
-        public byte PortamentoSpeed; // 0~63
-        public SourceMode SMode;
-        public PicMode PMode;
+
+        private VolumeType _portamentoSpeed; // 0~63
+        public byte PortamentoSpeed
+        {
+            get => _portamentoSpeed.Value;
+            set => _portamentoSpeed.Value = value;
+        }
+
+        public SourceMode SMode;  // enumeration
+        public PicMode PMode;  // enumeration 
         public Source Source1;
         public Source Source2;
         public LFO LFO;
@@ -124,15 +151,26 @@ namespace KSynthLib.K5
 
         public SinglePatch()
         {
+            Name = "NewSound";
+            _volume = new VolumeType();
+            _balance = new DepthType();
+
             Source1Settings = new SourceSettings();
             Source2Settings = new SourceSettings();
+
+            Portamento = false;
+            _portamentoSpeed = new VolumeType();
+
+            SMode = SourceMode.Full;
+            PMode = PicMode.Both;
+
             Source1 = new Source();
             Source2 = new Source();
-            LFO = new LFO();
-            FormantLevels = new int[FormantLevelCount];
 
-            _balance = new DepthType();
-            _volume = new VolumeType();
+            LFO = new LFO();
+
+            IsFormantOn = false;
+            FormantLevels = new int[FormantLevelCount];
         }
 
         public SinglePatch(byte[] data) : this()
@@ -140,7 +178,7 @@ namespace KSynthLib.K5
             int offset = 0;
             byte b = 0;  // will be reused when getting the next byte
 
-            Name = GetName(data, offset);
+            Name = CollectName(data);  // name is S1...S8
 
             offset += 8;
             (Volume, offset) = Util.GetNextByte(data, offset);  // S9
@@ -177,7 +215,7 @@ namespace KSynthLib.K5
             // Assign the source settings later, when the keyscaling has been parsed.
             offset += 8;  // advance past the source settings
 
-	        // portamento and p. speed - S19
+	        // portamento setting and portamento speed - S19
             (b, offset) = Util.GetNextByte(data, offset);
             Portamento = b.IsBitSet(7);  // use the byte extensions defined in Util.cs
 	        PortamentoSpeed = (byte)(b & 0x3f); // 0b00111111
@@ -209,6 +247,8 @@ namespace KSynthLib.K5
 
             //Console.WriteLine($"Processed common settings of {offset} bytes. Data length = {data.Length} bytes.");
 
+            // S1 and S2 data are interleaved in S21 ... S468.
+            
             int dataLength = data.Length - (offset + FormantLevelCount + 1 + 2);
             //Console.WriteLine(String.Format("dataLength = {0}", dataLength));
             byte[] sourceData = new byte[dataLength];
@@ -270,8 +310,8 @@ namespace KSynthLib.K5
             Source1Settings = s1s;
             Source2Settings = s2s;
 
-            Console.WriteLine($"S1 keyscaling = {Source1Settings.KeyScaling}");
-            Console.WriteLine($"S2 keyscaling = {Source2Settings.KeyScaling}");
+            //Console.WriteLine($"S1 keyscaling = {Source1Settings.KeyScaling}");
+            //Console.WriteLine($"S2 keyscaling = {Source2Settings.KeyScaling}");
 
             // DFT (S479 ... S489)
             FormantLevels = new int[FormantLevelCount];
@@ -297,7 +337,7 @@ namespace KSynthLib.K5
             byte checksumHigh = b;
         }
 
-        private string GetName(byte[] data, int offset)
+        private string CollectName(byte[] data)
         {
             // Brute-forcing the name in: S1 ... S8
             byte[] bytes = { data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7] };
@@ -316,11 +356,11 @@ namespace KSynthLib.K5
             builder.Append($"PEDAL|{Source1Settings.PedalAssign}|{Source2Settings.PedalAssign}|   POR ={Portamento}--SPD={PortamentoSpeed}\n");
             builder.Append($"P DEP| {Source1Settings.PedalDepth,3}  | {Source2Settings.PedalDepth,3}  |\n");
             builder.Append($"WHEEL|{Source1Settings.WheelAssign}|{Source2Settings.WheelAssign}|\n");
-            builder.Append($"W DEP| {Source1Settings.WheelDepth,2} | {Source2Settings.WheelDepth,2}  |\n");
-            builder.Append($"{Source1Settings.KeyScaling}\n\n");
-            builder.Append($"{Source2Settings.KeyScaling}\n\n");
+            builder.Append($"W DEP| {Source1Settings.WheelDepth,2} | {Source2Settings.WheelDepth,2}  |\n\n");
+            builder.Append($"{Source1Settings.KeyScaling}\n");
+            builder.Append($"{Source2Settings.KeyScaling}\n");
 
-            builder.Append("\n{Source1}\n{Source2}\n");
+            builder.Append($"\n{Source1}\n{Source2}\n");
 
             StringBuilder formantStringBuilder = new StringBuilder();
             for (int i = 0; i < FormantLevelCount; i++)
