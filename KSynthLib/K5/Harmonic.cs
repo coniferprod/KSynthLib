@@ -13,20 +13,72 @@ namespace KSynthLib.K5
 	    public byte EnvelopeNumber; // user harmonic envelope number 0/1, 1/2, 2/3 or 3/4
     }
 
-    public struct HarmonicEnvelopeSegment
+    public class HarmonicEnvelopeSegment
     {
         public bool IsMaxSegment;
-        public byte Level; // 0~31
-        public byte Rate;  // 0~31
+
+        private PositiveDepthType _level; // 0~31
+        public byte Level
+        {
+            get => _level.Value;
+            set => _level.Value = value;
+        }
+
+        private PositiveDepthType _rate; // 0~31
+        public byte Rate
+        {
+            get => _rate.Value;
+            set => _rate.Value = value;
+        }
+
+        public HarmonicEnvelopeSegment()
+        {
+            IsMaxSegment = false;
+            _level = new PositiveDepthType();
+            _rate = new PositiveDepthType();
+        }
+
+        public HarmonicEnvelopeSegment(byte level, byte rate, bool isMaxSeg) : this()
+        {
+            Level = level;
+            Rate = rate;
+            IsMaxSegment = isMaxSeg;
+        }
+
+        public override string ToString()
+        {
+            return $"level={Level} rate={Rate} isMaxSeg={IsMaxSegment}";
+        }
     }
 
-    public struct HarmonicEnvelope
+    public class HarmonicEnvelope
     {
+        public static readonly int SegmentCount = 6;
+
         public HarmonicEnvelopeSegment[] Segments;
 
         public bool IsActive;
-	
-	    public byte Effect; // 0~31 (SysEx manual says "s<x> env<y> off", maybe should be "eff"?)
+
+        private PositiveDepthType _effect;
+        // 0~31 (SysEx manual says "s<x> env<y> off", maybe should be "eff"?)        
+	    public byte Effect
+        {
+            get => _effect.Value;
+            set => _effect.Value = value;
+        }
+
+        public HarmonicEnvelope()
+        {
+            IsActive = false;
+
+            Segments = new HarmonicEnvelopeSegment[SegmentCount];
+            for (int i = 0; i < SegmentCount; i++)
+            {
+                Segments[i] = new HarmonicEnvelopeSegment();
+            }
+
+            _effect = new PositiveDepthType();
+        }
     }
 
     public enum HarmonicSelection
@@ -49,17 +101,55 @@ namespace KSynthLib.K5
         Positive
     }
 
-    public struct HarmonicSettings
+    public class HarmonicSettings
     {
-	    public sbyte VelocityDepth;  // 0~±31
-	    public sbyte PressureDepth;  // 0~±31
-    	public sbyte KeyScalingDepth;  // 0~±31
-	    public byte LFODepth; // 0~31
+        public static readonly int HarmonicEnvelopeCount = 4;
+
+        private DepthType _velocityDepth; // 0~±31
+        public sbyte VelocityDepth
+        {
+            get => _velocityDepth.Value;
+            set => _velocityDepth.Value = value;
+        }
+
+        private DepthType _pressureDepth; // 0~±31
+	    public sbyte PressureDepth
+        {
+            get => _pressureDepth.Value;
+            set => _pressureDepth.Value = value;
+        }
+
+        private DepthType _keyScalingDepth; // 0~±31
+    	public sbyte KeyScalingDepth
+        {
+            get => _keyScalingDepth.Value;
+            set => _keyScalingDepth.Value = value;
+        }
+
+        private PositiveDepthType _lfoDepth; // 0~31
+	    public byte LFODepth
+        {
+            get => _lfoDepth.Value;
+            set => _lfoDepth.Value = value;
+        }
+
 	    public HarmonicEnvelope[] Envelopes;
 	    public bool IsModulationActive; // master modulation control - if false, all DHG modulation is defeated
 	    public HarmonicSelection Selection;
-	    public byte RangeFrom; // 1~63
-	    public byte RangeTo; // 1~63
+
+        private HarmonicNumberType _rangeFrom; // 1~63
+	    public byte RangeFrom
+        {
+            get => _rangeFrom.Value;
+            set => _rangeFrom.Value = value;
+        }
+
+        private HarmonicNumberType _rangeTo; // 1~63
+	    public byte RangeTo
+        {
+            get => _rangeTo.Value;
+            set => _rangeTo.Value = value;
+        }
 
 	    public HarmonicModulation Odd;
 	    public HarmonicModulation Even;
@@ -68,48 +158,72 @@ namespace KSynthLib.K5
 	    public HarmonicModulation All;
 
     	public HarmonicAngle Angle; // 0/-, 1/0, 1/+ (maybe should be 2/+ ?)
-	    public byte HarmonicNumber; // 1~63
+
+        private HarmonicNumberType _harmonicNumber; // 1~63
+	    public byte HarmonicNumber
+        {
+            get => _harmonicNumber.Value;
+            set => _harmonicNumber.Value = value;
+        }
 
 	    public bool IsShadowOn;  // this is in S285 bit 7
+
+        public HarmonicSettings()
+        {
+            _velocityDepth = new DepthType();
+            _pressureDepth = new DepthType();
+            _keyScalingDepth = new DepthType();
+            _lfoDepth = new PositiveDepthType();
+            _rangeFrom = new HarmonicNumberType();
+            _rangeTo = new HarmonicNumberType();
+
+            Envelopes = new HarmonicEnvelope[HarmonicEnvelopeCount];
+            for (int i = 0; i < HarmonicEnvelopeCount; i++)
+            {
+                Envelopes[i] = new HarmonicEnvelope();
+            }
+
+            _harmonicNumber = new HarmonicNumberType(1);
+        }
 
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(String.Format("*DHG 1*  MOD={0}\n\n", IsModulationActive ? "ON" : "OFF"));
-            builder.Append(String.Format("*DHG 2*\n<DEPTH>\n VEL={0,3}  KS={1,3}\n PRS={2,3} LFO={3,3}\n\n",
+            builder.Append(string.Format("*DHG 1*  MOD={0}\n\n", IsModulationActive ? "ON" : "OFF"));
+            builder.Append(string.Format("*DHG 2*\n<DEPTH>\n VEL={0,3}  KS={1,3}\n PRS={2,3} LFO={3,3}\n\n",
                 VelocityDepth, KeyScalingDepth, PressureDepth, LFODepth));
             builder.Append("ENV|");
-            for (int i = 0; i < Source.HarmonicEnvelopeCount; i++)
+            for (int i = 0; i < HarmonicSettings.HarmonicEnvelopeCount; i++)
             {
-                builder.Append(String.Format("{0,2}|", i + 1));
+                builder.Append(string.Format("{0,2}|", i + 1));
             }
             builder.Append("\nACT|");
-            for (int i = 0; i < Source.HarmonicEnvelopeCount; i++)
+            for (int i = 0; i < HarmonicSettings.HarmonicEnvelopeCount; i++)
             {
-                builder.Append(String.Format("{0}|", Envelopes[i].IsActive ? "ON" : "--"));
+                builder.Append(string.Format("{0}|", Envelopes[i].IsActive ? "ON" : "--"));
             }
             builder.Append("\nEFF|");
-            for (int i = 0; i < Source.HarmonicEnvelopeCount; i++)
+            for (int i = 0; i < HarmonicSettings.HarmonicEnvelopeCount; i++)
             {
-                builder.Append(String.Format("{0,2}|", Envelopes[i].Effect));
+                builder.Append(string.Format("{0,2}|", Envelopes[i].Effect));
             }
             builder.Append("\n\n");
 
             builder.Append("*DHG ENV*\n\nSEG |");
-            for (int i = 0; i < Source.HarmonicEnvelopeSegmentCount; i++)
+            for (int i = 0; i < HarmonicEnvelope.SegmentCount; i++)
             {
-                builder.Append(String.Format("{0,5}|", i + 1));
+                builder.Append(string.Format("{0,5}|", i + 1));
             }
             builder.Append("\n----|RT|LV|RT|LV|RT|LV|RT|LV|RT|LV|RT|LV|\n");
 
-            for (int ei = 0; ei < Source.HarmonicEnvelopeCount; ei++) 
+            for (int ei = 0; ei < HarmonicSettings.HarmonicEnvelopeCount; ei++) 
             {
-                builder.Append(String.Format("ENV{0}|", ei + 1));
-                for (int si = 0; si < Source.HarmonicEnvelopeSegmentCount; si++)
+                builder.Append(string.Format("ENV{0}|", ei + 1));
+                for (int si = 0; si < HarmonicEnvelope.SegmentCount; si++)
                 {
                     HarmonicEnvelopeSegment segment = Envelopes[ei].Segments[si];
                     string levelString = segment.IsMaxSegment ? " *" : String.Format("{0,2}", segment.Level);
-                    builder.Append(String.Format("{0,2}|{1}|", segment.Rate, levelString));
+                    builder.Append(string.Format("{0,2}|{1}|", segment.Rate, levelString));
                 }
                 builder.Append("\n");
             }
@@ -132,7 +246,7 @@ namespace KSynthLib.K5
             data.Add(LFODepth);
 
             byte b = 0;
-            for (int i = 0; i < Source.HarmonicEnvelopeCount; i++)
+            for (int i = 0; i < HarmonicSettings.HarmonicEnvelopeCount; i++)
             {
                 b = Envelopes[i].Effect;
                 if (Envelopes[i].IsActive)
@@ -190,9 +304,9 @@ namespace KSynthLib.K5
             data.Add((byte)Angle);
             data.Add(HarmonicNumber);
 
-            for (int ei = 0; ei < Source.HarmonicEnvelopeCount; ei++)
+            for (int ei = 0; ei < HarmonicSettings.HarmonicEnvelopeCount; ei++)
             {
-                for (int si = 0; si < Source.HarmonicEnvelopeSegmentCount; si++)
+                for (int si = 0; si < HarmonicEnvelope.SegmentCount; si++)
                 {
                     b = Envelopes[ei].Segments[si].Level;
                     if (Envelopes[ei].Segments[si].IsMaxSegment)
@@ -216,7 +330,7 @@ namespace KSynthLib.K5
                     }
                     data.Add(b);
                 }
-                for (int si = 0; si < Source.HarmonicEnvelopeSegmentCount; si++)
+                for (int si = 0; si < HarmonicEnvelope.SegmentCount; si++)
                 {
                     b = Envelopes[ei].Segments[si].Rate;
                     data.Add(b);
@@ -225,7 +339,7 @@ namespace KSynthLib.K5
 
             if (data.Count != DataLength)
             {
-                System.Console.WriteLine(String.Format("WARNING: DHG length, expected = {0}, actual = {1}", DataLength, data.Count));
+                Console.WriteLine($"WARNING: DHG length, expected = {DataLength}, actual = {data.Count} bytes");
             }
 
             return data.ToArray();
