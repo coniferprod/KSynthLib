@@ -54,6 +54,8 @@ namespace KSynthLib.K5000
 
     public class EffectSettings
     {
+        public static readonly int DataSize = 6;
+
         private int _type;  // 0~36 (in SysEx 11~47)
 
         public EffectType Type
@@ -61,7 +63,7 @@ namespace KSynthLib.K5000
             get => (EffectType)_type;
             set => _type = (int)value;
         }
-        
+
         private EffectDepthType _depth;
         public byte Depth  // 0 ~ 100
         {
@@ -97,7 +99,7 @@ namespace KSynthLib.K5000
             set => _param4.Value = value;
         }
 
-        public static EffectName[] EffectNames = 
+        public static EffectName[] EffectNames =
         {
             /*  0 */ new EffectName { Name = "Hall 1", ParameterNames = new string[] { "Dry/Wet 2", "Reverb Time", "Predelay Time", "High Frequency Damping" } },
             /*  1 */ new EffectName { Name = "Hall 2", ParameterNames = new string[] { "Dry/Wet 2", "Reverb Time", "Predelay Time", "High Frequency Damping" } },
@@ -161,6 +163,15 @@ namespace KSynthLib.K5000
             _param4 = new PositiveLevelType(50);
         }
 
+        public EffectSettings(byte[] data, int offset)
+        {
+            Type = (EffectType)(data[offset] - 11);
+            Depth = data[offset + 1];
+            Param1 = data[offset + 2];
+            Param2 = data[offset + 3];
+            Param3 = data[offset + 4];
+            Param4 = data[offset + 5];
+        }
 
         public override string ToString()
         {
@@ -185,91 +196,7 @@ namespace KSynthLib.K5000
             data.Add(Param3);
             data.Add(Param4);
             return data.ToArray();
-        }        
+        }
     }
 
-    // Tthe graphical EQ settings of a patch.
-    public class GEQSettings
-    {
-        private FreqType _freq1; // 58(-6) ~ 70(+6), so 64 = 0
-        public sbyte Freq1
-        {
-            get => _freq1.Value;
-            set => _freq1.Value = value;
-        }
-
-        private FreqType _freq2;
-        public sbyte Freq2
-        {
-            get => _freq2.Value;
-            set => _freq2.Value = value;
-        }
-
-        private FreqType _freq3;
-        public sbyte Freq3
-        {
-            get => _freq3.Value;
-            set => _freq3.Value = value;
-        }
-
-        private FreqType _freq4;
-        public sbyte Freq4
-        {
-            get => _freq4.Value;
-            set => _freq4.Value = value;
-        }
-
-        private FreqType _freq5;
-        public sbyte Freq5
-        {
-            get => _freq5.Value;
-            set => _freq5.Value = value;
-        }
-
-        private FreqType _freq6;
-        public sbyte Freq6
-        {
-            get => _freq6.Value;
-            set => _freq6.Value = value;
-        }
-
-        private FreqType _freq7;
-        public sbyte Freq7
-        {
-            get => _freq7.Value;
-            set => _freq7.Value = value;
-        }
-
-        public GEQSettings()
-        {
-            _freq1 = new FreqType();
-            _freq2 = new FreqType();
-            _freq3 = new FreqType();
-            _freq4 = new FreqType();
-            _freq5 = new FreqType();
-            _freq6 = new FreqType();
-            _freq7 = new FreqType();
-        }
-
-        public override string ToString()
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.Append($"{Freq1} {Freq2} {Freq3} {Freq4} {Freq5} {Freq6} {Freq7}\n");
-            // TODO: Add the sign, like "+6" or "-6"
-            return builder.ToString();
-        }
-
-        public byte[] ToData()
-        {
-            List<byte> data = new List<byte>();
-            data.Add((byte)(Freq1 + 64));
-            data.Add((byte)(Freq2 + 64));
-            data.Add((byte)(Freq3 + 64));
-            data.Add((byte)(Freq4 + 64));
-            data.Add((byte)(Freq5 + 64));
-            data.Add((byte)(Freq6 + 64));
-            data.Add((byte)(Freq7 + 64));
-            return data.ToArray();
-        }     
-    }
 }

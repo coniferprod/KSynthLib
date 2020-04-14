@@ -15,14 +15,39 @@ namespace KSynthLib.K5000
 
     public class VelocitySwitchSettings
     {
-        public VelocitySwitchType Type;
-        public int Velocity;  // 31 ~ 127
+        public VelocitySwitchType SwitchType;  // enumeration
+
+        // The velocity switch threshold is specified like this:
+        // "velo:0=4 ~ 31=127". What does that even mean?
+        private VelocityThresholdType _threshold; // 31 ~ 127
+        public byte Threshold
+        {
+            get => _threshold.Value;
+            set => _threshold.Value = value;
+        }
+
+        public VelocitySwitchSettings()
+        {
+            SwitchType = VelocitySwitchType.Off;
+            _threshold = new VelocityThresholdType(31);
+        }
     }
-    
+
     public class ModulationSettings
     {
-        public ControlDestination Destination;
-        public int Depth;
+        public ControlDestination Destination;  // enumeration
+
+        private MacroDepthType _depth;
+        public sbyte Depth
+        {
+            get => _depth.Value;
+            set => _depth.Value = value;
+        }
+
+        public ModulationSettings()
+        {
+            _depth = new MacroDepthType();
+        }
     }
 
     public class ControllerSettings
@@ -41,9 +66,9 @@ namespace KSynthLib.K5000
             List<byte> data = new List<byte>();
 
             data.Add((byte)Destination1.Destination);
-            data.Add((byte)Destination1.Depth);
+            data.Add((byte)(Destination1.Depth + 64)); // -31...+31 to 33...95
             data.Add((byte)Destination2.Destination);
-            data.Add((byte)Destination2.Depth);
+            data.Add((byte)(Destination2.Depth + 64));
 
             return data.ToArray();
         }
@@ -79,9 +104,17 @@ namespace KSynthLib.K5000
         Random
     }
 
+    /// <summary>Represents a source in a single patch.</summary>
     public class Source
     {
         public static int DataSize = 86;
+
+        private PositiveLevelType _volume;
+        public byte Volume
+        {
+            get => _volume.Value;
+            set => _volume.Value = value;
+        }
 
         private PositiveLevelType _zoneLow;
         public byte ZoneLow
@@ -106,13 +139,6 @@ namespace KSynthLib.K5000
             set => _effectPath.Value = value;
         }
 
-        private PositiveLevelType _volume;
-        public byte Volume
-        {
-            get => _volume.Value;
-            set => _volume.Value = value;
-        }
-
         private BenderPitchType _benderPitch;
         public byte BenderPitch
         {
@@ -130,7 +156,7 @@ namespace KSynthLib.K5000
         public ControllerSettings Press;
         public ControllerSettings Wheel;
         public ControllerSettings Express;
-        public AssignableController Assign1;        
+        public AssignableController Assign1;
         public AssignableController Assign2;
 
         private PositiveLevelType _keyOnDelay;
@@ -140,13 +166,13 @@ namespace KSynthLib.K5000
             set => _keyOnDelay.Value = value;
         }
 
-        public PanType Pan;
+        public PanType Pan;  // enumeration
 
-        private SignedLevelType _normalPanValue;
-        public sbyte NormalPanValue  // (63L)1 ~ (63R)127
+        private SignedLevelType _panValue;  // (63L)1 ~ (63R)127
+        public sbyte PanValue
         {
-            get => _normalPanValue.Value;
-            set => _normalPanValue.Value = value;
+            get => _panValue.Value;
+            set => _panValue.Value = value;
         }
 
         public DCOSettings DCO;
@@ -166,26 +192,31 @@ namespace KSynthLib.K5000
 
         public Source()
         {
+            // The members are initialized here according to the
+            // description in the Kawai K5000S user manual:
+
+            _volume = new PositiveLevelType(120);
+            _keyOnDelay = new PositiveLevelType();
+            _effectPath = new EffectPathType();
+            _benderPitch = new BenderPitchType();
+            _benderCutoff = new BenderCutoffType();
+
+            Pan = PanType.Normal;
+            _panValue = new SignedLevelType();
+
             _zoneLow = new PositiveLevelType();
             _zoneHigh = new PositiveLevelType(127);
 
             VelocitySwitch = new VelocitySwitchSettings();
-            _effectPath = new EffectPathType();
+            VelocitySwitch.SwitchType = VelocitySwitchType.Off;
+            VelocitySwitch.Threshold = 31;  // this is weirdly spec'd, need to check
 
-            _volume = new PositiveLevelType(120);
-
-            _benderPitch = new BenderPitchType();
-            _benderCutoff = new BenderCutoffType();
 
             Press = new ControllerSettings();
             Wheel = new ControllerSettings();
             Express = new ControllerSettings();
             Assign1 = new AssignableController();
             Assign2 = new AssignableController();
-
-            _keyOnDelay = new PositiveLevelType();
-
-            _normalPanValue = new SignedLevelType();
 
             DCO = new DCOSettings();
             DCF = new DCFSettings();
@@ -207,16 +238,16 @@ namespace KSynthLib.K5000
 
             (b, offset) = Util.GetNextByte(data, offset);
             VelocitySwitch = new VelocitySwitchSettings();
-            VelocitySwitch.Type = (VelocitySwitchType)(b >> 5);
-            VelocitySwitch.Velocity = (b & 0x1F);
+            VelocitySwitch.SwitchType = (VelocitySwitchType)(b >> 5);
+            VelocitySwitch.Threshold = (byte)(b & 0x1F);
             Console.WriteLine($"velo sw original value = {b:X2}");
-            
+
             (b, offset) = Util.GetNextByte(data, offset);
             EffectPath = b;
 
             (b, offset) = Util.GetNextByte(data, offset);
             Volume = b;
-            
+
             (b, offset) = Util.GetNextByte(data, offset);
             BenderPitch = b;
 
@@ -227,31 +258,31 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);
             Press.Destination1.Destination = (ControlDestination)b;
             (b, offset) = Util.GetNextByte(data, offset);
-            Press.Destination1.Depth = b;
+            Press.Destination1.Depth = (sbyte)(b - 64);  // (-31)33~(+31)~95
             (b, offset) = Util.GetNextByte(data, offset);
             Press.Destination2.Destination = (ControlDestination)b;
             (b, offset) = Util.GetNextByte(data, offset);
-            Press.Destination2.Depth = b;
+            Press.Destination2.Depth = (sbyte)(b - 64);  // (-31)33~(+31)~95
 
             Wheel = new ControllerSettings();
             (b, offset) = Util.GetNextByte(data, offset);
             Wheel.Destination1.Destination = (ControlDestination)b;
             (b, offset) = Util.GetNextByte(data, offset);
-            Wheel.Destination1.Depth = b;
+            Wheel.Destination1.Depth = (sbyte)(b - 64); // (-31)33~(+31)~95
             (b, offset) = Util.GetNextByte(data, offset);
             Wheel.Destination2.Destination = (ControlDestination)b;
             (b, offset) = Util.GetNextByte(data, offset);
-            Wheel.Destination2.Depth = b;
+            Wheel.Destination2.Depth = (sbyte)(b - 64); // (-31)33~(+31)~95
 
             Express = new ControllerSettings();
             (b, offset) = Util.GetNextByte(data, offset);
             Express.Destination1.Destination = (ControlDestination)b;
             (b, offset) = Util.GetNextByte(data, offset);
-            Express.Destination1.Depth = b;
+            Express.Destination1.Depth = (sbyte)(b - 64); // (-31)33~(+31)~95
             (b, offset) = Util.GetNextByte(data, offset);
             Express.Destination2.Destination = (ControlDestination)b;
             (b, offset) = Util.GetNextByte(data, offset);
-            Express.Destination2.Depth = b;
+            Express.Destination2.Depth = (sbyte)(b - 64); // (-31)33~(+31)~95
 
             Assign1 = new AssignableController();
             (b, offset) = Util.GetNextByte(data, offset);
@@ -259,7 +290,7 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);
             Assign1.Target.Destination = (ControlDestination)b;
             (b, offset) = Util.GetNextByte(data, offset);
-            Assign1.Target.Depth = b;
+            Assign1.Target.Depth = (sbyte)(b - 64); // (-31)33~(+31)~95
 
             Assign2 = new AssignableController();
             (b, offset) = Util.GetNextByte(data, offset);
@@ -267,7 +298,7 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);
             Assign2.Target.Destination = (ControlDestination)b;
             (b, offset) = Util.GetNextByte(data, offset);
-            Assign2.Target.Depth = b;
+            Assign2.Target.Depth = (sbyte)(b - 64); // (-31)33~(+31)~95
 
             (b, offset) = Util.GetNextByte(data, offset);
             KeyOnDelay = b;
@@ -275,7 +306,7 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);
             Pan = (PanType)b;
             (b, offset) = Util.GetNextByte(data, offset);
-            NormalPanValue = (sbyte)(b - 64);
+            PanValue = (sbyte)(b - 64);  // (63L)1~(63R)127
 
             DCO = new DCOSettings(data, offset);
             offset += DCO.ToData().Length;
@@ -322,16 +353,16 @@ namespace KSynthLib.K5000
             // Don't automatically add the wave kit data, since we may not have it in our buffer
         }
 
-        public override string ToString() 
+        public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
             builder.Append(String.Format("Zone: low = {0}, high = {1}\n", ZoneLow, ZoneHigh));
-            builder.Append(String.Format("Vel. sw type = {0}, velocity = {1}\n", VelocitySwitch.Type, VelocitySwitch.Velocity));
+            builder.Append(String.Format("Vel. sw type = {0}, velocity = {1}\n", VelocitySwitch.SwitchType, VelocitySwitch.Threshold));
             builder.Append(String.Format("Effect path = {0}\n", EffectPath));
             builder.Append(String.Format("Volume = {0}\n", Volume));
             builder.Append(String.Format("Bender Pitch = {0}  Bender Cutoff = {1}\n", BenderPitch, BenderCutoff));
             builder.Append(String.Format("Key ON Delay = {0}\n", KeyOnDelay));
-            builder.Append(String.Format("Pan type = {0}, value = {1}\n", Pan, NormalPanValue));
+            builder.Append(String.Format("Pan type = {0}, value = {1}\n", Pan, PanValue));
             builder.Append(String.Format("DCO:\n{0}\n", DCO.ToString()));
             builder.Append(String.Format("DCF:\n{0}\n", DCF.ToString()));
             builder.Append(String.Format("DCA:\n{0}\n", DCA.ToString()));
@@ -351,8 +382,8 @@ namespace KSynthLib.K5000
             data.Add(ZoneLow);
             data.Add(ZoneHigh);
 
-            uint typeValue = (uint) VelocitySwitch.Type;
-            uint velocityValue = (uint) VelocitySwitch.Velocity;
+            uint typeValue = (uint) VelocitySwitch.SwitchType;
+            uint velocityValue = (uint) VelocitySwitch.Threshold;
             uint outValue = (typeValue << 5) | velocityValue;
             data.Add((byte)velocityValue);
 
@@ -370,7 +401,7 @@ namespace KSynthLib.K5000
 
             data.Add((byte)KeyOnDelay);
             data.Add((byte)Pan);
-            data.Add((byte)(NormalPanValue + 64));
+            data.Add((byte)(PanValue + 64));
 
             data.AddRange(DCO.ToData());
             data.AddRange(DCF.ToData());

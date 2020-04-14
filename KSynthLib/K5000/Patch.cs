@@ -5,13 +5,17 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K5000
 {
+    /// <summary>Abstract base class providing subclasses customization points
+    /// for computing checksums and collecting data for building System Exclusive
+    /// messages.</summary>
     public abstract class Patch
     {
-        public CommonSettings Common;
+        //public CommonSettings Common;
 
-        private byte checksum;
+        protected byte _checksum;
 
-        public byte Checksum
+        /// <summary>Virtual property to compute a checksum for patch data.</summary>
+        public virtual byte Checksum
         {
             get
             {
@@ -22,20 +26,21 @@ namespace KSynthLib.K5000
                     sum += b;
                 }
                 sum += 0xA5;
-                return sum;                
+                return sum;
             }
 
             set
             {
-                checksum = value;
+                _checksum = value;
             }
         }
 
         public Patch()
         {
-            Common = new CommonSettings();
+            //Common = new CommonSettings();
         }
 
+        /*
         public Patch(byte[] data)
         {
             int offset = 0;
@@ -51,9 +56,11 @@ namespace KSynthLib.K5000
             offset += dataSize;
             Console.WriteLine($"{offset:X8} parsed {dataSize} ({dataSize:X4}h) bytes of common data");
         }
+        */
 
         protected abstract byte[] CollectData();
 
+        /*
         protected virtual byte ComputeChecksum(byte[] data)
         {
             byte sum = 0;
@@ -64,17 +71,14 @@ namespace KSynthLib.K5000
             sum += 0xA5;
             return sum;
         }
+        */
 
         public byte[] ToData()
         {
             List<byte> allData = new List<byte>();
-
             byte[] data = CollectData();
             allData.AddRange(data);
-
-            byte sum = ComputeChecksum(data);
-            allData.Add(sum);
-
+            allData.Add(this.Checksum);
             return allData.ToArray();
         }
     }

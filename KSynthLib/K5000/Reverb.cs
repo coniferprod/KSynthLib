@@ -14,6 +14,8 @@ namespace KSynthLib.K5000
 
     public class ReverbSettings
     {
+        public static readonly int DataSize = 6;
+
         public byte ReverbType;  // 0 ~ 10
 
         private EffectDepthType _dryWet;
@@ -22,7 +24,7 @@ namespace KSynthLib.K5000
             get => _dryWet.Value;
             set => _dryWet.Value = value;
         }
-        
+
         private PositiveLevelType _param1;
         public byte Param1  // 0 ~ 127
         {
@@ -51,7 +53,7 @@ namespace KSynthLib.K5000
             set => _param4.Value = value;
         }
 
-        public static ReverbName[] ReverbNames = 
+        public static ReverbName[] ReverbNames =
         {
             /*  0 */ new ReverbName { Name = "Hall 1", ParameterNames = new string[] { "Dry/Wet 2", "Reverb Time", "Predelay Time", "High Frequency Damping" } },
             /*  1 */ new ReverbName { Name = "Hall 2", ParameterNames = new string[] { "Dry/Wet 2", "Reverb Time", "Predelay Time", "High Frequency Damping" } },
@@ -75,6 +77,16 @@ namespace KSynthLib.K5000
             _param2 = new PositiveLevelType(64);
             _param3 = new PositiveLevelType(64);
             _param4 = new PositiveLevelType(64);
+        }
+
+        public ReverbSettings(byte[] data, int offset) : this()
+        {
+            ReverbType = data[offset];
+            DryWet = data[offset + 1];
+            Param1 = data[offset + 2];
+            Param2 = data[offset + 3];
+            Param3 = data[offset + 4];
+            Param4 = data[offset + 5];
         }
 
         public override string ToString()

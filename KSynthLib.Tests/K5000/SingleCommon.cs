@@ -20,5 +20,11 @@ namespace KSynthLib.Tests.K5000
 
         }
 
+        [Fact]
+        public void Name_IsSet()
+        {
+            Assert.NotNull(_singleCommon.Name);
+        }
+
     }
 }

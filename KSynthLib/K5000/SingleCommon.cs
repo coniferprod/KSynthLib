@@ -13,22 +13,53 @@ namespace KSynthLib.K5000
         Solo2
     }
 
+    public enum AmplitudeModulation { // 0=off, value=1~5(src2~6)
+        Off,
+        Source2,
+        Source3,
+        Source4,
+        Source5,
+        Source6
+    }
+
     public class SingleCommonSettings
     {
         public const int DataSize = 33;
 
         public const int MaxSources = 6;
 
-        public PolyphonyMode Poly;
+        public const int NameLength = 8;
 
-        public int NumSources;
+        private EffectAlgorithmType _effectAlgorithm; // 1~4 (in SysEx 0~3)
+        public byte EffectAlgorithm
+        {
+            get => _effectAlgorithm.Value;
+            set => _effectAlgorithm.Value = value;
+        }
 
-        public bool[] IsSourceMuted;  // 0=muted, 1=not muted - store the inverse here
+        public ReverbSettings Reverb;
+        public EffectSettings Effect1;
+        public EffectSettings Effect2;
+        public EffectSettings Effect3;
+        public EffectSettings Effect4;
+        public GEQSettings GEQ;
+        public bool DrumMark;  // dummy, always zero for single patch
 
-        public byte AM;  // 0=off, value=1~5(src2~6)
+        private string _name;  // eight characters
+        public string Name
+        {
+            get => _name.Substring(0, NameLength);
+            set => _name = value.Substring(0, NameLength);
+        }
 
-        public EffectControl EffectControl1;
-        public EffectControl EffectControl2;
+        private PositiveLevelType _volume;
+        public byte Volume
+        {
+            get => _volume.Value;
+            set => _volume.Value = value;
+        }
+
+        public PolyphonyMode Poly;  // enumeration
 
         public bool IsPortamentoEnabled;  // 0=off, 1=on
 
@@ -39,6 +70,15 @@ namespace KSynthLib.K5000
             set => _portamentoSpeed.Value = value;
         }
 
+        public int SourceCount;
+
+        public bool[] IsSourceMuted;  // 0=muted, 1=not muted - store the inverse here
+
+        public AmplitudeModulation AM;  // 0=off, value=1~5(src2~6)
+
+        public EffectControl EffectControl1;
+        public EffectControl EffectControl2;
+
         public MacroController Macro1;
         public MacroController Macro2;
         public MacroController Macro3;
@@ -48,24 +88,43 @@ namespace KSynthLib.K5000
         public Switch Switch2;
         public Switch FootSwitch1;
         public Switch FootSwitch2;
-        
+
         public SingleCommonSettings()
         {
-            EffectControl1 = new EffectControl();
-            EffectControl2 = new EffectControl();
+            // 3.1.2.1 COMMON DATA (No. 1...38)
+
+            _effectAlgorithm = new EffectAlgorithmType(1);  // select the first by default
+            Reverb = new ReverbSettings();
+            Effect1 = new EffectSettings();
+            Effect2 = new EffectSettings();
+            Effect3 = new EffectSettings();
+            Effect4 = new EffectSettings();
+            GEQ = new GEQSettings();
+
+            Name = "NewSound";
+
+            _volume = new PositiveLevelType(79);
+
+            Poly = PolyphonyMode.Poly; // No. 49
+
+            SourceCount = 1;  // No. 51
+            IsSourceMuted = new bool[MaxSources] { false, false, false, false, false, false }; // No. 52
+
+            AM = AmplitudeModulation.Off;  // No. 53
+
+            EffectControl1 = new EffectControl();  // No. 54-56
+            EffectControl2 = new EffectControl();  // No. 57-59
+
+            IsPortamentoEnabled = false;  // No. 60
+            _portamentoSpeed = new PositiveLevelType();  // No. 61
+
+            // No. 62 ... 77
             Macro1 = new MacroController();
             Macro2 = new MacroController();
             Macro3 = new MacroController();
             Macro4 = new MacroController();
-            Poly = PolyphonyMode.Poly;
 
-            NumSources = 1;
-            IsSourceMuted = new bool[MaxSources] { false, false, false, false, false, false };
-            AM = 0;
-
-            IsPortamentoEnabled = false;
-            _portamentoSpeed = new PositiveLevelType();
-
+            // No. 78 ... 81
             Switch1 = Switch.Off;
             Switch2 = Switch.Off;
             FootSwitch1 = Switch.Off;
@@ -78,13 +137,50 @@ namespace KSynthLib.K5000
             byte b = 0;
 
             (b, offset) = Util.GetNextByte(data, offset);
+            EffectAlgorithm = b; // 0 ~ 3
+            Console.WriteLine($"Effect Algorithm = {EffectAlgorithm}");
+
+            Reverb = new ReverbSettings(data, offset);
+            offset += ReverbSettings.DataSize;
+            Console.WriteLine($"Reverb = {Reverb}");
+
+            Effect1 = new EffectSettings(data, offset);
+            offset += EffectSettings.DataSize;
+            Console.WriteLine($"E1 = {Effect1}");
+
+            Effect2 = new EffectSettings(data, offset);
+            offset += EffectSettings.DataSize;
+            Console.WriteLine($"E2 = {Effect2}");
+
+            Effect3 = new EffectSettings(data, offset);
+            offset += EffectSettings.DataSize;
+            Console.WriteLine($"E3 = {Effect3}");
+
+            Effect4 = new EffectSettings(data, offset);
+            offset += EffectSettings.DataSize;
+            Console.WriteLine($"E4 = {Effect4}");
+
+            GEQ = new GEQSettings(data, offset);
+            offset += GEQSettings.DataSize;
+            Console.WriteLine($"GEQ = {GEQ}");
+
+            (b, offset) = Util.GetNextByte(data, offset);
+            DrumMark = (b == 1);
+
+            Name = CollectName(data, offset);
+            offset += NameLength;
+
+            (b, offset) = Util.GetNextByte(data, offset);
+            Volume = b;
+
+            (b, offset) = Util.GetNextByte(data, offset);
             Poly = (PolyphonyMode) b; // 0=POLY, 1=SOLO1, 2=SOLO2
 
-            // "no use" can be ignored
+            // No. 50 or "no use" can be ignored
             (b, offset) = Util.GetNextByte(data, offset);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            NumSources = b;
+            SourceCount = b;  // No. 51
 
             (b, offset) = Util.GetNextByte(data, offset);
             for (int i = 0; i < MaxSources; i++)
@@ -94,7 +190,7 @@ namespace KSynthLib.K5000
             }
 
             (b, offset) = Util.GetNextByte(data, offset);
-            AM = b;
+            AM = (AmplitudeModulation) b;
 
             byte[] ec1Data = null;
             (ec1Data, offset) = Util.GetNextBytes(data, offset, 3);
@@ -145,13 +241,30 @@ namespace KSynthLib.K5000
             Console.WriteLine(string.Format("Common data parsed, offset = {0:X2} ({0})", offset));
         }
 
+        private string CollectName(byte[] data, int offset)
+        {
+            byte[] bytes =
+            {
+                data[offset],
+                data[offset + 1],
+                data[offset + 2],
+                data[offset + 3],
+                data[offset + 4],
+                data[offset + 5],
+                data[offset + 6],
+                data[offset + 7],
+            };
+            string name = Encoding.ASCII.GetString(bytes);
+            return name;
+        }
+
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
             builder.Append($"Poly = {Poly}\n");
             string portamentoSettingString = IsPortamentoEnabled ? "ON" : "OFF";
             builder.Append($"Portamento = {portamentoSettingString}, speed = {PortamentoSpeed}\n");
-            builder.Append($"Sources = {NumSources}\n");
+            builder.Append($"Sources = {SourceCount}\n");
             string amSettingString = (AM == 0) ? "OFF" : Convert.ToString(AM);
             builder.Append($"AM = {amSettingString}\n");
             builder.Append("Macro controllers:\n");
@@ -169,7 +282,7 @@ namespace KSynthLib.K5000
 
             data.Add((byte)Poly);
             data.Add(0); // "no use"
-            data.Add((byte)NumSources);
+            data.Add((byte)SourceCount);
 
             byte sourceMute = 0;
             for (int i = 0; i < MaxSources; i++)
@@ -181,11 +294,11 @@ namespace KSynthLib.K5000
             }
             data.Add(sourceMute);
 
-            data.Add(AM);
+            data.Add((byte) AM);
 
             data.AddRange(EffectControl1.ToData());
             data.AddRange(EffectControl2.ToData());
-            
+
             data.Add((byte)(IsPortamentoEnabled ? 1 : 0));  // only bit 0 is used for this
             data.Add((byte)PortamentoSpeed);
 
