@@ -538,4 +538,42 @@ namespace KSynthLib.K5000
         }
     }
 
+    public class FixedKeyType
+    {
+        private Range<byte> range;
+
+        private byte _value;
+        public byte Value
+        {
+            get
+            {
+                return _value;
+            }
+
+            set
+            {
+                if (range.Contains(value))
+                {
+                    _value = value;
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("Value",
+                        string.Format("Value must be in range {0} (was {1})",
+                            this.range.ToString(), value));
+                }
+            }
+        }
+
+        public FixedKeyType()
+        {
+            this.range = new Range<byte>(0, 108); // 0=OFF, 21 ~ 108=ON(A-1 ~ C7)
+        }
+
+        public FixedKeyType(byte v) : this()
+        {
+            this.Value = v;
+        }
+    }
+
 }

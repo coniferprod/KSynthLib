@@ -207,7 +207,7 @@ namespace KSynthLib.K5000
             return data.ToArray();
         }
     }
-    
+
     public class DCASettings
     {
         private VelocityCurveType _velocityCurve; // values are 0 ~ 11, shown as 1 ~ 12
@@ -292,11 +292,20 @@ namespace KSynthLib.K5000
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append($"velocity curve={VelocityCurve}\n");
-            builder.Append($"envelope = {Envelope}\n");
-            builder.Append("DCA Modulation:\n");
-            builder.Append($"KS To DCA Env.: Level = {KeyScaling.Level}  Atak T = {KeyScaling.AttackTime}, Decy1 T = {KeyScaling.Decay1Time}, Release = {KeyScaling.ReleaseTime}\n");
-            builder.Append($"Vel To DCA Env.: Level = {VelocitySensitivity.Level}  Atak T = {VelocitySensitivity.AttackTime}, Decy1 T = {VelocitySensitivity.Decay1Time}, Release = {VelocitySensitivity.ReleaseTime}\n");
+
+            builder.Append("                   DCA Envelope\n");
+            builder.Append($"VelCrv      {VelocityCurve,3}   Dcy2 T    {Envelope.Decay2Time,3}\n");
+            builder.Append($"Atak T      {Envelope.AttackTime,3}   Dcy2 L   {Envelope.Decay2Level,3}\n");
+            builder.Append($"Dcy1 T      {Envelope.Decay1Time,3}   Rels T   {Envelope.ReleaseTime,3}\n");
+            builder.Append($"Dcy1 L      {Envelope.Decay1Level,3}\n");
+
+            builder.Append("                   DCA Modulation\n");
+            builder.Append("  KS TO DCA ENV       VELO TO DCA ENV\n");
+            builder.Append($"Level         {KeyScaling.Level,3}     Level   {VelocitySensitivity.Level,3}\n");
+            builder.Append($"Attack Time   {KeyScaling.AttackTime,3}    Attack Time    {VelocitySensitivity.AttackTime,3}\n");
+            builder.Append($"Decay1 Time   {KeyScaling.Decay1Time,3}    Decay1 Time    {VelocitySensitivity.Decay1Time,3}\n");
+            builder.Append($"Release       {KeyScaling.ReleaseTime,3}   Release        {VelocitySensitivity.ReleaseTime,3}\n");
+
             return builder.ToString();
         }
 

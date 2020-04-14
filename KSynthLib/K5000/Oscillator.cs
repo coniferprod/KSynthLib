@@ -95,7 +95,13 @@ namespace KSynthLib.K5000
 
         public override string ToString()
         {
-            return $"Start Level = {StartLevel}, Atak T = {AttackTime}, Atak L = {AttackLevel}, Dcay T = {DecayTime}";
+            StringBuilder builder = new StringBuilder();
+            builder.Append("                  Pitch Envelope\n");
+            builder.Append($"Strt L  {StartLevel,3}       Vel to\n");
+            builder.Append($"Atak T  {AttackTime,3}     Level {LevelVelocitySensitivity,3}\n");
+            builder.Append($"Atak L  {AttackLevel,3}     Time  {TimeVelocitySensitivity,3}\n");  // TODO: Sign
+            builder.Append($"Decy T  {DecayTime,3}\n");
+            return builder.ToString();
         }
 
         public byte[] ToData()
@@ -121,7 +127,7 @@ namespace KSynthLib.K5000
         public int Coarse
         {
             get => _coarse.Value;
-            set => _coarse.Value = value; 
+            set => _coarse.Value = value;
         }
 
         private SignedLevelType _fine;
@@ -131,8 +137,14 @@ namespace KSynthLib.K5000
             set => _fine.Value = value;
         }
 
-        public byte FixedKey;  // 0=OFF, 21 ~ 108=ON(A-1 ~ C7)
-        public KeyScalingToPitch KSPitch;
+        private FixedKeyType _fixedKey; // 0=OFF, 21 ~ 108=ON(A-1 ~ C7)
+        public byte FixedKey
+        {
+            get => _fixedKey.Value;
+            set => _fixedKey.Value = value;
+        }
+
+        public KeyScalingToPitch KSPitch;  // enumeration
         public PitchEnvelope Envelope;
 
         public DCOSettings()
@@ -140,6 +152,7 @@ namespace KSynthLib.K5000
             Envelope = new PitchEnvelope();
             _coarse = new CoarseType();
             _fine = new SignedLevelType();
+            _fixedKey = new FixedKeyType();
         }
 
         public DCOSettings(byte[] data, int offset)
@@ -157,7 +170,7 @@ namespace KSynthLib.K5000
             string waveLSBBitString = Convert.ToString(waveLSB, 2).PadLeft(7, '0');
             string waveBitString = waveMSBBitString + waveLSBBitString;
             int waveNumber = Convert.ToInt32(waveBitString, 2);
-            System.Console.WriteLine(string.Format("wave kit MSB = {0:X2} | {1}, LSB = {2:X2} | {3}, combined = {4}, result = {5}", 
+            System.Console.WriteLine(string.Format("wave kit MSB = {0:X2} | {1}, LSB = {2:X2} | {3}, combined = {4}, result = {5}",
                 waveMSB, waveMSBBitString, waveLSB, waveLSBBitString, waveBitString, waveNumber));
 
             WaveNumber = waveNumber;
@@ -181,21 +194,27 @@ namespace KSynthLib.K5000
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
+            builder.Append("                        DCO\n");
+
             string waveName = "PCM";
             if (WaveNumber == AdditiveKit.WaveNumber)
             {
                 waveName = "ADD";
-            } 
-            builder.Append($"Wave Type = {waveName}  ");
+            }
+            builder.Append($"Wave Type = {waveName}    KS Pitch = {KSPitch}\n");
+
+            string fixedKeySetting = FixedKey == 0 ? "OFF" : Convert.ToString(FixedKey);
+            string waveNumber = "   ";
             if (waveName.Equals("PCM"))
             {
-                builder.Append(string.Format("{0} ({1})\n", Wave.Instance[WaveNumber], WaveNumber + 1));
+                //builder.Append(string.Format("PCM Wave No. {0} ({1})\n", Wave.Instance[WaveNumber], WaveNumber + 1));
+                waveNumber = $"{Wave.Instance[WaveNumber]}";
             }
-            builder.Append($"Coarse = {Coarse}  Fine = {Fine}\n");
-            string fixedKeySetting = FixedKey == 0 ? "OFF" : Convert.ToString(FixedKey);
-            builder.Append($"KS Pitch = {KSPitch}  Fixed Key = {fixedKeySetting}\n");
-            builder.Append($"Pitch Env: {Envelope}\n");
-            builder.Append($"Vel To: Level = {Envelope.LevelVelocitySensitivity}  Time = {Envelope.TimeVelocitySensitivity}\n");
+            builder.Append($"PCM Wave No.   {waveNumber}   Fixed Key = {fixedKeySetting}\n");
+
+            builder.Append($"Coarse         {Coarse}\nFine          {Fine}\n\n");
+
+            builder.Append($"{Envelope}\n");
 
             return builder.ToString();
         }

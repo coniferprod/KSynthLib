@@ -9,9 +9,19 @@ namespace KSynthLib.Tests.K5000
 {
     public class AmplifierTests
     {
+        private DCASettings settings;
+
         public AmplifierTests()
         {
+            settings = new DCASettings();
+            Console.WriteLine(settings);
+        }
 
+        [Fact]
+        public void VelocityCurve_IsSetCorrectly()
+        {
+            settings.VelocityCurve = 1;
+            Assert.Equal(1, settings.VelocityCurve);
         }
 
     }
@@ -62,7 +72,7 @@ namespace KSynthLib.Tests.K5000
         public void Level_BadValueIsRejected()
         {
             // Try to set a value that is out of range -63...+63:
-            Assert.Throws<ArgumentOutOfRangeException>(() => envelope.Level = 100);            
+            Assert.Throws<ArgumentOutOfRangeException>(() => envelope.Level = 100);
         }
     }
 }

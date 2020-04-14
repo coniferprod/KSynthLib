@@ -356,17 +356,17 @@ namespace KSynthLib.K5000
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(String.Format("Zone: low = {0}, high = {1}\n", ZoneLow, ZoneHigh));
+            builder.Append($"Zone: low = {ZoneLow}, high = {ZoneHigh}\n");
             builder.Append(String.Format("Vel. sw type = {0}, velocity = {1}\n", VelocitySwitch.SwitchType, VelocitySwitch.Threshold));
             builder.Append(String.Format("Effect path = {0}\n", EffectPath));
             builder.Append(String.Format("Volume = {0}\n", Volume));
             builder.Append(String.Format("Bender Pitch = {0}  Bender Cutoff = {1}\n", BenderPitch, BenderCutoff));
             builder.Append(String.Format("Key ON Delay = {0}\n", KeyOnDelay));
             builder.Append(String.Format("Pan type = {0}, value = {1}\n", Pan, PanValue));
-            builder.Append(String.Format("DCO:\n{0}\n", DCO.ToString()));
-            builder.Append(String.Format("DCF:\n{0}\n", DCF.ToString()));
-            builder.Append(String.Format("DCA:\n{0}\n", DCA.ToString()));
-            builder.Append(String.Format("LFO:\n{0}\n", LFO.ToString()));
+            builder.Append($"DCO:\n{DCO}\n");
+            builder.Append($"DCF:\n{DCF}\n");
+            builder.Append($"DCA:\n{DCA}\n");
+            builder.Append($"LFO:\n{LFO}\n");
 
             if (DCO.WaveNumber == AdditiveKit.WaveNumber)
             {

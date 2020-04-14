@@ -261,18 +261,28 @@ namespace KSynthLib.K5000
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append($"Poly = {Poly}\n");
-            string portamentoSettingString = IsPortamentoEnabled ? "ON" : "OFF";
-            builder.Append($"Portamento = {portamentoSettingString}, speed = {PortamentoSpeed}\n");
-            builder.Append($"Sources = {SourceCount}\n");
+
+            builder.Append($"{Name}\n");
+
+            builder.Append($"Volume       {Volume,3}  Sources        {SourceCount}\n");
+
             string amSettingString = (AM == 0) ? "OFF" : Convert.ToString(AM);
-            builder.Append($"AM = {amSettingString}\n");
-            builder.Append("Macro controllers:\n");
+            builder.Append($"Poly        {Poly, 4}  AM           {amSettingString}\n");
+
+            string portamentoSettingString = IsPortamentoEnabled ? "ON" : "OFF";
+            builder.Append($"Portamento   {portamentoSettingString}\n");
+            builder.Append($"Porta Speed  {PortamentoSpeed}\n");
+
+            builder.Append("\nMacro Controller\n");
             builder.Append($"User 1: {Macro1}\n");
             builder.Append($"User 2: {Macro2}\n");
             builder.Append($"User 3: {Macro3}\n");
             builder.Append($"User 4: {Macro4}\n");
-            builder.Append($"SW1 = {Switch1}  SW2 = {Switch2}  F.SW1 = {FootSwitch1}  F.SW2 = {FootSwitch2}\n");
+
+            builder.Append($"Switch1 = {Switch1}    FootSw1 = {FootSwitch1}\n");
+            builder.Append($"Switch2 = {Switch2}    FootSw2 = {FootSwitch2}\n");
+            builder.Append("Only effective if System FSW is \"Single\"\n");
+
             return builder.ToString();
         }
 

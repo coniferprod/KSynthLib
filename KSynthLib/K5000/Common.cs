@@ -198,7 +198,7 @@ namespace KSynthLib.K5000
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append($"DEST1 = {Param1.Type}, Depth = {Param1.Depth}. DEST2 = {Param2.Type}, Depth = {Param2.Depth}");
+            builder.Append($"Dest1 = {Param1.Type}, Depth = {Param1.Depth}. Dest2 = {Param2.Type}, Depth = {Param2.Depth}");
             return builder.ToString();
         }
 

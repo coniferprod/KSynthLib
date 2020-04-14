@@ -94,6 +94,9 @@ namespace KSynthLib.K5000
 
         public override string ToString()
         {
+            StringBuilder builder = new StringBuilder();
+
+            return builder.ToString();
             return $"A={AttackTime}, D1=T{Decay1Time} L{Decay1Level}, D2=T{Decay2Time} L{Decay2Level}, R={ReleaseTime}";
         }
 
@@ -273,14 +276,24 @@ namespace KSynthLib.K5000
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            string activeSettings = IsActive ? "YES" : "NO";
-            builder.Append($"active = {activeSettings}, mode = {Mode}\n");
-            builder.Append($"velocity curve = {VelocityCurve}\n");
-            builder.Append($"resonance = {Resonance}, level = {Level}, cutoff = {Cutoff}\n");
-            builder.Append($"cutoff KS depth = {CutoffKeyScalingDepth}, cutoff vel depth = {CutoffVelocityDepth}\n");
-            builder.Append($"envelope = {Envelope}\n");
-            builder.Append($"DCF Mod.: KS to Attack = {KSToEnvAttackTime}  KS to Dcy1 = {KSToEnvDecay1Time}\n");
-            builder.Append($"          Vel to Env = {VelocityToEnvDepth}  Vel to Atk = {VelocityToEnvAttackTime}  Vel to Dcy1 = {VelocityToEnvDecay1Time}\n");
+            builder.Append("                     DCF\n");
+
+            string activeSetting = IsActive ? "Active" : "--";
+            builder.Append($"DCF      {activeSetting}     Resonance    {Resonance}\n");
+            builder.Append($"Cutoff      {Cutoff}        DCF Level    {Level}\n");
+            builder.Append($"Mode      {Mode}      KS to Cut   {CutoffKeyScalingDepth}\n");
+            builder.Append($"Velo Curve  {VelocityCurve}      Velo to Cut    {CutoffVelocityDepth}\n");
+
+            builder.Append("             DCF Envelope\n");
+
+            builder.Append($"Depth     {EnvelopeDepth}       Dcy2 T    {Envelope.Decay2Time}\n");
+            builder.Append($"Atak T    {Envelope.AttackTime}       Dcy2 L    {Envelope.Decay2Level}\n");
+            builder.Append($"Dcy1 T    {Envelope.Decay1Time}       Release   {Envelope.ReleaseTime}\n");
+            builder.Append($"Dcy1 L    {Envelope.Decay1Level}\n");
+            builder.Append($"KS to Attack  {KSToEnvAttackTime,3}   Velo to Env   {VelocityToEnvDepth,3}\n");
+            builder.Append($"KS to DCY1    {KSToEnvDecay1Time,3}   Velo to Atk   {VelocityToEnvAttackTime,3}\n");
+            builder.Append($"                        Vel to DCY1 = {VelocityToEnvDecay1Time}\n");
+
             return builder.ToString();
         }
 
