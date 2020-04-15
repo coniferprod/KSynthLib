@@ -5,8 +5,8 @@ Patch management utilities for Kawai K series digital synthesizers.
 This project creates a .NET library as a NuGet package
 that can be installed in .NET application projects.
 
-The library targets `netstandard2.1` so that it can be consumed
-from a UWP application.
+The library targets `netstandard2.0` so that it can be consumed
+from a UWP application (Windows 10, 16299 or later as of April 2020).
 
 At the time of this writing it has not been published on NuGet, but
 instead is intended to be used locally. If you want to do that, add a local directory
