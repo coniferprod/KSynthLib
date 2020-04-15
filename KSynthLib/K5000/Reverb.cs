@@ -93,11 +93,11 @@ namespace KSynthLib.K5000
         {
             ReverbName name = ReverbNames[ReverbType];
             StringBuilder builder = new StringBuilder();
-            builder.Append(string.Format("{0}, dry/wet = {1}\n", name.Name, DryWet));
-            builder.Append(string.Format("P1 {0} = {1}\n", name.ParameterNames[0], Param1));
-            builder.Append(string.Format("P2 {0} = {1}\n", name.ParameterNames[1], Param2));
-            builder.Append(string.Format("P3 {0} = {1}\n", name.ParameterNames[2], Param3));
-            builder.Append(string.Format("P4 {0} = {1}\n", name.ParameterNames[3], Param4));
+            builder.Append($"{name.Name}, dry/wet = {DryWet}\n");
+            builder.Append($"P1 {name.ParameterNames[0]} = {Param1}\n");
+            builder.Append($"P2 {name.ParameterNames[1]} = {Param2}\n");
+            builder.Append($"P3 {name.ParameterNames[2]} = {Param3}\n");
+            builder.Append($"P4 {name.ParameterNames[3]} = {Param4}\n");
             return builder.ToString();
         }
 

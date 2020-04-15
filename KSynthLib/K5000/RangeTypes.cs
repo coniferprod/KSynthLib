@@ -576,4 +576,42 @@ namespace KSynthLib.K5000
         }
     }
 
+    public class PatchNumberType
+    {
+        private Range<byte> range;
+
+        private byte _value;
+        public byte Value
+        {
+            get
+            {
+                return _value;
+            }
+
+            set
+            {
+                if (range.Contains(value))
+                {
+                    _value = value;
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("Value",
+                        string.Format("Value must be in range {0} (was {1})",
+                            this.range.ToString(), value));
+                }
+            }
+        }
+
+        public PatchNumberType()
+        {
+            this.range = new Range<byte>(0, 127);
+        }
+
+        public PatchNumberType(byte v) : this()
+        {
+            this.Value = v;
+        }
+    }
+
 }

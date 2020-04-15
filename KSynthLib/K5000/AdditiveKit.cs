@@ -13,13 +13,46 @@ namespace KSynthLib.K5000
         Loop2
     }
 
+    /// <summary>Represents the MORF harmonic envelope of an additive source.</summary>
     public class MORFHarmonicEnvelope
     {
-        public byte Time1;
-        public byte Time2;
-        public byte Time3;
-        public byte Time4;
+        private PositiveLevelType _time1;
+        public byte Time1
+        {
+            get => _time1.Value;
+            set => _time1.Value = value;
+        }
+
+        private PositiveLevelType _time2;
+        public byte Time2
+        {
+            get => _time2.Value;
+            set => _time2.Value = value;
+        }
+
+        private PositiveLevelType _time3;
+        public byte Time3
+        {
+            get => _time3.Value;
+            set => _time3.Value = value;
+        }
+
+        private PositiveLevelType _time4;
+        public byte Time4
+        {
+            get => _time4.Value;
+            set => _time4.Value = value;
+        }
         public EnvelopeLoopType LoopType;
+
+        public MORFHarmonicEnvelope()
+        {
+            _time1 = new PositiveLevelType();
+            _time2 = new PositiveLevelType();
+            _time3 = new PositiveLevelType();
+            _time4 = new PositiveLevelType();
+            LoopType = EnvelopeLoopType.Off;
+        }
 
         public byte[] ToData()
         {
@@ -35,8 +68,20 @@ namespace KSynthLib.K5000
 
     public class HarmonicCopyParameters
     {
-        public byte PatchNumber;
-        public byte SourceNumber;
+        private PatchNumberType _patchNumber;
+        public byte PatchNumber
+        {
+            get => _patchNumber.Value;
+            set => _patchNumber.Value = value;
+        }
+
+        public byte SourceNumber; // 0~11 (0~5:soft,6~11:loud)
+
+        public HarmonicCopyParameters()
+        {
+            _patchNumber = new PatchNumberType();
+            SourceNumber = 0;
+        }
 
         public byte[] ToData()
         {
@@ -47,17 +92,30 @@ namespace KSynthLib.K5000
         }
     }
 
+    public enum MORFHarmonicGroup
+    {
+        Low,
+        High
+    }
+
     public class HarmonicParameters
     {
         public bool Morf;  // true if morf on
         public byte TotalGain;
 
         // Non-MORF parameters
-        public byte Group;  // 0 = LO (1~64), 1 = HI (65~128)
-        public sbyte KeyScalingToGain;  // (-63)1 ... (+63)127
+        public MORFHarmonicGroup Group;  // 0 = LO (1~64), 1 = HI (65~128)
+
+        private SignedLevelType _keyScalingToGain; // (-63)1 ... (+63)127
+        public sbyte KeyScalingToGain
+        {
+            get => _keyScalingToGain.Value;
+            set => _keyScalingToGain.Value = value;
+        }
+
         public byte BalanceVelocityCurve;
         public byte BalanceVelocityDepth;
-        
+
         // MORF parameters
         // Harmonic Copy
         public HarmonicCopyParameters Copy1;
@@ -69,6 +127,7 @@ namespace KSynthLib.K5000
 
         public HarmonicParameters()
         {
+            _keyScalingToGain = new SignedLevelType();
             Copy1 = new HarmonicCopyParameters();
             Copy2 = new HarmonicCopyParameters();
             Copy3 = new HarmonicCopyParameters();
@@ -81,7 +140,7 @@ namespace KSynthLib.K5000
             List<byte> data = new List<byte>();
             data.Add((byte)(Morf ? 1 : 0));
             data.Add(TotalGain);
-            data.Add(Group);
+            data.Add((byte)Group);
             data.Add((byte)(KeyScalingToGain + 64));
             data.Add(BalanceVelocityCurve);
             data.Add(BalanceVelocityDepth);
@@ -99,10 +158,27 @@ namespace KSynthLib.K5000
 
     public class EnvelopeSegment
     {
-        public byte Rate;  // 0 ~ 127
-        public sbyte Level; // (-63)1 ... (+63)127
+        private PositiveLevelType _rate; // 0 ~ 127
+        public byte Rate
+        {
+            get => _rate.Value;
+            set => _rate.Value = value;
+        }
+
+        private SignedLevelType _level; // (-63)1 ... (+63)127
+        public sbyte Level
+        {
+            get => _level.Value;
+            set => _level.Value = value;
+        }
+
+        public EnvelopeSegment()
+        {
+            _rate = new PositiveLevelType();
+            _level = new SignedLevelType();
+        }
     }
-    
+
     public class LoopingEnvelope {
         public EnvelopeSegment Attack;
         public EnvelopeSegment Decay1;
@@ -116,6 +192,7 @@ namespace KSynthLib.K5000
             Decay1 = new EnvelopeSegment();
             Decay2 = new EnvelopeSegment();
             Release = new EnvelopeSegment();
+            LoopType = EnvelopeLoopType.Off;
         }
 
         public byte[] ToData()
@@ -142,24 +219,73 @@ namespace KSynthLib.K5000
 
     public class FormantLFOSettings
     {
-        public byte Speed;
-        public FormantLFOShape Shape;
-        public byte Depth;
+        private PositiveLevelType _speed; // 0~126
+        public byte Speed
+        {
+            get => _speed.Value;
+            set => _speed.Value = value;
+        }
+
+        public FormantLFOShape Shape;  // enumeration
+
+        private UnsignedLevelType _depth;  // 0~63
+        public byte Depth
+        {
+            get => _depth.Value;
+            set => _depth.Value = value;
+        }
+
+        public FormantLFOSettings()
+        {
+            _speed = new PositiveLevelType();
+            Shape = FormantLFOShape.Sawtooth;
+            _depth = new UnsignedLevelType();
+        }
     }
 
     public class FormantParameters
     {
-        public sbyte Bias;  // (-63)1 ... (+63)127
+        private SignedLevelType _bias; // (-63)1 ... (+63)127
+        public sbyte Bias
+        {
+            get => _bias.Value;
+            set => _bias.Value = value;
+        }
+
         public int EnvLFOSel;  // 0 = ENV, 1 = LFO
-        public sbyte EnvelopeDepth; // (-63)1 ... (+63)127
+
+        private SignedLevelType _envelopeDepth; // (-63)1 ... (+63)127
+        public sbyte EnvelopeDepth
+        {
+            get => _envelopeDepth.Value;
+            set => _envelopeDepth.Value = value;
+        }
+
         public LoopingEnvelope Envelope;
-        public sbyte VelocitySensitivityEnvelopeDepth;  // (-63)1 ... (+63)127
-        public sbyte KeyScalingEnvelopeDepth;  // (-63)1 ... (+63)127
+
+        private SignedLevelType _velocitySensitivityEnvelopeDepth; // (-63)1 ... (+63)127
+        public sbyte VelocitySensitivityEnvelopeDepth
+        {
+            get => _velocitySensitivityEnvelopeDepth.Value;
+            set => _velocitySensitivityEnvelopeDepth.Value = value;
+        }
+
+        private SignedLevelType _keyScalingEnvelopeDepth;  // (-63)1 ... (+63)127
+        public sbyte KeyScalingEnvelopeDepth
+        {
+            get => _keyScalingEnvelopeDepth.Value;
+            set => _keyScalingEnvelopeDepth.Value = value;
+        }
+
         public FormantLFOSettings LFO;
 
         public FormantParameters()
         {
+            _bias = new SignedLevelType();
+            _envelopeDepth = new SignedLevelType();
             Envelope = new LoopingEnvelope();
+            _velocitySensitivityEnvelopeDepth = new SignedLevelType();
+            _keyScalingEnvelopeDepth = new SignedLevelType();
             LFO = new FormantLFOSettings();
         }
 
@@ -185,7 +311,6 @@ namespace KSynthLib.K5000
 
     public class HarmonicEnvelope
     {
-        public const int NumRates = 4;
         public EnvelopeSegment Segment0;
         public EnvelopeSegment Segment1;
         public bool Segment1Loop;
@@ -197,7 +322,9 @@ namespace KSynthLib.K5000
         {
             Segment0 = new EnvelopeSegment();
             Segment1 = new EnvelopeSegment();
+            Segment1Loop = false;
             Segment2 = new EnvelopeSegment();
+            Segment2Loop = false;
             Segment3 = new EnvelopeSegment();
         }
 
@@ -235,8 +362,8 @@ namespace KSynthLib.K5000
     {
         public const int WaveNumber = 512;  // if the wave number is 512, the source is ADD
         public const int DataSize = 806;
-        public const int NumHarmonics = 64;
-        public const int NumFilterBands = 128;
+        public const int HarmonicCount = 64;
+        public const int FilterBandCount = 128;
 
         public byte CheckSum;  // [(HCKIT sum)  + (HCcode1 sum) + (HCcode2 sum) + (FF sum) + (HCenv sum) + (loud sense select) + 0xa5] & 0x7f
 
@@ -252,12 +379,12 @@ namespace KSynthLib.K5000
             Harmonics = new HarmonicParameters();
             Formant = new FormantParameters();
 
-            SoftHarmonics = new byte[NumHarmonics];
-            LoudHarmonics = new byte[NumHarmonics];
-            FormantFilter = new byte[NumFilterBands];
-            HarmonicEnvelopes = new HarmonicEnvelope[NumHarmonics];
+            SoftHarmonics = new byte[HarmonicCount];
+            LoudHarmonics = new byte[HarmonicCount];
+            FormantFilter = new byte[FilterBandCount];
 
-            for (int i = 0; i < NumHarmonics; i++)
+            HarmonicEnvelopes = new HarmonicEnvelope[HarmonicCount];
+            for (int i = 0; i < HarmonicCount; i++)
             {
                 HarmonicEnvelopes[i] = new HarmonicEnvelope();
             }
@@ -280,7 +407,8 @@ namespace KSynthLib.K5000
             Harmonics.TotalGain = b;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Harmonics.Group = b;
+            // value of this byte should be 0 or 1
+            Harmonics.Group = (MORFHarmonicGroup)b;
 
             (b, offset) = Util.GetNextByte(data, offset);
             Harmonics.KeyScalingToGain = (sbyte)(b - 64);
@@ -334,24 +462,28 @@ namespace KSynthLib.K5000
             Formant.EnvLFOSel = b;
             (b, offset) = Util.GetNextByte(data, offset);
             Formant.EnvelopeDepth = (sbyte)(b - 64);
+
+            LoopingEnvelope formantEnvelope = new LoopingEnvelope();
             (b, offset) = Util.GetNextByte(data, offset);
-            Formant.Envelope.Attack.Rate = b;
+            formantEnvelope.Attack.Rate = b;
             (b, offset) = Util.GetNextByte(data, offset);
-            Formant.Envelope.Attack.Level = (sbyte)(b - 64);
+            formantEnvelope.Attack.Level = (sbyte)(b - 64);
             (b, offset) = Util.GetNextByte(data, offset);
-            Formant.Envelope.Decay1.Rate = b;
+            formantEnvelope.Decay1.Rate = b;
             (b, offset) = Util.GetNextByte(data, offset);
-            Formant.Envelope.Decay1.Level = (sbyte)(b - 64);
+            formantEnvelope.Decay1.Level = (sbyte)(b - 64);
             (b, offset) = Util.GetNextByte(data, offset);
-            Formant.Envelope.Decay2.Rate = b;
+            formantEnvelope.Decay2.Rate = b;
             (b, offset) = Util.GetNextByte(data, offset);
-            Formant.Envelope.Decay2.Level = (sbyte)(b - 64);
+            formantEnvelope.Decay2.Level = (sbyte)(b - 64);
             (b, offset) = Util.GetNextByte(data, offset);
-            Formant.Envelope.Release.Rate = b;
+            formantEnvelope.Release.Rate = b;
             (b, offset) = Util.GetNextByte(data, offset);
-            Formant.Envelope.Release.Level = (sbyte)(b - 64);
+            formantEnvelope.Release.Level = (sbyte)(b - 64);
             (b, offset) = Util.GetNextByte(data, offset);
-            Formant.Envelope.LoopType = (EnvelopeLoopType)b;
+            formantEnvelope.LoopType = (EnvelopeLoopType)b;
+
+            Formant.Envelope = formantEnvelope;
 
             (b, offset) = Util.GetNextByte(data, offset);
             Formant.VelocitySensitivityEnvelopeDepth = (sbyte)(b - 64);
@@ -365,30 +497,30 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);
             Formant.LFO.Depth = b;
 
-            SoftHarmonics = new byte[NumHarmonics];
-            for (int i = 0; i < NumHarmonics; i++)
+            SoftHarmonics = new byte[HarmonicCount];
+            for (int i = 0; i < HarmonicCount; i++)
             {
                 (b, offset) = Util.GetNextByte(data, offset);
                 SoftHarmonics[i] = b;
             }
 
-            LoudHarmonics = new byte[NumHarmonics];
-            for (int i = 0; i < NumHarmonics; i++)
+            LoudHarmonics = new byte[HarmonicCount];
+            for (int i = 0; i < HarmonicCount; i++)
             {
                 (b, offset) = Util.GetNextByte(data, offset);
                 LoudHarmonics[i] = b;
             }
 
             // TODO: Maybe the filter bands could be combined with the formant parameters?
-            FormantFilter = new byte[NumFilterBands];
-            for (int i = 0; i < NumFilterBands; i++)
+            FormantFilter = new byte[FilterBandCount];
+            for (int i = 0; i < FilterBandCount; i++)
             {
                 (b, offset) = Util.GetNextByte(data, offset);
                 FormantFilter[i] = b;
             }
 
-            HarmonicEnvelopes = new HarmonicEnvelope[NumHarmonics];
-            for (int i = 0; i < NumHarmonics; i++)
+            HarmonicEnvelopes = new HarmonicEnvelope[HarmonicCount];
+            for (int i = 0; i < HarmonicCount; i++)
             {
                 HarmonicEnvelopes[i] = new HarmonicEnvelope();
                 (b, offset) = Util.GetNextByte(data, offset);
@@ -417,25 +549,25 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);  // 806 dummy
         }
 
-        public override string ToString() 
+        public override string ToString()
         {
             StringBuilder b = new StringBuilder();
             b.Append(string.Format("MORF is {0}\n", Harmonics.Morf ? "ON" : "OFF"));
             b.Append($"Total Gain = {Harmonics.TotalGain}\n");
             b.Append($"Harm group = {Harmonics.Group}\n");
             b.Append("Soft harmonics:\n");
-            for (int i = 0; i < NumHarmonics; i++)
+            for (int i = 0; i < HarmonicCount; i++)
             {
                 b.Append($"{i}: {SoftHarmonics[i]}\n");
             }
             b.Append("Loud harmonics:\n");
-            for (int i = 0; i < NumHarmonics; i++)
+            for (int i = 0; i < HarmonicCount; i++)
             {
                 b.Append($"{i}: {LoudHarmonics[i]}\n");
             }
 
             b.Append("Harmonic envelopes:\n    Atk  Dc1  Dc2  Rls\n");
-            for (int i = 0; i < NumHarmonics; i++)
+            for (int i = 0; i < HarmonicCount; i++)
             {
                 HarmonicEnvelope env = HarmonicEnvelopes[i];
                 b.Append(string.Format("{0}: Level {1}  {2}  {3}  {4}\n", i + 1, env.Segment0.Level, env.Segment1.Level, env.Segment2.Level, env.Segment3.Level));
@@ -465,7 +597,7 @@ namespace KSynthLib.K5000
                 data.Add(b);
             }
 
-            for (int i = 0; i < NumHarmonics; i++)
+            for (int i = 0; i < HarmonicCount; i++)
             {
                 data.AddRange(HarmonicEnvelopes[i].ToData());
             }
@@ -518,7 +650,7 @@ namespace KSynthLib.K5000
                 total += b;
             }
 
-            for (int i = 0; i < NumHarmonics; i++)
+            for (int i = 0; i < HarmonicCount; i++)
             {
                 byte[] harmonicEnvelopeData = HarmonicEnvelopes[i].ToData();
                 foreach (byte b in harmonicEnvelopeData)
