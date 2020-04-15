@@ -149,6 +149,7 @@ namespace KSynthLib.K5000
         public VelocityCurveType()
         {
             this.range = new Range<byte>(1, 12);
+            this._value = 1;  // default zero would be out of range
         }
 
         public VelocityCurveType(byte v) : this()

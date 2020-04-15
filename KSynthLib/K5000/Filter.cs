@@ -94,9 +94,6 @@ namespace KSynthLib.K5000
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
-
-            return builder.ToString();
             return $"A={AttackTime}, D1=T{Decay1Time} L{Decay1Level}, D2=T{Decay2Time} L{Decay2Level}, R={ReleaseTime}";
         }
 
