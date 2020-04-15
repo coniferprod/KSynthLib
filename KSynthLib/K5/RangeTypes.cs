@@ -1,6 +1,6 @@
 using System;
 
-using Range.Net;
+using KSynthLib.Common;
 
 
 namespace KSynthLib.K5
@@ -14,7 +14,7 @@ namespace KSynthLib.K5
         private sbyte _value;
         public sbyte Value
         {
-            get 
+            get
             {
                 return _value;
             }
@@ -28,7 +28,7 @@ namespace KSynthLib.K5
                 else
                 {
                     throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})", 
+                        string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
             }
@@ -52,7 +52,7 @@ namespace KSynthLib.K5
         private byte _value;
         public byte Value
         {
-            get 
+            get
             {
                 return _value;
             }
@@ -66,7 +66,7 @@ namespace KSynthLib.K5
                 else
                 {
                     throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})", 
+                        string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
             }
@@ -90,7 +90,7 @@ namespace KSynthLib.K5
         private sbyte _value;
         public sbyte Value
         {
-            get 
+            get
             {
                 return _value;
             }
@@ -104,7 +104,7 @@ namespace KSynthLib.K5
                 else
                 {
                     throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})", 
+                        string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
             }
@@ -129,7 +129,7 @@ namespace KSynthLib.K5
         private byte _value;
         public byte Value
         {
-            get 
+            get
             {
                 return _value;
             }
@@ -143,7 +143,7 @@ namespace KSynthLib.K5
                 else
                 {
                     throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})", 
+                        string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
             }
@@ -167,7 +167,7 @@ namespace KSynthLib.K5
         private sbyte _value;
         public sbyte Value
         {
-            get 
+            get
             {
                 return _value;
             }
@@ -181,7 +181,7 @@ namespace KSynthLib.K5
                 else
                 {
                     throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})", 
+                        string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
             }
@@ -205,7 +205,7 @@ namespace KSynthLib.K5
         private byte _value;
         public byte Value
         {
-            get 
+            get
             {
                 return _value;
             }
@@ -219,7 +219,7 @@ namespace KSynthLib.K5
                 else
                 {
                     throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})", 
+                        string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
             }
@@ -243,7 +243,7 @@ namespace KSynthLib.K5
         private byte _value;
         public byte Value
         {
-            get 
+            get
             {
                 return _value;
             }
@@ -257,7 +257,7 @@ namespace KSynthLib.K5
                 else
                 {
                     throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})", 
+                        string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
             }
@@ -285,7 +285,7 @@ namespace KSynthLib.K5
         private byte _value;
         public byte Value
         {
-            get 
+            get
             {
                 return _value;
             }
@@ -299,7 +299,7 @@ namespace KSynthLib.K5
                 else
                 {
                     throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})", 
+                        string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
             }
@@ -323,7 +323,7 @@ namespace KSynthLib.K5
         private sbyte _value;
         public sbyte Value
         {
-            get 
+            get
             {
                 return _value;
             }
@@ -337,7 +337,7 @@ namespace KSynthLib.K5
                 else
                 {
                     throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})", 
+                        string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
             }
@@ -360,7 +360,7 @@ namespace KSynthLib.K5
         private byte _value;
         public byte Value
         {
-            get 
+            get
             {
                 return _value;
             }
@@ -374,7 +374,7 @@ namespace KSynthLib.K5
                 else
                 {
                     throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})", 
+                        string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
             }
@@ -398,7 +398,7 @@ namespace KSynthLib.K5
         private byte _value;
         public byte Value
         {
-            get 
+            get
             {
                 return _value;
             }
@@ -412,7 +412,7 @@ namespace KSynthLib.K5
                 else
                 {
                     throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})", 
+                        string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
             }

@@ -1,7 +1,5 @@
 using System;
 
-using Range.Net;
-
 namespace KSynthLib.Common
 {
     //
@@ -18,7 +16,7 @@ namespace KSynthLib.Common
         private int _value;
         public int Value
         {
-            get 
+            get
             {
                 return _value;
             }
@@ -32,7 +30,7 @@ namespace KSynthLib.Common
                 else
                 {
                     throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})", 
+                        string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
             }
@@ -56,7 +54,7 @@ namespace KSynthLib.Common
         private int _value;
         public int Value
         {
-            get 
+            get
             {
                 return _value;
             }
@@ -70,7 +68,7 @@ namespace KSynthLib.Common
                 else
                 {
                     throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})", 
+                        string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
             }
@@ -95,7 +93,7 @@ namespace KSynthLib.Common
         private int _value;
         public int Value
         {
-            get 
+            get
             {
                 return _value;
             }
@@ -109,7 +107,7 @@ namespace KSynthLib.Common
                 else
                 {
                     throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})", 
+                        string.Format("Value must be in range {0} (was {1})",
                         this.range.ToString(), value));
                 }
             }
@@ -134,7 +132,7 @@ namespace KSynthLib.Common
         private int _value;
         public int Value
         {
-            get 
+            get
             {
                 return _value;
             }
@@ -148,7 +146,7 @@ namespace KSynthLib.Common
                 else
                 {
                     throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})", 
+                        string.Format("Value must be in range {0} (was {1})",
                         this.range.ToString(), value));
                 }
             }
@@ -173,7 +171,7 @@ namespace KSynthLib.Common
         private int _value;
         public int Value
         {
-            get 
+            get
             {
                 return _value;
             }
@@ -187,7 +185,7 @@ namespace KSynthLib.Common
                 else
                 {
                     throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})", 
+                        string.Format("Value must be in range {0} (was {1})",
                         this.range.ToString(), value));
                 }
             }
@@ -212,7 +210,7 @@ namespace KSynthLib.Common
         private int _value;
         public int Value
         {
-            get 
+            get
             {
                 return _value;
             }
@@ -226,7 +224,7 @@ namespace KSynthLib.Common
                 else
                 {
                     throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})", 
+                        string.Format("Value must be in range {0} (was {1})",
                         this.range.ToString(), value));
                 }
             }
@@ -251,7 +249,7 @@ namespace KSynthLib.Common
         private int _value;
         public int Value
         {
-            get 
+            get
             {
                 return _value;
             }
@@ -265,7 +263,7 @@ namespace KSynthLib.Common
                 else
                 {
                     throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})", 
+                        string.Format("Value must be in range {0} (was {1})",
                         this.range.ToString(), value));
                 }
             }
@@ -290,7 +288,7 @@ namespace KSynthLib.Common
         private int _value;
         public int Value
         {
-            get 
+            get
             {
                 return _value;
             }
@@ -304,7 +302,7 @@ namespace KSynthLib.Common
                 else
                 {
                     throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})", 
+                        string.Format("Value must be in range {0} (was {1})",
                         this.range.ToString(), value));
                 }
             }

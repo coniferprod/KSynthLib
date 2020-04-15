@@ -1,6 +1,6 @@
 using System;
 
-using Range.Net;
+using KSynthLib.Common;
 
 
 namespace KSynthLib.K5000
