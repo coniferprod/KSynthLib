@@ -1,80 +1,50 @@
 using System;
 using System.Text;
 
-using KSynthLib.Common;
-
 namespace KSynthLib.K4
 {
     public class AutoBendSettings
     {
-        private LevelType time;
+        private LevelType _time;
         public int Time  // 0~100
         {
-            get
-            {
-                return time.Value;
-            }
-
-            set
-            {
-                time.Value = value;
-            }
+            get => _time.Value;
+            set => _time.Value = value;
         }
 
-        private DepthType depth;
+        private DepthType _depth;
         public int Depth // 0~100 (±50)
         {
-            get
-            {
-                return depth.Value;
-            }
-
-            set
-            {
-                depth.Value = value;
-            }
+            get => _depth.Value;
+            set => _depth.Value = value;
         }
 
-        private DepthType keyScalingTime;
+        private DepthType _keyScalingTime;
         public int KeyScalingTime // 0~100 (±50)
         {
-            get
-            {
-                return keyScalingTime.Value;
-            }
-
-            set
-            {
-                keyScalingTime.Value = value;
-            }
+            get => _keyScalingTime.Value;
+            set => _keyScalingTime.Value = value;
         }
 
-        private DepthType velocityDepth;
+        private DepthType _velocityDepth;
         public int VelocityDepth // 0~100 (±50)
         {
-            get
-            {
-                return velocityDepth.Value;
-            }
-
-            set
-            {
-                velocityDepth.Value = value;
-            }
+            get => _velocityDepth.Value;
+            set => _velocityDepth.Value = value;
         }
 
         public AutoBendSettings()
         {
-            time = new LevelType();
-            depth = new DepthType();
-            keyScalingTime = new DepthType();
-            velocityDepth = new DepthType();
+            _time = new LevelType();
+            _depth = new DepthType();
+            _keyScalingTime = new DepthType();
+            _velocityDepth = new DepthType();
         }
 
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(String.Format("TIME       ={0,3}\nDEPTH      ={1,2}\nKS>TIME    ={2,2}\nVEL>DEPTH  ={3,2}", 
+            builder.Append(string.Format("TIME       ={0,3}\nDEPTH      ={1,2}\nKS>TIME    ={2,2}\nVEL>DEPTH  ={3,2}",
                 Time, Depth, KeyScalingTime, VelocityDepth));
             return builder.ToString();
         }

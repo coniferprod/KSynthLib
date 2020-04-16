@@ -78,10 +78,10 @@ namespace KSynthLib.K4
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(String.Format("single = {0}, recv ch = {1}, play mode = {2}\n", PatchUtil.GetPatchName(singlePatch), receiveChannel + 1, playMode));
-            builder.Append(String.Format("zone = {0} to {1}, vel sw = {2}\n", GetNoteName(zoneLow), GetNoteName(zoneHigh), velocitySwitch));
-            builder.Append(String.Format("level = {0}, transpose = {1}, tune = {2}\n", level, transpose, tune));
-            builder.Append(String.Format("submix ch = {0}\n", output));
+            builder.Append(string.Format("single = {0}, recv ch = {1}, play mode = {2}\n", PatchUtil.GetPatchName(singlePatch), receiveChannel + 1, playMode));
+            builder.Append(string.Format("zone = {0} to {1}, vel sw = {2}\n", GetNoteName(zoneLow), GetNoteName(zoneHigh), velocitySwitch));
+            builder.Append($"level = {level}, transpose = {transpose}, tune = {tune}\n");
+            builder.Append($"submix ch = {output}\n");
             return builder.ToString();
         }
 

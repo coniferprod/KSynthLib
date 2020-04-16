@@ -1,8 +1,6 @@
 using System;
 using System.Text;
 
-using KSynthLib.Common;
-
 namespace KSynthLib.K4
 {
     public enum LFOShape // 0/TRI, 1/SAW, 2/SQR, 3/RND
@@ -17,77 +15,49 @@ namespace KSynthLib.K4
     {
         public LFOShape Shape;
 
-        private LevelType speed;
+        private LevelType _speed;
         public int Speed  // 0~100
         {
-            get
-            {
-                return speed.Value;
-            }
-
-            set
-            {
-                speed.Value = value;
-            }
+            get => _speed.Value;
+            set => _speed.Value = value;
         }
 
-        private LevelType delay;
+        private LevelType _delay;
         public int Delay  // 0~100
         {
-            get
-            {
-                return delay.Value;
-            }
-
-            set
-            {
-                delay.Value = value;
-            }
+            get => _delay.Value;
+            set => _delay.Value = value;
         }
 
-        private DepthType depth;
+        private DepthType _depth;
         public int Depth // 0~100 (±50)
         {
-            get
-            {
-                return depth.Value;
-            }
-
-            set
-            {
-                depth.Value = value;
-            }
+            get => _depth.Value;
+            set => _depth.Value = value;
         }
-        
-        private DepthType pressureDepth;
+
+        private DepthType _pressureDepth;
         public int PressureDepth // 0~100 (±50)
         {
-            get
-            {
-                return pressureDepth.Value;
-            }
-
-            set
-            {
-                pressureDepth.Value = value;
-            }
+            get => _pressureDepth.Value;
+            set => _pressureDepth.Value = value;
         }
 
         public LFOSettings()
         {
-            speed = new LevelType();
-            delay = new LevelType();
-            depth = new DepthType();
-            pressureDepth = new DepthType();
+            _speed = new LevelType();
+            _delay = new LevelType();
+            _depth = new DepthType();
+            _pressureDepth = new DepthType();
         }
 
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(String.Format("SHAPE      ={0}\nSPEED     ={1,3}\nDELAY     ={2,3}\nDEPTH     ={3,3}, PRESS DEPTH={4,3}", 
+            builder.Append(string.Format("SHAPE      ={0}\nSPEED     ={1,3}\nDELAY     ={2,3}\nDEPTH     ={3,3}, PRESS DEPTH={4,3}",
                 Enum.GetNames(typeof(LFOShape))[(int)Shape],
                 Speed, Delay, Depth, PressureDepth));
             return builder.ToString();
-        }    
+        }
     }
 }

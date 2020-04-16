@@ -182,14 +182,14 @@ namespace KSynthLib.K4
 
             (b, offset) = Util.GetNextByte(data, offset);
             LFO.Depth = (b & 0x7f) - 50; // 0~100 to ±50
-            
+
             (b, offset) = Util.GetNextByte(data, offset);
             LFO.PressureDepth = (b & 0x7f) - 50; // 0~100 to ±50
 
             (b, offset) = Util.GetNextByte(data, offset);
             _pressureFreq = new DepthType((b & 0x7f) - 50); // 0~100 to ±50
         }
-        
+
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
@@ -286,7 +286,7 @@ namespace KSynthLib.K4
 
         public SinglePatch()
         {
-            this.name = "NewSound";
+            this._name = "NewSound";
 
             Common = new CommonSettings();
 
@@ -305,9 +305,9 @@ namespace KSynthLib.K4
 
         public SinglePatch(byte[] data)
         {
-            //System.Console.WriteLine(String.Format("Starting to parse single patch from data (length = {0})", data.Length));
+            //Console.WriteLine($"Starting to parse single patch from data (length = {data.Length} bytes)");
             int offset = 0;
-            this.name = GetName(data, offset);
+            this._name = GetName(data, offset);
 
             Common = new CommonSettings(data);
             offset += CommonSettings.DataSize;
@@ -319,7 +319,7 @@ namespace KSynthLib.K4
             List<byte> source2Data = Util.EveryNthElement(allSourceData, 4, 1);
             List<byte> source3Data = Util.EveryNthElement(allSourceData, 4, 2);
             List<byte> source4Data = Util.EveryNthElement(allSourceData, 4, 3);
-            
+
             Sources = new Source[NumSources];
             Sources[0] = new Source(source1Data.ToArray());
             Sources[1] = new Source(source2Data.ToArray());
@@ -390,7 +390,7 @@ namespace KSynthLib.K4
         protected override byte[] CollectData()
         {
             List<byte> data = new List<byte>();
-            
+
             byte[] nameBytes = Encoding.ASCII.GetBytes(this.Name.PadRight(10));
             data.AddRange(nameBytes);
 

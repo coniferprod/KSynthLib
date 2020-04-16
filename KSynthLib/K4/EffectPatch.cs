@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 
-using KSynthLib.Common;
-
 namespace KSynthLib.K4
 {
     public enum EffectType
@@ -61,55 +59,34 @@ namespace KSynthLib.K4
 
         public const int EffectSubmixCount = 8;
 
-        private EffectType type;
+        public EffectType Type;
 
         private EffectParameter1Type _param1;
         public int Param1
         {
-            get
-            {
-                return _param1.Value;
-            }
-
-            set
-            {
-                _param1.Value = value;
-            }
+            get => _param1.Value;
+            set => _param1.Value = value;
         }
 
         private EffectParameter1Type _param2;
         public int Param2
         {
-            get
-            {
-                return _param2.Value;
-            }
-
-            set
-            {
-                _param2.Value = value;
-            }
+            get => _param2.Value;
+            set => _param2.Value = value;
         }
+
         private EffectParameter3Type _param3;
         public int Param3
         {
-            get
-            {
-                return _param3.Value;
-            }
-
-            set
-            {
-                _param3.Value = value;
-            }
-
+            get => _param3.Value;
+            set => _param3.Value = value;
         }
 
         public EffectSubmix[] submixes;
 
         public EffectPatch()
         {
-            type = EffectType.Reverb1;
+            Type = EffectType.Reverb1;
             _param1 = new EffectParameter1Type();
             _param2 = new EffectParameter1Type();
             _param3 = new EffectParameter3Type();
@@ -123,7 +100,7 @@ namespace KSynthLib.K4
 
         public EffectPatch(byte[] data)
         {
-            type = (EffectType)data[0];
+            Type = (EffectType)data[0];
             _param1 = new EffectParameter1Type(data[1]);
             _param2 = new EffectParameter1Type(data[2]);
             _param3 = new EffectParameter3Type(data[3]);
@@ -141,7 +118,7 @@ namespace KSynthLib.K4
         {
             List<byte> data = new List<byte>();
 
-            data.Add((byte)this.type);
+            data.Add((byte)this.Type);
             data.Add((byte)this.Param1);
             data.Add((byte)this.Param2);
             data.Add((byte)this.Param3);

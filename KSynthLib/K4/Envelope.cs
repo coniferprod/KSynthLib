@@ -2,89 +2,57 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
-using KSynthLib.Common;
-
 namespace KSynthLib.K4
 {
     public class Envelope
     {
-        private LevelType attack;
+        private LevelType _attack;
         public int Attack // 0~100
         {
-            get
-            {
-                return attack.Value;
-            }
-
-            set
-            {
-                attack.Value = value;
-            }
+            get => _attack.Value;
+            set => _attack.Value = value;
         }
 
-        private LevelType decay;
+        private LevelType _decay;
         public int Decay // 0~100
         {
-            get
-            {
-                return decay.Value;
-            }
-
-            set
-            {
-                decay.Value = value;
-            }
+            get => _decay.Value;
+            set => _decay.Value = value;
         }
 
-        private LevelType sustain;
+        private LevelType _sustain;
         public int Sustain // 0~100
         {
-            get
-            {
-                return sustain.Value;
-            }
-
-            set
-            {
-                sustain.Value = value;
-            }
+            get => _sustain.Value;
+            set => _sustain.Value = value;
         }
 
-        private LevelType release;
+        private LevelType _release;
         public int Release // 0~100
         {
-            get
-            {
-                return release.Value;
-            }
-
-            set
-            {
-                release.Value = value;
-            }
+            get => _release.Value;
+            set => _release.Value = value;
         }
 
         public Envelope()
         {
-            attack = new LevelType();
-            decay = new LevelType();
-            sustain = new LevelType();
-            release = new LevelType();
+            _attack = new LevelType();
+            _decay = new LevelType();
+            _sustain = new LevelType();
+            _release = new LevelType();
         }
 
         public Envelope(int a, int d, int s, int r)
-        {            
-            attack = new LevelType(a);
-            decay = new LevelType(d);
-            sustain = new LevelType(s);
-            release = new LevelType(r);
+        {
+            _attack = new LevelType(a);
+            _decay = new LevelType(d);
+            _sustain = new LevelType(s);
+            _release = new LevelType(r);
         }
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
-            builder.Append(String.Format("A:{0} D:{1} S:{2} R:{3}", Attack, Decay, Sustain, Release));
-            return builder.ToString();
+            return $"A:{Attack} D:{Decay} S:{Sustain} R:{Release}";
         }
 
         public byte[] ToData()

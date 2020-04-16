@@ -13,15 +13,8 @@ namespace KSynthLib.K4
         private LevelType _delay;
         public int Delay  // 0~100
         {
-            get
-            {
-                return _delay.Value;
-            }
-
-            set
-            {
-                _delay.Value = value;
-            }
+            get => _delay.Value;
+            set => _delay.Value = value;
         }
 
         public int WaveNumber;  // combined from two bytes
@@ -29,65 +22,37 @@ namespace KSynthLib.K4
         private EightLevelType _keyScalingCurve;
         public int KeyScalingCurve  // 0~7 / 1~8
         {
-            get
-            {
-                return _keyScalingCurve.Value;
-            }
-
-            set
-            {
-                _keyScalingCurve.Value = value;
-            }
+            get => _keyScalingCurve.Value;
+            set => _keyScalingCurve.Value = value;
         }
 
         private CoarseType _coarse;
         public int Coarse // 0~48 / ±24
         {
-            get 
-            {
-                return _coarse.Value;
-            }
-
-            set
-            {
-                _coarse.Value = value;
-            }
+            get => _coarse.Value;
+            set => _coarse.Value = value;
         }
 
-        public bool KeyTracking; 
+        public bool KeyTracking;
 
         public int FixedKey; // 0 ~ 115 / C-1 ~ G8
 
-        private DepthType _fine;        
+        private DepthType _fine;
         public int Fine // 0~100 / ±50
         {
-            get
-            {
-                return _fine.Value;
-            }
-
-            set
-            {
-                _fine.Value = value;
-            }
+            get => _fine.Value;
+            set => _fine.Value = value;
         }
 
-        public bool PressureToFrequencySwitch; 
+        public bool PressureToFrequencySwitch;
 
         public bool VibratoSwitch;
 
         private EightLevelType _velocityCurve;
         public int VelocityCurve // 0~7 / 1~8
         {
-            get
-            {
-                return _velocityCurve.Value;
-            }
-
-            set
-            {
-                _velocityCurve.Value = value;
-            }
+            get => _velocityCurve.Value;
+            set => _velocityCurve.Value = value;
         }
 
         public Source()
@@ -116,14 +81,14 @@ namespace KSynthLib.K4
             int waveSelectLow = 0;
             (b, offset) = Util.GetNextByte(data, offset);
             waveSelectHigh = b & 0x01;
-            _keyScalingCurve = new EightLevelType(((b >> 4) & 0x07) + 1); // 0...7 to 1...8            
+            _keyScalingCurve = new EightLevelType(((b >> 4) & 0x07) + 1); // 0...7 to 1...8
 
             byte b2 = 0;
             (b2, offset) = Util.GetNextByte(data, offset);
             waveSelectLow = b2 & 0x7f;
 
             // Combine the wave select bits:
-            string waveSelectBitString = String.Format("{0}{1}", Convert.ToString(waveSelectHigh, 2), Convert.ToString(waveSelectLow, 2));
+            string waveSelectBitString = string.Format("{0}{1}", Convert.ToString(waveSelectHigh, 2), Convert.ToString(waveSelectLow, 2));
             WaveNumber = Convert.ToInt32(waveSelectBitString, 2) + 1;
 
             (b, offset) = Util.GetNextByte(data, offset);
@@ -149,15 +114,15 @@ namespace KSynthLib.K4
         {
             StringBuilder builder = new StringBuilder();
             builder.Append("S.COMMON\n");
-            builder.Append(String.Format("DELAY      ={0,3}\n", Delay));
-            builder.Append(String.Format("VEL CURVE  ={0,3}\n", VelocityCurve));
-            builder.Append(String.Format("KS CURVE   ={0,3}\n", KeyScalingCurve + 1));
+            builder.Append(string.Format("DELAY      ={0,3}\n", Delay));
+            builder.Append(string.Format("VEL CURVE  ={0,3}\n", VelocityCurve));
+            builder.Append(string.Format("KS CURVE   ={0,3}\n", KeyScalingCurve + 1));
             builder.Append("DCO\n");
-            builder.Append(String.Format("WAVE       ={0,3} ({1})\n", WaveNumber + 1, Wave.Instance[WaveNumber]));
-            builder.Append(String.Format("KEY TRACK  ={0}\n", KeyTracking ? "ON" : "OFF"));
-            builder.Append(String.Format("COARSE     ={0,3}\nFINE       ={1,3}\n", Coarse - 24, Fine));
-            builder.Append(String.Format("FIXED KEY  ={0} ({1})\n", GetNoteName(FixedKey), FixedKey));
-            builder.Append(String.Format("PRESS      ={0}\nVIB/A.BEND ={1}\n", PressureToFrequencySwitch ? "ON" : "OFF", VibratoSwitch ? "ON" : "OFF"));
+            builder.Append(string.Format("WAVE       ={0,3} ({1})\n", WaveNumber + 1, Wave.Instance[WaveNumber]));
+            builder.Append(string.Format("KEY TRACK  ={0}\n", KeyTracking ? "ON" : "OFF"));
+            builder.Append(string.Format("COARSE     ={0,3}\nFINE       ={1,3}\n", Coarse - 24, Fine));
+            builder.Append(string.Format("FIXED KEY  ={0} ({1})\n", GetNoteName(FixedKey), FixedKey));
+            builder.Append(string.Format("PRESS      ={0}\nVIB/A.BEND ={1}\n", PressureToFrequencySwitch ? "ON" : "OFF", VibratoSwitch ? "ON" : "OFF"));
             return builder.ToString();
         }
 
@@ -201,6 +166,6 @@ namespace KSynthLib.K4
             data.Add(Convert.ToByte(b54.ToString(), 2));
 
             return data.ToArray();
-        }        
+        }
     }
 }

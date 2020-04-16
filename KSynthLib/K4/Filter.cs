@@ -14,29 +14,15 @@ namespace KSynthLib.K4
         private LevelType _cutoff;
         public int Cutoff  // 0~100
         {
-            get
-            {
-                return _cutoff.Value;
-            }
-
-            set
-            {
-                _cutoff.Value = value;
-            }
+            get => _cutoff.Value;
+            set => _cutoff.Value = value;
         }
 
         private EightLevelType _resonance; // 0 ~ 7 / 1 ~ 8
         public int Resonance
         {
-            get
-            {
-                return _resonance.Value;
-            }
-
-            set
-            {
-                _resonance.Value = value;
-            }
+            get => _resonance.Value;
+            set => _resonance.Value = value;
         }
 
         public LevelModulation CutoffMod;
@@ -45,32 +31,18 @@ namespace KSynthLib.K4
 
         public Envelope Env;
 
-        private DepthType envelopeDepth;
+        private DepthType _envelopeDepth;
         public int EnvelopeDepth // 0 ~ 100 (±50)
         {
-            get
-            {
-                return envelopeDepth.Value;
-            }
-
-            set 
-            {
-                envelopeDepth.Value = value;
-            }
+            get => _envelopeDepth.Value;
+            set => _envelopeDepth.Value = value;
         }
 
-        private DepthType envelopeVelocityDepth;
+        private DepthType _envelopeVelocityDepth;
         public int EnvelopeVelocityDepth // 0 ~ 100 (±50)
         {
-            get
-            {
-                return envelopeVelocityDepth.Value;
-            }
-
-            set
-            {
-                envelopeVelocityDepth.Value = value;
-            }
+            get => _envelopeVelocityDepth.Value;
+            set => _envelopeVelocityDepth.Value = value;
         }
 
         public TimeModulation TimeMod;
@@ -82,12 +54,12 @@ namespace KSynthLib.K4
             CutoffMod = new LevelModulation();
             IsLFO = false;
             Env = new Envelope();
-            envelopeDepth = new DepthType();
-            envelopeVelocityDepth = new DepthType();
+            _envelopeDepth = new DepthType();
+            _envelopeVelocityDepth = new DepthType();
             TimeMod = new TimeModulation();
         }
 
-        public Filter(byte[] data)
+        public Filter(byte[] data) : this()
         {
             int offset = 0;
             byte b = 0;  // will be reused when getting the next byte
@@ -110,10 +82,10 @@ namespace KSynthLib.K4
             CutoffMod.KeyScalingDepth = (b & 0x7f) - 50;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            envelopeDepth = new DepthType((b & 0x7f) - 50);
+            _envelopeDepth = new DepthType((b & 0x7f) - 50);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            envelopeVelocityDepth = new DepthType((b & 0x7f) - 50);
+            _envelopeVelocityDepth = new DepthType((b & 0x7f) - 50);
 
             Env = new Envelope();
             (b, offset) = Util.GetNextByte(data, offset);
@@ -124,7 +96,7 @@ namespace KSynthLib.K4
 
             (b, offset) = Util.GetNextByte(data, offset);
             Env.Sustain = b & 0x7f;
-            
+
             (b, offset) = Util.GetNextByte(data, offset);
             Env.Release = b & 0x7f;
 
@@ -142,20 +114,20 @@ namespace KSynthLib.K4
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(String.Format("cutoff = {0}, resonance = {1}\n", Cutoff, Resonance));
-            builder.Append(String.Format("LFO = {0}\n", IsLFO ? "ON" : "OFF"));
-            builder.Append(String.Format("envelope: {0}\n", Env.ToString()));
-            builder.Append(String.Format("cutoff modulation: velocity = {0}, pressure = {1}, key scaling = {2}\n", CutoffMod.VelocityDepth, CutoffMod.PressureDepth, CutoffMod.KeyScalingDepth));
-            builder.Append(String.Format("time modulation: attack velocity = {0}, release velocity = {1}, key scaling = {2}\n", TimeMod.AttackVelocity, TimeMod.ReleaseVelocity, TimeMod.KeyScaling));
+            builder.Append($"cutoff = {Cutoff}, resonance = {Resonance}\n");
+            builder.Append(string.Format("LFO = {0}\n", IsLFO ? "ON" : "OFF"));
+            builder.Append($"envelope: {Env}\n");
+            builder.Append(string.Format("cutoff modulation: velocity = {0}, pressure = {1}, key scaling = {2}\n", CutoffMod.VelocityDepth, CutoffMod.PressureDepth, CutoffMod.KeyScalingDepth));
+            builder.Append(string.Format("time modulation: attack velocity = {0}, release velocity = {1}, key scaling = {2}\n", TimeMod.AttackVelocity, TimeMod.ReleaseVelocity, TimeMod.KeyScaling));
             return builder.ToString();
         }
 
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
-            
+
             data.Add((byte)Cutoff);
-            
+
             StringBuilder b104 = new StringBuilder("0000");
             b104.Append(IsLFO ? "1" : "0");
             int resonance = Resonance - 1;  // from 1...8 to 0...7
@@ -163,7 +135,7 @@ namespace KSynthLib.K4
             //Debug.WriteLine(String.Format("Filter resonance = {0}, as bit string = '{1}'", resonance, resonanceString));
             b104.Append(resonanceString.PadLeft(3, '0'));
             data.Add(Convert.ToByte(b104.ToString(), 2));
-            
+
             data.Add((byte)(CutoffMod.VelocityDepth + 50));
             data.Add((byte)(CutoffMod.PressureDepth + 50));
             data.Add((byte)(CutoffMod.KeyScalingDepth + 50));
@@ -176,7 +148,7 @@ namespace KSynthLib.K4
             data.Add((byte)(TimeMod.AttackVelocity + 50));
             data.Add((byte)(TimeMod.ReleaseVelocity + 50));
             data.Add((byte)(TimeMod.KeyScaling + 50));
-                        
+
             return data.ToArray();
         }
     }

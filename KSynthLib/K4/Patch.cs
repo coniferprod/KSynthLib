@@ -6,9 +6,9 @@ namespace KSynthLib.K4
 {
     public abstract class Patch
     {
-        protected string name;
-        
-        public string Name => name;
+        protected string _name;
+
+        public string Name => _name;
 
         private byte checksum;
 
@@ -23,7 +23,7 @@ namespace KSynthLib.K4
                     sum += b;
                 }
                 sum += 0xA5;
-                return sum;                
+                return sum;
             }
 
             set
