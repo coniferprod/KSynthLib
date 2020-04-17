@@ -158,6 +158,8 @@ namespace KSynthLib.K4
         {
             this.Value = v;  // setter throws exception for invalid value
         }
+
+        public const string OutputNames = "ABCDEFGH";
     }
 
     public class PitchBendType
@@ -279,10 +281,7 @@ namespace KSynthLib.K4
         private int _value;
         public int Value
         {
-            get
-            {
-                return _value;
-            }
+            get => _value;
 
             set
             {
@@ -311,6 +310,8 @@ namespace KSynthLib.K4
         }
     }
 
+    // There is no EffectParameter2Type.
+    // Effect param1 and param2 are the same type (EffectParameter1Type).
     public class EffectParameter3Type
     {
         private Range<int> range;
@@ -318,10 +319,7 @@ namespace KSynthLib.K4
         private int _value;
         public int Value
         {
-            get
-            {
-                return _value;
-            }
+            get => _value;
 
             set
             {
@@ -340,7 +338,7 @@ namespace KSynthLib.K4
 
         public EffectParameter3Type()
         {
-            this.range = new Range<int>(0, 30);  // or 31?
+            this.range = new Range<int>(0, 31);
             this._value = 0;
         }
 
@@ -509,5 +507,127 @@ namespace KSynthLib.K4
         {
             this.Value = v;  // setter throws exception of out-of-range values
         }
+
+        public (byte, byte) ConvertToHighAndLow()
+        {
+            // Convert wave number to an 8-bit binary string representation:
+            string waveBitString = Convert.ToString(Value, 2).PadLeft(8, '0');
+
+            // Get top bit, convert it to byte and use it as the MSB:
+            byte high = Convert.ToByte(waveBitString.Substring(0, 1), 2);
+
+            // Get all but the top bit, convert it to byte and use it as the LSB:
+            byte low = Convert.ToByte(waveBitString.Substring(1), 2);
+
+            return (high, low);
+        }
     }
+
+    public class PanValueType
+    {
+        private Range<sbyte> range;
+
+        private sbyte _value;
+        public sbyte Value
+        {
+            get => _value;
+
+            set
+            {
+                if (range.Contains(value))
+                {
+                    _value = value;
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("Value",
+                        string.Format("Value must be in range {0} (was {1})",
+                            this.range.ToString(), value));
+                }
+            }
+        }
+
+        public PanValueType()
+        {
+            this.range = new Range<sbyte>(-7, 7);
+        }
+
+        public PanValueType(sbyte v) : this()
+        {
+            this.Value = v;
+        }
+    }
+
+    public class SendValueType
+    {
+        private Range<byte> range;
+
+        private byte _value;
+        public byte Value
+        {
+            get => _value;
+
+            set
+            {
+                if (range.Contains(value))
+                {
+                    _value = value;
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("Value",
+                        string.Format("Value must be in range {0} (was {1})",
+                            this.range.ToString(), value));
+                }
+            }
+        }
+
+        public SendValueType()
+        {
+            this.range = new Range<byte>(0, 100);  // manual says 0...100, SysEx spec says 0...99
+            this._value = 0;
+        }
+
+        public SendValueType(byte v) : this()
+        {
+            this.Value = v;  // setter throws exception of out-of-range values
+        }
+    }
+
+    public class MidiChannelType
+    {
+        private Range<byte> range;
+
+        private byte _value;
+        public byte Value
+        {
+            get => _value;
+
+            set
+            {
+                if (range.Contains(value))
+                {
+                    _value = value;
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("Value",
+                        string.Format("Value must be in range {0} (was {1})",
+                            this.range.ToString(), value));
+                }
+            }
+        }
+
+        public MidiChannelType()
+        {
+            this.range = new Range<byte>(1, 16);
+            this._value = 1;  // default zero would be out of range
+        }
+
+        public MidiChannelType(byte v) : this()
+        {
+            this.Value = v;
+        }
+    }
+
 }

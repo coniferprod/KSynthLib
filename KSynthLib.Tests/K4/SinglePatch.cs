@@ -46,7 +46,7 @@ namespace KSynthLib.Tests.K4
 
             SinglePatch singlePatch = new SinglePatch(data);
             //Console.WriteLine($"Single patch name = '{singlePatch.Name}'");
-            Assert.Equal(singlePatch.Name, "Melo Vox 1");
+            Assert.Equal("Melo Vox 1", singlePatch.Name);
         }
 
         [Fact]

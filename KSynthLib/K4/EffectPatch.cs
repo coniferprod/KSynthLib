@@ -25,39 +25,56 @@ namespace KSynthLib.K4
 
     public class EffectSubmix
     {
-        private int pan;
-        private int send1;
-        private int send2;
+        private PanValueType _pan;
+        public sbyte Pan
+        {
+            get => _pan.Value;
+            set => _pan.Value = value;
+        }
+
+        private SendValueType _send1;
+        public byte Send1
+        {
+            get => _send1.Value;
+            set => _send1.Value = value;
+        }
+
+        private SendValueType _send2;
+        public byte Send2
+        {
+            get => _send2.Value;
+            set => _send2.Value = value;
+        }
 
         public EffectSubmix()
         {
-            this.pan = 8;  // TODO: figure out value vs. property
-            this.send1 = 0;
-            this.send2 = 0;
+            _pan = new PanValueType();
+            _send1 = new SendValueType();
+            _send2 = new SendValueType();
         }
 
-        public EffectSubmix(byte d0, byte d1, byte d2)
+        public EffectSubmix(sbyte d0, byte d1, byte d2) : this()
         {
-            this.pan = d0;
-            this.send1 = d1;
-            this.send2 = d2;
+            Pan = d0;
+            Send1 = d1;
+            Send2 = d2;
         }
 
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
-            data.Add((byte)pan);
-            data.Add((byte)send1);
-            data.Add((byte)send2);
+            data.Add((byte)Pan);
+            data.Add((byte)Send1);
+            data.Add((byte)Send2);
             return data.ToArray();
         }
     }
 
-    public class EffectPatch : Patch
+    public class EffectPatch
     {
         public const int DataSize = 35;
 
-        public const int EffectSubmixCount = 8;
+        public const int SubmixCount = 8;
 
         public EffectType Type;
 
@@ -82,7 +99,25 @@ namespace KSynthLib.K4
             set => _param3.Value = value;
         }
 
-        public EffectSubmix[] submixes;
+        public EffectSubmix[] Submixes;
+
+        private byte _checksum;
+        public byte Checksum
+        {
+            get
+            {
+                byte[] bs = CollectData();
+                byte sum = 0;
+                foreach (byte b in bs)
+                {
+                    sum += b;
+                }
+                sum += 0xA5;
+                return sum;
+            }
+
+            set => _checksum = value;
+        }
 
         public EffectPatch()
         {
@@ -91,14 +126,14 @@ namespace KSynthLib.K4
             _param2 = new EffectParameter1Type();
             _param3 = new EffectParameter3Type();
 
-            submixes = new EffectSubmix[EffectSubmixCount];
-            for (int i = 0; i < EffectSubmixCount; i++)
+            Submixes = new EffectSubmix[SubmixCount];
+            for (int i = 0; i < SubmixCount; i++)
             {
-                submixes[i] = new EffectSubmix();
+                Submixes[i] = new EffectSubmix();
             }
         }
 
-        public EffectPatch(byte[] data)
+        public EffectPatch(byte[] data) : this()
         {
             Type = (EffectType)data[0];
             _param1 = new EffectParameter1Type(data[1]);
@@ -106,15 +141,15 @@ namespace KSynthLib.K4
             _param3 = new EffectParameter3Type(data[3]);
 
             int offset = 4;
-            submixes = new EffectSubmix[EffectSubmixCount];
-            for (int i = 0; i < EffectSubmixCount; i++)
+            Submixes = new EffectSubmix[SubmixCount];
+            for (int i = 0; i < SubmixCount; i++)
             {
-                submixes[i] = new EffectSubmix(data[offset], data[offset + 1], data[offset + 2]);
+                Submixes[i] = new EffectSubmix((sbyte)data[offset], data[offset + 1], data[offset + 2]);
                 offset += 3;
             }
         }
 
-        protected override byte[] CollectData()
+        protected byte[] CollectData()
         {
             List<byte> data = new List<byte>();
 
@@ -131,10 +166,21 @@ namespace KSynthLib.K4
             data.Add(0);
             data.Add(0);
 
-            for (int i = 0; i < EffectSubmixCount; i++)
+            for (int i = 0; i < SubmixCount; i++)
             {
-                data.AddRange(this.submixes[i].ToData());
+                data.AddRange(this.Submixes[i].ToData());
             }
+
+            return data.ToArray();
+        }
+
+        public byte[] ToData()
+        {
+            List<byte> data = new List<byte>();
+            data.AddRange(CollectData());
+
+            // Add checksum (gets computed by the property)
+            data.Add(Checksum);
 
             return data.ToArray();
         }
