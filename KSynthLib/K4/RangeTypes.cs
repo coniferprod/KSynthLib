@@ -89,10 +89,7 @@ namespace KSynthLib.K4
         private int _value;
         public int Value
         {
-            get
-            {
-                return _value;
-            }
+            get => _value;
 
             set
             {
@@ -128,10 +125,7 @@ namespace KSynthLib.K4
         private int _value;
         public int Value
         {
-            get
-            {
-                return _value;
-            }
+            get => _value;
 
             set
             {
@@ -169,10 +163,7 @@ namespace KSynthLib.K4
         private int _value;
         public int Value
         {
-            get
-            {
-                return _value;
-            }
+            get => _value;
 
             set
             {
@@ -402,10 +393,7 @@ namespace KSynthLib.K4
         private byte _value;
         public byte Value
         {
-            get
-            {
-                return _value;
-            }
+            get => _value;
 
             set
             {
@@ -441,10 +429,7 @@ namespace KSynthLib.K4
         private byte _value;
         public byte Value
         {
-            get
-            {
-                return _value;
-            }
+            get => _value;
 
             set
             {
@@ -505,7 +490,7 @@ namespace KSynthLib.K4
 
         public WaveNumberType(ushort v) : this()
         {
-            this.Value = v;  // setter throws exception of out-of-range values
+            this.Value = v;  // setter throws exception for out-of-range values
         }
 
         public (byte, byte) ConvertToHighAndLow()
@@ -590,7 +575,7 @@ namespace KSynthLib.K4
 
         public SendValueType(byte v) : this()
         {
-            this.Value = v;  // setter throws exception of out-of-range values
+            this.Value = v;  // setter throws exception for out-of-range values
         }
     }
 
@@ -630,4 +615,75 @@ namespace KSynthLib.K4
         }
     }
 
+    public class PatchNumberType
+    {
+        private Range<byte> range;
+
+        private byte _value;
+        public byte Value
+        {
+            get => _value;
+
+            set
+            {
+                if (range.Contains(value))
+                {
+                    _value = value;
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("Value",
+                        string.Format("Value must be in range {0} (was {1})",
+                            this.range.ToString(), value));
+                }
+            }
+        }
+
+        public PatchNumberType()
+        {
+            this.range = new Range<byte>(0, 63);
+            this._value = 0;
+        }
+
+        public PatchNumberType(byte v) : this()
+        {
+            this.Value = v;  // setter throws exception for out-of-range values
+        }
+    }
+
+    public class ZoneValueType
+    {
+        private Range<byte> range;
+
+        private byte _value;
+        public byte Value
+        {
+            get => _value;
+
+            set
+            {
+                if (range.Contains(value))
+                {
+                    _value = value;
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("Value",
+                        string.Format("Value must be in range {0} (was {1})",
+                            this.range.ToString(), value));
+                }
+            }
+        }
+
+        public ZoneValueType()
+        {
+            this.range = new Range<byte>(0, 127);
+            this._value = 0;
+        }
+
+        public ZoneValueType(byte v) : this()
+        {
+            this.Value = v;  // setter throws exception for out-of-range values
+        }
+    }
 }

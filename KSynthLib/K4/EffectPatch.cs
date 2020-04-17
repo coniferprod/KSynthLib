@@ -184,5 +184,24 @@ namespace KSynthLib.K4
 
             return data.ToArray();
         }
+
+        public string[] EffectNames = {
+            "Reverb 1",
+            "Reverb 2",
+            "Reverb 3",
+            "Reverb 4",
+            "Gate Reverb",
+            "Reverse Gate",
+            "Normal Delay",
+            "Stereo Panpot Delay",
+            "Chorus",
+            "Overdrive + Flanger",
+            "Overdrive + Normal Delay",
+            "Overdrive + Reverb",
+            "Normal Delay + Normal Delay",
+            "Normal Delay + Stereo Pan Delay",
+            "Chorus + Normal Delay",
+            "Chorus + Stereo Pan Delay"
+        };
     }
 }
