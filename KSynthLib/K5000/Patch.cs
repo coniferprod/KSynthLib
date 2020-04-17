@@ -29,15 +29,11 @@ namespace KSynthLib.K5000
                 return sum;
             }
 
-            set
-            {
-                _checksum = value;
-            }
+            set => _checksum = value;
         }
 
         public Patch()
         {
-            //Common = new CommonSettings();
         }
 
         /*

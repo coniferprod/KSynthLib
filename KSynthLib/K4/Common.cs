@@ -85,7 +85,7 @@ namespace KSynthLib.K4
 
         public CommonSettings(byte[] data) : this()
         {
-            int offset = 13; // name is s00 ... s09, others s10 ... s12
+            int offset = 0; // name is s00 ... s09, others s10 ... s12
             byte b = 0;  // will be reused when getting the next byte
 
             // source mode = s13 bits 0...1
