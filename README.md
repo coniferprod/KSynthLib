@@ -47,3 +47,24 @@ There is an associated test project with unit tests created using xUnit.
 Run the unit tests with:
 
     dotnet test
+
+## Remarks
+
+Most of the synthesizer parameters are represented by domain classes. Many of these
+classes use a custom type for a range of values. This ensures that invalid values are
+rejected as early as possible in development. Typically each synthesizer has somewhat
+different range types, so they are defined separately for each synthesizer in a
+device-specific `RangeTypes.cs` file. All the types use the smallest possible .NET
+data type that will fit the value. For library consumers it is recommended to create
+a view model that translates between UI layers of your application and the model objects
+in this library.
+
+The range itself is defined based on the [Range.NET](https://github.com/mnelsonwhite/Range.NET) library, but it requires .NET Core,
+while this library uses .NET Standard 2.0 because it needs to be consumed by a UWP
+application. Therefore the MIT-licensed code for Range.NET has been incorporated into
+the library. Thanks to the author of Range.NET for making this code available under a permissive
+license.
+
+Another point related to the Range.NET library is that it uses `System.HashCode` which
+is not available in .NET Standard 2.0. Luckily, Microsoft has made it available in the
+[Microsoft.BCL.HashCode](https://www.nuget.org/packages/Microsoft.Bcl.HashCode) library, which is a dependency of this project.
