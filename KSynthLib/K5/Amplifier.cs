@@ -40,7 +40,7 @@ namespace KSynthLib.K5
             IsRateModulationOn = isRateMod;
             Rate = rate;
             IsMaxSegment = isMaxSeg;
-            Level = level;            
+            Level = level;
         }
 
         public override string ToString()
@@ -51,7 +51,7 @@ namespace KSynthLib.K5
 
     public class AmplifierEnvelope
     {
-        public static readonly int SegmentCount = 7;
+        public const int SegmentCount = 7;
 
         public AmplifierEnvelopeSegment[] Segments;
 
@@ -65,13 +65,13 @@ namespace KSynthLib.K5
         }
     }
 
-    public class Amplifier 
+    public class Amplifier
     {
         public static readonly Dictionary<string, AmplifierEnvelope> Envelopes = new Dictionary<string, AmplifierEnvelope>
         {
             {
                 "regular", new AmplifierEnvelope
-                { 
+                {
                     Segments = new AmplifierEnvelopeSegment[]
                     {
                         new AmplifierEnvelopeSegment(true, 0, true, 25),
@@ -238,7 +238,7 @@ namespace KSynthLib.K5
             data.Add(AttackVelocityRate.ToByte());
             data.Add(ReleaseVelocityRate.ToByte());
             data.Add(KeyScalingRate.ToByte());
-            
+
             for (int i = 0; i < AmplifierEnvelope.SegmentCount; i++)
             {
                 b = Envelope.Segments[i].Rate;
@@ -278,5 +278,5 @@ namespace KSynthLib.K5
 
             return data.ToArray();
         }
-    }    
+    }
 }

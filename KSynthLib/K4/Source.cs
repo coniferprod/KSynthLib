@@ -11,23 +11,28 @@ namespace KSynthLib.K4
         public const int DataSize = 7;
 
         private LevelType _delay;
-        public int Delay  // 0~100
+        public byte Delay  // 0~100
         {
             get => _delay.Value;
             set => _delay.Value = value;
         }
 
-        public int WaveNumber;  // combined from two bytes
+        private WaveNumberType _waveNumber; // 1~256 (stored as 0~255 distributed over two bytes)
+        public ushort WaveNumber
+        {
+            get => _waveNumber.Value;
+            set => _waveNumber.Value = value;
+        }
 
-        private EightLevelType _keyScalingCurve;
-        public int KeyScalingCurve  // 0~7 / 1~8
+        private VelocityCurveType _keyScalingCurve;
+        public byte KeyScalingCurve  // 0~7 / 1~8
         {
             get => _keyScalingCurve.Value;
             set => _keyScalingCurve.Value = value;
         }
 
         private CoarseType _coarse;
-        public int Coarse // 0~48 / ±24
+        public sbyte Coarse // 0~48 / ±24
         {
             get => _coarse.Value;
             set => _coarse.Value = value;
@@ -35,10 +40,15 @@ namespace KSynthLib.K4
 
         public bool KeyTracking;
 
-        public int FixedKey; // 0 ~ 115 / C-1 ~ G8
+        private FixedKeyType _fixedKey; // 0 ~ 115 / C-1 ~ G8
+        public byte FixedKey
+        {
+            get => _fixedKey.Value;
+            set => _fixedKey.Value = value;
+        }
 
         private DepthType _fine;
-        public int Fine // 0~100 / ±50
+        public sbyte Fine // 0~100 / ±50
         {
             get => _fine.Value;
             set => _fine.Value = value;
@@ -48,8 +58,8 @@ namespace KSynthLib.K4
 
         public bool VibratoSwitch;
 
-        private EightLevelType _velocityCurve;
-        public int VelocityCurve // 0~7 / 1~8
+        private VelocityCurveType _velocityCurve;
+        public byte VelocityCurve // 0~7 / 1~8
         {
             get => _velocityCurve.Value;
             set => _velocityCurve.Value = value;
@@ -58,30 +68,30 @@ namespace KSynthLib.K4
         public Source()
         {
             _delay = new LevelType();
-            WaveNumber = 10;  // "SAW 1"
-            _keyScalingCurve = new EightLevelType();
+            _waveNumber = new WaveNumberType(10);  // "SAW 1"
+            _keyScalingCurve = new VelocityCurveType();
             _coarse = new CoarseType(0);
             KeyTracking = true;
-            FixedKey = 0;
+            _fixedKey = new FixedKeyType();
             _fine = new DepthType();
             PressureToFrequencySwitch = true;
             VibratoSwitch = false;
-            _velocityCurve = new EightLevelType();
+            _velocityCurve = new VelocityCurveType();
         }
 
-        public Source(byte[] data)
+        public Source(byte[] data) : this()
         {
             int offset = 0;
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _delay = new LevelType(b & 0x7f);
+            _delay = new LevelType((byte)(b & 0x7f));
 
             int waveSelectHigh = 0;
             int waveSelectLow = 0;
             (b, offset) = Util.GetNextByte(data, offset);
             waveSelectHigh = b & 0x01;
-            _keyScalingCurve = new EightLevelType(((b >> 4) & 0x07) + 1); // 0...7 to 1...8
+            _keyScalingCurve = new VelocityCurveType((byte)(((b >> 4) & 0x07) + 1)); // 0...7 to 1...8
 
             byte b2 = 0;
             (b2, offset) = Util.GetNextByte(data, offset);
@@ -89,48 +99,41 @@ namespace KSynthLib.K4
 
             // Combine the wave select bits:
             string waveSelectBitString = string.Format("{0}{1}", Convert.ToString(waveSelectHigh, 2), Convert.ToString(waveSelectLow, 2));
-            WaveNumber = Convert.ToInt32(waveSelectBitString, 2) + 1;
+            WaveNumber = (ushort)(Convert.ToUInt16(waveSelectBitString, 2) + 1);
 
             (b, offset) = Util.GetNextByte(data, offset);
             // Here the MIDI implementation's SysEx format is a little unclear.
             // My interpretation is that the low six bits are the coarse value,
             // and b6 is the key tracking bit (b7 is zero).
             KeyTracking = b.IsBitSet(6);
-            _coarse = new CoarseType((b & 0x3f) - 24);  // 00 ~ 48 /±24
+            _coarse = new CoarseType((sbyte)((b & 0x3f) - 24));  // 00 ~ 48 to ±24
 
             (b, offset) = Util.GetNextByte(data, offset);
-            FixedKey = b & 0x7f;
+            FixedKey = (byte)(b & 0x7f);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _fine = new DepthType((b & 0x7f) - 50);
+            _fine = new DepthType((sbyte)((b & 0x7f) - 50));
 
             (b, offset) = Util.GetNextByte(data, offset);
             PressureToFrequencySwitch = b.IsBitSet(0);
             VibratoSwitch = b.IsBitSet(1);
-            _velocityCurve = new EightLevelType(((b >> 2) & 0x07) + 1);  // 0...7 to 1...8
+            _velocityCurve = new VelocityCurveType((byte)(((b >> 2) & 0x07) + 1));  // 0...7 to 1...8
         }
 
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
             builder.Append("S.COMMON\n");
-            builder.Append(string.Format("DELAY      ={0,3}\n", Delay));
-            builder.Append(string.Format("VEL CURVE  ={0,3}\n", VelocityCurve));
-            builder.Append(string.Format("KS CURVE   ={0,3}\n", KeyScalingCurve + 1));
+            builder.Append($"DELAY      ={Delay,3}\n");
+            builder.Append($"VEL CURVE  ={VelocityCurve,3}\n");
+            builder.Append($"KS CURVE   ={KeyScalingCurve,3}\n");
             builder.Append("DCO\n");
             builder.Append(string.Format("WAVE       ={0,3} ({1})\n", WaveNumber + 1, Wave.Instance[WaveNumber]));
             builder.Append(string.Format("KEY TRACK  ={0}\n", KeyTracking ? "ON" : "OFF"));
-            builder.Append(string.Format("COARSE     ={0,3}\nFINE       ={1,3}\n", Coarse - 24, Fine));
-            builder.Append(string.Format("FIXED KEY  ={0} ({1})\n", GetNoteName(FixedKey), FixedKey));
+            builder.Append($"COARSE     ={Coarse,3}\nFINE       ={Fine,3}\n");
+            builder.Append($"FIXED KEY  ={_fixedKey.NoteName} ({FixedKey})\n");
             builder.Append(string.Format("PRESS      ={0}\nVIB/A.BEND ={1}\n", PressureToFrequencySwitch ? "ON" : "OFF", VibratoSwitch ? "ON" : "OFF"));
             return builder.ToString();
-        }
-
-        public static string GetNoteName(int noteNumber) {
-            string[] notes = new string[] {"A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"};
-            int octave = noteNumber / 12 + 1;
-            string name = notes[noteNumber % 12];
-            return name + octave;
         }
 
         public byte[] ToData()

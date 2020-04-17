@@ -16,28 +16,28 @@ namespace KSynthLib.K4
         public LFOShape Shape;
 
         private LevelType _speed;
-        public int Speed  // 0~100
+        public byte Speed  // 0~100
         {
             get => _speed.Value;
             set => _speed.Value = value;
         }
 
         private LevelType _delay;
-        public int Delay  // 0~100
+        public byte Delay  // 0~100
         {
             get => _delay.Value;
             set => _delay.Value = value;
         }
 
         private DepthType _depth;
-        public int Depth // 0~100 (±50)
+        public sbyte Depth // 0~100 (±50)
         {
             get => _depth.Value;
             set => _depth.Value = value;
         }
 
         private DepthType _pressureDepth;
-        public int PressureDepth // 0~100 (±50)
+        public sbyte PressureDepth // 0~100 (±50)
         {
             get => _pressureDepth.Value;
             set => _pressureDepth.Value = value;

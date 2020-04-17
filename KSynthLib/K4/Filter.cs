@@ -12,14 +12,14 @@ namespace KSynthLib.K4
         public const int DataSize = 14;
 
         private LevelType _cutoff;
-        public int Cutoff  // 0~100
+        public byte Cutoff  // 0~100
         {
             get => _cutoff.Value;
             set => _cutoff.Value = value;
         }
 
-        private EightLevelType _resonance; // 0 ~ 7 / 1 ~ 8
-        public int Resonance
+        private ResonanceType _resonance; // 0 ~ 7 / 1 ~ 8
+        public byte Resonance
         {
             get => _resonance.Value;
             set => _resonance.Value = value;
@@ -32,14 +32,14 @@ namespace KSynthLib.K4
         public Envelope Env;
 
         private DepthType _envelopeDepth;
-        public int EnvelopeDepth // 0 ~ 100 (±50)
+        public sbyte EnvelopeDepth // 0 ~ 100 (±50)
         {
             get => _envelopeDepth.Value;
             set => _envelopeDepth.Value = value;
         }
 
         private DepthType _envelopeVelocityDepth;
-        public int EnvelopeVelocityDepth // 0 ~ 100 (±50)
+        public sbyte EnvelopeVelocityDepth // 0 ~ 100 (±50)
         {
             get => _envelopeVelocityDepth.Value;
             set => _envelopeVelocityDepth.Value = value;
@@ -50,7 +50,7 @@ namespace KSynthLib.K4
         public Filter()
         {
             _cutoff = new LevelType(88);
-            _resonance = new EightLevelType();
+            _resonance = new ResonanceType();
             CutoffMod = new LevelModulation();
             IsLFO = false;
             Env = new Envelope();
@@ -65,50 +65,50 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _cutoff = new LevelType(b & 0x7f);
+            _cutoff = new LevelType((byte)(b & 0x7f));
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _resonance = new EightLevelType((b & 0x07) + 1);  // from 0...7 to 1...8
+            _resonance = new ResonanceType((byte)((b & 0x07) + 1));  // from 0...7 to 1...8
             IsLFO = b.IsBitSet(3);
 
             CutoffMod = new LevelModulation();
             (b, offset) = Util.GetNextByte(data, offset);
-            CutoffMod.VelocityDepth = (b & 0x7f) - 50;
+            CutoffMod.VelocityDepth = (sbyte)((b & 0x7f) - 50);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            CutoffMod.PressureDepth = (b & 0x7f) - 50;
+            CutoffMod.PressureDepth = (sbyte)((b & 0x7f) - 50);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            CutoffMod.KeyScalingDepth = (b & 0x7f) - 50;
+            CutoffMod.KeyScalingDepth = (sbyte)((b & 0x7f) - 50);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _envelopeDepth = new DepthType((b & 0x7f) - 50);
+            _envelopeDepth = new DepthType((sbyte)((b & 0x7f) - 50));
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _envelopeVelocityDepth = new DepthType((b & 0x7f) - 50);
+            _envelopeVelocityDepth = new DepthType((sbyte)((b & 0x7f) - 50));
 
             Env = new Envelope();
             (b, offset) = Util.GetNextByte(data, offset);
-            Env.Attack = b & 0x7f;
+            Env.Attack = (byte)(b & 0x7f);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Env.Decay = b & 0x7f;
+            Env.Decay = (byte)(b & 0x7f);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Env.Sustain = b & 0x7f;
+            Env.Sustain = (byte)(b & 0x7f);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Env.Release = b & 0x7f;
+            Env.Release = (byte)(b & 0x7f);
 
             TimeMod = new TimeModulation();
             (b, offset) = Util.GetNextByte(data, offset);
-            TimeMod.AttackVelocity = (b & 0x7f) - 50;
+            TimeMod.AttackVelocity = (sbyte)((b & 0x7f) - 50);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            TimeMod.ReleaseVelocity = (b & 0x7f) - 50;
+            TimeMod.ReleaseVelocity = (sbyte)((b & 0x7f) - 50);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            TimeMod.KeyScaling = (b & 0x7f) - 50;
+            TimeMod.KeyScaling = (sbyte)((b & 0x7f) - 50);
         }
 
         public override string ToString()

@@ -6,28 +6,28 @@ namespace KSynthLib.K4
     public class AutoBendSettings
     {
         private LevelType _time;
-        public int Time  // 0~100
+        public byte Time  // 0~100
         {
             get => _time.Value;
             set => _time.Value = value;
         }
 
         private DepthType _depth;
-        public int Depth // 0~100 (±50)
+        public sbyte Depth // 0~100 (±50)
         {
             get => _depth.Value;
             set => _depth.Value = value;
         }
 
         private DepthType _keyScalingTime;
-        public int KeyScalingTime // 0~100 (±50)
+        public sbyte KeyScalingTime // 0~100 (±50)
         {
             get => _keyScalingTime.Value;
             set => _keyScalingTime.Value = value;
         }
 
         private DepthType _velocityDepth;
-        public int VelocityDepth // 0~100 (±50)
+        public sbyte VelocityDepth // 0~100 (±50)
         {
             get => _velocityDepth.Value;
             set => _velocityDepth.Value = value;

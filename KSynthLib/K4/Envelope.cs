@@ -7,28 +7,28 @@ namespace KSynthLib.K4
     public class Envelope
     {
         private LevelType _attack;
-        public int Attack // 0~100
+        public byte Attack // 0~100
         {
             get => _attack.Value;
             set => _attack.Value = value;
         }
 
         private LevelType _decay;
-        public int Decay // 0~100
+        public byte Decay // 0~100
         {
             get => _decay.Value;
             set => _decay.Value = value;
         }
 
         private LevelType _sustain;
-        public int Sustain // 0~100
+        public byte Sustain // 0~100
         {
             get => _sustain.Value;
             set => _sustain.Value = value;
         }
 
         private LevelType _release;
-        public int Release // 0~100
+        public byte Release // 0~100
         {
             get => _release.Value;
             set => _release.Value = value;
@@ -42,7 +42,7 @@ namespace KSynthLib.K4
             _release = new LevelType();
         }
 
-        public Envelope(int a, int d, int s, int r)
+        public Envelope(byte a, byte d, byte s, byte r)
         {
             _attack = new LevelType(a);
             _decay = new LevelType(d);

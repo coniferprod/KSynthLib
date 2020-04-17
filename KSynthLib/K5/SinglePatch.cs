@@ -98,11 +98,11 @@ namespace KSynthLib.K5
             return $"Delay = {Delay}, pedal depth = {PedalDepth}, wheel depth = {WheelDepth}, pedal assign = {PedalAssign}, wheel assign = {WheelAssign}";
         }
     }
-    
+
     public class SinglePatch: Patch
     {
-        const int FormantLevelCount = 11;
-        public static readonly int NameLength = 8;
+        public const int FormantLevelCount = 11;
+        public const int NameLength = 8;
 
         private string _name;
         public string Name
@@ -138,12 +138,12 @@ namespace KSynthLib.K5
         }
 
         public SourceMode SMode;  // enumeration
-        public PicMode PMode;  // enumeration 
+        public PicMode PMode;  // enumeration
         public Source Source1;
         public Source Source2;
         public LFO LFO;
         public bool IsFormantOn;  // true Digital Formant filter is on
-        
+
         public int[] FormantLevels;  // levels for bands C-1 ... C9 (0 ~ 63)
         // Used int[] and not byte[] to get the correct JSON serialization
 
@@ -225,7 +225,7 @@ namespace KSynthLib.K5
 	        SMode = b.IsBitSet(2) ? SourceMode.Full : SourceMode.Twin;
 
             byte picModeValue = (byte)(b & 0x03);
-	        switch (picModeValue) 
+	        switch (picModeValue)
             {
 	        case 0:
 		        PMode = PicMode.S1;
@@ -248,7 +248,7 @@ namespace KSynthLib.K5
             //Console.WriteLine($"Processed common settings of {offset} bytes. Data length = {data.Length} bytes.");
 
             // S1 and S2 data are interleaved in S21 ... S468.
-            
+
             int dataLength = data.Length - (offset + FormantLevelCount + 1 + 2);
             //Console.WriteLine(String.Format("dataLength = {0}", dataLength));
             byte[] sourceData = new byte[dataLength];
@@ -389,7 +389,7 @@ namespace KSynthLib.K5
             byte b = 0;
             byte lowNybble = 0;
             byte highNybble = 0;
-            
+
             foreach (char ch in Name)
             {
                 buf.Add(Convert.ToByte(ch));
@@ -431,7 +431,7 @@ namespace KSynthLib.K5
             {
                 b.SetBit(2);
             }
-            else 
+            else
             {
                 b.UnsetBit(2);
             }
@@ -484,7 +484,7 @@ namespace KSynthLib.K5
             {
                 sum += (((data[i + 1] & 0xFF) << 8) | (data[i] & 0xFF));
             }
-                    
+
             sum = sum & 0xffff;
             sum = (0x5a3c - sum) & 0xffff;
 

@@ -72,14 +72,14 @@ namespace KSynthLib.K5
 
     public class HarmonicEnvelope
     {
-        public static readonly int SegmentCount = 6;
+        public const int SegmentCount = 6;
 
         public HarmonicEnvelopeSegment[] Segments;
 
         public bool IsActive;
 
         private PositiveDepthType _effect;
-        // 0~31 (SysEx manual says "s<x> env<y> off", maybe should be "eff"?)        
+        // 0~31 (SysEx manual says "s<x> env<y> off", maybe should be "eff"?)
 	    public byte Effect
         {
             get => _effect.Value;
@@ -134,7 +134,7 @@ namespace KSynthLib.K5
 
     public class HarmonicSettings
     {
-        public static readonly int HarmonicEnvelopeCount = 4;
+        public const int HarmonicEnvelopeCount = 4;
 
         private DepthType _velocityDepth; // 0~±31
         public sbyte VelocityDepth
@@ -247,7 +247,7 @@ namespace KSynthLib.K5
             }
             builder.Append("\n----|RT|LV|RT|LV|RT|LV|RT|LV|RT|LV|RT|LV|\n");
 
-            for (int ei = 0; ei < HarmonicSettings.HarmonicEnvelopeCount; ei++) 
+            for (int ei = 0; ei < HarmonicSettings.HarmonicEnvelopeCount; ei++)
             {
                 builder.Append(string.Format("ENV{0}|", ei + 1));
                 for (int si = 0; si < HarmonicEnvelope.SegmentCount; si++)

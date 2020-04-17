@@ -7,11 +7,9 @@ namespace KSynthLib.K4
     public abstract class Patch
     {
         protected string _name;
-
         public string Name => _name;
 
-        private byte checksum;
-
+        private byte _checksum;
         public byte Checksum
         {
             get
@@ -28,9 +26,8 @@ namespace KSynthLib.K4
 
             set
             {
-                checksum = value;
+                _checksum = value;
             }
-
         }
 
         protected string GetName(byte[] data, int offset)

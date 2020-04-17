@@ -8,7 +8,7 @@ namespace KSynthLib.K4
 {
     public class Section
     {
-        public static readonly int DataSize = 8;
+        public const int DataSize = 8;
         private int singlePatch;
         private int zoneLow;
         private int zoneHigh;

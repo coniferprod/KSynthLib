@@ -7,7 +7,7 @@ namespace KSynthLib.K5000
     /// <summary>The graphical EQ settings of a patch.</summary>
     public class GEQSettings
     {
-        public static readonly int DataSize = 7;
+        public const int DataSize = 7;
 
         private FreqType _freq1; // 58(-6) ~ 70(+6), so 64 = 0
         public sbyte Freq1

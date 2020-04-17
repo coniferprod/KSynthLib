@@ -54,7 +54,7 @@ namespace KSynthLib.K5000
 
     public class EffectSettings
     {
-        public static readonly int DataSize = 6;
+        public const int DataSize = 6;
 
         private int _type;  // 0~36 (in SysEx 11~47)
 

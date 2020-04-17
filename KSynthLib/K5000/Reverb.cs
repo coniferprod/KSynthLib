@@ -14,7 +14,7 @@ namespace KSynthLib.K5000
 
     public class ReverbSettings
     {
-        public static readonly int DataSize = 6;
+        public const int DataSize = 6;
 
         public byte ReverbType;  // 0 ~ 10
 

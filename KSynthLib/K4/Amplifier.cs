@@ -8,39 +8,39 @@ namespace KSynthLib.K4
 {
     public class LevelModulation
     {
-        private DepthType velocityDepth;
-        public int VelocityDepth
+        private DepthType _velocityDepth;
+        public sbyte VelocityDepth
         {
-            get => velocityDepth.Value;
-            set => velocityDepth.Value = value;
+            get => _velocityDepth.Value;
+            set => _velocityDepth.Value = value;
         }
 
-        private DepthType pressureDepth;
-        public int PressureDepth // 0~100 (±50)
+        private DepthType _pressureDepth;
+        public sbyte PressureDepth // 0~100 (±50)
         {
-            get => pressureDepth.Value;
-            set => pressureDepth.Value = value;
+            get => _pressureDepth.Value;
+            set => _pressureDepth.Value = value;
         }
 
-        private DepthType keyScalingDepth;
-        public int KeyScalingDepth // 0~100 (±50)
+        private DepthType _keyScalingDepth;
+        public sbyte KeyScalingDepth // 0~100 (±50)
         {
-            get => keyScalingDepth.Value;
-            set => keyScalingDepth.Value = value;
+            get => _keyScalingDepth.Value;
+            set => _keyScalingDepth.Value = value;
         }
 
         public LevelModulation()
         {
-            velocityDepth = new DepthType();
-            pressureDepth = new DepthType();
-            keyScalingDepth = new DepthType();
+            _velocityDepth = new DepthType();
+            _pressureDepth = new DepthType();
+            _keyScalingDepth = new DepthType();
         }
 
-        public LevelModulation(int vel, int prs, int ks)
+        public LevelModulation(sbyte vel, sbyte prs, sbyte ks)
         {
-            velocityDepth = new DepthType(vel);
-            pressureDepth = new DepthType(prs);
-            keyScalingDepth = new DepthType(ks);
+            _velocityDepth = new DepthType(vel);
+            _pressureDepth = new DepthType(prs);
+            _keyScalingDepth = new DepthType(ks);
         }
 
         public override string ToString()
@@ -63,39 +63,39 @@ namespace KSynthLib.K4
 
     public class TimeModulation
     {
-        private DepthType attackVelocity;
-        public int AttackVelocity // 0~100 (±50)
+        private DepthType _attackVelocity;
+        public sbyte AttackVelocity // 0~100 (±50)
         {
-            get => attackVelocity.Value;
-            set => attackVelocity.Value = value;
+            get => _attackVelocity.Value;
+            set => _attackVelocity.Value = value;
         }
 
-        private DepthType releaseVelocity;
-        public int ReleaseVelocity // 0~100 (±50)
+        private DepthType _releaseVelocity;
+        public sbyte ReleaseVelocity // 0~100 (±50)
         {
-            get => releaseVelocity.Value;
-            set => releaseVelocity.Value = value;
+            get => _releaseVelocity.Value;
+            set => _releaseVelocity.Value = value;
         }
 
-        private DepthType keyScaling;
-        public int KeyScaling // 0~100 (±50)
+        private DepthType _keyScaling;
+        public sbyte KeyScaling // 0~100 (±50)
         {
-            get => keyScaling.Value;
-            set => keyScaling.Value = value;
+            get => _keyScaling.Value;
+            set => _keyScaling.Value = value;
         }
 
         public TimeModulation()
         {
-            attackVelocity = new DepthType();
-            releaseVelocity = new DepthType();
-            keyScaling = new DepthType();
+            _attackVelocity = new DepthType();
+            _releaseVelocity = new DepthType();
+            _keyScaling = new DepthType();
         }
 
-        public TimeModulation(int a, int r, int ks)
+        public TimeModulation(sbyte a, sbyte r, sbyte ks)
         {
-            attackVelocity = new DepthType(a);
-            releaseVelocity = new DepthType(r);
-            keyScaling = new DepthType(ks);
+            _attackVelocity = new DepthType(a);
+            _releaseVelocity = new DepthType(r);
+            _keyScaling = new DepthType(ks);
         }
 
         public override string ToString()
@@ -124,7 +124,7 @@ namespace KSynthLib.K4
         public Envelope Env;
 
         private LevelType envelopeLevel;
-        public int EnvelopeLevel // 0~100
+        public byte EnvelopeLevel // 0~100
         {
             get => envelopeLevel.Value;
             set => envelopeLevel.Value = value;
@@ -151,19 +151,19 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            envelopeLevel = new LevelType(b & 0x7f);
+            envelopeLevel = new LevelType((byte)(b & 0x7f));
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Env.Attack = b & 0x7f;
+            Env.Attack = (byte)(b & 0x7f);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Env.Decay = b & 0x7f;
+            Env.Decay = (byte)(b & 0x7f);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Env.Sustain = b & 0x7f;
+            Env.Sustain = (byte)(b & 0x7f);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Env.Release = b & 0x7f;
+            Env.Release = (byte)(b & 0x7f);
 
             //
             // Depth values come in as 0...100,
@@ -171,24 +171,24 @@ namespace KSynthLib.K4
             //
 
             (b, offset) = Util.GetNextByte(data, offset);
-            LevelMod.VelocityDepth = (b & 0x7f) - 50;
+            LevelMod.VelocityDepth = (sbyte)((b & 0x7f) - 50);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            LevelMod.PressureDepth = (b & 0x7f) - 50;
+            LevelMod.PressureDepth = (sbyte)((b & 0x7f) - 50);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            LevelMod.KeyScalingDepth = (b & 0x7f) - 50;
+            LevelMod.KeyScalingDepth = (sbyte)((b & 0x7f) - 50);
 
             // Same goes for the time modulation values:
 
             (b, offset) = Util.GetNextByte(data, offset);
-            TimeMod.AttackVelocity = (b & 0x7f) - 50;
+            TimeMod.AttackVelocity = (sbyte)((b & 0x7f) - 50);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            TimeMod.ReleaseVelocity = (b & 0x7f) - 50;
+            TimeMod.ReleaseVelocity = (sbyte)((b & 0x7f) - 50);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            TimeMod.KeyScaling = (b & 0x7f) - 50;
+            TimeMod.KeyScaling = (sbyte)((b & 0x7f) - 50);
         }
 
         public override string ToString()
