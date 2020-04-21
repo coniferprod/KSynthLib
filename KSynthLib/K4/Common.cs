@@ -46,7 +46,7 @@ namespace KSynthLib.K4
             set => _pitchBend.Value = value;
         }
 
-        public WheelAssign WheelAssign; // 0/VIB, 1/LFO, 2/DCF
+        public WheelAssignType WheelAssign; // 0/VIB, 1/LFO, 2/DCF
 
         private DepthType _wheelDepth;
         public sbyte WheelDepth // 0~100 (±50)
@@ -75,7 +75,7 @@ namespace KSynthLib.K4
             AMS1ToS2 = false;
             AMS3ToS4 = false;
             _pitchBend = new PitchBendType(2);
-            WheelAssign = WheelAssign.Vibrato;
+            WheelAssign = WheelAssignType.Vibrato;
             _wheelDepth = new DepthType(0);
             Vibrato = new VibratoSettings();
             LFO = new LFOSettings();
@@ -108,7 +108,7 @@ namespace KSynthLib.K4
             // Pitch bend = s15 bits 0...3
             _pitchBend = new PitchBendType(b & 0x0f);
             // Wheel assign = s15 bits 4...5
-            WheelAssign = (WheelAssign)((b >> 4) & 0x03);
+            WheelAssign = (WheelAssignType)((b >> 4) & 0x03);
 
             (b, offset) = Util.GetNextByte(data, offset);
             // Vibrato speed = s16 bits 0...6
@@ -166,7 +166,7 @@ namespace KSynthLib.K4
             builder.Append(string.Format("POLY MODE  ={0}\n", Enum.GetNames(typeof(PolyphonyMode))[(int)PolyphonyMode]));
             builder.Append(string.Format("BNDR RANGE = {0,2}\n", PitchBend));
             builder.Append(string.Format("PRESS>FREQ = {0,2}\n", PressureFreq));
-            builder.Append(string.Format("WHEEL\nASSIGN     ={0}\nDEPTH      ={1,2}\n", Enum.GetNames(typeof(WheelAssign))[(int)WheelAssign], WheelDepth));
+            builder.Append(string.Format("WHEEL\nASSIGN     ={0}\nDEPTH      ={1,2}\n", Enum.GetNames(typeof(WheelAssignType))[(int)WheelAssign], WheelDepth));
             builder.Append($"AUTO BEND\n{AutoBend}\n");
             builder.Append(string.Format("Sources: {0}\n", GetSourceMuteString(S1Mute, S2Mute, S3Mute, S4Mute)));
             builder.Append($"VIBRATO\n{Vibrato}\n");

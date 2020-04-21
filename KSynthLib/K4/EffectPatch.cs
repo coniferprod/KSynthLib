@@ -144,7 +144,11 @@ namespace KSynthLib.K4
             Submixes = new EffectSubmix[SubmixCount];
             for (int i = 0; i < SubmixCount; i++)
             {
-                Submixes[i] = new EffectSubmix((sbyte)data[offset], data[offset + 1], data[offset + 2]);
+                Submixes[i] = new EffectSubmix(
+                    (sbyte)(data[offset] - 7),  // 0~15/0~±7 (K4); 0~15/0~±7, 16~21/I1~I6 (K4r)
+                    data[offset + 1],
+                    data[offset + 2]
+                );
                 offset += 3;
             }
         }
@@ -185,7 +189,8 @@ namespace KSynthLib.K4
             return data.ToArray();
         }
 
-        public string[] EffectNames = {
+        public static string[] EffectNames =
+        {
             "Reverb 1",
             "Reverb 2",
             "Reverb 3",

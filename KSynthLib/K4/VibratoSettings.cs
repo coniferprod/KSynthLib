@@ -5,7 +5,7 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K4
 {
-    public enum WheelAssign
+    public enum WheelAssignType
     {
         Vibrato,
         LFO,

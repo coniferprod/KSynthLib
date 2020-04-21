@@ -6,8 +6,14 @@ namespace KSynthLib.K4
 {
     public abstract class Patch
     {
+        public const int NameLength = 10;
+
         protected string _name;
-        public string Name => _name;
+        public string Name
+        {
+            get => _name.Substring(0, NameLength);
+            set => _name = value.Substring(0, NameLength);
+        }
 
         private byte _checksum;
         public byte Checksum
