@@ -55,5 +55,14 @@ namespace KSynthLib.Tests.K4
             SinglePatch single = new SinglePatch();
             Assert.NotNull(single);
         }
+
+        [Fact]
+        public void NameIsTruncatedWhenSet()
+        {
+            SinglePatch sp = new SinglePatch();
+            string longName = "MyPatch*WithTooLongAName";
+            sp.Name = longName;
+            Assert.Equal(SinglePatch.NameLength, sp.Name.Length);
+        }
     }
 }

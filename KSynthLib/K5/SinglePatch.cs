@@ -107,8 +107,8 @@ namespace KSynthLib.K5
         private string _name;
         public string Name
         {
-            get => _name.Substring(0, NameLength);
-            set => _name = value.Substring(0, Math.Min(_name.Length, NameLength));
+            get => _name.Substring(0, Math.Min(_name.Length, NameLength));
+            set => _name = value.Substring(0, Math.Min(value.Length, NameLength));
         }
 
         private VolumeType _volume;   // 0~63

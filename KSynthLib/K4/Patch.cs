@@ -11,8 +11,8 @@ namespace KSynthLib.K4
         protected string _name;
         public string Name
         {
-            get => _name.Substring(0, NameLength);
-            set => _name = value.Substring(0, Math.Min(_name.Length, NameLength));
+            get => _name.Substring(0, Math.Min(_name.Length, NameLength));
+            set => _name = value.Substring(0, Math.Min(value.Length, NameLength));
         }
 
         private byte _checksum;
