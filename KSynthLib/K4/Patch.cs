@@ -12,7 +12,7 @@ namespace KSynthLib.K4
         public string Name
         {
             get => _name.Substring(0, NameLength);
-            set => _name = value.Substring(0, NameLength);
+            set => _name = value.Substring(0, Math.Min(_name.Length, NameLength));
         }
 
         private byte _checksum;

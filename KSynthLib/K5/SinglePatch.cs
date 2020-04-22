@@ -108,7 +108,7 @@ namespace KSynthLib.K5
         public string Name
         {
             get => _name.Substring(0, NameLength);
-            set => _name = value.Substring(0, NameLength);
+            set => _name = value.Substring(0, Math.Min(_name.Length, NameLength));
         }
 
         private VolumeType _volume;   // 0~63
@@ -151,7 +151,7 @@ namespace KSynthLib.K5
 
         public SinglePatch()
         {
-            Name = "NewSound";
+            _name = "NewSound";
             _volume = new VolumeType();
             _balance = new DepthType();
 
