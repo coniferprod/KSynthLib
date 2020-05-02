@@ -1,6 +1,6 @@
 # KSynthLib
 
-Patch management utilities for Kawai K series digital synthesizers.
+Patch management utilities for Kawai K series digital synthesizers: K4, K5, K5000 and K1 II.
 
 This project creates a .NET library as a NuGet package
 that can be installed in .NET application projects.

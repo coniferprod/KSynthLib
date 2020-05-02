@@ -7,8 +7,12 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K4
 {
+    /// <summary>
+    /// Represents a K4 single patch.
+    /// </summary>
     public class SinglePatch : Patch
     {
+        /// <value>System Exclusive data length.</value>
         public const int DataSize = 131;
 
         private const string OutputNames = "ABCDEFGH";
@@ -36,6 +40,7 @@ namespace KSynthLib.K4
 
         public CommonSettings Common;
 
+        /// <value>The number of sources in a single patch.</value>
         public const int SourceCount = 4;
 
         public Source[] Sources;
@@ -44,6 +49,9 @@ namespace KSynthLib.K4
         public Filter Filter1;
         public Filter Filter2;
 
+        /// <summary>
+        /// Constructs a single patch from default values.
+        /// </summary>
         public SinglePatch()
         {
             this._volume = new LevelType(99);
@@ -67,10 +75,15 @@ namespace KSynthLib.K4
             Checksum = 0;
         }
 
+        /// <summary>
+        /// Constructs a single patch from binary System Exclusive data.
+        /// </summary>
+        /// <param name="data">System Exclusive data</param>
+        /// <remarks>
+        /// The no-argument constructor is used to initialize the data members.
+        /// </remarks>
         public SinglePatch(byte[] data) : this()
         {
-            // The no-arg constructor has initialized the other members.
-
             int offset = 0;
             this._name = GetName(data, offset); // s00...s09
             offset += 10;
@@ -146,6 +159,12 @@ namespace KSynthLib.K4
             this.Checksum = b; // store the checksum as we got it from SysEx
         }
 
+        /// <summary>
+        /// Generates a printable representation of this patch.
+        /// </summary>
+        /// <returns>
+        /// String with patch parameter values.
+        /// </returns>
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
@@ -169,6 +188,15 @@ namespace KSynthLib.K4
             return builder.ToString();
         }
 
+        /// <summary>
+        /// Collects the patch data for use in a System Exclusive message.
+        /// </summary>
+        /// <returns>
+        /// Byte array with patch data.
+        /// </returns>
+        /// <remarks>
+        /// The data does not include the checksum.
+        /// </remarks>
         protected override byte[] CollectData()
         {
             List<byte> data = new List<byte>();

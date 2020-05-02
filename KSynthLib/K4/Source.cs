@@ -6,6 +6,9 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K4
 {
+    /// <summary>
+    /// A source of a single patch.
+    /// </summary>
     public class Source
     {
         public const int DataSize = 7;
@@ -17,15 +20,41 @@ namespace KSynthLib.K4
             set => _delay.Value = value;
         }
 
-        private WaveNumberType _waveNumber; // 1~256 (stored as 0~255 distributed over two bytes)
+        /// <summary>
+        /// Store for the WaveNumber property.
+        /// </summary>
+        private WaveNumberType _waveNumber;
+
+        /// <summary>
+        /// The wave number of this source.
+        /// </summary>
+        /// <value>
+        /// Wave number value stored as 1~256.
+        /// </value>
+        /// <remarks>
+        /// In SysEx data the wave number is stored as 0~255 distributed over two bytes.
+        /// </remarks>
         public ushort WaveNumber
         {
             get => _waveNumber.Value;
             set => _waveNumber.Value = value;
         }
 
+        /// <summary>
+        /// Store for the KeyScalingCurve property.
+        /// </summary>
         private VelocityCurveType _keyScalingCurve;
-        public byte KeyScalingCurve  // 0~7 / 1~8
+
+        /// <summary>
+        /// The key scaling curve.
+        /// </summary>
+        /// <value>
+        /// Key scaling curve stored as 1~8.
+        /// </value>
+        /// <remarks>
+        /// In SysEx data this is stored as 0~7.
+        /// </remarks>
+        public byte KeyScalingCurve
         {
             get => _keyScalingCurve.Value;
             set => _keyScalingCurve.Value = value;
@@ -65,6 +94,9 @@ namespace KSynthLib.K4
             set => _velocityCurve.Value = value;
         }
 
+        /// <summary>
+        /// Constructs a source from default values.
+        /// </summary>
         public Source()
         {
             _delay = new LevelType();
@@ -79,6 +111,13 @@ namespace KSynthLib.K4
             _velocityCurve = new VelocityCurveType();
         }
 
+        /// <summary>
+        /// Constructs a source from binary System Exclusive data.
+        /// </summary>
+        /// <param name="data">System Exclusive data</param>
+        /// <remarks>
+        /// The no-argument constructor is used to initialize the data members.
+        /// </remarks>
         public Source(byte[] data) : this()
         {
             int offset = 0;
@@ -136,6 +175,12 @@ namespace KSynthLib.K4
             return builder.ToString();
         }
 
+        /// <summary>
+        /// Generates a binary System Exclusive representation of the data.
+        /// </summary>
+        /// <returns>
+        /// A byte array with SysEx data.
+        /// </returns>
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();

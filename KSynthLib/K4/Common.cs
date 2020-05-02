@@ -22,9 +22,15 @@ namespace KSynthLib.K4
         Solo2
     };
 
-    // Single patch common settings (s13 ... s29)
+    /// <summary>
+    /// Single patch common settings.
+    /// </summary>
+    /// <remarks>
+    /// s13 ... s29 in the System Exclusive specification
+    /// </remarks>
     public class CommonSettings
     {
+        /// <value>The number of bytes in the single common settings.</value>
         public const int DataSize = 17;
 
         public SourceMode SourceMode;
@@ -68,6 +74,9 @@ namespace KSynthLib.K4
             set => _pressureFreq.Value = value;
         }
 
+        /// <summary>
+        /// Constructs the single common settings from default values.
+        /// </summary>
         public CommonSettings()
         {
             SourceMode = SourceMode.Normal;
@@ -83,6 +92,13 @@ namespace KSynthLib.K4
             _pressureFreq = new DepthType();
         }
 
+        /// <summary>
+        /// Constructs the single common settings from binary System Exclusive data.
+        /// </summary>
+        /// <param name="data">System Exclusive data</param>
+        /// <remarks>
+        /// The no-argument constructor is used to initialize the data members.
+        /// </remarks>
         public CommonSettings(byte[] data) : this()
         {
             int offset = 0; // name is s00 ... s09, others s10 ... s12
@@ -158,6 +174,12 @@ namespace KSynthLib.K4
             _pressureFreq = new DepthType((sbyte)((b & 0x7f) - 50)); // 0~100 to ±50
         }
 
+        /// <summary>
+        /// Generates a printable representation of the settings.
+        /// </summary>
+        /// <returns>
+        /// String with parameter values.
+        /// </returns>
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
@@ -174,6 +196,12 @@ namespace KSynthLib.K4
             return builder.ToString();
         }
 
+        /// <summary>
+        /// Generates a binary System Exclusive representation of the data.
+        /// </summary>
+        /// <returns>
+        /// A byte array with SysEx data.
+        /// </returns>
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
