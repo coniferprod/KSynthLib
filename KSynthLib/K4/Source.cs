@@ -67,7 +67,7 @@ namespace KSynthLib.K4
             set => _coarse.Value = value;
         }
 
-        public bool KeyTracking;
+        public bool KeyTrack;
 
         private FixedKeyType _fixedKey; // 0 ~ 115 / C-1 ~ G8
         public byte FixedKey
@@ -83,9 +83,9 @@ namespace KSynthLib.K4
             set => _fine.Value = value;
         }
 
-        public bool PressureToFrequencySwitch;
+        public bool PressureFrequency;
 
-        public bool VibratoSwitch;
+        public bool Vibrato;
 
         private VelocityCurveType _velocityCurve;
         public byte VelocityCurve // 0~7 / 1~8
@@ -103,11 +103,11 @@ namespace KSynthLib.K4
             _waveNumber = new WaveNumberType(10);  // "SAW 1"
             _keyScalingCurve = new VelocityCurveType();
             _coarse = new CoarseType(0);
-            KeyTracking = true;
+            KeyTrack = true;
             _fixedKey = new FixedKeyType();
             _fine = new DepthType();
-            PressureToFrequencySwitch = true;
-            VibratoSwitch = false;
+            PressureFrequency = true;
+            Vibrato = false;
             _velocityCurve = new VelocityCurveType();
         }
 
@@ -144,7 +144,7 @@ namespace KSynthLib.K4
             // Here the MIDI implementation's SysEx format is a little unclear.
             // My interpretation is that the low six bits are the coarse value,
             // and b6 is the key tracking bit (b7 is zero).
-            KeyTracking = b.IsBitSet(6);
+            KeyTrack = b.IsBitSet(6);
             _coarse = new CoarseType((sbyte)((b & 0x3f) - 24));  // 00 ~ 48 to ±24
 
             (b, offset) = Util.GetNextByte(data, offset);
@@ -154,8 +154,8 @@ namespace KSynthLib.K4
             _fine = new DepthType((sbyte)((b & 0x7f) - 50));
 
             (b, offset) = Util.GetNextByte(data, offset);
-            PressureToFrequencySwitch = b.IsBitSet(0);
-            VibratoSwitch = b.IsBitSet(1);
+            PressureFrequency = b.IsBitSet(0);
+            Vibrato = b.IsBitSet(1);
             _velocityCurve = new VelocityCurveType((byte)(((b >> 2) & 0x07) + 1));  // 0...7 to 1...8
         }
 
@@ -168,10 +168,10 @@ namespace KSynthLib.K4
             builder.Append($"KS CURVE   ={KeyScalingCurve,3}\n");
             builder.Append("DCO\n");
             builder.Append(string.Format("WAVE       ={0,3} ({1})\n", WaveNumber + 1, Wave.Instance[WaveNumber]));
-            builder.Append(string.Format("KEY TRACK  ={0}\n", KeyTracking ? "ON" : "OFF"));
+            builder.Append(string.Format("KEY TRACK  ={0}\n", KeyTrack ? "ON" : "OFF"));
             builder.Append($"COARSE     ={Coarse,3}\nFINE       ={Fine,3}\n");
             builder.Append($"FIXED KEY  ={_fixedKey.NoteName} ({FixedKey})\n");
-            builder.Append(string.Format("PRESS      ={0}\nVIB/A.BEND ={1}\n", PressureToFrequencySwitch ? "ON" : "OFF", VibratoSwitch ? "ON" : "OFF"));
+            builder.Append(string.Format("PRESS      ={0}\nVIB/A.BEND ={1}\n", PressureFrequency ? "ON" : "OFF", Vibrato ? "ON" : "OFF"));
             return builder.ToString();
         }
 
@@ -199,7 +199,7 @@ namespace KSynthLib.K4
 
             // Pack the coarse and key track values into one byte
             StringBuilder b42 = new StringBuilder("0");
-            b42.Append(KeyTracking ? "1" : "0");
+            b42.Append(KeyTrack ? "1" : "0");
             b42.Append(Convert.ToString(Coarse + 24, 2).PadLeft(6, '0'));  // from -24...24 to 0...48
             data.Add(Convert.ToByte(b42.ToString(), 2));
 
@@ -209,8 +209,8 @@ namespace KSynthLib.K4
             // Pack the velocity curve and a few other values into one byte
             StringBuilder b54 = new StringBuilder();
             b54.Append(Convert.ToString(VelocityCurve - 1, 2).PadLeft(6, '0'));
-            b54.Append(VibratoSwitch ? "1" : "0");
-            b54.Append(PressureToFrequencySwitch ? "1" : "0");
+            b54.Append(Vibrato ? "1" : "0");
+            b54.Append(PressureFrequency ? "1" : "0");
             data.Add(Convert.ToByte(b54.ToString(), 2));
 
             return data.ToArray();

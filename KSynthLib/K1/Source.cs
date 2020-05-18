@@ -30,7 +30,7 @@ namespace KSynthLib.K1
             StringBuilder builder = new StringBuilder();
             builder.Append(String.Format("A:{0} D:{1} S:{2} R:{3}", Attack, Decay, Sustain, Release));
             return builder.ToString();
-        }   
+        }
 
        public byte[] ToData()
         {
@@ -40,7 +40,7 @@ namespace KSynthLib.K1
             buf.Add((byte)Sustain);
             buf.Add((byte)Release);
             return buf.ToArray();
-        }             
+        }
     }
 
     public class Source
@@ -49,7 +49,7 @@ namespace KSynthLib.K1
         public int Coarse;  // meaningful only if key tracking is on: 60 ~ 108 / ±24
         public int FixedKey; // if key tracking is off, represents the fixed key:0 ~ 127 / C-4 ~ G6
         public int WaveNumber;  // 0 ~ 255 / 1 ~ 256
-        public bool IsKeyTracking;
+        public bool IsKeyTrack;
         public bool IsVibratoAutoBend;
         public bool IsPressureToFrequency;
         public byte VelocityCurve;
@@ -85,7 +85,7 @@ namespace KSynthLib.K1
             WaveNumber = Convert.ToInt32(waveKitBitString, 2);
 
             // Wave select hi contains also some Boolean flags and the velocity curve:
-            IsKeyTracking = b.IsBitSet(1);
+            IsKeyTrack = b.IsBitSet(1);
             IsVibratoAutoBend = b.IsBitSet(2);
             IsPressureToFrequency = b.IsBitSet(3);
             int curve = (b >> 4) & 0x07;
@@ -134,13 +134,13 @@ namespace KSynthLib.K1
         {
             StringBuilder builder = new StringBuilder();
             string coarseString = "N/A";
-            if (IsKeyTracking)
+            if (IsKeyTrack)
             {
                 coarseString = String.Format("{0}", Coarse - 84);  // 60 ~ 108 = ±24  // TODO: is this right?
             }
             builder.Append(String.Format("fine = {0}, coarse = {1}\n", Fine - 50, coarseString));
             builder.Append(String.Format("wave = {0} ({1})\n", Wave.Instance[WaveNumber], WaveNumber + 1));
-            builder.Append(String.Format("key tracking = {0}, vib>a.bend = {1}, pres>freq = {2}\n", IsKeyTracking ? "on" : "off", IsVibratoAutoBend ? "on" : "off", IsPressureToFrequency ? "on" : "off"));
+            builder.Append(String.Format("key tracking = {0}, vib>a.bend = {1}, pres>freq = {2}\n", IsKeyTrack ? "on" : "off", IsVibratoAutoBend ? "on" : "off", IsPressureToFrequency ? "on" : "off"));
             builder.Append(String.Format("velocity curve = {0}\n", VelocityCurve + 1));
             builder.Append(String.Format("ENV = {0}, level = {1}, delay = {2}\n", Env.ToString(), EnvelopeLevel, EnvelopeDelay));
             builder.Append(String.Format("vel-env: level = {0}, time = {1}\n", VelocityEnvelopeLevel - 50, VelocityEnvelopeTime - 50));
@@ -154,7 +154,7 @@ namespace KSynthLib.K1
             List<byte> buf = new List<byte>();
 
             buf.Add((byte)Fine);
-            if (IsKeyTracking)
+            if (IsKeyTrack)
             {
                 buf.Add((byte)Coarse);
             }
@@ -166,11 +166,11 @@ namespace KSynthLib.K1
             string waveNumberString = Convert.ToString(WaveNumber, 2).PadLeft(7, '0');  // wave number as binary
             string s31 = waveNumberString.Substring(1);  // the last 7 bits only
             buf.Add(Convert.ToByte(s31, 2));
-            string s35 = 
-                ((byte)VelocityCurve).ToBinaryString(3) + 
-                (IsPressureToFrequency ? "1" : "0") + 
-                (IsVibratoAutoBend ? "1" : "0") + 
-                (IsKeyTracking ? "1" : "0") + 
+            string s35 =
+                ((byte)VelocityCurve).ToBinaryString(3) +
+                (IsPressureToFrequency ? "1" : "0") +
+                (IsVibratoAutoBend ? "1" : "0") +
+                (IsKeyTrack ? "1" : "0") +
                 waveNumberString.Substring(0, 1);
             buf.Add(Convert.ToByte(s35, 2));
 
