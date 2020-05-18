@@ -19,16 +19,16 @@ namespace KSynthLib.Tests.K4
         [Fact]
         public void InitFromData_Successful()
         {
-            byte[] data = new byte[] { 
-                1, 2, 3, 4, 
-                1, 2, 3, 4, 
-                1, 2, 3, 4, 
-                1, 2, 3, 4, 
-                0, 0, 0, 0, 
-                0, 0, 0, 0, 
-                0, 0, 0, 0, 
-                0, 0, 0, 0, 
-                0, 0, 0, 0 
+            byte[] data = new byte[] {
+                1, 2, 3, 4,
+                1, 2, 3, 4,
+                1, 2, 3, 4,
+                1, 2, 3, 4,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0
             };
             Amplifier amp = new Amplifier(data);
             Assert.NotNull(amp);
@@ -38,7 +38,7 @@ namespace KSynthLib.Tests.K4
         public void InitEnvelopeSuccessful()
         {
             Amplifier amp = new Amplifier();
-            Envelope env = new Envelope(0, 0, 0, 0);
+            AmplifierEnvelope env = new AmplifierEnvelope(0, 0, 0, 0);
             amp.Env = env;
             Assert.NotNull(amp.Env);
         }

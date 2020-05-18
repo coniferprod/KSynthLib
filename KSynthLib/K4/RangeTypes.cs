@@ -156,7 +156,7 @@ namespace KSynthLib.K4
         public const string OutputNames = "ABCDEFGH";
     }
 
-    public class PitchBendType
+    public class PitchBendRangeType
     {
         private Range<int> range;
 
@@ -180,13 +180,13 @@ namespace KSynthLib.K4
             }
         }
 
-        public PitchBendType()
+        public PitchBendRangeType()
         {
             this.range = new Range<int>(0, 12);
             this._value = 0;
         }
 
-        public PitchBendType(int v) : this()
+        public PitchBendRangeType(int v) : this()
         {
             this.Value = v;  // setter throws exception for invalid value
         }

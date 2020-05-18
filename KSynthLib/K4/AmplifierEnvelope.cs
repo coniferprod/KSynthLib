@@ -1,10 +1,9 @@
 using System;
-using System.Text;
 using System.Collections.Generic;
 
 namespace KSynthLib.K4
 {
-    public class Envelope
+    public class AmplifierEnvelope
     {
         private LevelType _attack;
         public byte Attack // 0~100
@@ -34,7 +33,7 @@ namespace KSynthLib.K4
             set => _release.Value = value;
         }
 
-        public Envelope()
+        public AmplifierEnvelope()
         {
             _attack = new LevelType();
             _decay = new LevelType();
@@ -42,7 +41,7 @@ namespace KSynthLib.K4
             _release = new LevelType();
         }
 
-        public Envelope(byte a, byte d, byte s, byte r)
+        public AmplifierEnvelope(byte a, byte d, byte s, byte r)
         {
             _attack = new LevelType(a);
             _decay = new LevelType(d);

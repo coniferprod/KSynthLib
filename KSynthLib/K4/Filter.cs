@@ -29,7 +29,7 @@ namespace KSynthLib.K4
 
         public bool IsLFO;  // 0/off, 1/on
 
-        public Envelope Env;
+        public FilterEnvelope Env;
 
         private DepthType _envelopeDepth;
         public sbyte EnvelopeDepth // 0 ~ 100 (±50)
@@ -53,7 +53,7 @@ namespace KSynthLib.K4
             _resonance = new ResonanceType();
             CutoffMod = new LevelModulation();
             IsLFO = false;
-            Env = new Envelope();
+            Env = new FilterEnvelope();
             _envelopeDepth = new DepthType();
             _envelopeVelocityDepth = new DepthType();
             TimeMod = new TimeModulation();
@@ -87,7 +87,7 @@ namespace KSynthLib.K4
             (b, offset) = Util.GetNextByte(data, offset);
             _envelopeVelocityDepth = new DepthType((sbyte)((b & 0x7f) - 50));
 
-            Env = new Envelope();
+            Env = new FilterEnvelope();
             (b, offset) = Util.GetNextByte(data, offset);
             Env.Attack = (byte)(b & 0x7f);
 
@@ -95,7 +95,7 @@ namespace KSynthLib.K4
             Env.Decay = (byte)(b & 0x7f);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Env.Sustain = (byte)(b & 0x7f);
+            Env.Sustain = (sbyte)((b & 0x7f) - 50);
 
             (b, offset) = Util.GetNextByte(data, offset);
             Env.Release = (byte)(b & 0x7f);
@@ -141,10 +141,9 @@ namespace KSynthLib.K4
             data.Add((byte)(CutoffMod.KeyScalingDepth + 50));
             data.Add((byte)(EnvelopeDepth + 50));
             data.Add((byte)(EnvelopeVelocityDepth + 50));
-            data.Add((byte)Env.Attack);
-            data.Add((byte)Env.Decay);
-            data.Add((byte)Env.Sustain);
-            data.Add((byte)Env.Release);
+
+            data.AddRange(Env.ToData());
+
             data.Add((byte)(TimeMod.AttackVelocity + 50));
             data.Add((byte)(TimeMod.ReleaseVelocity + 50));
             data.Add((byte)(TimeMod.KeyScaling + 50));

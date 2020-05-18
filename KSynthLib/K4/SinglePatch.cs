@@ -22,6 +22,17 @@ namespace KSynthLib.K4
         Solo2
     };
 
+    public enum SubmixType
+    {
+        A,
+        B,
+        C,
+        D,
+        E,
+        F,
+        G,
+        H
+    }
 
     /// <summary>
     /// Represents a K4 single patch.
@@ -30,8 +41,6 @@ namespace KSynthLib.K4
     {
         /// <value>System Exclusive data length.</value>
         public const int DataSize = 131;
-
-        private const string OutputNames = "ABCDEFGH";
 
         private LevelType _volume;
         public byte Volume  // 0~100
@@ -47,29 +56,22 @@ namespace KSynthLib.K4
             set =>_effect.Value = value;
         }
 
-        private OutputSettingType _output; // 0~7 / A~H (on K4r)
-        public char Output
-        {
-            get => OutputNames[_output.Value];
-            set => _output.Value = OutputNames.IndexOf(value);
-        }
-
-        //public CommonSettings Common;
+        public SubmixType Submix;
 
         public SourceMode SourceMode;
 
         public PolyphonyMode PolyphonyMode;
 
-        public bool AMS1ToS2;
-        public bool AMS3ToS4;
+        public bool AM12;
+        public bool AM34;
 
         public bool[] SourceMutes;
 
-        private PitchBendType _pitchBend;
-        public int PitchBend  // 0~12
+        private PitchBendRangeType _pitchBendRange;
+        public int PitchBendRange  // 0~12
         {
-            get => _pitchBend.Value;
-            set => _pitchBend.Value = value;
+            get => _pitchBendRange.Value;
+            set => _pitchBendRange.Value = value;
         }
 
         public WheelAssignType WheelAssign; // 0/VIB, 1/LFO, 2/DCF
@@ -110,17 +112,17 @@ namespace KSynthLib.K4
         {
             this._volume = new LevelType(99);
             this._effect = new EffectNumberType(1);
-            this._output = new OutputSettingType(0);
+            this.Submix = SubmixType.A;
 
             this._name = "NewSound";
 
             //Common = new CommonSettings();
             SourceMode = SourceMode.Normal;
             PolyphonyMode = PolyphonyMode.Poly1;
-            AMS1ToS2 = false;
-            AMS3ToS4 = false;
+            AM12 = false;
+            AM34 = false;
             SourceMutes = new bool[] { false, false, false, false };
-            _pitchBend = new PitchBendType(2);
+            _pitchBendRange = new PitchBendRangeType(2);
             WheelAssign = WheelAssignType.Vibrato;
             _wheelDepth = new DepthType(0);
             Vibrato = new VibratoSettings();
@@ -167,21 +169,14 @@ namespace KSynthLib.K4
             // output select = s12 bits 0...2
             (b, offset) = Util.GetNextByte(data, offset);
             int outputNameIndex = (int)(b & 0x07); // 0b00000111;
-            Output = OutputNames[outputNameIndex];
-
-/*
-            byte[] commonData = new byte[CommonSettings.DataSize];
-            Array.Copy(data, offset, commonData, 0, CommonSettings.DataSize);
-            Common = new CommonSettings(commonData);
-            offset += CommonSettings.DataSize;
-*/
+            Submix = (SubmixType)outputNameIndex;
 
             // source mode = s13 bits 0...1
             (b, offset) = Util.GetNextByte(data, offset);
             SourceMode = (SourceMode)(b & 0x03);
             PolyphonyMode = (PolyphonyMode)((b >> 2) & 0x03);
-            AMS1ToS2 = ((b >> 4) & 0x01) == 1;
-            AMS3ToS4 = ((b >> 5) & 0x01) == 1;
+            AM12 = ((b >> 4) & 0x01) == 1;
+            AM34 = ((b >> 5) & 0x01) == 1;
 
             (b, offset) = Util.GetNextByte(data, offset);
             SourceMutes[0] = (b & 0x01) == 0; // 0/mute, 1/not mute
@@ -194,7 +189,7 @@ namespace KSynthLib.K4
 
             (b, offset) = Util.GetNextByte(data, offset);
             // Pitch bend = s15 bits 0...3
-            _pitchBend = new PitchBendType(b & 0x0f);
+            _pitchBendRange = new PitchBendRangeType(b & 0x0f);
             // Wheel assign = s15 bits 4...5
             WheelAssign = (WheelAssignType)((b >> 4) & 0x03);
 
@@ -244,7 +239,6 @@ namespace KSynthLib.K4
 
             (b, offset) = Util.GetNextByte(data, offset);
             _pressureFreq = new DepthType((sbyte)((b & 0x7f) - 50)); // 0~100 to ±50
-
 
             int totalSourceDataSize = Source.DataSize * SourceCount;
             byte[] sourceData = new byte[totalSourceDataSize];
@@ -308,12 +302,12 @@ namespace KSynthLib.K4
             StringBuilder builder = new StringBuilder();
 
             builder.Append($"{Name}\n");
-            builder.Append($"VOLUME     ={Volume:3}\nEFFECT PACH= {Effect:2}\nSUBMIX CH  =  {Output}\n");
+            builder.Append($"VOLUME     ={Volume:3}\nEFFECT PACH= {Effect:2}\nSUBMIX CH  =  {Submix}\n");
 
             builder.Append(string.Format("SOURCE MODE={0}\n", Enum.GetNames(typeof(SourceMode))[(int)SourceMode]));
-            builder.Append(string.Format("AM 1>2     ={0}\nAM 3>4     ={1}\n", AMS1ToS2 ? "ON" : "OFF", AMS3ToS4 ? "ON" : "OFF"));
+            builder.Append(string.Format("AM 1>2     ={0}\nAM 3>4     ={1}\n", AM12 ? "ON" : "OFF", AM34 ? "ON" : "OFF"));
             builder.Append(string.Format("POLY MODE  ={0}\n", Enum.GetNames(typeof(PolyphonyMode))[(int)PolyphonyMode]));
-            builder.Append(string.Format("BNDR RANGE = {0,2}\n", PitchBend));
+            builder.Append(string.Format("BNDR RANGE = {0,2}\n", PitchBendRange));
             builder.Append(string.Format("PRESS>FREQ = {0,2}\n", PressureFreq));
             builder.Append(string.Format("WHEEL\nASSIGN     ={0}\nDEPTH      ={1,2}\n", Enum.GetNames(typeof(WheelAssignType))[(int)WheelAssign], WheelDepth));
             builder.Append($"AUTO BEND\n{AutoBend}\n");
@@ -354,13 +348,13 @@ namespace KSynthLib.K4
 
             data.Add((byte)Volume);
             data.Add((byte)(Effect - 1));  // convert from 1~32 to 0~31 for SysEx data
-            data.Add((byte)(OutputNames.IndexOf(Output)));  // convert 'A', 'B' ... 'H' to 0~7
+            data.Add((byte)(Submix));  // 0~7
 
             // s13 combines source mode, poly mode, and source AM into one byte.
             // Construct a bit string, then convert it to byte.
             StringBuilder b13 = new StringBuilder("00");
-            b13.Append(AMS3ToS4 ? "1" : "0");
-            b13.Append(AMS1ToS2 ? "1" : "0");
+            b13.Append(AM34 ? "1" : "0");
+            b13.Append(AM12 ? "1" : "0");
             b13.Append(Convert.ToString((byte)PolyphonyMode, 2).PadLeft(2, '0'));
             b13.Append(Convert.ToString((byte)SourceMode, 2).PadLeft(2, '0'));
             data.Add(Convert.ToByte(b13.ToString(), 2));
@@ -377,7 +371,7 @@ namespace KSynthLib.K4
             // s15 combines pitch bend and wheel assign into one byte.
             StringBuilder b15 = new StringBuilder("");
             b15.Append(Convert.ToString((byte)WheelAssign, 2).PadLeft(4, '0'));
-            b15.Append(Convert.ToString((byte)PitchBend, 2).PadLeft(4, '0'));
+            b15.Append(Convert.ToString((byte)PitchBendRange, 2).PadLeft(4, '0'));
             data.Add(Convert.ToByte(b15.ToString(), 2));
 
             data.Add((byte)Vibrato.Speed);

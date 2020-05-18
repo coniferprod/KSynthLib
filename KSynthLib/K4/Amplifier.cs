@@ -121,7 +121,7 @@ namespace KSynthLib.K4
     {
         public const int DataSize = 11;
 
-        public Envelope Env;
+        public AmplifierEnvelope Env;
 
         private LevelType envelopeLevel;
         public byte EnvelopeLevel // 0~100
@@ -135,18 +135,14 @@ namespace KSynthLib.K4
 
         public Amplifier()
         {
-            Env = new Envelope(0, 0, 0, 0);
+            Env = new AmplifierEnvelope(0, 0, 0, 0);
             envelopeLevel = new LevelType();
             LevelMod = new LevelModulation(0, 0, 0);
             TimeMod = new TimeModulation(0, 0, 0);
         }
 
-        public Amplifier(byte[] data)
+        public Amplifier(byte[] data) : this()
         {
-            Env = new Envelope(0, 0, 0, 0);
-            LevelMod = new LevelModulation(0, 0, 0);
-            TimeMod = new TimeModulation(0, 0, 0);
-
             int offset = 0;
             byte b = 0;  // will be reused when getting the next byte
 
