@@ -116,7 +116,6 @@ namespace KSynthLib.K4
 
             this._name = "NewSound";
 
-            //Common = new CommonSettings();
             SourceMode = SourceMode.Normal;
             PolyphonyMode = PolyphonyMode.Poly1;
             AM12 = false;

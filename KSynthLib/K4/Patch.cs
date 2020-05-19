@@ -161,13 +161,13 @@ namespace KSynthLib.K4
 
         protected byte ComputeChecksum(byte[] data)
         {
-            byte sum = 0;
+            int sum = 0xA5;
             foreach (byte b in data)
             {
-                sum += b;
+                sum = (sum + b) & 0xff;
             }
-            sum += 0xA5;
-            return sum;
+
+            return (byte)(sum & 0x7f);
         }
 
         protected abstract byte[] CollectData();
