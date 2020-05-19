@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
 
     <PackageId>KSynthLib</PackageId>
-    <Version>0.5.1</Version>
+    <Version>0.5.2</Version>
     <Authors>Conifer Productions Oy</Authors>
     <Company>Conifer Productions Oy</Company>
 
