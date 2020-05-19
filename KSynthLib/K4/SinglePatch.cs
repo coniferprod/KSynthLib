@@ -143,6 +143,14 @@ namespace KSynthLib.K4
             Checksum = 0;
         }
 
+        public byte GetEffectNumber(byte b)
+        {
+            byte effectValue = (byte)(b & 0x1f); // 0b00011111
+            // Now we should have a value in the range 0~31.
+            // Use range 1~32 when storing the value.
+            return (byte)(effectValue + 1);
+        }
+
         /// <summary>
         /// Constructs a single patch from binary System Exclusive data.
         /// </summary>
@@ -163,12 +171,11 @@ namespace KSynthLib.K4
 
             // effect = s11 bits 0...4
             (b, offset) = Util.GetNextByte(data, offset);
-            _effect = new EffectNumberType((byte)((b & 0x1f) + 1)); // 0b00011111
-            // use range 1~32 when storing the value, 0~31 in SysEx data
+            _effect = new EffectNumberType(GetEffectNumber(b));
 
             // output select = s12 bits 0...2
             (b, offset) = Util.GetNextByte(data, offset);
-            int outputNameIndex = (int)(b & 0x07); // 0b00000111;
+            int outputNameIndex = (int)(b & 0x07); // 0b00000111
             Submix = (SubmixType)outputNameIndex;
 
             // source mode = s13 bits 0...1
@@ -343,7 +350,8 @@ namespace KSynthLib.K4
         {
             List<byte> data = new List<byte>();
 
-            byte[] nameBytes = Encoding.ASCII.GetBytes(this.Name.PadRight(10));
+            //byte[] nameBytes = Encoding.ASCII.GetBytes(this.Name.PadRight(10));
+            byte[] nameBytes = GetNameBytes(this.Name.PadRight(10));
             data.AddRange(nameBytes);
 
             data.Add((byte)Volume);

@@ -161,7 +161,7 @@ namespace KSynthLib.Common
             int firstCharColumn = firstHexColumn
                 + bytesPerLine * 3       // - 2 digit for the hexadecimal value and 1 space
                 + (bytesPerLine - 1) / 8 // - 1 extra space every 8 characters from the 9th
-                + 2;                  // 2 spaces 
+                + 2;                  // 2 spaces
 
             int lineLength = firstCharColumn
                 + bytesPerLine           // - characters to show the ascii value
@@ -250,6 +250,17 @@ namespace KSynthLib.Common
                 }
             }
             return result;
+        }
+
+        public static byte[] HexStringToByteArray(String hex)
+        {
+            int charCount = hex.Length;
+            byte[] bytes = new byte[charCount / 2];
+            for (int i = 0; i < charCount; i += 2)
+            {
+                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+            }
+            return bytes;
         }
     }
 }
