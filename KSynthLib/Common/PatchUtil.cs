@@ -12,5 +12,29 @@ namespace KSynthLib.Common
 
 	        return String.Format("{0}-{1,2}", bankLetter, patchIndex);
         }
+
+        public static int GetPatchNumber(string s)
+        {
+            string us = s.ToUpper();
+            char[] bankNames = new char[] { 'A', 'B', 'C', 'D' };
+            int bankIndex = Array.IndexOf(bankNames, us[0]);
+            if (bankIndex < 0)
+            {
+                return 0;
+            }
+
+            int number = 0;
+            string ns = us.Substring(1);  // take the rest after the bank letter
+            try
+            {
+                number = Int32.Parse(ns) - 1;  // bring to range 0...15
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine($"bad patch number: '{s}'");
+            }
+
+            return bankIndex * 16 + number;
+        }
     }
 }
