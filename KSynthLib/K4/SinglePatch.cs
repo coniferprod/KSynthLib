@@ -65,6 +65,10 @@ namespace KSynthLib.K4
         public bool AM12;
         public bool AM34;
 
+        /// <summary>
+        /// Source mute values: <c>true</c> if the source indicated by the index
+        /// is muted, <c>false</c> otherwise.
+        /// </summary>
         public bool[] SourceMutes;
 
         private PitchBendRangeType _pitchBendRange;
@@ -133,6 +137,9 @@ namespace KSynthLib.K4
             Amplifiers = new Amplifier[SourceCount];
             for (int i = 0; i < SourceCount; i++)
             {
+                // Source mutes default to false (not muted)
+                SourceMutes[i] = false;
+
                 Sources[i] = new Source();
                 Amplifiers[i] = new Amplifier();
             }
@@ -185,10 +192,21 @@ namespace KSynthLib.K4
             AM34 = ((b >> 5) & 0x01) == 1;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            SourceMutes[0] = (b & 0x01) == 0; // 0/mute, 1/not mute
-            SourceMutes[1] = ((b >> 1) & 0x01) == 0;
-            SourceMutes[2] = ((b >> 2) & 0x01) == 0;
-            SourceMutes[3] = ((b >> 3) & 0x01) == 0;
+            // the source mute bits are in s14:
+            // S1 = b0, S2 = b1, S3 = b2, S4 = b3
+            // The K4 MIDI spec says 0/mute, 1/not mute,
+            // so we flip it to make this value actually mean muted.
+            for (int i = 0; i < SourceCount; i++)
+            {
+                if (b.IsBitSet(i))
+                {
+                    SourceMutes[i] = false;
+                }
+                else
+                {
+                    SourceMutes[i] = true;
+                }
+            }
 
             Vibrato = new VibratoSettings();
             Vibrato.Shape = (LFOShape)((b >> 4) & 0x03);
@@ -369,6 +387,9 @@ namespace KSynthLib.K4
             // s14 combines vibrato shape and source mutes into one byte.
             StringBuilder b14 = new StringBuilder("00");
             b14.Append(Convert.ToString((byte)Vibrato.Shape, 2).PadLeft(2, '0'));
+
+            // Our "SourceMutes" is true if the source is muted,
+            // or false if it is not. The SysEx wants "0/mute, 1/not mute".
             b14.Append(SourceMutes[3] ? "1" : "0");
             b14.Append(SourceMutes[2] ? "1" : "0");
             b14.Append(SourceMutes[1] ? "1" : "0");
