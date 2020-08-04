@@ -7,13 +7,15 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K5000
 {
-    public enum PolyphonyMode {
+    public enum PolyphonyMode
+    {
         Poly,
         Solo1,
         Solo2
     }
 
-    public enum AmplitudeModulation { // 0=off, value=1~5(src2~6)
+    public enum AmplitudeModulation  // 0=off, value=1~5(src2~6)
+    {
         Off,
         Source2,
         Source3,
@@ -137,7 +139,7 @@ namespace KSynthLib.K5000
             byte b = 0;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            EffectAlgorithm = b; // 0 ~ 3
+            EffectAlgorithm = (byte)(b + 1); // 0 ~ 3 --> 1 ~ 4
             Console.WriteLine($"Effect Algorithm = {EffectAlgorithm}");
 
             Reverb = new ReverbSettings(data, offset);
