@@ -26,7 +26,7 @@ namespace KSynthLib.K5000
 
     public class SingleCommonSettings
     {
-        public const int DataSize = 33;
+        public const int DataSize = 81;  // why did I have 33 here earlier?
 
         public const int MaxSources = 6;
 
@@ -139,7 +139,8 @@ namespace KSynthLib.K5000
             byte b = 0;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            EffectAlgorithm = (byte)(b + 1); // 0 ~ 3 --> 1 ~ 4
+            // Seems like the K5000 could set the top bits of this, so mask them off
+            EffectAlgorithm = (byte)((b & 0x03) + 1); // 0 ~ 3 --> 1 ~ 4
             Console.WriteLine($"Effect Algorithm = {EffectAlgorithm}");
 
             Reverb = new ReverbSettings(data, offset);

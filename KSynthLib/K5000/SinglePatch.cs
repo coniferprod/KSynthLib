@@ -54,8 +54,6 @@ namespace KSynthLib.K5000
         /// <summary>Constructs a single patch with default settings.</summary>
         public SinglePatch() : base()
         {
-            //Common = new CommonSettings();  // initialized by superclass constructor
-
             SingleCommon = new SingleCommonSettings();
             SingleCommon.SourceCount = 1;
 
@@ -69,8 +67,13 @@ namespace KSynthLib.K5000
         /// <summary>Constructs a single patch from System Exclusive data.</summary>
         public SinglePatch(byte[] data) : base()
         {
-            //int offset = CommonSettings.DataSize;  // skip the common data parsed by superclass
             int offset = 0;
+            byte b = 0;
+
+            (b, offset) = Util.GetNextByte(data, offset);
+
+            // Ingest the checksum
+            _checksum = b;
 
             // Create single patch common settings from binary data:
             byte[] singleCommonData = new byte[SingleCommonSettings.DataSize];
@@ -115,7 +118,6 @@ namespace KSynthLib.K5000
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            //builder.Append(Common);
             builder.Append(SingleCommon);
             builder.Append("SOURCES:\n");
             for (int i = 0; i < SingleCommon.SourceCount; i++)
@@ -130,7 +132,6 @@ namespace KSynthLib.K5000
         {
             List<byte> data = new List<byte>();
 
-            //data.AddRange(Common.ToData());
             data.AddRange(SingleCommon.ToData());
 
             for (int i = 0; i < SingleCommon.SourceCount; i++)
@@ -141,32 +142,5 @@ namespace KSynthLib.K5000
 
             return data.ToArray();
         }
-
-        // Convert this single patch into SysEx data.
-        // "BANK A, D, E, F: (check sum) + (COMMON) + (SOURCE)*(2~8)" (probably should be ~2*6?)
-
-        /*
-        protected override byte ComputeChecksum(byte[] data)
-        {
-            // BANK A, D, E, F: check sum = [(common sum) + (source1 sum) [ + (source2~8 sum)] + 0xa5) & 0x7f
-            byte total = 0;
-
-            // For each source, compute the sum of source data and add it to the total:
-            for (int i = 0; i < SingleCommon.SourceCount; i++)
-            {
-                byte[] sourceData = Sources[i].ToData();
-                byte sourceSum = 0;
-                foreach (byte b in sourceData)
-                {
-                    sourceSum += b;
-                }
-                total += sourceSum;
-            }
-
-            total += 0xA5;
-
-            return (byte)(total & 0x7f);
-        }
-        */
     }
 }

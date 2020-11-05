@@ -82,11 +82,11 @@ namespace KSynthLib.K5000
         public ReverbSettings(byte[] data, int offset) : this()
         {
             ReverbType = data[offset];
-            DryWet = data[offset + 1];
-            Param1 = data[offset + 2];
-            Param2 = data[offset + 3];
-            Param3 = data[offset + 4];
-            Param4 = data[offset + 5];
+            _dryWet = new EffectDepthType(data[offset + 1]);
+            _param1 = new PositiveLevelType(data[offset + 2]);
+            _param2 = new PositiveLevelType(data[offset + 3]);
+            _param3 = new PositiveLevelType(data[offset + 4]);
+            _param4 = new PositiveLevelType(data[offset + 5]);
         }
 
         public override string ToString()
