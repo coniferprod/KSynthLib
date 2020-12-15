@@ -37,7 +37,18 @@ Then add it to your local NuGet repository you configured earlier:
 
 where "x.y.z" is the version of the library you want to use.
 
-Finally, install the package into your project like any NuGet package:
+To automate these steps there is also an installation script for the Bash shell, `install.sh`.
+To use it, first set the environment variables:
+
+    export KSYNTHLIB_VERSION=0.5.11
+    export KSYNTHLIB_RELEASE=Debug
+    export LOCAL_NUGET_PATH=/Users/yourname/Library/NuGet
+
+Then run the script:
+
+    bash install.sh
+
+Finally, add the package into your project like any NuGet package:
 
     dotnet add package KSynthLib
 
