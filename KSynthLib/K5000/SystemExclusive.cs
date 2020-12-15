@@ -1,6 +1,6 @@
 namespace KSynthLib.K5000
 {
-    public enum SystemExclusiveFunction
+    public enum SystemExclusiveFunction: byte
     {
         OneBlockDumpRequest = 0x00,
         AllBlockDumpRequest = 0x01,

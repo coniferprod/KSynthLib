@@ -362,8 +362,8 @@ namespace KSynthLib.K5000
             return new ReverbSettings()
             {
                 ReverbType = data[offset],
-                DryWet = data[offset + 1],
-                Param1 = data[offset + 2],
+                DryWet1 = data[offset + 1],
+                DryWet2 = data[offset + 2],
                 Param2 = data[offset + 3],
                 Param3 = data[offset + 4],
                 Param4 = data[offset + 5]

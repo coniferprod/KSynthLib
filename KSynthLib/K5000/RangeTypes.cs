@@ -187,7 +187,7 @@ namespace KSynthLib.K5000
 
         public EffectControlDepthType()
         {
-            this.range = new Range<sbyte>(-32, 32);
+            this.range = new Range<sbyte>(-31, 31);
         }
 
         public EffectControlDepthType(sbyte v) : this()

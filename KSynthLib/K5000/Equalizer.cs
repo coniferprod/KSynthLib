@@ -72,13 +72,13 @@ namespace KSynthLib.K5000
         public GEQSettings(byte[] data, int offset)
         {
             // 58(-6) ~ 70(+6), so 64 is zero
-            Freq1 = (sbyte)(data[offset] - 64);
-            Freq2 = (sbyte)(data[offset + 1] - 64);
-            Freq3 = (sbyte)(data[offset + 2] - 64);
-            Freq4 = (sbyte)(data[offset + 3] - 64);
-            Freq5 = (sbyte)(data[offset + 4] - 64);
-            Freq6 = (sbyte)(data[offset + 5] - 64);
-            Freq7 = (sbyte)(data[offset + 6] - 64);
+            _freq1 = new FreqType((sbyte)(data[offset] - 64));
+            _freq2 = new FreqType((sbyte)(data[offset + 1] - 64));
+            _freq3 = new FreqType((sbyte)(data[offset + 2] - 64));
+            _freq4 = new FreqType((sbyte)(data[offset + 3] - 64));
+            _freq5 = new FreqType((sbyte)(data[offset + 4] - 64));
+            _freq6 = new FreqType((sbyte)(data[offset + 5] - 64));
+            _freq7 = new FreqType((sbyte)(data[offset + 6] - 64));
         }
 
         public override string ToString()

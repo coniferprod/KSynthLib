@@ -8,22 +8,22 @@ namespace KSynthLib.K5000
 {
     public class PatchMap
     {
-        const int Size = 19;  // bytes
+        public const int Size = 19;  // bytes
 
-        public const int NumPatches = 128;
+        public const int PatchCount = 128;
 
         private bool[] include;
 
         public PatchMap()
         {
-            include = new bool[NumPatches];
+            include = new bool[PatchCount];
         }
 
         public PatchMap(byte[] data)
         {
             // TODO: Check that the data length matches
 
-            include = new bool[NumPatches];
+            include = new bool[PatchCount];
 
             StringBuilder buf = new StringBuilder();
             for (int i = 0; i < data.Length; i++)
@@ -34,7 +34,11 @@ namespace KSynthLib.K5000
                 }
             }
 
-            string bitString = buf.ToString().Reversed();
+            // Now we should have a string of ones and zeros.
+            // Of the last byte of the patch map, only the bottom two bits are used.
+            // The conversion to bit string will have some extra bits, so truncate
+            // the result to exactly 128 "bits".
+            string bitString = buf.ToString().Substring(0, PatchCount);
             for (int i = 0; i < bitString.Length; i++)
             {
                 include[i] = bitString[i] == '1' ? true : false;
@@ -43,7 +47,7 @@ namespace KSynthLib.K5000
 
         public PatchMap(bool[] incl)
         {
-            include = new bool[NumPatches];
+            include = new bool[PatchCount];
             // TODO: Check that lengths match
             for (int i = 0; i < incl.Length; i++)
             {

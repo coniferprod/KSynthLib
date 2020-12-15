@@ -18,18 +18,18 @@ namespace KSynthLib.K5000
 
         public byte ReverbType;  // 0 ~ 10
 
-        private EffectDepthType _dryWet;
-        public byte DryWet  // 0 ~ 100
+        private EffectDepthType _dryWet1;
+        public byte DryWet1  // 0 ~ 100
         {
-            get => _dryWet.Value;
-            set => _dryWet.Value = value;
+            get => _dryWet1.Value;
+            set => _dryWet1.Value = value;
         }
 
-        private PositiveLevelType _param1;
-        public byte Param1  // 0 ~ 127
+        private EffectDepthType _dryWet2;
+        public byte DryWet2  // 0 ~ 100
         {
-            get => _param1.Value;
-            set => _param1.Value = value;
+            get => _dryWet2.Value;
+            set => _dryWet2.Value = value;
         }
 
         private PositiveLevelType _param2;
@@ -72,8 +72,8 @@ namespace KSynthLib.K5000
         {
             ReverbType = 0;
 
-            _dryWet = new EffectDepthType(50);
-            _param1 = new PositiveLevelType(64);
+            _dryWet1 = new EffectDepthType(50);
+            _dryWet2 = new EffectDepthType(50);
             _param2 = new PositiveLevelType(64);
             _param3 = new PositiveLevelType(64);
             _param4 = new PositiveLevelType(64);
@@ -82,8 +82,8 @@ namespace KSynthLib.K5000
         public ReverbSettings(byte[] data, int offset) : this()
         {
             ReverbType = data[offset];
-            _dryWet = new EffectDepthType(data[offset + 1]);
-            _param1 = new PositiveLevelType(data[offset + 2]);
+            _dryWet1 = new EffectDepthType(data[offset + 1]);
+            _dryWet2 = new EffectDepthType(data[offset + 2]);
             _param2 = new PositiveLevelType(data[offset + 3]);
             _param3 = new PositiveLevelType(data[offset + 4]);
             _param4 = new PositiveLevelType(data[offset + 5]);
@@ -93,8 +93,8 @@ namespace KSynthLib.K5000
         {
             ReverbName name = ReverbNames[ReverbType];
             StringBuilder builder = new StringBuilder();
-            builder.Append($"{name.Name}, dry/wet = {DryWet}\n");
-            builder.Append($"P1 {name.ParameterNames[0]} = {Param1}\n");
+            builder.Append($"{name.Name}, Dry/Wet 1 = {DryWet1}\n");
+            builder.Append($"P1 {name.ParameterNames[0]} = {DryWet2}\n");
             builder.Append($"P2 {name.ParameterNames[1]} = {Param2}\n");
             builder.Append($"P3 {name.ParameterNames[2]} = {Param3}\n");
             builder.Append($"P4 {name.ParameterNames[3]} = {Param4}\n");
@@ -105,8 +105,8 @@ namespace KSynthLib.K5000
         {
             List<byte> data = new List<byte>();
             data.Add(ReverbType);
-            data.Add(DryWet);
-            data.Add(Param1);
+            data.Add(DryWet1);
+            data.Add(DryWet2);
             data.Add(Param2);
             data.Add(Param3);
             data.Add(Param4);
