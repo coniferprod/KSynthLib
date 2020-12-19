@@ -26,7 +26,7 @@ namespace KSynthLib.K5000
 
     public class SingleCommonSettings
     {
-        public const int DataSize = 81;  // why did I have 33 here earlier?
+        public const int DataSize = 81;
 
         public const int MaxSources = 6;
 
@@ -172,12 +172,15 @@ namespace KSynthLib.K5000
 
             Name = CollectName(data, offset);
             offset += NameLength;
+            Console.WriteLine($"Name = {Name}");
 
             (b, offset) = Util.GetNextByte(data, offset);
             Volume = b;
+            Console.WriteLine($"Volume = {Volume}");
 
             (b, offset) = Util.GetNextByte(data, offset);
             Poly = (PolyphonyMode) b; // 0=POLY, 1=SOLO1, 2=SOLO2
+            Console.WriteLine($"Polyphony = {Poly}");
 
             // No. 50 or "no use" can be ignored
             (b, offset) = Util.GetNextByte(data, offset);
@@ -293,10 +296,23 @@ namespace KSynthLib.K5000
         {
             List<byte> data = new List<byte>();
 
+            data.Add(EffectAlgorithm); 
+            data.AddRange(Reverb.ToData());
+            data.AddRange(Effect1.ToData());
+            data.AddRange(Effect2.ToData());
+            data.AddRange(Effect3.ToData());
+            data.AddRange(Effect4.ToData());
+            data.AddRange(GEQ.ToData());
+            data.Add(0);  // drum_mark
+
+            string PaddedName = Name.PadRight(NameLength, ' ');
+            data.AddRange(ASCIIEncoding.ASCII.GetBytes(PaddedName));
+
+            data.Add((byte)Volume);
             data.Add((byte)Poly);
             data.Add(0); // "no use"
-            data.Add((byte)SourceCount);
 
+            data.Add((byte)SourceCount);
             byte sourceMute = 0;
             for (int i = 0; i < MaxSources; i++)
             {
@@ -307,7 +323,7 @@ namespace KSynthLib.K5000
             }
             data.Add(sourceMute);
 
-            data.Add((byte) AM);
+            data.Add((byte)AM);
 
             data.AddRange(EffectControl1.ToData());
             data.AddRange(EffectControl2.ToData());
@@ -331,7 +347,7 @@ namespace KSynthLib.K5000
             data.Add(m3p1.Type);
             data.Add(m3p2.Type);
             data.Add(m4p1.Type);
-            data.Add(m3p2.Type);
+            data.Add(m4p2.Type);
 
             data.Add(m1p1.Depth);
             data.Add(m1p2.Depth);

@@ -5,6 +5,8 @@ using System.Diagnostics;
 using KSynthLib.Common;
 using KSynthLib.K4;
 
+using KSynthLib.K5000;
+
 namespace Driver
 {
     class Program
@@ -12,14 +14,21 @@ namespace Driver
         static void Main(string[] args)
         {
             var path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            var pathName = Path.Combine(path, $"tmp/k4tmp/A401.SYX");
+            var pathName = Path.Combine(path, $"tmp/A401.SYX");
 
             byte[] data = File.ReadAllBytes(pathName);
             Bank bank = new Bank(data);
-            foreach (SinglePatch sp in bank.Singles)
+            foreach (KSynthLib.K4.SinglePatch sp in bank.Singles)
             {
                 Console.WriteLine(sp.Name);
             }
+
+            pathName = Path.Combine(path, $"tmp/WizooIni.syx");
+            data = File.ReadAllBytes(pathName);
+            KSynthLib.K5000.SinglePatch singlePatch = new KSynthLib.K5000.SinglePatch(data);
+            Console.WriteLine(singlePatch.SingleCommon.Name);
+
+
         }
     }
 }

@@ -57,7 +57,6 @@ namespace KSynthLib.K5000
         public const int DataSize = 6;
 
         private int _type;  // 0~36 (in SysEx 11~47)
-
         public EffectType Type
         {
             get => (EffectType)_type;
@@ -165,7 +164,11 @@ namespace KSynthLib.K5000
 
         public EffectSettings(byte[] data, int offset)
         {
+            // Effect type is 11~47 in SysEx, so a value of 11 means effect 0, and 47 means effect 36.
+            // Adjust the value from SysEx to 0~36.
+            Console.WriteLine($"effect type from SysEx = {data[offset]}");
             Type = (EffectType)(data[offset] - 11);
+
             _depth = new EffectDepthType(data[offset + 1]);
             _param1 = new PositiveLevelType(data[offset + 2]);
             _param2 = new PositiveLevelType(data[offset + 3]);
@@ -175,7 +178,7 @@ namespace KSynthLib.K5000
 
         public override string ToString()
         {
-            System.Console.WriteLine(string.Format("Effect type = {0} ({0:X2}h)", _type));
+            //System.Console.WriteLine(string.Format("Effect type = {0}", _type));
             EffectName name = EffectNames[_type];
             StringBuilder builder = new StringBuilder();
             builder.Append(string.Format("{0}, depth = {1}\n", name.Name, Depth));
@@ -189,7 +192,10 @@ namespace KSynthLib.K5000
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
+
+            // Adjust the effect type back to 11~47:
             data.Add((byte)(_type + 11));
+
             data.Add(Depth);
             data.Add(Param1);
             data.Add(Param2);
