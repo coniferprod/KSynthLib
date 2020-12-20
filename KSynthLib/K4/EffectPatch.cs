@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace KSynthLib.K4
 {
@@ -187,6 +188,23 @@ namespace KSynthLib.K4
             data.Add(Checksum);
 
             return data.ToArray();
+        }
+
+        public override string ToString()
+        {
+            StringBuilder builder = new StringBuilder();
+            string name = EffectNames[(int)Type];
+            builder.Append($"{name} P1 = {Param1} P2 = {Param2} P3 = {Param3}\n");
+
+            /*
+            for (int i = 0; i < SubmixCount; i++)
+            {
+                EffectSubmix submix = Submixes[i];
+                builder.Append($"{i}: pan = {submix.Pan} send1 = {submix.Send1} send2 = {submix.Send2}\n");
+            }
+            */
+            
+            return builder.ToString();
         }
 
         public static string[] EffectNames =

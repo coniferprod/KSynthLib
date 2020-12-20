@@ -98,7 +98,7 @@ namespace KSynthLib.K4
             PlayMode = PlayModeType.Keyboard;
             _level = new LevelType(80);
             _transpose = new CoarseType(0);
-            _tune = new DepthType(50);
+            _tune = new DepthType(0);
         }
 
         public Section(byte[] data) : this()
@@ -138,7 +138,7 @@ namespace KSynthLib.K4
             Transpose = (sbyte)(b - 24);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Tune = (sbyte)b;
+            Tune = (sbyte)(b - 50);
         }
 
         public override string ToString()
@@ -178,7 +178,7 @@ namespace KSynthLib.K4
 
             data.Add((byte)Level);
             data.Add((byte)(Transpose + 24));
-            data.Add((byte)Tune);
+            data.Add((byte)(Tune + 50));
 
             return data.ToArray();
         }
