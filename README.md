@@ -5,11 +5,10 @@ Patch management utilities for Kawai K series digital synthesizers: K4, K5, K500
 This project creates a .NET library as a NuGet package
 that can be installed in .NET application projects.
 
-The library targets `netstandard2.0` so that it can be consumed
-from a UWP application (Windows 10, 16299 or later as of April 2020).
+The library is written in C# 8.0 and targets .NET 5.0.
 
-At the time of this writing it has not been published on NuGet, but
-instead is intended to be used locally. If you want to do that, add a local directory
+It should soon be available on NuGet, but you can also use it locally. 
+If you want to do that, add a local directory
 containing your NuGet packages to your NuGet configuration file.
 
 Your NuGet configuration file is most likely `~/.nuget/NuGet/NuGet.Config`,
@@ -40,8 +39,8 @@ where "x.y.z" is the version of the library you want to use.
 To automate these steps there is also an installation script for the Bash shell, `install.sh`.
 To use it, first set the environment variables:
 
-    export KSYNTHLIB_VERSION=0.5.11
-    export KSYNTHLIB_RELEASE=Debug
+    export KSYNTHLIB_VERSION=0.7.0
+    export KSYNTHLIB_CONFIGURATION=Debug
     export LOCAL_NUGET_PATH=/Users/yourname/Library/NuGet
 
 Then run the script:
@@ -54,10 +53,15 @@ Finally, add the package into your project like any NuGet package:
 
 ## Testing
 
-There is an associated test project with unit tests created using xUnit.
-Run the unit tests with:
+There is an associated test project with unit tests created using 
+[xUnit](https://xunit.net/). Run the unit tests with:
 
     dotnet test
+
+For testing the K4 features you should first download the [original factory
+patches](https://kawaius.com/technical-support-division/software-os/) for the K4 as MIDI System Exclusive dump files from Kawai USA. Then
+unzip them into a folder called "Kawai K4 Sounds" in your Documents
+directory.
 
 ## Remarks
 
@@ -70,12 +74,4 @@ data type that will fit the value. For library consumers it is recommended to cr
 a view model that translates between UI layers of your application and the model objects
 in this library.
 
-The range itself is defined based on the [Range.NET](https://github.com/mnelsonwhite/Range.NET) library, but it requires .NET Core,
-while this library uses .NET Standard 2.0 because it needs to be consumed by a UWP
-application. Therefore the MIT-licensed code for Range.NET has been incorporated into
-the library. Thanks to the author of Range.NET for making this code available under a permissive
-license.
-
-Another point related to the Range.NET library is that it uses `System.HashCode` which
-is not available in .NET Standard 2.0. Luckily, Microsoft has made it available in the
-[Microsoft.BCL.HashCode](https://www.nuget.org/packages/Microsoft.Bcl.HashCode) library, which is a dependency of this project.
+The range implementation uses the [Range.NET](https://github.com/mnelsonwhite/Range.NET) library.

@@ -20,7 +20,7 @@ namespace KSynthLib.Tests.K4
         public void Bank_IsInitializedFromSystemExclusive()
         {
             var path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            var pathName = Path.Combine(path, $"tmp/A401.SYX");
+            var pathName = Path.Combine(path, "Kawai K4 Sounds/A401.SYX");
 
             byte[] data = File.ReadAllBytes(pathName);
             Bank bank = new Bank(data);
