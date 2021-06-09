@@ -170,7 +170,7 @@ namespace KSynthLib.K5000
             string waveLSBBitString = Convert.ToString(waveLSB, 2).PadLeft(7, '0');
             string waveBitString = waveMSBBitString + waveLSBBitString;
             int waveNumber = Convert.ToInt32(waveBitString, 2);
-            System.Console.WriteLine(string.Format("wave kit MSB = {0:X2} | {1}, LSB = {2:X2} | {3}, combined = {4}, result = {5}",
+            Console.Error.WriteLine(string.Format("wave kit MSB = {0:X2} | {1}, LSB = {2:X2} | {3}, combined = {4}, result = {5}",
                 waveMSB, waveMSBBitString, waveLSB, waveLSBBitString, waveBitString, waveNumber));
 
             WaveNumber = waveNumber;

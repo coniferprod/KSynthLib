@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Text;
 
 using KSynthLib.Common;
@@ -30,7 +28,7 @@ namespace KSynthLib.K1
             StringBuilder builder = new StringBuilder();
             builder.Append(Name);
             builder.Append("\n");
-            builder.Append(String.Format("volume = {0}\n", Volume + 1));
+            builder.Append(string.Format("volume = {0}\n", Volume + 1));
             return builder.ToString();
         }
 

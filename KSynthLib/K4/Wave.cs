@@ -1,6 +1,3 @@
-using System;
-using KSynthLib.Common;
-
 namespace KSynthLib.K4
 {
     public sealed class Wave

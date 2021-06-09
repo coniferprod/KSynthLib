@@ -14,7 +14,7 @@ namespace KSynthLib.Tests.K5
         public FilterTests()
         {
             filter = new Filter();
-            Console.WriteLine(filter);
+            Console.Error.WriteLine(filter);
         }
 
         [Fact]

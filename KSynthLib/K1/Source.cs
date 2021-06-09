@@ -28,7 +28,7 @@ namespace KSynthLib.K1
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(String.Format("A:{0} D:{1} S:{2} R:{3}", Attack, Decay, Sustain, Release));
+            builder.Append(string.Format("A:{0} D:{1} S:{2} R:{3}", Attack, Decay, Sustain, Release));
             return builder.ToString();
         }
 
@@ -136,16 +136,16 @@ namespace KSynthLib.K1
             string coarseString = "N/A";
             if (IsKeyTrack)
             {
-                coarseString = String.Format("{0}", Coarse - 84);  // 60 ~ 108 = ±24  // TODO: is this right?
+                coarseString = string.Format("{0}", Coarse - 84);  // 60 ~ 108 = ±24  // TODO: is this right?
             }
-            builder.Append(String.Format("fine = {0}, coarse = {1}\n", Fine - 50, coarseString));
-            builder.Append(String.Format("wave = {0} ({1})\n", Wave.Instance[WaveNumber], WaveNumber + 1));
-            builder.Append(String.Format("key tracking = {0}, vib>a.bend = {1}, pres>freq = {2}\n", IsKeyTrack ? "on" : "off", IsVibratoAutoBend ? "on" : "off", IsPressureToFrequency ? "on" : "off"));
-            builder.Append(String.Format("velocity curve = {0}\n", VelocityCurve + 1));
-            builder.Append(String.Format("ENV = {0}, level = {1}, delay = {2}\n", Env.ToString(), EnvelopeLevel, EnvelopeDelay));
-            builder.Append(String.Format("vel-env: level = {0}, time = {1}\n", VelocityEnvelopeLevel - 50, VelocityEnvelopeTime - 50));
-            builder.Append(String.Format("prs-env: level = {0}\n", PressureEnvelopeLevel - 50));
-            builder.Append(String.Format("KS-env: level = {0}, time = {1}\n", KeyScalingEnvelopeLevel - 50, KeyScalingEnvelopeTime - 50));
+            builder.Append(string.Format("fine = {0}, coarse = {1}\n", Fine - 50, coarseString));
+            builder.Append(string.Format("wave = {0} ({1})\n", Wave.Instance[WaveNumber], WaveNumber + 1));
+            builder.Append(string.Format("key tracking = {0}, vib>a.bend = {1}, pres>freq = {2}\n", IsKeyTrack ? "on" : "off", IsVibratoAutoBend ? "on" : "off", IsPressureToFrequency ? "on" : "off"));
+            builder.Append(string.Format("velocity curve = {0}\n", VelocityCurve + 1));
+            builder.Append(string.Format("ENV = {0}, level = {1}, delay = {2}\n", Env.ToString(), EnvelopeLevel, EnvelopeDelay));
+            builder.Append(string.Format("vel-env: level = {0}, time = {1}\n", VelocityEnvelopeLevel - 50, VelocityEnvelopeTime - 50));
+            builder.Append(string.Format("prs-env: level = {0}\n", PressureEnvelopeLevel - 50));
+            builder.Append(string.Format("KS-env: level = {0}, time = {1}\n", KeyScalingEnvelopeLevel - 50, KeyScalingEnvelopeTime - 50));
             return builder.ToString();
         }
 

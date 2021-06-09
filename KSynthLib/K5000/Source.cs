@@ -17,13 +17,23 @@ namespace KSynthLib.K5000
     {
         public VelocitySwitchType SwitchType;  // enumeration
 
+        // Get the value on input as conversionTable{n] (where n = bottom 5 bits of value),
+        // and on output as IndexOf(threshold).
+        private static byte[] conversionTable =
+        {
+            4, 8, 12, 16, 20, 24, 28, 32,
+            36, 40, 44, 48, 52, 56, 60, 64,
+            68, 72, 76, 80, 84, 88, 92, 96,
+            100, 104, 108, 112, 116, 120, 124, 127
+        };
+
         // The velocity switch threshold is specified like this:
         // "velo:0=4 ~ 31=127". What does that even mean?
         private VelocityThresholdType _threshold; // 31 ~ 127
         public byte Threshold
         {
-            get => _threshold.Value;
-            set => _threshold.Value = value;
+            get => VelocitySwitchSettings.conversionTable[_threshold.Value];
+            set => _threshold.Value = VelocitySwitchSettings.conversionTable[value];
         }
 
         public VelocitySwitchSettings()
@@ -240,7 +250,7 @@ namespace KSynthLib.K5000
             VelocitySwitch = new VelocitySwitchSettings();
             VelocitySwitch.SwitchType = (VelocitySwitchType)(b >> 5);
             VelocitySwitch.Threshold = (byte)(b & 0x1F);
-            Console.WriteLine($"velo sw original value = {b:X2}");
+            Console.Error.WriteLine($"velo sw original value = {b:X2}");
 
             (b, offset) = Util.GetNextByte(data, offset);
             EffectPath = b;
@@ -357,12 +367,12 @@ namespace KSynthLib.K5000
         {
             StringBuilder builder = new StringBuilder();
             builder.Append($"Zone: low = {ZoneLow}, high = {ZoneHigh}\n");
-            builder.Append(String.Format("Vel. sw type = {0}, velocity = {1}\n", VelocitySwitch.SwitchType, VelocitySwitch.Threshold));
-            builder.Append(String.Format("Effect path = {0}\n", EffectPath));
-            builder.Append(String.Format("Volume = {0}\n", Volume));
-            builder.Append(String.Format("Bender Pitch = {0}  Bender Cutoff = {1}\n", BenderPitch, BenderCutoff));
-            builder.Append(String.Format("Key ON Delay = {0}\n", KeyOnDelay));
-            builder.Append(String.Format("Pan type = {0}, value = {1}\n", Pan, PanValue));
+            builder.Append(string.Format("Vel. sw type = {0}, velocity = {1}\n", VelocitySwitch.SwitchType, VelocitySwitch.Threshold));
+            builder.Append(string.Format("Effect path = {0}\n", EffectPath));
+            builder.Append(string.Format("Volume = {0}\n", Volume));
+            builder.Append(string.Format("Bender Pitch = {0}  Bender Cutoff = {1}\n", BenderPitch, BenderCutoff));
+            builder.Append(string.Format("Key ON Delay = {0}\n", KeyOnDelay));
+            builder.Append(string.Format("Pan type = {0}, value = {1}\n", Pan, PanValue));
             builder.Append($"DCO:\n{DCO}\n");
             builder.Append($"DCF:\n{DCF}\n");
             builder.Append($"DCA:\n{DCA}\n");
@@ -370,7 +380,7 @@ namespace KSynthLib.K5000
 
             if (DCO.WaveNumber == AdditiveKit.WaveNumber)
             {
-                builder.Append(String.Format("ADD data:\n{0}", ADD.ToString()));
+                builder.Append(string.Format("ADD data:\n{0}", ADD.ToString()));
             }
             return builder.ToString();
         }

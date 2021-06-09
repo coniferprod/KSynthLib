@@ -18,10 +18,10 @@ namespace KSynthLib.Tests.K5000
         public SingleCommon()
         {
             byte[] data = Util.HexStringToByteArray(testData);
-            Console.WriteLine($"Single Common data from hex string: {data.Length} bytes");
-            Console.WriteLine(Util.HexDump(data));
+            Console.Error.WriteLine($"Single Common data from hex string: {data.Length} bytes");
+            Console.Error.WriteLine(Util.HexDump(data));
             singleCommon = new SingleCommonSettings(data);
-            Console.WriteLine(singleCommon);
+            Console.Error.WriteLine(singleCommon);
         }
 
         [Fact]
@@ -42,7 +42,7 @@ namespace KSynthLib.Tests.K5000
         public void DataLength_IsCorrect()
         {
             int length = singleCommon.ToData().Length;
-            Console.WriteLine($"Length of data generated for SingleCommonSettings = {length}");
+            Console.Error.WriteLine($"Length of data generated for SingleCommonSettings = {length}");
             Assert.Equal(SingleCommonSettings.DataSize, length);
         }
 

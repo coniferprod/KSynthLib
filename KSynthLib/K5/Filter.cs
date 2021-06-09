@@ -90,9 +90,9 @@ namespace KSynthLib.K5
 
             builder.Append(string.Format("*DDF*={0}   MOD={1}\n", IsActive ? "ON" : "--", IsModulationActive ? "ON" : "--"));
             builder.Append("                   <DEPTH>\n");
-            builder.Append(String.Format(" CUTOFF={0,2}-MOD={1,2}  ENV={2,3}-VEL={3,3}\n", Cutoff, CutoffModulation, EnvelopeDepth, VelocityEnvelopeDepth));
-            builder.Append(String.Format(" SLOPE ={0,2}-MOD={1,2}  VEL={2,3}\n", Slope, SlopeModulation, VelocityDepth));
-            builder.Append(String.Format("FLAT.LV={0,2}         PRS={1,3}\n", FlatLevel, PressureDepth));
+            builder.Append(string.Format(" CUTOFF={0,2}-MOD={1,2}  ENV={2,3}-VEL={3,3}\n", Cutoff, CutoffModulation, EnvelopeDepth, VelocityEnvelopeDepth));
+            builder.Append(string.Format(" SLOPE ={0,2}-MOD={1,2}  VEL={2,3}\n", Slope, SlopeModulation, VelocityDepth));
+            builder.Append(string.Format("FLAT.LV={0,2}         PRS={1,3}\n", FlatLevel, PressureDepth));
             builder.Append($"                    KS={KeyScalingDepth,3}\n");
             builder.Append($"                   LFO={LFODepth,3}\n");
             builder.Append("\n\n");
@@ -111,7 +111,7 @@ namespace KSynthLib.K5
             builder.Append("\n    LEVEL|");
             for (int i = 0; i < Source.FilterEnvelopeSegmentCount; i++)
             {
-                string levelString = EnvelopeSegments[i].IsMaxSegment ? "  *" : String.Format("{0,3}", EnvelopeSegments[i].Level);
+                string levelString = EnvelopeSegments[i].IsMaxSegment ? "  *" : string.Format("{0,3}", EnvelopeSegments[i].Level);
                 builder.Append($"{levelString}|");
             }
             builder.Append("\n\n    MAX SEG = ?\n\n");
@@ -176,10 +176,10 @@ namespace KSynthLib.K5
 
             if (data.Count != DataLength)
             {
-                System.Console.WriteLine($"WARNING: DDF length, expected = {DataLength}, actual = {data.Count}", DataLength);
+                Console.Error.WriteLine($"WARNING: DDF length, expected = {DataLength}, actual = {data.Count}", DataLength);
             }
 
-            System.Console.WriteLine(string.Format("DDF data:\n{0}", Util.HexDump(data.ToArray())));
+            Console.Error.WriteLine(string.Format("DDF data:\n{0}", Util.HexDump(data.ToArray())));
 
             return data.ToArray();
         }

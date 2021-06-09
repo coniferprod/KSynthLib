@@ -1,8 +1,6 @@
 using System;
 using System.Text;
 
-using KSynthLib.Common;
-
 namespace KSynthLib.K4
 {
     public enum WheelAssignType

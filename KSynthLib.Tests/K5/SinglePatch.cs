@@ -14,7 +14,7 @@ namespace KSynthLib.Tests.K5
         public SinglePatchTests()
         {
             patch = new SinglePatch();
-            Console.WriteLine(patch);
+            Console.Error.WriteLine(patch);
         }
 
         [Fact]

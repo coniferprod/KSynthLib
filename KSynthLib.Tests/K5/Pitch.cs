@@ -14,7 +14,7 @@ namespace KSynthLib.Tests.K5
         public PitchSettingsTests()
         {
             settings = new PitchSettings();
-            Console.WriteLine(settings);
+            Console.Error.WriteLine(settings);
         }
 
         [Fact]

@@ -14,7 +14,7 @@ namespace KSynthLib.Tests.K5
         public AmplifierTests()
         {
             amplifier = new Amplifier();
-            Console.WriteLine(amplifier);
+            Console.Error.WriteLine(amplifier);
         }
 
         [Fact]

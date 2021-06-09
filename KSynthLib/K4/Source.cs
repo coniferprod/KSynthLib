@@ -188,7 +188,7 @@ namespace KSynthLib.K4
 
             // Make an 8-bit binary string representation
             string waveNumberString = Convert.ToString(WaveNumber, 2).PadLeft(8, '0');
-            //System.Console.WriteLine(String.Format("wave number in binary = '{0}'", waveNumberString));
+            //Console.Error.WriteLine(string.Format("wave number in binary = '{0}'", waveNumberString));
             string ksCurveString = Convert.ToString(KeyScalingCurve - 1, 2).PadLeft(3, '0');  // from 1...8 to 0...7
             StringBuilder b34 = new StringBuilder("0");
             b34.Append(ksCurveString);

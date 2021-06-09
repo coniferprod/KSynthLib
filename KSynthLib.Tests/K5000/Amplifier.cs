@@ -14,7 +14,7 @@ namespace KSynthLib.Tests.K5000
         public AmplifierTests()
         {
             settings = new DCASettings();
-            Console.WriteLine(settings);
+            Console.Error.WriteLine(settings);
         }
 
         [Fact]

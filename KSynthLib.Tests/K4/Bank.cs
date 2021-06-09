@@ -12,8 +12,8 @@ namespace KSynthLib.Tests.K4
         public void Bank_IsInitializedEmpty()
         {
             Bank bank = new Bank();
-            Assert.Equal(0, bank.Singles.Count);
-            Assert.Equal(0, bank.Multis.Count);
+            Assert.Empty(bank.Singles);
+            Assert.Empty(bank.Multis);
         }
 
         [Fact]
@@ -27,7 +27,7 @@ namespace KSynthLib.Tests.K4
             Assert.Equal(Bank.SinglePatchCount, bank.Singles.Count);
             foreach (SinglePatch sp in bank.Singles)
             {
-                Console.WriteLine(sp.Name);
+                Console.Error.WriteLine(sp.Name);
             }
         }
 

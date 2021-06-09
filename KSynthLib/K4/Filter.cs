@@ -1,7 +1,6 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 using KSynthLib.Common;
 
@@ -132,7 +131,7 @@ namespace KSynthLib.K4
             b104.Append(IsLFO ? "1" : "0");
             int resonance = Resonance - 1;  // from 1...8 to 0...7
             string resonanceString = Convert.ToString(resonance, 2);
-            //Debug.WriteLine(String.Format("Filter resonance = {0}, as bit string = '{1}'", resonance, resonanceString));
+            //Console.Error.WriteLine(string.Format("Filter resonance = {0}, as bit string = '{1}'", resonance, resonanceString));
             b104.Append(resonanceString.PadLeft(3, '0'));
             data.Add(Convert.ToByte(b104.ToString(), 2));
 

@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 using System.Collections.Generic;
 
@@ -56,7 +55,7 @@ namespace KSynthLib.K5000
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
             data.Add(Time1);
             data.Add(Time2);
             data.Add(Time3);

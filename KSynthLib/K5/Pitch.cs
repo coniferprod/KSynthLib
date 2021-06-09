@@ -218,7 +218,7 @@ namespace KSynthLib.K5
 
             if (data.Count != DataLength)
             {
-                System.Console.WriteLine(String.Format("WARNING: DFG length, expected = {0}, actual = {1}", DataLength, data.Count));
+                Console.Error.WriteLine(string.Format("WARNING: DFG length, expected = {0}, actual = {1}", DataLength, data.Count));
             }
 
             return data.ToArray();

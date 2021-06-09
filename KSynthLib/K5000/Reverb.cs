@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Text;
-
-using KSynthLib.Common;
 
 namespace KSynthLib.K5000
 {

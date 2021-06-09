@@ -14,7 +14,7 @@ namespace KSynthLib.Tests.K5
         public SourceTests()
         {
             source = new Source();
-            Console.WriteLine(source);
+            Console.Error.WriteLine(source);
         }
 
         [Fact]

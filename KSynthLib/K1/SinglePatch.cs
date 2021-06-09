@@ -98,7 +98,7 @@ namespace KSynthLib.K1
             AM34 = (AmplitudeModulationMode)((b >> 5) & 0x03);
 
             string s11 = Convert.ToString(b, 2);
-            System.Console.WriteLine(String.Format("s11 = {0}", s11));
+            Console.Error.WriteLine(string.Format("s11 = {0}", s11));
 
             (b, offset) = Util.GetNextByte(data, offset);
             PressureFrequencyDepth = b;
@@ -135,7 +135,7 @@ namespace KSynthLib.K1
             SourceMuted = new bool[NumSources];
             (b, offset) = Util.GetNextByte(data, offset);
             string s22 = b.ToBinaryString(4);
-            System.Console.WriteLine(String.Format("Source mutes = {0}", s22));
+            Console.Error.WriteLine(string.Format("Source mutes = {0}", s22));
             SourceMuted[0] = !b.IsBitSet(0);
             SourceMuted[1] = !b.IsBitSet(1);
             SourceMuted[2] = !b.IsBitSet(2);
@@ -185,13 +185,13 @@ namespace KSynthLib.K1
             {
                 modeString = "TWO";
             }
-            builder.Append(String.Format("volume = {0}, sources = {1}\n", Volume + 1, modeString));
+            builder.Append(string.Format("volume = {0}, sources = {1}\n", Volume + 1, modeString));
             builder.Append("SOURCES:\n");
             for (int i = 0; i < NumSources; i++)
             {
-                builder.Append(String.Format("S{0}: {1}\n", i + 1, Sources[i].ToString()));
+                builder.Append(string.Format("S{0}: {1}\n", i + 1, Sources[i].ToString()));
             }
-            builder.Append(String.Format("checksum = {0,2:X2}H", Checksum));
+            builder.Append(string.Format("checksum = {0,2:X2}H", Checksum));
 
             return builder.ToString();
         }
@@ -228,7 +228,7 @@ namespace KSynthLib.K1
             buf.Add((byte)Volume);
 
             string s11 = ((byte)AM34).ToBinaryString(2) + ((byte)AM12).ToBinaryString(2) + ((byte)SMode).ToBinaryString(1) + ((byte)PMode).ToBinaryString(2);
-            System.Console.WriteLine(String.Format("s11 = {0}", s11));
+            Console.Error.WriteLine(string.Format("s11 = {0}", s11));
             buf.Add(Convert.ToByte(s11, 2));
 
             buf.Add((byte)PressureFrequencyDepth);
@@ -278,7 +278,7 @@ namespace KSynthLib.K1
         // K1 checksum = "sum of the A5H and s0 ~ s86, and bit 7 must be clear"
         private byte ComputeChecksum(byte[] data)
         {
-            System.Console.WriteLine(String.Format("Computing checksum from a buffer of {0} bytes...", data.Length));
+            Console.Error.WriteLine(string.Format("Computing checksum from a buffer of {0} bytes...", data.Length));
             int sum = 0xA5;
             foreach (byte b in data)
             {

@@ -10,7 +10,7 @@ namespace KSynthLib.Common
 	        char bankLetter = "ABCD"[bankIndex];
 	        int patchIndex = (p % patchCount) + 1;
 
-	        return String.Format("{0}-{1,2}", bankLetter, patchIndex);
+	        return string.Format("{0}-{1,2}", bankLetter, patchIndex);
         }
 
         public static int GetPatchNumber(string s)
@@ -31,7 +31,7 @@ namespace KSynthLib.Common
             }
             catch (FormatException)
             {
-                Console.WriteLine($"bad patch number: '{s}'");
+                Console.Error.WriteLine($"bad patch number: '{s}'");
             }
 
             return bankIndex * 16 + number;

@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 using System.Collections.Generic;
 
 using KSynthLib.Common;
@@ -65,8 +64,8 @@ namespace KSynthLib.K5
         {
             SourceNumber = number;
 
-            //Console.WriteLine($"S{SourceNumber} data:");
-            //Console.WriteLine(Util.HexDump(data));
+            //Console.Error.WriteLine($"S{SourceNumber} data:");
+            //Console.Error.WriteLine(Util.HexDump(data));
 
             int offset = 0;
             byte b = 0;  // reused when getting the next byte
@@ -330,7 +329,7 @@ namespace KSynthLib.K5
             }
             if (harmonicEnvelopeDataCount != desiredHarmonicEnvelopeDataCount)
             {
-                Console.WriteLine($"WARNING: Should have {desiredHarmonicEnvelopeDataCount} bytes of HE data, have {harmonicEnvelopeDataCount} bytes");
+                Console.Error.WriteLine($"WARNING: Should have {desiredHarmonicEnvelopeDataCount} bytes of HE data, have {harmonicEnvelopeDataCount} bytes");
             }
             harmSet.IsShadowOn = shadow;
 

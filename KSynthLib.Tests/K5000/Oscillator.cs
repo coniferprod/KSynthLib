@@ -14,7 +14,7 @@ namespace KSynthLib.Tests.K5000
         public OscillatorTests()
         {
             settings = new DCOSettings();
-            Console.WriteLine(settings);
+            Console.Error.WriteLine(settings);
         }
 
         [Fact]

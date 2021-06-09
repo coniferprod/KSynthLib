@@ -5,9 +5,10 @@ Patch management utilities for Kawai K series digital synthesizers: K4, K5, K500
 This project creates a .NET library as a NuGet package
 that can be installed in .NET application projects.
 
-The library is written in C# 8.0 and targets .NET 5.0.
+The library is written in C# 8.0 and targets .NET Core 3.1.
 
-It should soon be available on NuGet, but you can also use it locally. 
+It is available on [NuGet](https://www.nuget.org/packages/KSynthLib/) 
+but you can also use it locally. 
 If you want to do that, add a local directory
 containing your NuGet packages to your NuGet configuration file.
 

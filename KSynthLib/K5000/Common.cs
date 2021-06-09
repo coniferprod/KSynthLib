@@ -275,38 +275,38 @@ namespace KSynthLib.K5000
             Effect4 = new EffectSettings();
             GEQ = new GEQSettings();
 
-            Console.WriteLine(string.Format("Common data:\n{0}", Util.HexDump(data)));
+            Console.Error.WriteLine(string.Format("Common data:\n{0}", Util.HexDump(data)));
 
             int offset = 0;
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
             EffectAlgorithm = b; // 0 ~ 3
-            Console.WriteLine($"Effect Algorithm = {EffectAlgorithm}");
+            Console.Error.WriteLine($"Effect Algorithm = {EffectAlgorithm}");
 
             Reverb = GetReverb(data, offset);
             offset += 6;
-            Console.WriteLine($"Reverb = {Reverb}");
+            Console.Error.WriteLine($"Reverb = {Reverb}");
 
             Effect1 = GetEffect(data, offset);
             offset += 6;
-            Console.WriteLine($"E1 = {Effect1}");
+            Console.Error.WriteLine($"E1 = {Effect1}");
 
             Effect2 = GetEffect(data, offset);
             offset += 6;
-            Console.WriteLine($"E2 = {Effect2}");
+            Console.Error.WriteLine($"E2 = {Effect2}");
 
             Effect3 = GetEffect(data, offset);
             offset += 6;
-            Console.WriteLine($"E3 = {Effect3}");
+            Console.Error.WriteLine($"E3 = {Effect3}");
 
             Effect4 = GetEffect(data, offset);
             offset += 6;
-            Console.WriteLine($"E4 = {Effect4}");
+            Console.Error.WriteLine($"E4 = {Effect4}");
 
             GEQ = GetGEQ(data, offset);
             offset += 7;
-            Console.WriteLine($"GEQ = {GEQ}");
+            Console.Error.WriteLine($"GEQ = {GEQ}");
 
             (b, offset) = Util.GetNextByte(data, offset);
             DrumMark = (b == 1);

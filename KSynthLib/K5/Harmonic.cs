@@ -253,7 +253,7 @@ namespace KSynthLib.K5
                 for (int si = 0; si < HarmonicEnvelope.SegmentCount; si++)
                 {
                     HarmonicEnvelopeSegment segment = Envelopes[ei].Segments[si];
-                    string levelString = segment.IsMaxSegment ? " *" : String.Format("{0,2}", segment.Level);
+                    string levelString = segment.IsMaxSegment ? " *" : string.Format("{0,2}", segment.Level);
                     builder.Append(string.Format("{0,2}|{1}|", segment.Rate, levelString));
                 }
                 builder.Append("\n");
@@ -370,7 +370,7 @@ namespace KSynthLib.K5
 
             if (data.Count != DataLength)
             {
-                Console.WriteLine($"WARNING: DHG length, expected = {DataLength}, actual = {data.Count} bytes");
+                Console.Error.WriteLine($"WARNING: DHG length, expected = {DataLength}, actual = {data.Count} bytes");
             }
 
             return data.ToArray();

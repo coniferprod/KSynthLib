@@ -1,7 +1,6 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
-using System.Linq;
 
 using KSynthLib.Common;
 
@@ -242,7 +241,7 @@ namespace KSynthLib.K5
             for (int i = 0; i < AmplifierEnvelope.SegmentCount; i++)
             {
                 b = Envelope.Segments[i].Rate;
-                //Console.WriteLine(string.Format("seg={0}, rate={1}, mod={2}", i, Envelope.Segments[i].Rate, Envelope.Segments[i].IsRateModulationOn));
+                //Console.Error.WriteLine(string.Format("seg={0}, rate={1}, mod={2}", i, Envelope.Segments[i].Rate, Envelope.Segments[i].IsRateModulationOn));
                 if (Envelope.Segments[i].IsRateModulationOn)
                 {
                     b = b.SetBit(6);
@@ -252,7 +251,7 @@ namespace KSynthLib.K5
                     b = b.UnsetBit(6);
                 }
                 data.Add(b);
-                //Console.WriteLine(string.Format("{0:X2}H", b));
+                //Console.Error.WriteLine(string.Format("{0:X2}H", b));
             }
 
             for (int i = 0; i < AmplifierEnvelope.SegmentCount - 1; i++)
@@ -273,7 +272,7 @@ namespace KSynthLib.K5
 
             if (data.Count != DataLength)
             {
-                Console.WriteLine($"WARNING: DDA length, expected = {DataLength}, actual = {data.Count}");
+                Console.Error.WriteLine($"WARNING: DDA length, expected = {DataLength}, actual = {data.Count}");
             }
 
             return data.ToArray();

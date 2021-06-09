@@ -245,14 +245,14 @@ namespace KSynthLib.K5
             // but the portamento and mode settings would have to be special cased.
             // So just copy everything past that, and use it as the source data.
 
-            //Console.WriteLine($"Processed common settings of {offset} bytes. Data length = {data.Length} bytes.");
+            //Console.Error.WriteLine($"Processed common settings of {offset} bytes. Data length = {data.Length} bytes.");
 
             // S1 and S2 data are interleaved in S21 ... S468.
 
             int dataLength = data.Length - (offset + FormantLevelCount + 1 + 2);
-            //Console.WriteLine(String.Format("dataLength = {0}", dataLength));
+            //Console.Error.WriteLine(string.Format("dataLength = {0}", dataLength));
             byte[] sourceData = new byte[dataLength];
-            //Console.WriteLine(String.Format("About to copy {0} bytes from data at {1} to sourceData at {2}", dataLength, offset, 0));
+            //Console.Error.WriteLine(string.Format("About to copy {0} bytes from data at {1} to sourceData at {2}", dataLength, offset, 0));
             Array.Copy(data, offset, sourceData, 0, dataLength);
 
             // Separate S1 and S2 data. Even bytes are S1, odd bytes are S2.
@@ -265,12 +265,12 @@ namespace KSynthLib.K5
                 s2d[dst] = sourceData[src + 1];
             }
 
-            //Console.WriteLine(String.Format("Source 1 data ({0} bytes):", s1d.Length));
-            //Console.WriteLine(Util.HexDump(s1d));
+            //Console.Error.WriteLine(string.Format("Source 1 data ({0} bytes):", s1d.Length));
+            //Console.Error.WriteLine(Util.HexDump(s1d));
             Source1 = new Source(s1d, 1);
 
-            //Console.WriteLine(String.Format("Source 2 data ({0} bytes):", s2d.Length));
-            //Console.WriteLine(Util.HexDump(s2d));
+            //Console.Error.WriteLine(string.Format("Source 2 data ({0} bytes):", s2d.Length));
+            //Console.Error.WriteLine(Util.HexDump(s2d));
             Source2 = new Source(s2d, 2);
 
             offset = 468;
@@ -310,8 +310,8 @@ namespace KSynthLib.K5
             Source1Settings = s1s;
             Source2Settings = s2s;
 
-            //Console.WriteLine($"S1 keyscaling = {Source1Settings.KeyScaling}");
-            //Console.WriteLine($"S2 keyscaling = {Source2Settings.KeyScaling}");
+            //Console.Error.WriteLine($"S1 keyscaling = {Source1Settings.KeyScaling}");
+            //Console.Error.WriteLine($"S2 keyscaling = {Source2Settings.KeyScaling}");
 
             // DFT (S479 ... S489)
             FormantLevels = new int[FormantLevelCount];
@@ -439,7 +439,7 @@ namespace KSynthLib.K5
 
             byte[] s1d = Source1.ToData();
             byte[] s2d = Source2.ToData();
-            Console.WriteLine($"S1 data = {s1d.Length} bytes, S2 data = {s2d.Length} bytes");
+            Console.Error.WriteLine($"S1 data = {s1d.Length} bytes, S2 data = {s2d.Length} bytes");
 
             // Interleave the two byte arrays:
             int dataLength = s1d.Length;

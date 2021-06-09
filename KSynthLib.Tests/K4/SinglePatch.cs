@@ -47,7 +47,7 @@ name part = 40 5B 5C 5D 5E 5F 60 7B 7C 7D
             byte[] data = Util.HexStringToByteArray(hexString);
 
             SinglePatch singlePatch = new SinglePatch(data);
-            //Console.WriteLine($"Single patch name = '{singlePatch.Name}'");
+            //Console.Error.WriteLine($"Single patch name = '{singlePatch.Name}'");
 
             Assert.Equal("Melo Vox 1", singlePatch.Name);
         }
@@ -69,64 +69,64 @@ name part = 40 5B 5C 5D 5E 5F 60 7B 7C 7D
         // a byte value of 20h (or 100000b), so you need to mask away everything
         // else just to be sure.
 
-/*
-        [Fact]
-        public void Generated_MatchesOriginal()
-        {
-            string hexString = rawString.Replace(" ", "");
-            byte[] data = Util.HexStringToByteArray(hexString);
+        /*
+                [Fact]
+                public void Generated_MatchesOriginal()
+                {
+                    string hexString = rawString.Replace(" ", "");
+                    byte[] data = Util.HexStringToByteArray(hexString);
 
-            // Initialize a single patch from the data
-            SinglePatch patch = new SinglePatch(data);
+                    // Initialize a single patch from the data
+                    SinglePatch patch = new SinglePatch(data);
 
-            byte[] generated = patch.ToData();
+                    byte[] generated = patch.ToData();
 
-            bool isMatch = false;
-            int index = -1;
-            (isMatch, index) = Util.ByteArrayCompare(data, generated);
-            Console.WriteLine($"isMatch = {isMatch}, index = {index}");
-            if (index != -1)
-            {
-                Console.WriteLine($"original = {data[index]}, generated = {generated[index]}");
-            }
+                    bool isMatch = false;
+                    int index = -1;
+                    (isMatch, index) = Util.ByteArrayCompare(data, generated);
+                    Console.Error.WriteLine($"isMatch = {isMatch}, index = {index}");
+                    if (index != -1)
+                    {
+                        Console.Error.WriteLine($"original = {data[index]}, generated = {generated[index]}");
+                    }
 
-            Assert.NotEqual(-1, index);
-            //Assert.Equal(true, isMatch);
-        }
-*/
+                    Assert.NotEqual(-1, index);
+                    //Assert.Equal(true, isMatch);
+                }
+        */
 
-/*
-Also, there seems to be no point in comparing the checksum of the original and
-generated patches, because the original may have spurious bits which change the
-checksum. To test checksum calculation it is probably necessary to send the
-generated patch to the synth and see if it responds with a checksum error or not.
-*/
+        /*
+        Also, there seems to be no point in comparing the checksum of the original and
+        generated patches, because the original may have spurious bits which change the
+        checksum. To test checksum calculation it is probably necessary to send the
+        generated patch to the synth and see if it responds with a checksum error or not.
+        */
 
-/*
-        [Fact]
-        public void Checksum_IsCorrect()
-        {
-            // In rawString, the last byte is the original checksum
-            string hexString = rawString.Replace(" ", "");
-            byte[] data = Util.HexStringToByteArray(hexString);
-            byte originalChecksum = data[data.Length - 1];
+        /*
+                [Fact]
+                public void Checksum_IsCorrect()
+                {
+                    // In rawString, the last byte is the original checksum
+                    string hexString = rawString.Replace(" ", "");
+                    byte[] data = Util.HexStringToByteArray(hexString);
+                    byte originalChecksum = data[data.Length - 1];
 
-            // Initialize a single patch from the data
-            SinglePatch patch = new SinglePatch(data);
+                    // Initialize a single patch from the data
+                    SinglePatch patch = new SinglePatch(data);
 
-            Assert.Equal(originalChecksum, patch.Checksum);
-        }
+                    Assert.Equal(originalChecksum, patch.Checksum);
+                }
 
-        [Fact]
-        public void EdisynChecksum_IsCorrect()
-        {
-            string hexString = rawString.Replace(" ", "");
-            byte[] data = Util.HexStringToByteArray(hexString);
-            byte originalChecksum = data[data.Length - 1];
-            SinglePatch patch = new SinglePatch(data);
-            Assert.Equal(originalChecksum, patch.EdisynChecksum());
-        }
-*/
+                [Fact]
+                public void EdisynChecksum_IsCorrect()
+                {
+                    string hexString = rawString.Replace(" ", "");
+                    byte[] data = Util.HexStringToByteArray(hexString);
+                    byte originalChecksum = data[data.Length - 1];
+                    SinglePatch patch = new SinglePatch(data);
+                    Assert.Equal(originalChecksum, patch.EdisynChecksum());
+                }
+        */
 
         [Fact]
         public void InitSuccessful()

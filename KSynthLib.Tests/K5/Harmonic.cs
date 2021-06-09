@@ -55,7 +55,7 @@ namespace KSynthLib.Tests.K5
         public HarmonicSettingsTests()
         {
             settings = new HarmonicSettings();
-            Console.WriteLine(settings);
+            Console.Error.WriteLine(settings);
         }
 
         [Fact]
