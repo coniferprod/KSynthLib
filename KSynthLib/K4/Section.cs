@@ -169,7 +169,7 @@ namespace KSynthLib.K4
             }
             data.Add(m15);
 
-            // TODO: Combine out select and mode into one byte for M16/M24 etc.
+            // Combine "out select" and "mode" into one byte for M16/M24 etc.
             byte os = (byte)Output;
             byte m = (byte)PlayMode;
             byte m16 = (byte)(os | m);
@@ -182,9 +182,8 @@ namespace KSynthLib.K4
             return data.ToArray();
         }
 
-        // This is bogus; should be 0 ~ 127 / C-2 ~ G8
+        // 0 ~ 127 / C-2 ~ G8
         private string GetNoteName(int noteNumber) {
-            //string[] notes = new string[] {"A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"};
             string[] notes = new string[] { "C", "C#", "D", "Eb", "E", "F", "F#", "G", "G#", "A", "Bb", "B" };
             int octave = noteNumber / 12 + 1;
             string name = notes[noteNumber % 12];

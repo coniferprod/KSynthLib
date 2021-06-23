@@ -167,7 +167,7 @@ namespace KSynthLib.K4
         {
             int offset = 0;
             this._name = GetName(data, offset); // s00...s09
-            offset += 10;
+            offset += Patch.NameLength;
 
             byte b = 0;  // will be reused when getting the next byte
 

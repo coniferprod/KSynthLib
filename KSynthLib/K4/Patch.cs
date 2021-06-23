@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace KSynthLib.K4
 {
+    /// <summary>
+    /// Abstract base class for patches.
+    /// </summary>
     public abstract class Patch
     {
         public const int NameLength = 10;
@@ -55,6 +58,13 @@ namespace KSynthLib.K4
         };
 
         protected string _name;
+
+        /// <summary>
+        /// The name of the patch.
+        /// </summary>
+        /// <value>
+        /// Has exactly 10 ASCII characters from the set of allowed ones.
+        /// </value>
         public string Name
         {
             get => _name.Substring(0, Math.Min(_name.Length, NameLength));
@@ -62,6 +72,13 @@ namespace KSynthLib.K4
         }
 
         private byte _checksum;
+
+        /// <summary>
+        /// The checksum for this patch.
+        /// </summary>
+        /// <value>
+        /// Computed from the collected data usign the Kawai checksum algorithm.
+        /// </value>
         public byte Checksum
         {
             get
