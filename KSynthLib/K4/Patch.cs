@@ -193,7 +193,7 @@ namespace KSynthLib.K4
             List<byte> allData = new List<byte>();
 
             byte[] data = CollectData();
-            allData.AddRange(data);
+            allData.AddRange(CollectData());
 
             byte sum = ComputeChecksum(data);
             allData.Add(sum);

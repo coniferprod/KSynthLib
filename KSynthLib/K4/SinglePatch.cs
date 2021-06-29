@@ -245,7 +245,7 @@ namespace KSynthLib.K4
             vibratoBytes.Add(b);
 
             // Now we have all the bytes for the vibrato settings
-            Vibrato = new VibratoSettings(vibratoBytes.ToArray());
+            Vibrato = new VibratoSettings(vibratoBytes);
 
             List<byte> lfoBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
