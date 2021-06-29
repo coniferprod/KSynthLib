@@ -75,22 +75,22 @@ namespace KSynthLib.K5000
             byte b = 0;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _startLevel = new SignedLevelType((sbyte)(b - 64));
+            _startLevel = new SignedLevelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
             _attackTime = new PositiveLevelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _attackLevel = new SignedLevelType((sbyte)(b - 64));
+            _attackLevel = new SignedLevelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
             _decayTime = new PositiveLevelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _timeVelocitySensitivity = new SignedLevelType((sbyte)(b - 64));
+            _timeVelocitySensitivity = new SignedLevelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _levelVelocitySensitivity = new SignedLevelType((sbyte)(b - 64));
+            _levelVelocitySensitivity = new SignedLevelType(b);
         }
 
         public override string ToString()
@@ -108,12 +108,12 @@ namespace KSynthLib.K5000
         {
             List<byte> data = new List<byte>();
 
-            data.Add((byte)(StartLevel + 64));
-            data.Add((byte)AttackTime);
-            data.Add((byte)(AttackLevel + 64));
-            data.Add((byte)DecayTime);
-            data.Add((byte)(TimeVelocitySensitivity + 64));
-            data.Add((byte)(LevelVelocitySensitivity + 64));
+            data.Add(_startLevel.AsByte());
+            data.Add(AttackTime);
+            data.Add(_attackLevel.AsByte());
+            data.Add(DecayTime);
+            data.Add(_timeVelocitySensitivity.AsByte());
+            data.Add(_levelVelocitySensitivity.AsByte());
 
             return data.ToArray();
         }
@@ -176,10 +176,10 @@ namespace KSynthLib.K5000
             WaveNumber = waveNumber;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _coarse = new CoarseType(b - 24);
+            _coarse = new CoarseType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _fine = new SignedLevelType((sbyte)(b - 64));
+            _fine = new SignedLevelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
             FixedKey = b;
@@ -230,8 +230,8 @@ namespace KSynthLib.K5000
             string lsbBitString = waveBitString.Substring(3);
             data.Add(Convert.ToByte(lsbBitString, 2));
 
-            data.Add((byte)(Coarse + 24));
-            data.Add((byte)(Fine + 64));
+            data.Add(_coarse.AsByte());
+            data.Add(_fine.AsByte());
             data.Add((byte)FixedKey);
             data.Add((byte)KSPitch);
 

@@ -40,6 +40,16 @@ namespace KSynthLib.K5000
         {
             this.Value = v;
         }
+
+        public SignedLevelType(byte b) : base()
+        {
+            this.Value = (sbyte)(b - 64);
+        }
+
+        public byte AsByte()
+        {
+            return (byte)(this.Value + 64);
+        }
     }
 
     public class UnsignedLevelType
@@ -269,6 +279,16 @@ namespace KSynthLib.K5000
         {
             this.Value = v;
         }
+
+        public MacroDepthType(byte b) : this()
+        {
+            this.Value = (sbyte)(b - 64);
+        }
+
+        public byte AsByte()
+        {
+            return (byte)(this.Value + 64);
+        }
     }
 
     public class FreqType
@@ -306,6 +326,16 @@ namespace KSynthLib.K5000
         public FreqType(sbyte v) : this()
         {
             this.Value = v;
+        }
+
+        public FreqType(byte b) : this()
+        {
+            this.Value = (sbyte)(b - 64);
+        }
+
+        public byte AsByte()
+        {
+            return (byte)(this.Value + 64);
         }
     }
 

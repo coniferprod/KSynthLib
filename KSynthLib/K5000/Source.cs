@@ -56,7 +56,22 @@ namespace KSynthLib.K5000
 
         public ModulationSettings()
         {
+            Destination = ControlDestination.Level;
             _depth = new MacroDepthType();
+        }
+
+        public ModulationSettings(byte destination, byte depth)
+        {
+            Destination = (ControlDestination)destination;
+            _depth = new MacroDepthType(depth);
+        }
+
+        public byte[] ToData()
+        {
+            List<byte> data = new List<byte>();
+            data.Add((byte)Destination);
+            data.Add(_depth.AsByte());
+            return data.ToArray();
         }
     }
 
@@ -71,15 +86,17 @@ namespace KSynthLib.K5000
             Destination2 = new ModulationSettings();
         }
 
+        public ControllerSettings(List<byte> data)
+        {
+            Destination1 = new ModulationSettings(data[0], data[1]);
+            Destination2 = new ModulationSettings(data[2], data[3]);
+        }
+
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
-
-            data.Add((byte)Destination1.Destination);
-            data.Add((byte)(Destination1.Depth + 64)); // -31...+31 to 33...95
-            data.Add((byte)Destination2.Destination);
-            data.Add((byte)(Destination2.Depth + 64));
-
+            data.AddRange(Destination1.ToData());
+            data.AddRange(Destination2.ToData());
             return data.ToArray();
         }
     }
@@ -91,17 +108,15 @@ namespace KSynthLib.K5000
 
         public AssignableController()
         {
+            Source = ControlSource.Bender;
             Target = new ModulationSettings();
         }
 
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
-
             data.Add((byte)Source);
-            data.Add((byte)Target.Destination);
-            data.Add((byte)Target.Depth);
-
+            data.AddRange(Target.ToData());
             return data.ToArray();
         }
     }
@@ -221,7 +236,6 @@ namespace KSynthLib.K5000
             VelocitySwitch.SwitchType = VelocitySwitchType.Off;
             VelocitySwitch.Threshold = 31;  // this is weirdly spec'd, need to check
 
-
             Press = new ControllerSettings();
             Wheel = new ControllerSettings();
             Express = new ControllerSettings();
@@ -264,35 +278,38 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);
             BenderCutoff = b;
 
-            Press = new ControllerSettings();
+            List<byte> pressBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
-            Press.Destination1.Destination = (ControlDestination)b;
+            pressBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Press.Destination1.Depth = (sbyte)(b - 64);  // (-31)33~(+31)~95
+            pressBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Press.Destination2.Destination = (ControlDestination)b;
+            pressBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Press.Destination2.Depth = (sbyte)(b - 64);  // (-31)33~(+31)~95
+            pressBytes.Add(b);
+            Press = new ControllerSettings(pressBytes);
 
-            Wheel = new ControllerSettings();
+            List<byte> wheelBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
-            Wheel.Destination1.Destination = (ControlDestination)b;
+            wheelBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Wheel.Destination1.Depth = (sbyte)(b - 64); // (-31)33~(+31)~95
+            wheelBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Wheel.Destination2.Destination = (ControlDestination)b;
+            wheelBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Wheel.Destination2.Depth = (sbyte)(b - 64); // (-31)33~(+31)~95
+            wheelBytes.Add(b);
+            Wheel = new ControllerSettings(wheelBytes);
 
-            Express = new ControllerSettings();
+            List<byte> expressBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
-            Express.Destination1.Destination = (ControlDestination)b;
+            expressBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Express.Destination1.Depth = (sbyte)(b - 64); // (-31)33~(+31)~95
+            expressBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Express.Destination2.Destination = (ControlDestination)b;
+            expressBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Express.Destination2.Depth = (sbyte)(b - 64); // (-31)33~(+31)~95
+            expressBytes.Add(b);
+            Express = new ControllerSettings(expressBytes);
 
             Assign1 = new AssignableController();
             (b, offset) = Util.GetNextByte(data, offset);
@@ -316,7 +333,7 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);
             Pan = (PanType)b;
             (b, offset) = Util.GetNextByte(data, offset);
-            PanValue = (sbyte)(b - 64);  // (63L)1~(63R)127
+            _panValue = new SignedLevelType(b);  // (63L)1~(63R)127
 
             DCO = new DCOSettings(data, offset);
             offset += DCO.ToData().Length;
@@ -327,29 +344,30 @@ namespace KSynthLib.K5000
             DCA = new DCASettings(data, offset);
             offset += DCA.ToData().Length;
 
-            LFO = new LFOSettings();
+            List<byte> lfoBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
-            LFO.Waveform = (LFOWaveform) b;
+            lfoBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            LFO.Speed = b;
+            lfoBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            LFO.DelayOnset = b;
+            lfoBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            LFO.FadeInTime = b;
+            lfoBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            LFO.FadeInToSpeed = b;
+            lfoBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            LFO.Vibrato.Depth = b;
+            lfoBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            LFO.Vibrato.KeyScaling = (sbyte)(b - 64);
+            lfoBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            LFO.Growl.Depth = b;
+            lfoBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            LFO.Growl.KeyScaling = (sbyte)(b - 64);
+            lfoBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            LFO.Tremolo.Depth = b;
+            lfoBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            LFO.Tremolo.KeyScaling = (sbyte)(b - 64);
+            lfoBytes.Add(b);
+            LFO = new LFOSettings(lfoBytes);
 
             ADD = new AdditiveKit();
             /*
@@ -409,9 +427,9 @@ namespace KSynthLib.K5000
             data.AddRange(Assign1.ToData());
             data.AddRange(Assign2.ToData());
 
-            data.Add((byte)KeyOnDelay);
+            data.Add(KeyOnDelay);
             data.Add((byte)Pan);
-            data.Add((byte)(PanValue + 64));
+            data.Add(_panValue.AsByte());
 
             data.AddRange(DCO.ToData());
             data.AddRange(DCF.ToData());

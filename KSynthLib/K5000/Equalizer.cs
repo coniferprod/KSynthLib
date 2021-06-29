@@ -71,13 +71,13 @@ namespace KSynthLib.K5000
         public GEQSettings(byte[] data, int offset)
         {
             // 58(-6) ~ 70(+6), so 64 is zero
-            _freq1 = new FreqType((sbyte)(data[offset] - 64));
-            _freq2 = new FreqType((sbyte)(data[offset + 1] - 64));
-            _freq3 = new FreqType((sbyte)(data[offset + 2] - 64));
-            _freq4 = new FreqType((sbyte)(data[offset + 3] - 64));
-            _freq5 = new FreqType((sbyte)(data[offset + 4] - 64));
-            _freq6 = new FreqType((sbyte)(data[offset + 5] - 64));
-            _freq7 = new FreqType((sbyte)(data[offset + 6] - 64));
+            _freq1 = new FreqType(data[offset]);
+            _freq2 = new FreqType(data[offset + 1]);
+            _freq3 = new FreqType(data[offset + 2]);
+            _freq4 = new FreqType(data[offset + 3]);
+            _freq5 = new FreqType(data[offset + 4]);
+            _freq6 = new FreqType(data[offset + 5]);
+            _freq7 = new FreqType(data[offset + 6]);
         }
 
         public override string ToString()
@@ -91,13 +91,13 @@ namespace KSynthLib.K5000
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
-            data.Add((byte)(Freq1 + 64));
-            data.Add((byte)(Freq2 + 64));
-            data.Add((byte)(Freq3 + 64));
-            data.Add((byte)(Freq4 + 64));
-            data.Add((byte)(Freq5 + 64));
-            data.Add((byte)(Freq6 + 64));
-            data.Add((byte)(Freq7 + 64));
+            data.Add(_freq1.AsByte());
+            data.Add(_freq2.AsByte());
+            data.Add(_freq3.AsByte());
+            data.Add(_freq4.AsByte());
+            data.Add(_freq5.AsByte());
+            data.Add(_freq6.AsByte());
+            data.Add(_freq7.AsByte());
             return data.ToArray();
         }
     }

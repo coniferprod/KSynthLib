@@ -3,11 +3,11 @@ using KSynthLib.Common;
 
 namespace KSynthLib.Tests.Common
 {
-    public class SystemExclusive_Length
+    public class SystemExclusiveTests
     {
         private readonly SystemExclusiveHeader _systemExclusive;
 
-        public SystemExclusive_Length()
+        public SystemExclusiveTests()
         {
             _systemExclusive = new SystemExclusiveHeader();
         }

@@ -72,6 +72,10 @@ namespace KSynthLib.K5000
             _releaseTime = new PositiveLevelType(r);
         }
 
+        public AmplifierEnvelope(List<byte> data) : this(data[0], data[1], data[2], data[3], data[4], data[5])
+        {
+        }
+
         public override string ToString()
         {
             return $"A={AttackTime}, D1={Decay1Time}/{Decay1Level}, D2={Decay2Time}/{Decay2Level}, R={ReleaseTime}";
@@ -81,12 +85,12 @@ namespace KSynthLib.K5000
         {
             List<byte> data = new List<byte>();
 
-            data.Add((byte)AttackTime);
-            data.Add((byte)Decay1Time);
-            data.Add((byte)Decay1Level);
-            data.Add((byte)Decay2Time);
-            data.Add((byte)Decay2Level);
-            data.Add((byte)ReleaseTime);
+            data.Add(AttackTime);
+            data.Add(Decay1Time);
+            data.Add(Decay1Level);
+            data.Add(Decay2Time);
+            data.Add(Decay2Level);
+            data.Add(ReleaseTime);
 
             return data.ToArray();
         }
@@ -133,6 +137,14 @@ namespace KSynthLib.K5000
             _releaseTime = new SignedLevelType();
         }
 
+        public KeyScalingControlEnvelope(List<byte> data)
+        {
+            _level = new SignedLevelType(data[0]);
+            _attackTime = new SignedLevelType(data[1]);
+            _decay1Time = new SignedLevelType(data[2]);
+            _releaseTime = new SignedLevelType(data[3]);
+        }
+
         public override string ToString()
         {
             return $"Level={Level} Attack={AttackTime} Decay1={Decay1Time} Release={ReleaseTime}";
@@ -142,10 +154,10 @@ namespace KSynthLib.K5000
         {
             List<byte> data = new List<byte>();
 
-            data.Add((byte)(Level + 64));
-            data.Add((byte)(AttackTime + 64));
-            data.Add((byte)(Decay1Time + 64));
-            data.Add((byte)(ReleaseTime + 64));
+            data.Add(_level.AsByte());
+            data.Add(_attackTime.AsByte());
+            data.Add(_decay1Time.AsByte());
+            data.Add(_releaseTime.AsByte());
 
             return data.ToArray();
         }
@@ -189,6 +201,14 @@ namespace KSynthLib.K5000
             _releaseTime = new SignedLevelType();
         }
 
+        public VelocityControlEnvelope(List<byte> data)
+        {
+            _level = new UnsignedLevelType(data[0]);
+            _attackTime = new SignedLevelType(data[1]);
+            _decay1Time = new SignedLevelType(data[2]);
+            _releaseTime = new SignedLevelType(data[3]);
+        }
+
         public override string ToString()
         {
             return $"Level={Level} Attack={AttackTime} Decay1={Decay1Time} Release={ReleaseTime}";
@@ -199,9 +219,9 @@ namespace KSynthLib.K5000
             List<byte> data = new List<byte>();
 
             data.Add(Level);
-            data.Add((byte)(AttackTime + 64));
-            data.Add((byte)(Decay1Time + 64));
-            data.Add((byte)(ReleaseTime + 64));
+            data.Add(_attackTime.AsByte());
+            data.Add(_decay1Time.AsByte());
+            data.Add(_releaseTime.AsByte());
 
             return data.ToArray();
         }
@@ -247,45 +267,44 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);
             VelocityCurve = (byte)(b + 1);  // adjust from 0~11 to 1~12
 
-            Envelope = new AmplifierEnvelope();
-
+            List<byte> envBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
-            Envelope.AttackTime = b;
-
+            envBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Envelope.Decay1Time = b;
-
+            envBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Envelope.Decay1Level = b;
-
+            envBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Envelope.Decay2Time = b;
-
+            envBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Envelope.Decay2Level = b;
-
+            envBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Envelope.ReleaseTime = b;
+            envBytes.Add(b);
+            Envelope = new AmplifierEnvelope(envBytes);
 
+            List<byte> ksEnvBytes = new List<byte>();
             KeyScaling = new KeyScalingControlEnvelope();
             (b, offset) = Util.GetNextByte(data, offset);
-            KeyScaling.Level = (sbyte)(b - 64);
+            ksEnvBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            KeyScaling.AttackTime = (sbyte)(b - 64);
+            ksEnvBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            KeyScaling.Decay1Time = (sbyte)(b - 64);
+            ksEnvBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            KeyScaling.ReleaseTime = (sbyte)(b - 64);
+            ksEnvBytes.Add(b);
+            KeyScaling = new KeyScalingControlEnvelope(ksEnvBytes);
 
+            List<byte> velEnvBytes = new List<byte>();
             VelocitySensitivity = new VelocityControlEnvelope();
             (b, offset) = Util.GetNextByte(data, offset);
-            VelocitySensitivity.Level = b;
+            velEnvBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            VelocitySensitivity.AttackTime = (sbyte)(b - 64);
+            velEnvBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            VelocitySensitivity.Decay1Time = (sbyte)(b - 64);
+            velEnvBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            VelocitySensitivity.ReleaseTime = (sbyte)(b - 64);
+            velEnvBytes.Add(b);
+            VelocitySensitivity = new VelocityControlEnvelope(velEnvBytes);
         }
 
         public override string ToString()

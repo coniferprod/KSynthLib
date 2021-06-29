@@ -202,6 +202,16 @@ namespace KSynthLib.Common
         {
             this.Value = v;  // setter throws exception for invalid value
         }
+
+        public CoarseType(byte b) : this()
+        {
+            this.Value = b - 24;
+        }
+
+        public byte AsByte()
+        {
+            return (byte)(this.Value + 24);
+        }
     }
 
     public class EffectNumberType

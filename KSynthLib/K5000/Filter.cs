@@ -100,12 +100,12 @@ namespace KSynthLib.K5000
         {
             List<byte> data = new List<byte>();
 
-            data.Add((byte)AttackTime);
-            data.Add((byte)Decay1Time);
-            data.Add((byte)(Decay1Level + 64));
+            data.Add(AttackTime);
+            data.Add(Decay1Time);
+            data.Add(_decay1Level.AsByte());
             data.Add((byte)Decay2Time);
-            data.Add((byte)(Decay2Level + 64));
-            data.Add((byte)ReleaseTime);
+            data.Add(_decay2Level.AsByte());
+            data.Add(ReleaseTime);
 
             return data.ToArray();
         }
@@ -242,31 +242,31 @@ namespace KSynthLib.K5000
             _cutoff = new PositiveLevelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _cutoffKeyScalingDepth = new SignedLevelType((sbyte)(b - 64));
+            _cutoffKeyScalingDepth = new SignedLevelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _cutoffVelocityDepth = new SignedLevelType((sbyte)(b - 64));
+            _cutoffVelocityDepth = new SignedLevelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _envelopeDepth = new SignedLevelType((sbyte)(b - 64));
+            _envelopeDepth = new SignedLevelType(b);
 
             Envelope = new FilterEnvelope(data, offset);
             offset += FilterEnvelope.DataSize;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _keyScalingToEnvelopeAttackTime = new SignedLevelType((sbyte)(b - 64));
+            _keyScalingToEnvelopeAttackTime = new SignedLevelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _keyScalingToEnvelopeDecay1Time = new SignedLevelType((sbyte)(b - 64));
+            _keyScalingToEnvelopeDecay1Time = new SignedLevelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _velocityToEnvDepth = new SignedLevelType((sbyte)(b - 64));
+            _velocityToEnvDepth = new SignedLevelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _velocityToEnvAttackTime = new SignedLevelType((sbyte)(b - 64));
+            _velocityToEnvAttackTime = new SignedLevelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _velocityToEnvDecay1Time = new SignedLevelType((sbyte)(b - 64));
+            _velocityToEnvDecay1Time = new SignedLevelType(b);
         }
 
         public override string ToString()
@@ -300,20 +300,20 @@ namespace KSynthLib.K5000
             data.Add((byte)(IsActive ? 1 : 0));
             data.Add((byte)Mode);
             data.Add((byte)(VelocityCurve - 1));  // adjust 1 ~ 12 to 0 ~ 11
-            data.Add((byte)Resonance);
-            data.Add((byte)Level);
-            data.Add((byte)Cutoff);
-            data.Add((byte)(CutoffKeyScalingDepth + 64));
-            data.Add((byte)(CutoffVelocityDepth + 64));
-            data.Add((byte)(EnvelopeDepth + 64));
+            data.Add(Resonance);
+            data.Add(Level);
+            data.Add(Cutoff);
+            data.Add(_cutoffKeyScalingDepth.AsByte());
+            data.Add(_cutoffVelocityDepth.AsByte());
+            data.Add(_envelopeDepth.AsByte());
 
             data.AddRange(Envelope.ToData());
 
-            data.Add((byte)(KSToEnvAttackTime + 64));
-            data.Add((byte)(KSToEnvDecay1Time + 64));
-            data.Add((byte)(VelocityToEnvDepth + 64));
-            data.Add((byte)(VelocityToEnvAttackTime + 64));
-            data.Add((byte)(VelocityToEnvDecay1Time + 64));
+            data.Add(_keyScalingToEnvelopeAttackTime.AsByte());
+            data.Add(_keyScalingToEnvelopeDecay1Time.AsByte());
+            data.Add(_velocityToEnvDepth.AsByte());
+            data.Add(_velocityToEnvAttackTime.AsByte());
+            data.Add(_velocityToEnvDecay1Time.AsByte());
 
             return data.ToArray();
         }

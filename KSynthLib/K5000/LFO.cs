@@ -34,12 +34,18 @@ namespace KSynthLib.K5000
             _keyScaling = new SignedLevelType();
         }
 
+        public LFOControl(byte d, byte k)
+        {
+            _depth = new UnsignedLevelType(d);
+            _keyScaling = new SignedLevelType(k);
+        }
+
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
 
             data.Add(Depth);
-            data.Add((byte)(KeyScaling + 64));
+            data.Add(_keyScaling.AsByte());
 
             return data.ToArray();
         }
@@ -83,6 +89,7 @@ namespace KSynthLib.K5000
 
         public LFOSettings()
         {
+            Waveform = LFOWaveform.Triangle;
             _speed = new PositiveLevelType();
             _delayOnset = new PositiveLevelType();
             _fadeInTime = new PositiveLevelType();
@@ -91,6 +98,19 @@ namespace KSynthLib.K5000
             Vibrato = new LFOControl();
             Growl = new LFOControl();
             Tremolo = new LFOControl();
+        }
+
+        public LFOSettings(List<byte> data)
+        {
+            Waveform = (LFOWaveform)data[0];
+            _speed = new PositiveLevelType(data[1]);
+            _delayOnset = new PositiveLevelType(data[2]);
+            _fadeInTime = new PositiveLevelType(data[3]);
+            _fadeInToSpeed = new UnsignedLevelType(data[4]);
+
+            Vibrato = new LFOControl(data[4], data[5]);
+            Growl = new LFOControl(data[6], data[7]);
+            Tremolo = new LFOControl(data[8], data[9]);
         }
 
         public override string ToString()
