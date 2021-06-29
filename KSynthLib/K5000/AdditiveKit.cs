@@ -22,13 +22,7 @@ namespace KSynthLib.K5000
             SourceNumber = 0;
         }
 
-        public byte[] ToData()
-        {
-            List<byte> data = new List<byte>();
-            data.Add(PatchNumber);
-            data.Add(SourceNumber);
-            return data.ToArray();
-        }
+        public byte[] ToData() => new List<byte>() { PatchNumber, SourceNumber }.ToArray();
     }
 
     public enum MORFHarmonicGroup
@@ -77,12 +71,15 @@ namespace KSynthLib.K5000
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
-            data.Add((byte)(Morf ? 1 : 0));
-            data.Add(TotalGain);
-            data.Add((byte)Group);
-            data.Add(_keyScalingToGain.Byte);
-            data.Add(BalanceVelocityCurve);
-            data.Add(BalanceVelocityDepth);
+
+            data.AddRange(new List<byte>() {
+                (byte)(Morf ? 1 : 0),
+                TotalGain,
+                (byte)Group,
+                _keyScalingToGain.Byte,
+                BalanceVelocityCurve,
+                BalanceVelocityDepth
+            });
 
             data.AddRange(Copy1.ToData());
             data.AddRange(Copy2.ToData());
@@ -94,7 +91,6 @@ namespace KSynthLib.K5000
             return data.ToArray();
         }
     }
-
 
     public enum FormantLFOShape
     {
@@ -127,14 +123,15 @@ namespace KSynthLib.K5000
             Shape = FormantLFOShape.Sawtooth;
             _depth = new UnsignedLevelType();
         }
-        public byte[] ToData()
+
+        public FormantLFOSettings(List<byte> data)
         {
-            List<byte> data = new List<byte>();
-            data.Add(Speed);
-            data.Add((byte)Shape);
-            data.Add(Depth);
-            return data.ToArray();
+            _speed = new PositiveLevelType(data[0]);
+            Shape = (FormantLFOShape)data[1];
+            _depth = new UnsignedLevelType(data[2]);
         }
+
+        public byte[] ToData() => new List<byte>() { Speed, (byte)Shape, Depth }.ToArray();
     }
 
     public class FormantParameters
@@ -184,17 +181,29 @@ namespace KSynthLib.K5000
             LFO = new FormantLFOSettings();
         }
 
+        public FormantParameters(List<byte> data)
+        {
+            _bias = new SignedLevelType(data[0]);
+            _envelopeDepth = new SignedLevelType(data[1]);
+            Envelope = new LoopingEnvelope(data.GetRange(2, 9));
+            EnvLFOSel = data[11];
+            _velocitySensitivityEnvelopeDepth = new SignedLevelType(data[12]);
+            _keyScalingEnvelopeDepth = new SignedLevelType(data[13]);
+            LFO = new FormantLFOSettings(data.GetRange(14, 3));
+        }
+
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
+
             data.Add(_bias.Byte);
             data.Add(EnvLFOSel);
             data.Add(_envelopeDepth.Byte);
 
             data.AddRange(Envelope.ToData());
 
-            data.Add((byte)(VelocitySensitivityEnvelopeDepth + 64));
-            data.Add((byte)(KeyScalingEnvelopeDepth + 64));
+            data.Add(_velocitySensitivityEnvelopeDepth.Byte);
+            data.Add(_keyScalingEnvelopeDepth.Byte);
 
             data.AddRange(LFO.ToData());
 
@@ -308,27 +317,26 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);
             Formant.EnvelopeDepth = (sbyte)(b - 64);
 
-            LoopingEnvelope formantEnvelope = new LoopingEnvelope();
+            List<byte> formantEnvelopeBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
-            formantEnvelope.Attack.Rate = b;
+            formantEnvelopeBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            formantEnvelope.Attack.Level = (sbyte)(b - 64);
+            formantEnvelopeBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            formantEnvelope.Decay1.Rate = b;
+            formantEnvelopeBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            formantEnvelope.Decay1.Level = (sbyte)(b - 64);
+            formantEnvelopeBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            formantEnvelope.Decay2.Rate = b;
+            formantEnvelopeBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            formantEnvelope.Decay2.Level = (sbyte)(b - 64);
+            formantEnvelopeBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            formantEnvelope.Release.Rate = b;
+            formantEnvelopeBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            formantEnvelope.Release.Level = (sbyte)(b - 64);
+            formantEnvelopeBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            formantEnvelope.LoopType = (EnvelopeLoopType)b;
-
-            Formant.Envelope = formantEnvelope;
+            formantEnvelopeBytes.Add(b);
+            Formant.Envelope = new LoopingEnvelope(formantEnvelopeBytes);
 
             (b, offset) = Util.GetNextByte(data, offset);
             Formant.VelocitySensitivityEnvelopeDepth = (sbyte)(b - 64);
@@ -428,19 +436,9 @@ namespace KSynthLib.K5000
 
             data.AddRange(Harmonics.ToData());
             data.AddRange(Formant.ToData());
-
-            foreach (byte b in SoftHarmonics)
-            {
-                data.Add(b);
-            }
-            foreach (byte b in LoudHarmonics)
-            {
-                data.Add(b);
-            }
-            foreach (byte b in FormantFilter)
-            {
-                data.Add(b);
-            }
+            data.AddRange(SoftHarmonics);
+            data.AddRange(LoudHarmonics);
+            data.AddRange(FormantFilter);
 
             for (int i = 0; i < HarmonicCount; i++)
             {

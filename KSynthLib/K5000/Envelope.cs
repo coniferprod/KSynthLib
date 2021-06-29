@@ -34,6 +34,12 @@ namespace KSynthLib.K5000
             _level = new SignedLevelType();
         }
 
+        public EnvelopeSegment(byte rate, byte level)
+        {
+            _rate = new PositiveLevelType(rate);
+            _level = new SignedLevelType((sbyte)(level - 64));
+        }
+
         public byte[] ToData() => new List<byte>() { Rate, _level.Byte }.ToArray();
     }
 
@@ -51,6 +57,15 @@ namespace KSynthLib.K5000
             Decay2 = new EnvelopeSegment();
             Release = new EnvelopeSegment();
             LoopType = EnvelopeLoopType.Off;
+        }
+
+        public LoopingEnvelope(List<byte> data)
+        {
+            Attack = new EnvelopeSegment(data[0], data[1]);
+            Decay1 = new EnvelopeSegment(data[2], data[3]);
+            Decay2 = new EnvelopeSegment(data[4], data[5]);
+            Release = new EnvelopeSegment(data[6], data[7]);
+            LoopType = (EnvelopeLoopType)data[8];
         }
 
         public byte[] ToData()
