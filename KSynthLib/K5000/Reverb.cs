@@ -98,16 +98,6 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        public byte[] ToData()
-        {
-            List<byte> data = new List<byte>();
-            data.Add(ReverbType);
-            data.Add(DryWet1);
-            data.Add(DryWet2);
-            data.Add(Param2);
-            data.Add(Param3);
-            data.Add(Param4);
-            return data.ToArray();
-        }
+        public byte[] ToData() => new List<byte>() { ReverbType, DryWet1, DryWet2, Param2, Param3, Param4 }.ToArray();
     }
 }

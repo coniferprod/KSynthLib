@@ -5,66 +5,6 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K5000
 {
-    public enum EnvelopeLoopType
-    {
-        Off,
-        Loop1,
-        Loop2
-    }
-
-    /// <summary>Represents the MORF harmonic envelope of an additive source.</summary>
-    public class MORFHarmonicEnvelope
-    {
-        private PositiveLevelType _time1;
-        public byte Time1
-        {
-            get => _time1.Value;
-            set => _time1.Value = value;
-        }
-
-        private PositiveLevelType _time2;
-        public byte Time2
-        {
-            get => _time2.Value;
-            set => _time2.Value = value;
-        }
-
-        private PositiveLevelType _time3;
-        public byte Time3
-        {
-            get => _time3.Value;
-            set => _time3.Value = value;
-        }
-
-        private PositiveLevelType _time4;
-        public byte Time4
-        {
-            get => _time4.Value;
-            set => _time4.Value = value;
-        }
-        public EnvelopeLoopType LoopType;
-
-        public MORFHarmonicEnvelope()
-        {
-            _time1 = new PositiveLevelType();
-            _time2 = new PositiveLevelType();
-            _time3 = new PositiveLevelType();
-            _time4 = new PositiveLevelType();
-            LoopType = EnvelopeLoopType.Off;
-        }
-
-        public byte[] ToData()
-        {
-            var data = new List<byte>();
-            data.Add(Time1);
-            data.Add(Time2);
-            data.Add(Time3);
-            data.Add(Time4);
-            data.Add((byte)LoopType);
-            return data.ToArray();
-        }
-    }
-
     public class HarmonicCopyParameters
     {
         private PatchNumberType _patchNumber;
@@ -140,7 +80,7 @@ namespace KSynthLib.K5000
             data.Add((byte)(Morf ? 1 : 0));
             data.Add(TotalGain);
             data.Add((byte)Group);
-            data.Add((byte)(KeyScalingToGain + 64));
+            data.Add(_keyScalingToGain.Byte);
             data.Add(BalanceVelocityCurve);
             data.Add(BalanceVelocityDepth);
 
@@ -155,59 +95,6 @@ namespace KSynthLib.K5000
         }
     }
 
-    public class EnvelopeSegment
-    {
-        private PositiveLevelType _rate; // 0 ~ 127
-        public byte Rate
-        {
-            get => _rate.Value;
-            set => _rate.Value = value;
-        }
-
-        private SignedLevelType _level; // (-63)1 ... (+63)127
-        public sbyte Level
-        {
-            get => _level.Value;
-            set => _level.Value = value;
-        }
-
-        public EnvelopeSegment()
-        {
-            _rate = new PositiveLevelType();
-            _level = new SignedLevelType();
-        }
-    }
-
-    public class LoopingEnvelope {
-        public EnvelopeSegment Attack;
-        public EnvelopeSegment Decay1;
-        public EnvelopeSegment Decay2;
-        public EnvelopeSegment Release;
-        public EnvelopeLoopType LoopType;
-
-        public LoopingEnvelope()
-        {
-            Attack = new EnvelopeSegment();
-            Decay1 = new EnvelopeSegment();
-            Decay2 = new EnvelopeSegment();
-            Release = new EnvelopeSegment();
-            LoopType = EnvelopeLoopType.Off;
-        }
-
-        public byte[] ToData()
-        {
-            List<byte> data = new List<byte>();
-            data.Add(Attack.Rate);
-            data.Add((byte)(Attack.Level + 64));
-            data.Add((byte)Decay1.Rate);
-            data.Add((byte)(Decay1.Level + 64));
-            data.Add((byte)Decay2.Rate);
-            data.Add((byte)(Decay2.Level + 64));
-            data.Add((byte)Release.Rate);
-            data.Add((byte)(Release.Level - 64));
-            return data.ToArray();
-        }
-    }
 
     public enum FormantLFOShape
     {
@@ -240,6 +127,14 @@ namespace KSynthLib.K5000
             Shape = FormantLFOShape.Sawtooth;
             _depth = new UnsignedLevelType();
         }
+        public byte[] ToData()
+        {
+            List<byte> data = new List<byte>();
+            data.Add(Speed);
+            data.Add((byte)Shape);
+            data.Add(Depth);
+            return data.ToArray();
+        }
     }
 
     public class FormantParameters
@@ -251,7 +146,7 @@ namespace KSynthLib.K5000
             set => _bias.Value = value;
         }
 
-        public int EnvLFOSel;  // 0 = ENV, 1 = LFO
+        public byte EnvLFOSel;  // 0 = ENV, 1 = LFO
 
         private SignedLevelType _envelopeDepth; // (-63)1 ... (+63)127
         public sbyte EnvelopeDepth
@@ -283,6 +178,7 @@ namespace KSynthLib.K5000
             _bias = new SignedLevelType();
             _envelopeDepth = new SignedLevelType();
             Envelope = new LoopingEnvelope();
+            EnvLFOSel = 0;
             _velocitySensitivityEnvelopeDepth = new SignedLevelType();
             _keyScalingEnvelopeDepth = new SignedLevelType();
             LFO = new FormantLFOSettings();
@@ -291,71 +187,21 @@ namespace KSynthLib.K5000
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
-            data.Add((byte)(Bias + 64));
-            data.Add((byte)EnvLFOSel);
-            data.Add((byte)(EnvelopeDepth + 64));
+            data.Add(_bias.Byte);
+            data.Add(EnvLFOSel);
+            data.Add(_envelopeDepth.Byte);
 
             data.AddRange(Envelope.ToData());
 
             data.Add((byte)(VelocitySensitivityEnvelopeDepth + 64));
             data.Add((byte)(KeyScalingEnvelopeDepth + 64));
 
-            data.Add(LFO.Speed);
-            data.Add((byte)LFO.Shape);
-            data.Add(LFO.Depth);
+            data.AddRange(LFO.ToData());
 
             return data.ToArray();
         }
     }
 
-    public class HarmonicEnvelope
-    {
-        public EnvelopeSegment Segment0;
-        public EnvelopeSegment Segment1;
-        public bool Segment1Loop;
-        public EnvelopeSegment Segment2;
-        public bool Segment2Loop;
-        public EnvelopeSegment Segment3;
-
-        public HarmonicEnvelope()
-        {
-            Segment0 = new EnvelopeSegment();
-            Segment1 = new EnvelopeSegment();
-            Segment1Loop = false;
-            Segment2 = new EnvelopeSegment();
-            Segment2Loop = false;
-            Segment3 = new EnvelopeSegment();
-        }
-
-        public byte[] ToData()
-        {
-            List<byte> data = new List<byte>();
-
-            data.Add((byte)Segment0.Rate);
-            data.Add((byte)Segment0.Level);
-
-            data.Add((byte)Segment1.Rate);
-            byte s1Level = (byte)Segment1.Level;
-            if (Segment1Loop)
-            {
-                s1Level.SetBit(6);
-            }
-            data.Add(s1Level);
-
-            data.Add((byte)Segment2.Rate);
-            byte s2Level = (byte)Segment2.Level;
-            if (Segment2Loop)
-            {
-                s2Level.SetBit(6);
-            }
-            data.Add(s2Level);
-
-            data.Add((byte)Segment3.Rate);
-            data.Add((byte)Segment3.Level);
-
-            return data.ToArray();
-        }
-    }
 
     public class AdditiveKit
     {

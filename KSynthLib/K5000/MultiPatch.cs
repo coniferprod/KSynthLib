@@ -10,12 +10,5 @@ namespace KSynthLib.K5000
 
             return data.ToArray();
         }
-
-        /*
-        protected override byte ComputeChecksum(byte[] data)
-        {
-            return 0;
-        }
-        */
     }
 }

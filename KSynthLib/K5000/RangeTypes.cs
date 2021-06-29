@@ -46,10 +46,7 @@ namespace KSynthLib.K5000
             this.Value = (sbyte)(b - 64);
         }
 
-        public byte AsByte()
-        {
-            return (byte)(this.Value + 64);
-        }
+        public byte Byte => (byte)(this.Value + 64);
     }
 
     public class UnsignedLevelType
@@ -202,6 +199,16 @@ namespace KSynthLib.K5000
         public EffectControlDepthType(sbyte v) : this()
         {
             this.Value = v;
+        }
+
+        public EffectControlDepthType(byte b) : this()
+        {
+            this.Value = (sbyte)(b - 64);
+        }
+
+        public byte AsByte()
+        {
+            return (byte)(this.Value + 64);
         }
     }
 

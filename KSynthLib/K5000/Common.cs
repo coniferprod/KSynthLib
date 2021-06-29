@@ -84,7 +84,7 @@ namespace KSynthLib.K5000
         {
             this.Source = (ControlSource)data[0];
             this.Destination = (EffectDestination)data[1];
-            this._depth = new EffectControlDepthType((sbyte)(data[2] - 64));
+            this._depth = new EffectControlDepthType(data[2]);
         }
 
         public override string ToString()
@@ -95,9 +95,9 @@ namespace KSynthLib.K5000
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
-            data.Add((byte)this.Source);
-            data.Add((byte)this.Destination);
-            data.Add((byte)(this.Depth + 64));  // bring to range 33 ~ 95 again
+            data.Add((byte)Source);
+            data.Add((byte)Destination);
+            data.Add(_depth.AsByte());  // bring to range 33 ~ 95 again
             return data.ToArray();
         }
     }
@@ -161,21 +161,9 @@ namespace KSynthLib.K5000
             this._depth = new MacroDepthType();  // default 0 is halfway between -31 and 31
         }
 
-        public byte[] ToData()
-        {
-            List<byte> data = new List<byte>();
-            data.Add((byte)this.Type);
-            data.Add((byte)(this.Depth + 64));
-            return data.ToArray();
-        }
+        public byte[] ToData() => new List<byte>() { (byte)Type, _depth.AsByte() }.ToArray();
 
-        public (byte Type, byte Depth) Bytes
-        {
-            get
-            {
-                return ((byte)this.Type, (byte)(this.Depth + 64));
-            }
-        }
+        public (byte Type, byte Depth) Bytes => ((byte)Type, _depth.AsByte());
     }
 
     public class MacroController

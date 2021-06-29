@@ -40,15 +40,7 @@ namespace KSynthLib.K5000
             _keyScaling = new SignedLevelType(k);
         }
 
-        public byte[] ToData()
-        {
-            List<byte> data = new List<byte>();
-
-            data.Add(Depth);
-            data.Add(_keyScaling.AsByte());
-
-            return data.ToArray();
-        }
+        public byte[] ToData() => new List<byte>() { Depth, _keyScaling.Byte }.ToArray();
     }
 
     public class LFOSettings

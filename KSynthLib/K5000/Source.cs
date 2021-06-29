@@ -66,13 +66,7 @@ namespace KSynthLib.K5000
             _depth = new MacroDepthType(depth);
         }
 
-        public byte[] ToData()
-        {
-            List<byte> data = new List<byte>();
-            data.Add((byte)Destination);
-            data.Add(_depth.AsByte());
-            return data.ToArray();
-        }
+        public byte[] ToData() => new List<byte>() { (byte)Destination, _depth.AsByte() }.ToArray();
     }
 
     public class ControllerSettings
@@ -429,7 +423,7 @@ namespace KSynthLib.K5000
 
             data.Add(KeyOnDelay);
             data.Add((byte)Pan);
-            data.Add(_panValue.AsByte());
+            data.Add(_panValue.Byte);
 
             data.AddRange(DCO.ToData());
             data.AddRange(DCF.ToData());

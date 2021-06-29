@@ -339,28 +339,20 @@ namespace KSynthLib.K5000
             var m4p1 = Macro4.Param1.Bytes;
             var m4p2 = Macro4.Param2.Bytes;
 
-            data.Add(m1p1.Type);
-            data.Add(m1p2.Type);
-            data.Add(m2p1.Type);
-            data.Add(m2p2.Type);
-            data.Add(m3p1.Type);
-            data.Add(m3p2.Type);
-            data.Add(m4p1.Type);
-            data.Add(m4p2.Type);
+            data.AddRange(new List<byte>() {
+                m1p1.Type, m1p2.Type, m2p1.Type, m2p2.Type,
+                m3p1.Type, m3p2.Type, m4p1.Type, m4p2.Type
+            });
 
-            data.Add(m1p1.Depth);
-            data.Add(m1p2.Depth);
-            data.Add(m2p1.Depth);
-            data.Add(m2p2.Depth);
-            data.Add(m3p1.Depth);
-            data.Add(m3p2.Depth);
-            data.Add(m4p1.Depth);
-            data.Add(m4p2.Depth);
+            data.AddRange(new List<byte>() {
+                m1p1.Depth, m1p2.Depth, m2p1.Depth, m2p2.Depth,
+                m3p1.Depth, m3p2.Depth, m4p1.Depth, m4p2.Depth
+            });
 
-            data.Add((byte)Switch1);
-            data.Add((byte)Switch2);
-            data.Add((byte)FootSwitch1);
-            data.Add((byte)FootSwitch2);
+            data.AddRange(new List<byte>() {
+                (byte)Switch1, (byte)Switch2,
+                (byte)FootSwitch1, (byte)FootSwitch2
+            });
 
             return data.ToArray();
         }

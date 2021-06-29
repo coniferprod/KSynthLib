@@ -208,10 +208,7 @@ namespace KSynthLib.Common
             this.Value = b - 24;
         }
 
-        public byte AsByte()
-        {
-            return (byte)(this.Value + 24);
-        }
+        public byte Byte => (byte)(this.Value + 24);
     }
 
     public class EffectNumberType
@@ -330,5 +327,4 @@ namespace KSynthLib.Common
             this.Value = v;  // setter throws exception for invalid value
         }
     }
-
 }
