@@ -37,9 +37,18 @@ namespace KSynthLib.K4
 
         public VibratoSettings()
         {
+            Shape = LFOShape.Triangle;
             _speed = new LevelType();
             _pressure = new DepthType();
             _depth = new DepthType();
+        }
+
+        public VibratoSettings(byte[] data)
+        {
+            Shape = (LFOShape)((data[0] >> 4) & 0x03);
+            _speed = new LevelType((byte)(data[1] & 0x7f));
+            _pressure = new DepthType((sbyte)((data[2] & 0x7f) - 50)); // 0~100 to ±50
+            _depth = new DepthType((sbyte)((data[3] & 0x7f) - 50)); // 0~100 to ±50
         }
 
         public override string ToString()

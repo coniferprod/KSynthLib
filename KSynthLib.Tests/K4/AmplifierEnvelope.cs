@@ -3,9 +3,9 @@ using KSynthLib.K4;
 
 namespace KSynthLib.Tests.K4
 {
-    public class AmplifierEnvelope_Init
+    public class AmplifierEnvelopeTests
     {
-        public AmplifierEnvelope_Init()
+        public AmplifierEnvelopeTests()
         {
         }
 

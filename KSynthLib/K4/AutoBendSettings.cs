@@ -1,4 +1,5 @@
 using System.Text;
+using System.Collections.Generic;
 
 namespace KSynthLib.K4
 {
@@ -40,12 +41,32 @@ namespace KSynthLib.K4
             _velocityDepth = new DepthType();
         }
 
+        public AutoBendSettings(byte[] data)
+        {
+            _time = new LevelType((byte)(data[0] & 0x7f));
+            _depth = new DepthType((sbyte)((data[1] & 0x7f) - 50)); // 0~100 to ±50
+            _keyScalingTime = new DepthType((sbyte)((data[2] & 0x7f) - 50)); // 0~100 to ±50
+            _velocityDepth = new DepthType((sbyte)((data[3] & 0x7f) - 50)); // 0~100 to ±50
+        }
+
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
             builder.Append(string.Format("TIME       ={0,3}\nDEPTH      ={1,2}\nKS>TIME    ={2,2}\nVEL>DEPTH  ={3,2}",
                 Time, Depth, KeyScalingTime, VelocityDepth));
             return builder.ToString();
+        }
+
+        public byte[] ToData()
+        {
+            List<byte> data = new List<byte>();
+
+            data.Add(Time);
+            data.Add((byte)(Depth + 50)); // ±50 to 0...100
+            data.Add((byte)(KeyScalingTime + 50)); // ±50 to 0...100
+            data.Add((byte)(VelocityDepth + 50)); // ±50 to 0...100
+
+            return data.ToArray();
         }
     }
 }

@@ -44,6 +44,16 @@ namespace KSynthLib.K4
         {
             this.Value = v;
         }
+
+        public DepthType(byte b) : this()
+        {
+            this.Value = (sbyte)((b & 0x7f) - 50);
+        }
+
+        public byte AsByte()
+        {
+            return (byte)(this.Value + 50);
+        }
     }
 
     // Level from 0...100, for example patch volume.
@@ -79,7 +89,7 @@ namespace KSynthLib.K4
 
         public LevelType(byte v) : this()
         {
-            this.Value = v;  // setter throws exception of out-of-range values
+            this.Value = (byte)(v & 0x7f);  // setter throws exception of out-of-range values
         }
     }
 
@@ -227,6 +237,13 @@ namespace KSynthLib.K4
         {
             this.Value = v;  // setter throws exception for invalid value
         }
+
+        public CoarseType(byte b) : this()
+        {
+            this.Value = (sbyte)((b & 0x3f) - 24);
+        }
+
+        public byte AsByte() => (byte)(this.Value + 24);
     }
 
     // Effect number 1...32

@@ -3,11 +3,11 @@ using KSynthLib.K4;
 
 namespace KSynthLib.Tests.K4
 {
-    public class Filter_Data
+    public class FilterTests
     {
         private readonly Filter _filter;
 
-        public Filter_Data()
+        public FilterTests()
         {
             _filter = new Filter();
 
@@ -20,5 +20,4 @@ namespace KSynthLib.Tests.K4
             Assert.Equal(Filter.DataSize, length);
         }
     }
-
 }

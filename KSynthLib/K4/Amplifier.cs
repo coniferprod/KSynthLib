@@ -42,6 +42,15 @@ namespace KSynthLib.K4
             _keyScalingDepth = new DepthType(ks);
         }
 
+        public LevelModulation(List<byte> data)
+        {
+            // The bytes passed in must be raw SysEx. The DepthType(byte b) constructor
+            // adjusts them to the correct range, to avoid repetitive code here.
+            _velocityDepth = new DepthType(data[0]);
+            _pressureDepth = new DepthType(data[1]);
+            _keyScalingDepth = new DepthType(data[2]);
+        }
+
         public override string ToString()
         {
             return $"VEL DEP = {VelocityDepth}, PRS = {PressureDepth}, KS = {KeyScalingDepth}";
@@ -97,6 +106,13 @@ namespace KSynthLib.K4
             _keyScaling = new DepthType(ks);
         }
 
+        public TimeModulation(List<byte> data)
+        {
+            _attackVelocity = new DepthType(data[0]);
+            _releaseVelocity = new DepthType(data[1]);
+            _keyScaling = new DepthType(data[2]);
+        }
+
         public override string ToString()
         {
             return $"ATK VEL = {AttackVelocity}, RLS VEL = {ReleaseVelocity}, KS = {KeyScaling}";
@@ -148,42 +164,41 @@ namespace KSynthLib.K4
             (b, offset) = Util.GetNextByte(data, offset);
             envelopeLevel = new LevelType((byte)(b & 0x7f));
 
+            List<byte> envBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
-            Env.Attack = (byte)(b & 0x7f);
-
+            envBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Env.Decay = (byte)(b & 0x7f);
-
+            envBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Env.Sustain = (byte)(b & 0x7f);
-
+            envBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Env.Release = (byte)(b & 0x7f);
+            envBytes.Add(b);
+            Env = new AmplifierEnvelope(envBytes);
 
             //
             // Depth values come in as 0...100,
             // they need to be scaled to -50...50.
             //
 
+            List<byte> levelModBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
-            LevelMod.VelocityDepth = (sbyte)((b & 0x7f) - 50);
-
+            levelModBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            LevelMod.PressureDepth = (sbyte)((b & 0x7f) - 50);
-
+            levelModBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            LevelMod.KeyScalingDepth = (sbyte)((b & 0x7f) - 50);
+            levelModBytes.Add(b);
+            LevelMod = new LevelModulation(levelModBytes);
 
             // Same goes for the time modulation values:
 
+            List<byte> timeModBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
-            TimeMod.AttackVelocity = (sbyte)((b & 0x7f) - 50);
-
+            timeModBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            TimeMod.ReleaseVelocity = (sbyte)((b & 0x7f) - 50);
-
+            timeModBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            TimeMod.KeyScaling = (sbyte)((b & 0x7f) - 50);
+            timeModBytes.Add(b);
+            TimeMod = new TimeModulation(timeModBytes);
         }
 
         public override string ToString()
@@ -198,7 +213,7 @@ namespace KSynthLib.K4
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
-            data.Add((byte)EnvelopeLevel);
+            data.Add(EnvelopeLevel);
             data.AddRange(Env.ToData());
             data.AddRange(LevelMod.ToData());
             data.AddRange(TimeMod.ToData());

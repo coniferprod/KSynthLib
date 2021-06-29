@@ -30,7 +30,7 @@ namespace KSynthLib.K4
 
         public MultiPatch()
         {
-            this._name = "Init";
+            this._name = "Init      ";
             this._volume = new LevelType(80);
             this._effectPatch = new EffectNumberType(1);
 

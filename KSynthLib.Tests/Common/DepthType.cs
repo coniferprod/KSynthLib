@@ -4,11 +4,11 @@ using KSynthLib.Common;
 
 namespace KSynthLib.Tests.Common
 {
-    public class DepthType_Value
+    public class DepthTypeTests
     {
         DepthType depth;
 
-        public DepthType_Value()
+        public DepthTypeTests()
         {
             depth = new DepthType();
         }
@@ -20,7 +20,7 @@ namespace KSynthLib.Tests.Common
         }
 
         [Fact]
-        public void Value_IsSet()
+        public void Value_IsSetCorrectly()
         {
             depth.Value = 42;
             Assert.Equal(42, depth.Value);
@@ -30,7 +30,7 @@ namespace KSynthLib.Tests.Common
         public void Value_ThrowsIfOutOfRange()
         {
             // Test that the Value setter of the DepthType
-            // correctly throws an exception by trying to set 
+            // correctly throws an exception by trying to set
             // a value that is out of range.
             Assert.Throws<ArgumentOutOfRangeException>(() => depth.Value = 10000);
         }

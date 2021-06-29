@@ -70,44 +70,40 @@ namespace KSynthLib.K4
             _resonance = new ResonanceType((byte)((b & 0x07) + 1));  // from 0...7 to 1...8
             IsLFO = b.IsBitSet(3);
 
-            CutoffMod = new LevelModulation();
+            List<byte> cutoffModBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
-            CutoffMod.VelocityDepth = (sbyte)((b & 0x7f) - 50);
+            cutoffModBytes.Add(b);
+            (b, offset) = Util.GetNextByte(data, offset);
+            cutoffModBytes.Add(b);
+            (b, offset) = Util.GetNextByte(data, offset);
+            cutoffModBytes.Add(b);
+            CutoffMod = new LevelModulation(cutoffModBytes);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            CutoffMod.PressureDepth = (sbyte)((b & 0x7f) - 50);
+            _envelopeDepth = new DepthType(b);  // constructor with byte parameter adjusts to range
 
             (b, offset) = Util.GetNextByte(data, offset);
-            CutoffMod.KeyScalingDepth = (sbyte)((b & 0x7f) - 50);
+            _envelopeVelocityDepth = new DepthType(b);
 
+            List<byte> envBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
-            _envelopeDepth = new DepthType((sbyte)((b & 0x7f) - 50));
+            envBytes.Add(b);
+            (b, offset) = Util.GetNextByte(data, offset);
+            envBytes.Add(b);
+            (b, offset) = Util.GetNextByte(data, offset);
+            envBytes.Add(b);
+            (b, offset) = Util.GetNextByte(data, offset);
+            envBytes.Add(b);
+            Env = new FilterEnvelope(envBytes);
 
+            List<byte> timeModBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
-            _envelopeVelocityDepth = new DepthType((sbyte)((b & 0x7f) - 50));
-
-            Env = new FilterEnvelope();
+            timeModBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Env.Attack = (byte)(b & 0x7f);
-
+            timeModBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Env.Decay = (byte)(b & 0x7f);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            Env.Sustain = (sbyte)((b & 0x7f) - 50);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            Env.Release = (byte)(b & 0x7f);
-
-            TimeMod = new TimeModulation();
-            (b, offset) = Util.GetNextByte(data, offset);
-            TimeMod.AttackVelocity = (sbyte)((b & 0x7f) - 50);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            TimeMod.ReleaseVelocity = (sbyte)((b & 0x7f) - 50);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            TimeMod.KeyScaling = (sbyte)((b & 0x7f) - 50);
+            timeModBytes.Add(b);
+            TimeMod = new TimeModulation(timeModBytes);
         }
 
         public override string ToString()
@@ -125,7 +121,7 @@ namespace KSynthLib.K4
         {
             List<byte> data = new List<byte>();
 
-            data.Add((byte)Cutoff);
+            data.Add(Cutoff);
 
             StringBuilder b104 = new StringBuilder("0000");
             b104.Append(IsLFO ? "1" : "0");
@@ -135,17 +131,13 @@ namespace KSynthLib.K4
             b104.Append(resonanceString.PadLeft(3, '0'));
             data.Add(Convert.ToByte(b104.ToString(), 2));
 
-            data.Add((byte)(CutoffMod.VelocityDepth + 50));
-            data.Add((byte)(CutoffMod.PressureDepth + 50));
-            data.Add((byte)(CutoffMod.KeyScalingDepth + 50));
-            data.Add((byte)(EnvelopeDepth + 50));
-            data.Add((byte)(EnvelopeVelocityDepth + 50));
+            data.AddRange(CutoffMod.ToData());
+
+            data.Add(_envelopeDepth.AsByte());
+            data.Add(_envelopeVelocityDepth.AsByte());
 
             data.AddRange(Env.ToData());
-
-            data.Add((byte)(TimeMod.AttackVelocity + 50));
-            data.Add((byte)(TimeMod.ReleaseVelocity + 50));
-            data.Add((byte)(TimeMod.KeyScaling + 50));
+            data.AddRange(TimeMod.ToData());
 
             return data.ToArray();
         }

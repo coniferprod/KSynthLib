@@ -134,10 +134,10 @@ namespace KSynthLib.K4
             Level = b;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Transpose = (sbyte)(b - 24);
+            _transpose = new CoarseType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Tune = (sbyte)(b - 50);
+            _tune = new DepthType(b);
         }
 
         public override string ToString()
@@ -175,9 +175,9 @@ namespace KSynthLib.K4
             byte m16 = (byte)(os | m);
             data.Add(m16);
 
-            data.Add((byte)Level);
-            data.Add((byte)(Transpose + 24));
-            data.Add((byte)(Tune + 50));
+            data.Add(Level);
+            data.Add(_transpose.AsByte());
+            data.Add(_tune.AsByte());
 
             return data.ToArray();
         }

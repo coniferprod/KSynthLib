@@ -207,8 +207,10 @@ namespace KSynthLib.K4
                 }
             }
 
-            Vibrato = new VibratoSettings();
-            Vibrato.Shape = (LFOShape)((b >> 4) & 0x03);
+            // Collect the bytes that make up the vibratp settings,
+            // to construct the object later from them.
+            List<byte> vibratoBytes = new List<byte>();
+            vibratoBytes.Add(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
             // Pitch bend = s15 bits 0...3
@@ -218,47 +220,45 @@ namespace KSynthLib.K4
 
             (b, offset) = Util.GetNextByte(data, offset);
             // Vibrato speed = s16 bits 0...6
-            Vibrato.Speed = (byte)(b & 0x7f);
+            vibratoBytes.Add(b);
 
             // Wheel depth = s17 bits 0...6
             (b, offset) = Util.GetNextByte(data, offset);
             _wheelDepth = new DepthType((sbyte)((b & 0x7f) - 50));  // 0~100 to ±50
 
-            AutoBend = new AutoBendSettings();
+            // Construct the auto bend settings from collected bytes
+            List<byte> autoBendBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
-            AutoBend.Time = (byte)(b & 0x7f);
+            autoBendBytes.Add(b);
+            (b, offset) = Util.GetNextByte(data, offset);
+            autoBendBytes.Add(b);
+            (b, offset) = Util.GetNextByte(data, offset);
+            autoBendBytes.Add(b);
+            (b, offset) = Util.GetNextByte(data, offset);
+            autoBendBytes.Add(b);
+            AutoBend = new AutoBendSettings(autoBendBytes.ToArray());
 
             (b, offset) = Util.GetNextByte(data, offset);
-            AutoBend.Depth = (sbyte)((b & 0x7f) - 50); // 0~100 to ±50
+            vibratoBytes.Add(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            AutoBend.KeyScalingTime = (sbyte)((b & 0x7f) - 50); // 0~100 to ±50
+            vibratoBytes.Add(b);
 
+            // Now we have all the bytes for the vibrato settings
+            Vibrato = new VibratoSettings(vibratoBytes.ToArray());
+
+            List<byte> lfoBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
-            AutoBend.VelocityDepth = (sbyte)((b & 0x7f) - 50); // 0~100 to ±50
-
+            lfoBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Vibrato.Pressure = (sbyte)((b & 0x7f) - 50); // 0~100 to ±50
-
+            lfoBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Vibrato.Depth = (sbyte)((b & 0x7f) - 50); // 0~100 to ±50
-
-            LFO = new LFOSettings();
-
+            lfoBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            LFO.Shape = (LFOShape)(b & 0x03);
-
+            lfoBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            LFO.Speed = (byte)(b & 0x7f);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            LFO.Delay = (byte)(b & 0x7f);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            LFO.Depth = (sbyte)((b & 0x7f) - 50); // 0~100 to ±50
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            LFO.PressureDepth = (sbyte)((b & 0x7f) - 50); // 0~100 to ±50
+            lfoBytes.Add(b);
+            LFO = new LFOSettings(lfoBytes);
 
             (b, offset) = Util.GetNextByte(data, offset);
             _pressureFreq = new DepthType((sbyte)((b & 0x7f) - 50)); // 0~100 to ±50
@@ -403,17 +403,14 @@ namespace KSynthLib.K4
 
             data.Add((byte)Vibrato.Speed);
             data.Add((byte)(WheelDepth + 50));  // ±50 to 0...100
-            data.Add((byte)AutoBend.Time);
-            data.Add((byte)(AutoBend.Depth + 50)); // ±50 to 0...100
-            data.Add((byte)(AutoBend.KeyScalingTime + 50)); // ±50 to 0...100
-            data.Add((byte)(AutoBend.VelocityDepth + 50)); // ±50 to 0...100
+
+            data.AddRange(AutoBend.ToData());
+
             data.Add((byte)(Vibrato.Pressure + 50)); // ±50 to 0...100
             data.Add((byte)(Vibrato.Depth + 50)); // ±50 to 0...100
-            data.Add((byte)LFO.Shape);
-            data.Add((byte)LFO.Speed);
-            data.Add((byte)LFO.Delay);
-            data.Add((byte)(LFO.Depth + 50)); // ±50 to 0...100
-            data.Add((byte)(LFO.PressureDepth + 50)); // ±50 to 0...100
+
+            data.AddRange(LFO.ToData());
+
             data.Add((byte)(PressureFreq + 50)); // ±50 to 0...100
 
             // The source data are interleaved, with one byte from each first,

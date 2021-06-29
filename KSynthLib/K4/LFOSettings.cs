@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Collections.Generic;
 
 namespace KSynthLib.K4
 {
@@ -45,10 +46,20 @@ namespace KSynthLib.K4
 
         public LFOSettings()
         {
+            Shape = LFOShape.Triangle;
             _speed = new LevelType();
             _delay = new LevelType();
             _depth = new DepthType();
             _pressureDepth = new DepthType();
+        }
+
+        public LFOSettings(List<byte> data)
+        {
+            Shape = (LFOShape)(data[0] & 0x03);
+            _speed = new LevelType(data[1]);
+            _delay = new LevelType(data[2]);
+            _depth = new DepthType(data[3]);
+            _pressureDepth = new DepthType(data[4]);
         }
 
         public override string ToString()
@@ -58,6 +69,17 @@ namespace KSynthLib.K4
                 Enum.GetNames(typeof(LFOShape))[(int)Shape],
                 Speed, Delay, Depth, PressureDepth));
             return builder.ToString();
+        }
+
+        public byte[] ToData()
+        {
+            List<byte> data = new List<byte>();
+            data.Add((byte)Shape);
+            data.Add(Speed);
+            data.Add(Delay);
+            data.Add(_depth.AsByte()); // ±50 to 0...100
+            data.Add(_pressureDepth.AsByte()); // ±50 to 0...100
+            return data.ToArray();
         }
     }
 }

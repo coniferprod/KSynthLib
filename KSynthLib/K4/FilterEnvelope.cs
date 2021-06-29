@@ -48,6 +48,14 @@ namespace KSynthLib.K4
             _release = new LevelType(r);
         }
 
+        public FilterEnvelope(List<byte> data)
+        {
+            _attack = new LevelType(data[0]);
+            _decay = new LevelType(data[1]);
+            _sustain = new DepthType(data[2]);  // constructor adjusts to range
+            _release = new LevelType(data[3]);
+        }
+
         public override string ToString()
         {
             return $"A:{Attack} D:{Decay} S:{Sustain} R:{Release}";
@@ -56,10 +64,10 @@ namespace KSynthLib.K4
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
-            data.Add((byte)Attack);
-            data.Add((byte)Decay);
-            data.Add((byte)(Sustain + 50));
-            data.Add((byte)Release);
+            data.Add(Attack);
+            data.Add(Decay);
+            data.Add(_sustain.AsByte());
+            data.Add(Release);
             return data.ToArray();
         }
     }
