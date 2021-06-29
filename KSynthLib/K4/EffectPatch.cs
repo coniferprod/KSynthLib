@@ -63,9 +63,9 @@ namespace KSynthLib.K4
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
-            data.Add((byte)Pan);
-            data.Add((byte)Send1);
-            data.Add((byte)Send2);
+            data.Add(_pan.AsByte());
+            data.Add(Send1);
+            data.Add(Send2);
             return data.ToArray();
         }
     }
@@ -202,7 +202,7 @@ namespace KSynthLib.K4
                 builder.Append($"{i}: pan = {submix.Pan} send1 = {submix.Send1} send2 = {submix.Send2}\n");
             }
             */
-            
+
             return builder.ToString();
         }
 

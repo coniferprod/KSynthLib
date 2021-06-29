@@ -84,13 +84,13 @@ namespace KSynthLib.K4
             get
             {
                 byte[] data = CollectData();
-                byte sum = 0;
+                int sum = 0;
                 foreach (byte b in data)
                 {
-                    sum += b;
+                    sum = (sum + b) & 0xff;
                 }
                 sum += 0xA5;
-                return sum;
+                return (byte)(sum & 0x7f);
             }
 
             set
@@ -163,41 +163,13 @@ namespace KSynthLib.K4
             return new string(chars.ToArray());
         }
 
-        public byte EdisynChecksum()
-        {
-            byte[] data = CollectData();
-
-            int sum = 0xA5;
-            for (int i = 0; i < data.Length; i++)
-            {
-                sum = (sum + data[i]) & 255;
-            }
-            return (byte)(sum & 127);
-        }
-
-        protected byte ComputeChecksum(byte[] data)
-        {
-            int sum = 0xA5;
-            foreach (byte b in data)
-            {
-                sum = (sum + b) & 0xff;
-            }
-
-            return (byte)(sum & 0x7f);
-        }
-
         protected abstract byte[] CollectData();
 
         public byte[] ToData()
         {
             List<byte> allData = new List<byte>();
-
-            byte[] data = CollectData();
             allData.AddRange(CollectData());
-
-            byte sum = ComputeChecksum(data);
-            allData.Add(sum);
-
+            allData.Add(this.Checksum);  // calls CollectData again, perf?
             return allData.ToArray();
         }
     }

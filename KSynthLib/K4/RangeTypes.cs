@@ -559,6 +559,8 @@ namespace KSynthLib.K4
         {
             this.Value = v;
         }
+
+        public byte AsByte() => (byte)(this.Value + 7);
     }
 
     public class SendValueType

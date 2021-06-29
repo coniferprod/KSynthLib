@@ -160,7 +160,7 @@ namespace KSynthLib.K5000
 
             Effect4 = new EffectSettings(data, offset);
             offset += EffectSettings.DataSize;
-            Console.WriteLine($"E4 = {Effect4}");
+            Console.Error.WriteLine($"E4 = {Effect4}");
 
             GEQ = new GEQSettings(data, offset);
             offset += GEQSettings.DataSize;
@@ -295,7 +295,7 @@ namespace KSynthLib.K5000
         {
             List<byte> data = new List<byte>();
 
-            data.Add(EffectAlgorithm); 
+            data.Add(EffectAlgorithm);
             data.AddRange(Reverb.ToData());
             data.AddRange(Effect1.ToData());
             data.AddRange(Effect2.ToData());
