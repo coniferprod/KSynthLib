@@ -8,36 +8,6 @@ namespace KSynthLib.K5000
 {
     public class SinglePatch : Patch
     {
-        public override byte Checksum
-        {
-            get
-            {
-                // BANK A, D, E, F: check sum = [(common sum) + (source1 sum) [ + (source2~8 sum)] + 0xa5) & 0x7f
-                byte total = 0;
-
-                // For each source, compute the sum of source data and add it to the total:
-                for (int i = 0; i < SingleCommon.SourceCount; i++)
-                {
-                    byte[] sourceData = Sources[i].ToData();
-                    byte sourceSum = 0;
-                    foreach (byte b in sourceData)
-                    {
-                        sourceSum += b;
-                    }
-                    total += sourceSum;
-                }
-
-                total += 0xA5;
-
-                return (byte)(total & 0x7f);
-            }
-
-            set
-            {
-                _checksum = value;
-            }
-        }
-
         public SingleCommonSettings SingleCommon;
 
         public Source[] Sources;
@@ -140,6 +110,33 @@ namespace KSynthLib.K5000
             }
 
             return data.ToArray();
+        }
+
+        public override byte Checksum
+        {
+            get
+            {
+                // BANK A, D, E, F: check sum = [(common sum) + (source1 sum) [ + (source2~8 sum)] + 0xa5) & 0x7f
+                byte total = 0;
+
+                // For each source, compute the sum of source data and add it to the total:
+                for (int i = 0; i < SingleCommon.SourceCount; i++)
+                {
+                    byte[] sourceData = Sources[i].ToData();
+                    byte sourceSum = 0;
+                    foreach (byte b in sourceData)
+                    {
+                        sourceSum += b;
+                    }
+                    total += sourceSum;
+                }
+
+                total += 0xA5;
+
+                return (byte)(total & 0x7f);
+            }
+
+            set => _checksum = value;
         }
     }
 }

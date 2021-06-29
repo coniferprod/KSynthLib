@@ -121,11 +121,14 @@ namespace KSynthLib.K5000
         {
             List<byte> data = new List<byte>();
 
-            data.Add((byte)Waveform);
-            data.Add(Speed);
-            data.Add(DelayOnset);
-            data.Add(FadeInTime);
-            data.Add(FadeInToSpeed);
+            data.AddRange(new List<byte>() {
+                (byte)Waveform,
+                Speed,
+                DelayOnset,
+                FadeInTime,
+                FadeInToSpeed
+            });
+
             data.AddRange(Vibrato.ToData());
             data.AddRange(Growl.ToData());
             data.AddRange(Tremolo.ToData());

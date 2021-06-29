@@ -201,13 +201,7 @@ namespace KSynthLib.K5000
 
         public AdditiveKit ADD;
 
-        public bool IsAdditive
-        {
-            get
-            {
-                return DCO.WaveNumber == AdditiveKit.WaveNumber;
-            }
-        }
+        public bool IsAdditive => DCO.WaveNumber == AdditiveKit.WaveNumber;
 
         public Source()
         {
