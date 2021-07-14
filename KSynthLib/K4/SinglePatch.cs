@@ -261,7 +261,7 @@ namespace KSynthLib.K4
             LFO = new LFOSettings(lfoBytes);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _pressureFreq = new DepthType((sbyte)((b & 0x7f) - 50)); // 0~100 to ±50
+            _pressureFreq = new DepthType(b); // constructor adjusts 0~100 to ±50
 
             int totalSourceDataSize = Source.DataSize * SourceCount;
             byte[] sourceData = new byte[totalSourceDataSize];
@@ -402,7 +402,7 @@ namespace KSynthLib.K4
             data.Add(Convert.ToByte(b15.ToString(), 2));
 
             data.Add((byte)Vibrato.Speed);
-            data.Add((byte)(WheelDepth + 50));  // ±50 to 0...100
+            data.Add(_wheelDepth.AsByte());
 
             data.AddRange(AutoBend.ToData());
 
@@ -411,7 +411,7 @@ namespace KSynthLib.K4
 
             data.AddRange(LFO.ToData());
 
-            data.Add((byte)(PressureFreq + 50)); // ±50 to 0...100
+            data.Add(_pressureFreq.AsByte());
 
             // The source data are interleaved, with one byte from each first,
             // then the second, etc. That's why they are emitted in this slightly

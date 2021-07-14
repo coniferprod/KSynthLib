@@ -1,27 +1,16 @@
+using System;
+using KSynthLib.Common;
+
 namespace KSynthLib.K4
 {
-    public sealed class Wave
+    public class Wave
     {
-        private static readonly Wave instance = new Wave();
+        public const int WaveCount = WaveNumberType.MAX_VALUE;
 
-        // Explicit static constructor to tell C# compiler
-        // not to mark type as beforefieldinit        
-        static Wave() { }
-
-        private Wave() { }
-
-        public static Wave Instance
+        public static string[] Names = new string[]
         {
-            get
-            {
-                return instance;
-            }
-        }
+            "(not used)",  // just to bring the index in line with the one-based wave number
 
-        public const int NumWaves = 256;
-
-        private string[] waves = new string[]
-        {
             // 1 ~ 96 = CYCLIC WAVE LIST
             "SIN 1ST",
             "SIN 2ND",
@@ -290,9 +279,47 @@ namespace KSynthLib.K4
             "LOOP 12"
         };
 
-        public string this[int i]
+        private string _name;
+        public string Name
         {
-            get { return waves[i]; }
-        }        
+            get => _name;
+        }
+
+        private ushort _number;
+        public ushort Number {
+            get => _number;
+        }
+
+        public Wave()
+        {
+            this._number = 1;
+        }
+
+        public Wave(ushort number)
+        {
+            this._number = number;
+            this._name = Names[number];
+        }
+
+        public (byte high, byte low) WaveSelect
+        {
+            get
+            {
+                byte waveNumber = (byte)(this._number - 1);  // bring into range 0~255 for SysEx
+                byte highByte = waveNumber.IsBitSet(0) ? (byte)0x01 : (byte)0x00;
+                string lowBitsString = ByteExtensions.ToBinaryString(waveNumber).Reversed().Substring(1);
+                byte lowByte = Convert.ToByte(lowBitsString, 2);
+                return (highByte, lowByte);
+            }
+        }
+
+        public static ushort numberFrom(byte high, byte low)
+        {
+            int h = high & 0x01;  // `wave select h` is b0 of s34/s35/s36/s37
+            int l = low & 0x7f;    // `wave select l` is bits 0...6 of s38/s39/s40/s41
+            //print("high = 0x\(String(high, radix: 16)), low = 0x\(String(low, radix: 16))")
+            // Combine the h and l to one 8-bit value and make it 1~256
+            return (ushort)(((h << 7) | l) + 1);
+        }
     }
 }

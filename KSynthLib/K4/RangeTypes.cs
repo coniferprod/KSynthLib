@@ -13,6 +13,10 @@ namespace KSynthLib.K4
     // that have the range -50 ... +50.
     public class DepthType
     {
+        public const sbyte MIN_VALUE = -50;
+        public const sbyte MAX_VALUE = 50;
+        public const sbyte DEFAULT_VALUE = 0;
+
         private Range<sbyte> range;
 
         private sbyte _value;
@@ -37,7 +41,8 @@ namespace KSynthLib.K4
 
         public DepthType()
         {
-            this.range = new Range<sbyte>(-50, 50);
+            this.range = new Range<sbyte>(DepthType.MIN_VALUE, DepthType.MAX_VALUE);
+            this._value = DepthType.DEFAULT_VALUE;
         }
 
         public DepthType(sbyte v) : this()
@@ -48,16 +53,20 @@ namespace KSynthLib.K4
         // Initializes value from raw SysEx byte.
         public DepthType(byte b) : this()
         {
-            this.Value = (sbyte)((b & 0x7f) - 50);
+            this.Value = (sbyte)((b & 0x7f) - DepthType.MAX_VALUE);
         }
 
         // Returns the value as a raw SysEx byte.
-        public byte AsByte() => (byte)(this.Value + 50);
+        public byte AsByte() => (byte)(this.Value + DepthType.MAX_VALUE);
     }
 
     // Level from 0...100, for example patch volume.
     public class LevelType
     {
+        public const byte MIN_VALUE = 0;
+        public const byte MAX_VALUE = 100;
+        public const byte DEFAULT_VALUE = 100;
+
         private Range<byte> range;
 
         private byte _value;
@@ -82,8 +91,8 @@ namespace KSynthLib.K4
 
         public LevelType()
         {
-            this.range = new Range<byte>(0, 100);
-            this._value = 0;
+            this.range = new Range<byte>(LevelType.MAX_VALUE, LevelType.MAX_VALUE);
+            this._value = LevelType.DEFAULT_VALUE;
         }
 
         public LevelType(byte v) : this()
@@ -92,44 +101,12 @@ namespace KSynthLib.K4
         }
     }
 
-    public class EightLevelType
-    {
-        private Range<int> range;
-
-        private int _value;
-        public int Value
-        {
-            get => _value;
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})",
-                        this.range.ToString(), value));
-                }
-            }
-        }
-
-        public EightLevelType()
-        {
-            this.range = new Range<int>(1, 8);
-            this._value = 1;
-        }
-
-        public EightLevelType(int v) : this()
-        {
-            this.Value = v;  // setter throws exception for invalid value
-        }
-    }
-
     public class OutputSettingType
     {
+        public const int MIN_VALUE = 0;
+        public const int MAX_VALUE = 7;
+        public const int DEFAULT_VALUE = 0;
+
         private Range<int> range;
 
         private int _value;
@@ -154,8 +131,8 @@ namespace KSynthLib.K4
 
         public OutputSettingType()
         {
-            this.range = new Range<int>(0, 7);
-            this._value = 1;
+            this.range = new Range<int>(OutputSettingType.MIN_VALUE, OutputSettingType.MAX_VALUE);
+            this._value = OutputSettingType.DEFAULT_VALUE;
         }
 
         public OutputSettingType(int v) : this()
@@ -168,6 +145,10 @@ namespace KSynthLib.K4
 
     public class PitchBendRangeType
     {
+        public const int MIN_VALUE = 0;
+        public const int MAX_VALUE = 12;
+        public const int DEFAULT_VALUE = 0;
+
         private Range<int> range;
 
         private int _value;
@@ -192,8 +173,8 @@ namespace KSynthLib.K4
 
         public PitchBendRangeType()
         {
-            this.range = new Range<int>(0, 12);
-            this._value = 0;
+            this.range = new Range<int>(MIN_VALUE, MAX_VALUE);
+            this._value = DEFAULT_VALUE;
         }
 
         public PitchBendRangeType(int v) : this()
@@ -204,6 +185,10 @@ namespace KSynthLib.K4
 
     public class CoarseType
     {
+        public const sbyte MIN_VALUE = -24;
+        public const sbyte MAX_VALUE = 24;
+        public const sbyte DEFAULT_VALUE = 0;
+
         private Range<sbyte> range;
 
         private sbyte _value;
@@ -228,8 +213,8 @@ namespace KSynthLib.K4
 
         public CoarseType()
         {
-            this.range = new Range<sbyte>(-24, 24);
-            this._value = 0;
+            this.range = new Range<sbyte>(MIN_VALUE, MAX_VALUE);
+            this._value = DEFAULT_VALUE;
         }
 
         public CoarseType(sbyte v) : this()
@@ -239,15 +224,19 @@ namespace KSynthLib.K4
 
         public CoarseType(byte b) : this()
         {
-            this.Value = (sbyte)((b & 0x3f) - 24);
+            this.Value = (sbyte)((b & 0x3f) - MAX_VALUE);
         }
 
-        public byte AsByte() => (byte)(this.Value + 24);
+        public byte AsByte() => (byte)(this.Value + MAX_VALUE);
     }
 
     // Effect number 1...32
     public class EffectNumberType
     {
+        public const byte MIN_VALUE = 1;
+        public const byte MAX_VALUE = 32;
+        public const byte DEFAULT_VALUE = 1;
+
         private Range<byte> range;
 
         private byte _value;
@@ -272,8 +261,8 @@ namespace KSynthLib.K4
 
         public EffectNumberType()
         {
-            this.range = new Range<byte>(1, 32);
-            this._value = 1; // default value zero would be out of range
+            this.range = new Range<byte>(MIN_VALUE, MAX_VALUE);
+            this._value = DEFAULT_VALUE;
         }
 
         public EffectNumberType(byte v) : this()
@@ -387,7 +376,7 @@ namespace KSynthLib.K4
 
         public FixedKeyType(byte v) : this()
         {
-            this.Value = v;
+            this.Value = (byte)(v & 0x7f);
         }
 
         public string NoteName
@@ -405,6 +394,10 @@ namespace KSynthLib.K4
     // Kawai K4 velocity curve value: 1~8 (in SysEx as 0~7)
     public class VelocityCurveType
     {
+        public const byte MIN_VALUE = 1;
+        public const byte MAX_VALUE = 8;
+        public const byte DEFAULT_VALUE = 1;
+
         private Range<byte> range;
 
         private byte _value;
@@ -429,8 +422,8 @@ namespace KSynthLib.K4
 
         public VelocityCurveType()
         {
-            this.range = new Range<byte>(1, 8);
-            this._value = 1;  // default zero would be out of range
+            this.range = new Range<byte>(MIN_VALUE, MAX_VALUE);
+            this._value = DEFAULT_VALUE;
         }
 
         public VelocityCurveType(byte v) : this()
@@ -441,6 +434,10 @@ namespace KSynthLib.K4
 
     public class ResonanceType
     {
+        public const byte MIN_VALUE = 1;
+        public const byte MAX_VALUE = 8;
+        public const byte DEFAULT_VALUE = 1;
+
         private Range<byte> range;
 
         private byte _value;
@@ -465,8 +462,8 @@ namespace KSynthLib.K4
 
         public ResonanceType()
         {
-            this.range = new Range<byte>(1, 8);
-            this._value = 1;  // default zero would be out of range
+            this.range = new Range<byte>(MIN_VALUE, MAX_VALUE);
+            this._value = DEFAULT_VALUE;
         }
 
         public ResonanceType(byte v) : this()
@@ -477,6 +474,10 @@ namespace KSynthLib.K4
 
     public class WaveNumberType
     {
+        public const ushort MIN_VALUE = 1;
+        public const ushort MAX_VALUE = 256;
+        public const ushort DEFAULT_VALUE = 1;
+
         private Range<ushort> range;
 
         private ushort _value;
@@ -501,8 +502,8 @@ namespace KSynthLib.K4
 
         public WaveNumberType()
         {
-            this.range = new Range<ushort>(1, 256);
-            this._value = 1;  // default zero would be out of range
+            this.range = new Range<ushort>(MIN_VALUE, MAX_VALUE);
+            this._value = DEFAULT_VALUE;
         }
 
         public WaveNumberType(ushort v) : this()
@@ -527,6 +528,10 @@ namespace KSynthLib.K4
 
     public class PanValueType
     {
+        public const sbyte MIN_VALUE = -7;
+        public const sbyte MAX_VALUE = 7;
+        public const sbyte DEFAULT_VALUE = 0;
+
         private Range<sbyte> range;
 
         private sbyte _value;
@@ -551,19 +556,28 @@ namespace KSynthLib.K4
 
         public PanValueType()
         {
-            this.range = new Range<sbyte>(-7, 7);
+            this.range = new Range<sbyte>(MIN_VALUE, MAX_VALUE);
+            this._value = DEFAULT_VALUE;
         }
 
         public PanValueType(sbyte v) : this()
         {
             this.Value = v;
         }
+        public PanValueType(byte b) : this()
+        {
+            this.Value = (sbyte)(b - MAX_VALUE);
+        }
 
-        public byte AsByte() => (byte)(this.Value + 7);
+        public byte AsByte() => (byte)(this.Value + MAX_VALUE);
     }
 
     public class SendValueType
     {
+        public const byte MIN_VALUE = 0;
+        public const byte MAX_VALUE = 100;
+        public const byte DEFAULT_VALUE = 0;
+
         private Range<byte> range;
 
         private byte _value;
@@ -588,8 +602,8 @@ namespace KSynthLib.K4
 
         public SendValueType()
         {
-            this.range = new Range<byte>(0, 100);  // manual says 0...100, SysEx spec says 0...99
-            this._value = 0;
+            this.range = new Range<byte>(MIN_VALUE, MAX_VALUE);  // manual says 0...100, SysEx spec says 0...99
+            this._value = DEFAULT_VALUE;
         }
 
         public SendValueType(byte v) : this()
@@ -600,6 +614,10 @@ namespace KSynthLib.K4
 
     public class MidiChannelType
     {
+        public const byte MIN_VALUE = 1;
+        public const byte MAX_VALUE = 16;
+        public const byte DEFAULT_VALUE = 1;
+
         private Range<byte> range;
 
         private byte _value;
@@ -624,8 +642,8 @@ namespace KSynthLib.K4
 
         public MidiChannelType()
         {
-            this.range = new Range<byte>(1, 16);
-            this._value = 1;  // default zero would be out of range
+            this.range = new Range<byte>(MIN_VALUE, MAX_VALUE);
+            this._value = DEFAULT_VALUE;  // default zero would be out of range
         }
 
         public MidiChannelType(byte v) : this()
@@ -636,6 +654,11 @@ namespace KSynthLib.K4
 
     public class PatchNumberType
     {
+        // TODO: Should this have 1...64? Or a more elaborate "A-1"..."D-16" etc.?
+        public const byte MIN_VALUE = 0;
+        public const byte MAX_VALUE = 63;
+        public const byte DEFAULT_VALUE = 0;
+
         private Range<byte> range;
 
         private byte _value;
@@ -660,8 +683,8 @@ namespace KSynthLib.K4
 
         public PatchNumberType()
         {
-            this.range = new Range<byte>(0, 63);
-            this._value = 0;
+            this.range = new Range<byte>(MIN_VALUE, MAX_VALUE);
+            this._value = MIN_VALUE;
         }
 
         public PatchNumberType(byte v) : this()
@@ -672,6 +695,10 @@ namespace KSynthLib.K4
 
     public class ZoneValueType
     {
+        public const byte MIN_VALUE = 0;
+        public const byte MAX_VALUE = 127;
+        public const byte DEFAULT_VALUE = 0;
+
         private Range<byte> range;
 
         private byte _value;
@@ -696,8 +723,8 @@ namespace KSynthLib.K4
 
         public ZoneValueType()
         {
-            this.range = new Range<byte>(0, 127);
-            this._value = 0;
+            this.range = new Range<byte>(MIN_VALUE, MAX_VALUE);
+            this._value = DEFAULT_VALUE;
         }
 
         public ZoneValueType(byte v) : this()
