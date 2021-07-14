@@ -43,10 +43,13 @@ namespace KSynthLib.K4
 
         public AutoBendSettings(byte[] data)
         {
-            _time = new LevelType((byte)(data[0] & 0x7f));
-            _depth = new DepthType((sbyte)((data[1] & 0x7f) - 50)); // 0~100 to ±50
-            _keyScalingTime = new DepthType((sbyte)((data[2] & 0x7f) - 50)); // 0~100 to ±50
-            _velocityDepth = new DepthType((sbyte)((data[3] & 0x7f) - 50)); // 0~100 to ±50
+            // When initializing the values, the constructors that take a `byte` argument
+            // automatically reset the top bit and scale the value correctly, so we only
+            // need to pass in the raw byte from SysEx.
+            _time = new LevelType(data[0]);
+            _depth = new DepthType(data[1]);
+            _keyScalingTime = new DepthType(data[2]);
+            _velocityDepth = new DepthType(data[3]);
         }
 
         public override string ToString()
@@ -62,9 +65,11 @@ namespace KSynthLib.K4
             List<byte> data = new List<byte>();
 
             data.Add(Time);
-            data.Add((byte)(Depth + 50)); // ±50 to 0...100
-            data.Add((byte)(KeyScalingTime + 50)); // ±50 to 0...100
-            data.Add((byte)(VelocityDepth + 50)); // ±50 to 0...100
+
+            // The `AsByte` method returns the value as the raw SysEx byte.
+            data.Add(_depth.AsByte());
+            data.Add(_keyScalingTime.AsByte());
+            data.Add(_velocityDepth.AsByte());
 
             return data.ToArray();
         }

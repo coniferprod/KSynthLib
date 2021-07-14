@@ -48,8 +48,8 @@ namespace KSynthLib.K4
         {
             Shape = (LFOShape)((data[0] >> 4) & 0x03);
             _speed = new LevelType(data[1]);
-            _pressure = new DepthType(data[2]); // 0~100 to ±50
-            _depth = new DepthType(data[3]); // 0~100 to ±50
+            _pressure = new DepthType(data[2]);
+            _depth = new DepthType(data[3]);
         }
 
         public override string ToString()

@@ -207,7 +207,7 @@ namespace KSynthLib.K4
                 }
             }
 
-            // Collect the bytes that make up the vibratp settings,
+            // Collect the bytes that make up the vibrato settings,
             // to construct the object later from them.
             List<byte> vibratoBytes = new List<byte>();
             vibratoBytes.Add(b);
@@ -224,7 +224,7 @@ namespace KSynthLib.K4
 
             // Wheel depth = s17 bits 0...6
             (b, offset) = Util.GetNextByte(data, offset);
-            _wheelDepth = new DepthType((sbyte)((b & 0x7f) - 50));  // 0~100 to ±50
+            _wheelDepth = new DepthType(b);  // constructor adjusts 0~100 to ±50
 
             // Construct the auto bend settings from collected bytes
             List<byte> autoBendBytes = new List<byte>();

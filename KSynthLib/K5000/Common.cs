@@ -97,7 +97,7 @@ namespace KSynthLib.K5000
             List<byte> data = new List<byte>();
             data.Add((byte)Source);
             data.Add((byte)Destination);
-            data.Add(_depth.AsByte());  // bring to range 33 ~ 95 again
+            data.Add(_depth.AsByte());
             return data.ToArray();
         }
     }

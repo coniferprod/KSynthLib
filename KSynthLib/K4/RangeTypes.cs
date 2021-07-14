@@ -45,15 +45,14 @@ namespace KSynthLib.K4
             this.Value = v;
         }
 
+        // Initializes value from raw SysEx byte.
         public DepthType(byte b) : this()
         {
             this.Value = (sbyte)((b & 0x7f) - 50);
         }
 
-        public byte AsByte()
-        {
-            return (byte)(this.Value + 50);
-        }
+        // Returns the value as a raw SysEx byte.
+        public byte AsByte() => (byte)(this.Value + 50);
     }
 
     // Level from 0...100, for example patch volume.

@@ -77,8 +77,8 @@ namespace KSynthLib.K4
             data.Add((byte)Shape);
             data.Add(Speed);
             data.Add(Delay);
-            data.Add(_depth.AsByte()); // ±50 to 0...100
-            data.Add(_pressureDepth.AsByte()); // ±50 to 0...100
+            data.Add(_depth.AsByte());
+            data.Add(_pressureDepth.AsByte());
             return data.ToArray();
         }
     }

@@ -151,7 +151,7 @@ namespace KSynthLib.K4
             FixedKey = (byte)(b & 0x7f);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _fine = new DepthType((sbyte)((b & 0x7f) - 50));
+            _fine = new DepthType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
             PressureFrequency = b.IsBitSet(0);
