@@ -71,7 +71,7 @@ namespace KSynthLib.K4
         public bool[] SourceMutes;
 
         private PitchBendRangeType _pitchBendRange;
-        public int PitchBendRange  // 0~12
+        public byte PitchBendRange  // 0~12
         {
             get => _pitchBendRange.Value;
             set => _pitchBendRange.Value = value;
@@ -148,14 +148,6 @@ namespace KSynthLib.K4
             Checksum = 0;
         }
 
-        public byte GetEffectNumber(byte b)
-        {
-            byte effectValue = (byte)(b & 0x1f); // 0b00011111
-            // Now we should have a value in the range 0~31.
-            // Use range 1~32 when storing the value.
-            return (byte)(effectValue + 1);
-        }
-
         /// <summary>
         /// Constructs a single patch from binary System Exclusive data.
         /// </summary>
@@ -176,7 +168,7 @@ namespace KSynthLib.K4
 
             // effect = s11 bits 0...4
             (b, offset) = Util.GetNextByte(data, offset);
-            _effect = new EffectNumberType(GetEffectNumber(b));
+            _effect = new EffectNumberType(b);
 
             // output select = s12 bits 0...2
             (b, offset) = Util.GetNextByte(data, offset);
@@ -214,7 +206,7 @@ namespace KSynthLib.K4
 
             (b, offset) = Util.GetNextByte(data, offset);
             // Pitch bend = s15 bits 0...3
-            _pitchBendRange = new PitchBendRangeType(b & 0x0f);
+            _pitchBendRange = new PitchBendRangeType(b);
             // Wheel assign = s15 bits 4...5
             WheelAssign = (WheelAssignType)((b >> 4) & 0x03);
 

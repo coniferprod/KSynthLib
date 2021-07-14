@@ -23,7 +23,7 @@ namespace KSynthLib.K4
         /// <summary>
         /// Store for the WaveNumber property.
         /// </summary>
-        private Wave _wave;
+        public Wave _wave;
 
         /// <summary>
         /// The wave number of this source.

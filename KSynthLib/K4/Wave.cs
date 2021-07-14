@@ -5,7 +5,7 @@ namespace KSynthLib.K4
 {
     public class Wave
     {
-        public const int WaveCount = WaveNumberType.MAX_VALUE;
+        public const int WaveCount = 256;
 
         public static string[] Names = new string[]
         {
@@ -299,6 +299,13 @@ namespace KSynthLib.K4
         {
             this._number = number;
             this._name = Names[number];
+        }
+
+        public Wave(byte high, byte low)
+        {
+            ushort waveNumber = Wave.numberFrom(high, low);
+            this._number = waveNumber;
+            this._name = Names[waveNumber];
         }
 
         public (byte high, byte low) WaveSelect

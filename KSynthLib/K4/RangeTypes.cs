@@ -32,7 +32,7 @@ namespace KSynthLib.K4
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("Value",
+                    throw new ArgumentOutOfRangeException("Depth",
                         string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
@@ -82,7 +82,7 @@ namespace KSynthLib.K4
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("Value",
+                    throw new ArgumentOutOfRangeException("Level",
                         string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
@@ -91,7 +91,7 @@ namespace KSynthLib.K4
 
         public LevelType()
         {
-            this.range = new Range<byte>(LevelType.MAX_VALUE, LevelType.MAX_VALUE);
+            this.range = new Range<byte>(LevelType.MIN_VALUE, LevelType.MAX_VALUE);
             this._value = LevelType.DEFAULT_VALUE;
         }
 
@@ -122,7 +122,7 @@ namespace KSynthLib.K4
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("Value",
+                    throw new ArgumentOutOfRangeException("OutputSetting",
                         string.Format("Value must be in range {0} (was {1})",
                         this.range.ToString(), value));
                 }
@@ -145,14 +145,14 @@ namespace KSynthLib.K4
 
     public class PitchBendRangeType
     {
-        public const int MIN_VALUE = 0;
-        public const int MAX_VALUE = 12;
-        public const int DEFAULT_VALUE = 0;
+        public const byte MIN_VALUE = 0;
+        public const byte MAX_VALUE = 12;
+        public const byte DEFAULT_VALUE = 0;
 
-        private Range<int> range;
+        private Range<byte> range;
 
-        private int _value;
-        public int Value
+        private byte _value;
+        public byte Value
         {
             get => _value;
 
@@ -164,7 +164,7 @@ namespace KSynthLib.K4
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("Value",
+                    throw new ArgumentOutOfRangeException("PitchBendRange",
                         string.Format("Value must be in range {0} (was {1})",
                         this.range.ToString(), value));
                 }
@@ -173,13 +173,13 @@ namespace KSynthLib.K4
 
         public PitchBendRangeType()
         {
-            this.range = new Range<int>(MIN_VALUE, MAX_VALUE);
+            this.range = new Range<byte>(MIN_VALUE, MAX_VALUE);
             this._value = DEFAULT_VALUE;
         }
 
-        public PitchBendRangeType(int v) : this()
+        public PitchBendRangeType(byte v) : this()
         {
-            this.Value = v;  // setter throws exception for invalid value
+            this.Value = (byte)(v & 0x0f);  // setter throws exception for invalid value
         }
     }
 
@@ -204,7 +204,7 @@ namespace KSynthLib.K4
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("Value",
+                    throw new ArgumentOutOfRangeException("Coarse",
                         string.Format("Value must be in range {0} (was {1})",
                         this.range.ToString(), value));
                 }
@@ -252,7 +252,7 @@ namespace KSynthLib.K4
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("Value",
+                    throw new ArgumentOutOfRangeException("EffectNumber",
                         string.Format("Value must be in range {0} (was {1})",
                         this.range.ToString(), value));
                 }
@@ -267,16 +267,18 @@ namespace KSynthLib.K4
 
         public EffectNumberType(byte v) : this()
         {
-            this.Value = v;  // setter throws exception for invalid value
+            this.Value = (byte)((v & 0x1f) + 1);  // setter throws exception for invalid value
         }
+
+        public byte AsByte() => (byte)(this.Value - 1);
     }
 
     public class EffectParameter1Type
     {
-        private Range<int> range;
+        private Range<byte> range;
 
-        private int _value;
-        public int Value
+        private byte _value;
+        public byte Value
         {
             get => _value;
 
@@ -288,7 +290,7 @@ namespace KSynthLib.K4
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("Value",
+                    throw new ArgumentOutOfRangeException("EffectParameter1",
                         string.Format("Value must be in range {0} (was {1})",
                         this.range.ToString(), value));
                 }
@@ -297,11 +299,11 @@ namespace KSynthLib.K4
 
         public EffectParameter1Type()
         {
-            this.range = new Range<int>(0, 7);
+            this.range = new Range<byte>(0, 7);
             this._value = 0;
         }
 
-        public EffectParameter1Type(int v) : this()
+        public EffectParameter1Type(byte v) : this()
         {
             this.Value = v;  // setter throws exception for invalid value
         }
@@ -311,10 +313,10 @@ namespace KSynthLib.K4
     // Effect param1 and param2 are the same type (EffectParameter1Type).
     public class EffectParameter3Type
     {
-        private Range<int> range;
+        private Range<byte> range;
 
-        private int _value;
-        public int Value
+        private byte _value;
+        public byte Value
         {
             get => _value;
 
@@ -326,7 +328,7 @@ namespace KSynthLib.K4
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("Value",
+                    throw new ArgumentOutOfRangeException("EffectParameter3",
                         string.Format("Value must be in range {0} (was {1})",
                         this.range.ToString(), value));
                 }
@@ -335,11 +337,11 @@ namespace KSynthLib.K4
 
         public EffectParameter3Type()
         {
-            this.range = new Range<int>(0, 31);
+            this.range = new Range<byte>(0, 31);
             this._value = 0;
         }
 
-        public EffectParameter3Type(int v) : this()
+        public EffectParameter3Type(byte v) : this()
         {
             this.Value = v;  // setter throws exception for invalid value
         }
@@ -362,7 +364,7 @@ namespace KSynthLib.K4
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("Value",
+                    throw new ArgumentOutOfRangeException("FixedKey",
                         string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
@@ -413,7 +415,7 @@ namespace KSynthLib.K4
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("Value",
+                    throw new ArgumentOutOfRangeException("VelocityCurve",
                         string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
@@ -428,8 +430,10 @@ namespace KSynthLib.K4
 
         public VelocityCurveType(byte v) : this()
         {
-            this.Value = v;
+            this.Value = (byte)(v + 1);
         }
+
+        public byte AsByte() => (byte)(this.Value - 1);
     }
 
     public class ResonanceType
@@ -453,7 +457,7 @@ namespace KSynthLib.K4
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("Value",
+                    throw new ArgumentOutOfRangeException("Resonance",
                         string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
@@ -468,62 +472,10 @@ namespace KSynthLib.K4
 
         public ResonanceType(byte v) : this()
         {
-            this.Value = v;
-        }
-    }
-
-    public class WaveNumberType
-    {
-        public const ushort MIN_VALUE = 1;
-        public const ushort MAX_VALUE = 256;
-        public const ushort DEFAULT_VALUE = 1;
-
-        private Range<ushort> range;
-
-        private ushort _value;
-        public ushort Value
-        {
-            get => _value;
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
+            this.Value = (byte)((v & 0x07) + 1);
         }
 
-        public WaveNumberType()
-        {
-            this.range = new Range<ushort>(MIN_VALUE, MAX_VALUE);
-            this._value = DEFAULT_VALUE;
-        }
-
-        public WaveNumberType(ushort v) : this()
-        {
-            this.Value = v;  // setter throws exception for out-of-range values
-        }
-
-        public (byte, byte) ConvertToHighAndLow()
-        {
-            // Convert wave number to an 8-bit binary string representation:
-            string waveBitString = Convert.ToString(Value, 2).PadLeft(8, '0');
-
-            // Get top bit, convert it to byte and use it as the MSB:
-            byte high = Convert.ToByte(waveBitString.Substring(0, 1), 2);
-
-            // Get all but the top bit, convert it to byte and use it as the LSB:
-            byte low = Convert.ToByte(waveBitString.Substring(1), 2);
-
-            return (high, low);
-        }
+        public byte AsByte() => (byte)(this.Value - 1);
     }
 
     public class PanValueType
@@ -547,7 +499,7 @@ namespace KSynthLib.K4
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("Value",
+                    throw new ArgumentOutOfRangeException("PanValue",
                         string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
@@ -593,7 +545,7 @@ namespace KSynthLib.K4
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("Value",
+                    throw new ArgumentOutOfRangeException("SendValue",
                         string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
@@ -633,7 +585,7 @@ namespace KSynthLib.K4
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("Value",
+                    throw new ArgumentOutOfRangeException("MidiChannel",
                         string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
@@ -648,8 +600,10 @@ namespace KSynthLib.K4
 
         public MidiChannelType(byte v) : this()
         {
-            this.Value = v;
+            this.Value = (byte)(v + 1);
         }
+
+        public byte AsByte() => (byte)(this.Value - 1);
     }
 
     public class PatchNumberType
@@ -674,7 +628,7 @@ namespace KSynthLib.K4
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("Value",
+                    throw new ArgumentOutOfRangeException("PatchNumber",
                         string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }
@@ -714,7 +668,7 @@ namespace KSynthLib.K4
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("Value",
+                    throw new ArgumentOutOfRangeException("ZoneValue",
                         string.Format("Value must be in range {0} (was {1})",
                             this.range.ToString(), value));
                 }

@@ -64,10 +64,10 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _cutoff = new LevelType((byte)(b & 0x7f));
+            _cutoff = new LevelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _resonance = new ResonanceType((byte)((b & 0x07) + 1));  // from 0...7 to 1...8
+            _resonance = new ResonanceType(b);
             IsLFO = b.IsBitSet(3);
 
             List<byte> cutoffModBytes = new List<byte>();

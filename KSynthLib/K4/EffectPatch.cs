@@ -79,21 +79,21 @@ namespace KSynthLib.K4
         public EffectType Type;
 
         private EffectParameter1Type _param1;
-        public int Param1
+        public byte Param1
         {
             get => _param1.Value;
             set => _param1.Value = value;
         }
 
         private EffectParameter1Type _param2;
-        public int Param2
+        public byte Param2
         {
             get => _param2.Value;
             set => _param2.Value = value;
         }
 
         private EffectParameter3Type _param3;
-        public int Param3
+        public byte Param3
         {
             get => _param3.Value;
             set => _param3.Value = value;

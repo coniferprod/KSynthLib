@@ -42,7 +42,7 @@ namespace KSynthLib.K4
             {
                 List<byte> data = new List<byte>();
 
-                data.Add((byte)(ReceiveChannel - 1)); // 1~16 stored as 0~15
+                data.Add(_receiveChannel.AsByte()); // 1~16 stored as 0~15
                 data.Add(Volume);
                 data.Add(VelocityDepth);
 
@@ -78,13 +78,16 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            ReceiveChannel = (byte)(b + 1); // 0~15 to 1~16
+            _receiveChannel = new MidiChannelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Volume = b;  // 0~100
+            _volume = new LevelType(b);  // 0~100
 
             (b, offset) = Util.GetNextByte(data, offset);
-            VelocityDepth = b;
+            _velocityDepth = new LevelType(b);
+
+            // Eat up the dummy bytes
+            offset += 7;
 
             (b, offset) = Util.GetNextByte(data, offset);
             Checksum = b;
@@ -105,7 +108,7 @@ namespace KSynthLib.K4
         {
             List<byte> data = new List<byte>();
 
-            data.Add((byte)(ReceiveChannel - 1)); // 1~16 stored as 0~15
+            data.Add(_receiveChannel.AsByte()); // 1~16 stored as 0~15
             data.Add(Volume);
             data.Add(VelocityDepth);
 

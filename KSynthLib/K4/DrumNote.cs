@@ -7,12 +7,7 @@ namespace KSynthLib.K4
 {
     public class DrumSource
     {
-        private WaveNumberType _wave; // 1~256 (stored as 0~255 distributed over two bytes)
-        public ushort Wave
-        {
-            get => _wave.Value;
-            set => _wave.Value = value;
-        }
+        public Wave Wave;
 
         private LevelType _decay;
         public byte Decay
@@ -37,7 +32,7 @@ namespace KSynthLib.K4
 
         public DrumSource()
         {
-            _wave = new WaveNumberType(97);  // "KICK"
+            Wave = new Wave(97);  // "KICK"
             _decay = new LevelType(100);
             _tune = new DepthType();
             _level = new LevelType(100);
@@ -88,31 +83,26 @@ namespace KSynthLib.K4
             int offset = 0;
             byte b = 0;  // will be reused when getting the next byte
 
-            int source1WaveHigh = 0;
-            int source2WaveHigh = 0;
-            int source1WaveLow = 0;
-            int source2WaveLow = 0;
+            byte s1WaveHigh = 0x00;
+            byte s2WaveHigh = 0x00;
+            byte s1WaveLow = 0x00;
+            byte s2WaveLow = 0x00;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            source1WaveHigh = b & 0x01;
-            _outputSelect = new OutputSettingType((byte)(((b >> 4) & 0x07) + 1)); // 0...7 to 1...8
+            s1WaveHigh = (byte)(b & 0x01);
+            _outputSelect = new OutputSettingType((byte)((b >> 4) & 0x07));
 
             (b, offset) = Util.GetNextByte(data, offset);
-            source2WaveHigh = b;
+            s2WaveHigh = b;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            source1WaveLow = b & 0x7f;
+            s1WaveLow = (byte)(b & 0x7f);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            source2WaveLow = b & 0x7f;
+            s2WaveLow = (byte)(b & 0x7f);
 
-            // Combine the wave select bits for source 1:
-            string source1WaveBitString = string.Format("{0}{1}", Convert.ToString(source1WaveHigh, 2), Convert.ToString(source1WaveLow, 2));
-            Source1.Wave = (ushort)(Convert.ToUInt16(source1WaveBitString, 2) + 1);
-
-            // Then combine the wave select bits for source 2:
-            string source2WaveBitString = string.Format("{0}{1}", Convert.ToString(source2WaveHigh, 2), Convert.ToString(source2WaveLow, 2));
-            Source2.Wave = (ushort)(Convert.ToUInt16(source2WaveBitString, 2) + 1);
+            Source1.Wave = new Wave(s1WaveHigh, s1WaveLow);
+            Source2.Wave = new Wave(s2WaveHigh, s2WaveLow);
 
             (b, offset) = Util.GetNextByte(data, offset);
             Source1.Decay = b;
@@ -145,8 +135,8 @@ namespace KSynthLib.K4
             byte source2High = 0;
             byte source2Low = 0;
 
-            (source1High, source1Low) = this.ConvertWaveSelectToHighAndLow(Source1.Wave);
-            (source2High, source2Low) = this.ConvertWaveSelectToHighAndLow(Source2.Wave);
+            (source1High, source1Low) = this.Source1.Wave.WaveSelect;
+            (source2High, source2Low) = this.Source2.Wave.WaveSelect;
 
             byte outputSelect = (byte)(OutputSettingType.OutputNames.IndexOf(OutputSelect));
 
@@ -174,20 +164,5 @@ namespace KSynthLib.K4
             data.Add(Checksum);  // computed by property accessor
             return data.ToArray();
         }
-
-        public (byte, byte) ConvertWaveSelectToHighAndLow(ushort waveNumber)
-        {
-            // Convert wave number to an 8-bit binary string representation:
-            string waveBitString = Convert.ToString(waveNumber, 2).PadLeft(8, '0');
-
-            // Get top bit, convert it to byte and use it as the MSB:
-            byte high = Convert.ToByte(waveBitString.Substring(0, 1), 2);
-
-            // Get all but the top bit, convert it to byte and use it as the LSB:
-            byte low = Convert.ToByte(waveBitString.Substring(1), 2);
-
-            return (high, low);
-        }
     }
-
 }
