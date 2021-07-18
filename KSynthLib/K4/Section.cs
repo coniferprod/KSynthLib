@@ -24,7 +24,7 @@ namespace KSynthLib.K4
         public const int DataSize = 8;
 
         private PatchNumberType _singlePatch;
-        private byte SinglePatch
+        public byte SinglePatch
         {
             get => _singlePatch.Value;
             set => _singlePatch.Value = value;
@@ -38,14 +38,14 @@ namespace KSynthLib.K4
         }
 
         private ZoneValueType _zoneHigh;
-        private byte ZoneHigh
+        public byte ZoneHigh
         {
             get => _zoneHigh.Value;
             set => _zoneHigh.Value = value;
         }
 
         private MidiChannelType _receiveChannel;
-        private byte ReceiveChannel
+        public byte ReceiveChannel
         {
             get => _receiveChannel.Value;
             set => _receiveChannel.Value = value;
@@ -53,7 +53,7 @@ namespace KSynthLib.K4
 
         public VelocitySwitchType VelocitySwitch;
 
-        private bool IsMuted;
+        public bool IsMuted;
 
         private OutputSettingType _output;
         public char Output
@@ -72,14 +72,14 @@ namespace KSynthLib.K4
         }
 
         private CoarseType _transpose;
-        private sbyte Transpose
+        public sbyte Transpose
         {
             get => _transpose.Value;
             set => _transpose.Value = value;
         }
 
         private DepthType _tune;
-        private sbyte Tune
+        public sbyte Tune
         {
             get => _tune.Value;
             set => _tune.Value = value;

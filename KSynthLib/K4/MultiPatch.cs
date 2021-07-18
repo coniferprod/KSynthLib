@@ -19,7 +19,7 @@ namespace KSynthLib.K4
             set => _volume.Value = value;
         }
 
-        private Section[] sections;
+        public Section[] sections;
 
         private EffectNumberType _effectPatch;
         public byte EffectPatch  // 1~32 (on K4)

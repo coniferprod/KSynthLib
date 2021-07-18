@@ -7,6 +7,8 @@ namespace KSynthLib.K4
 {
     public class DrumSource
     {
+        public const int DataSize = 5;
+
         public Wave Wave;
 
         private LevelType _decay;
@@ -36,6 +38,34 @@ namespace KSynthLib.K4
             _decay = new LevelType(100);
             _tune = new DepthType();
             _level = new LevelType(100);
+        }
+
+        public DrumSource(byte[] data) : this()
+        {
+            byte waveHigh = (byte)(data[0] & 0x01);
+            byte waveLow = (byte)(data[1] & 0x7f);
+            Wave = new Wave(waveHigh, waveLow);
+
+            Decay = data[2];
+            _tune = new DepthType(data[3]);
+            Level = data[4];
+        }
+
+        public byte[] ToData()
+        {
+            List<byte> data = new List<byte>();
+
+            byte high = 0x00;
+            byte low = 0x00;
+            (high, low) = Wave.WaveSelect;
+            data.Add(high);
+            data.Add(low);
+
+            data.Add(Decay);
+            data.Add(_tune.AsByte());
+            data.Add(Level);
+
+            return data.ToArray();
         }
     }
 
@@ -83,44 +113,43 @@ namespace KSynthLib.K4
             int offset = 0;
             byte b = 0;  // will be reused when getting the next byte
 
-            byte s1WaveHigh = 0x00;
-            byte s2WaveHigh = 0x00;
-            byte s1WaveLow = 0x00;
-            byte s2WaveLow = 0x00;
+            List<byte> source1Bytes = new List<byte>();
+            List<byte> source2Bytes = new List<byte>();
 
             (b, offset) = Util.GetNextByte(data, offset);
-            s1WaveHigh = (byte)(b & 0x01);
+            source1Bytes.Add((byte)(b & 0x01));
+
             _outputSelect = new OutputSettingType((byte)((b >> 4) & 0x07));
 
             (b, offset) = Util.GetNextByte(data, offset);
-            s2WaveHigh = b;
+            source2Bytes.Add(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            s1WaveLow = (byte)(b & 0x7f);
+            source1Bytes.Add((byte)(b & 0x7f));
 
             (b, offset) = Util.GetNextByte(data, offset);
-            s2WaveLow = (byte)(b & 0x7f);
-
-            Source1.Wave = new Wave(s1WaveHigh, s1WaveLow);
-            Source2.Wave = new Wave(s2WaveHigh, s2WaveLow);
+            source2Bytes.Add((byte)(b & 0x7f));
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Source1.Decay = b;
+            source1Bytes.Add(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Source2.Decay = b;
+            source2Bytes.Add(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Source1.Tune = (sbyte)(b - 50);
+            source1Bytes.Add(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Source2.Tune = (sbyte)(b - 50);
+            source2Bytes.Add(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Source1.Level = b;
+            source1Bytes.Add(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Source2.Level = b;
+            source2Bytes.Add(b);
+
+            Source1 = new DrumSource(source1Bytes.ToArray());
+            Source2 = new DrumSource(source2Bytes.ToArray());
 
             (b, offset) = Util.GetNextByte(data, offset);
             Checksum = b;  // store checksum as we get it from SysEx
@@ -130,29 +159,18 @@ namespace KSynthLib.K4
         {
             List<byte> data = new List<byte>();
 
-            byte source1High = 0;
-            byte source1Low = 0;
-            byte source2High = 0;
-            byte source2Low = 0;
-
-            (source1High, source1Low) = this.Source1.Wave.WaveSelect;
-            (source2High, source2Low) = this.Source2.Wave.WaveSelect;
-
+            byte[] source1Bytes = this.Source1.ToData();
             byte outputSelect = (byte)(OutputSettingType.OutputNames.IndexOf(OutputSelect));
+            byte d11 = (byte)((outputSelect << 4) | source1Bytes[0]);
+            source1Bytes[0] = d11;
 
-            byte d11 = (byte)((outputSelect << 4) | source1High);
-            data.Add(d11);
+            byte[] source2Bytes = this.Source2.ToData();
 
-            data.Add(source2High);
-            data.Add(source1Low);
-            data.Add(source2Low);
-
-            data.Add(Source1.Decay);
-            data.Add(Source2.Decay);
-            data.Add((byte)(Source1.Tune + 50));  // store -50~50 as 0..100
-            data.Add((byte)(Source2.Tune + 50));
-            data.Add(Source1.Level);
-            data.Add(Source2.Level);
+            for (int i = 0; i < source1Bytes.Length; i++)
+            {
+                data.Add(source1Bytes[i]);
+                data.Add(source2Bytes[i]);
+            }
 
             return data.ToArray();
         }

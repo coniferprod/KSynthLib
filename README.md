@@ -7,9 +7,13 @@ that can be installed in .NET application projects.
 
 The library is written in C# 8.0 and targets .NET Core 3.1.
 
-It is available on [NuGet](https://www.nuget.org/packages/KSynthLib/)
-but you can also use it locally.
-If you want to do that, add a local directory
+## Installation from NuGet
+
+The library is available on [NuGet](https://www.nuget.org/packages/KSynthLib/).
+
+## Local installation
+
+You can also use the library locally. Add the local directory
 containing your NuGet packages to your NuGet configuration file.
 
 Your NuGet configuration file is most likely `~/.nuget/NuGet/NuGet.Config`,
@@ -51,6 +55,13 @@ Then run the script:
 Finally, add the package into your project like any NuGet package:
 
     dotnet add package KSynthLib
+
+### Packaging for NuGet release
+
+The library is packed for NuGet release like this:
+
+    dotnet build --configuration Release
+    dotnet pack --configuration Release --include-symbols
 
 ## Testing
 
