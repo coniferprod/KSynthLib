@@ -126,7 +126,7 @@ namespace KSynthLib.K4
             return bytes.ToArray();
         }
 
-        protected string GetName(byte[] data, int offset)
+        protected string GetName(byte[] data, int offset = 0)
         {
             List<char> chars = new List<char>();
 

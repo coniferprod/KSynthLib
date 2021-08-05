@@ -99,6 +99,11 @@ namespace KSynthLib.K4
         {
             this.Value = (byte)(v & 0x7f);  // setter throws exception of out-of-range values
         }
+
+        public LevelType(int v) : this()
+        {
+            this.Value = (byte)v;
+        }
     }
 
     public class OutputSettingType
@@ -180,6 +185,11 @@ namespace KSynthLib.K4
         public PitchBendRangeType(byte v) : this()
         {
             this.Value = (byte)(v & 0x0f);  // setter throws exception for invalid value
+        }
+
+        public PitchBendRangeType(int v) : this()
+        {
+            this.Value = (byte)v;
         }
     }
 
@@ -268,6 +278,11 @@ namespace KSynthLib.K4
         public EffectNumberType(byte v) : this()
         {
             this.Value = (byte)((v & 0x1f) + 1);  // setter throws exception for invalid value
+        }
+
+        public EffectNumberType(int v) : this()
+        {
+            this.Value = (byte)v;
         }
 
         public byte AsByte() => (byte)(this.Value - 1);
@@ -684,6 +699,58 @@ namespace KSynthLib.K4
         public ZoneValueType(byte v) : this()
         {
             this.Value = v;  // setter throws exception for out-of-range values
+        }
+    }
+
+    public abstract class RangeType
+    {
+        private Range<int> range;
+
+        private int _minValue;
+        public int MinValue { get => _minValue; }
+
+        private int _maxValue;
+        public int MaxValue { get => MaxValue; }
+
+        private int _defaultValue;
+        public int DefaultValue { get => DefaultValue; }
+
+        private int _value;
+        public int Value
+        {
+            get => _value;
+
+            set
+            {
+                if (range.Contains(value))
+                {
+                    _value = value;
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("RangeType",
+                        string.Format("Value must be in range {0} (was {1})",
+                            this.range.ToString(), value));
+                }
+            }
+        }
+
+        public RangeType(int minValue, int maxValue, int defaultValue)
+        {
+            this._minValue = minValue;
+            this._maxValue = maxValue;
+            this._defaultValue = defaultValue;
+            this._value = defaultValue;
+        }
+    }
+
+    public class RangeDepthType : RangeType
+    {
+        public RangeDepthType() : base(-50, 50, 0) { }
+
+        public RangeDepthType(int value) : this()
+        {
+            this.Value = value;
         }
     }
 }
