@@ -19,7 +19,7 @@ namespace KSynthLib.K4
             set => _volume.Value = value;
         }
 
-        public Section[] sections;
+        public Section[] Sections;
 
         private EffectNumberType _effectPatch;
         public byte EffectPatch  // 1~32 (on K4)
@@ -34,16 +34,16 @@ namespace KSynthLib.K4
             this._volume = new LevelType(80);
             this._effectPatch = new EffectNumberType(1);
 
-            sections = new Section[SectionCount];
+            this.Sections = new Section[SectionCount];
             for (int i = 0; i < SectionCount; i++)
             {
-                sections[i] = new Section();
+                this.Sections[i] = new Section();
             }
         }
 
         public MultiPatch(byte[] data) : this()
         {
-            sections = new Section[SectionCount];
+            this.Sections = new Section[SectionCount];
 
             int offset = 0;
             byte b = 0;  // will be reused when getting the next byte
@@ -60,7 +60,7 @@ namespace KSynthLib.K4
             {
                 byte[] sectionData = new byte[Section.DataSize];
                 Array.Copy(data, offset, sectionData, 0, Section.DataSize);
-                sections[i] = new Section(sectionData);
+                this.Sections[i] = new Section(sectionData);
                 offset += Section.DataSize;
             }
 
@@ -75,7 +75,7 @@ namespace KSynthLib.K4
             for (int i = 0; i < SectionCount; i++)
             {
                 builder.Append($"Section {i + 1}:\n");
-                builder.Append(sections[i].ToString());
+                builder.Append(this.Sections[i].ToString());
                 builder.Append("\n");
             }
 
@@ -94,7 +94,7 @@ namespace KSynthLib.K4
 
             for (int i = 0; i < SectionCount; i++)
             {
-                data.AddRange(sections[i].ToData());
+                data.AddRange(this.Sections[i].ToData());
             }
 
             return data.ToArray();

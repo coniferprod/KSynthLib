@@ -1,5 +1,6 @@
 using System.Text;
 using System.Collections.Generic;
+using System.IO;
 
 using KSynthLib.Common;
 
@@ -131,7 +132,9 @@ namespace KSynthLib.K4
         }
     }
 
-    // Source-specific amplifier settings
+    /// <summary>
+    /// Source-specific amplifier settings
+    /// <summary>
     public class Amplifier
     {
         public const int DataSize = 11;

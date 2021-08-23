@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
+using System.IO;
 
 using KSynthLib.Common;
 
@@ -157,153 +158,144 @@ namespace KSynthLib.K4
         /// </remarks>
         public SinglePatch(byte[] data) : this()
         {
-            int offset = 0;
-            this._name = GetName(data, offset); // s00...s09
-            offset += Patch.NameLength;
+            List<byte> vibratoBytes = new List<byte>();
+            List<byte> autoBendBytes = new List<byte>();
+            List<byte> lfoBytes = new List<byte>();
+            int totalSourceDataSize = Source.DataSize * SourceCount;
+            byte[] sourceData = new byte[totalSourceDataSize];
+            int totalAmpDataSize = Amplifier.DataSize * SourceCount;
+            byte[] ampData = new byte[totalAmpDataSize];
+            int totalFilterDataSize = Filter.DataSize * 2;
+            byte[] filterData = new byte[totalFilterDataSize];
 
             byte b = 0;  // will be reused when getting the next byte
 
-            (b, offset) = Util.GetNextByte(data, offset);
-            _volume = new LevelType(b);
-
-            // effect = s11 bits 0...4
-            (b, offset) = Util.GetNextByte(data, offset);
-            _effect = new EffectNumberType(b);
-
-            // output select = s12 bits 0...2
-            (b, offset) = Util.GetNextByte(data, offset);
-            int outputNameIndex = (int)(b & 0x07); // 0b00000111
-            Submix = (SubmixType)outputNameIndex;
-
-            // source mode = s13 bits 0...1
-            (b, offset) = Util.GetNextByte(data, offset);
-            SourceMode = (SourceMode)(b & 0x03);
-            PolyphonyMode = (PolyphonyMode)((b >> 2) & 0x03);
-            AM12 = ((b >> 4) & 0x01) == 1;
-            AM34 = ((b >> 5) & 0x01) == 1;
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            // the source mute bits are in s14:
-            // S1 = b0, S2 = b1, S3 = b2, S4 = b3
-            // The K4 MIDI spec says 0/mute, 1/not mute,
-            // so we flip it to make this value actually mean muted.
-            for (int i = 0; i < SourceCount; i++)
+            // Process the SysEx data using a memory stream:
+            using (MemoryStream mem = new MemoryStream(data))
             {
-                if (b.IsBitSet(i))
+                // Read the patch name in s00...s09
+                Console.Error.WriteLine($"{mem.Position}: name");
+                byte[] nameBytes = new byte[Patch.NameLength];
+                mem.Read(nameBytes, 0, Patch.NameLength);
+                this._name = this.GetName(nameBytes);
+
+                Console.Error.WriteLine($"{mem.Position}: volume");
+                this._volume = new LevelType(mem.ReadByte());
+
+                // effect = s11 bits 0...4
+                Console.Error.WriteLine($"{mem.Position}: effect");
+                this._effect = new EffectNumberType(mem.ReadByte());
+
+                // output select = s12 bits 0...2
+                Console.Error.WriteLine($"{mem.Position}: output");
+                Submix = (SubmixType)(mem.ReadByte() & 0x07); // 0b00000111
+
+                Console.Error.WriteLine($"{mem.Position}: source mode, polyphony mode, AM 1>2, AM 3>4");
+                int v = mem.ReadByte();
+                // source mode = s13 bits 0...1
+                SourceMode = (SourceMode)(v & 0x03);
+                PolyphonyMode = (PolyphonyMode)((v >> 2) & 0x03);
+                AM12 = ((v >> 4) & 0x01) == 1;
+                AM34 = ((v >> 5) & 0x01) == 1;
+
+                Console.Error.WriteLine($"{mem.Position}: source mutes");
+                b = (byte)mem.ReadByte();
+                // the source mute bits are in s14:
+                // S1 = b0, S2 = b1, S3 = b2, S4 = b3
+                // The K4 MIDI spec says 0/mute, 1/not mute,
+                // so we flip it to make this value actually mean muted.
+                for (int i = 0; i < SourceCount; i++)
                 {
-                    SourceMutes[i] = false;
+                    SourceMutes[i] = !(b.IsBitSet(i));
                 }
-                else
+
+                // Save the first vibrato byte (the rest will come later)
+                Console.Error.WriteLine($"{mem.Position}: vibrato shape");
+                vibratoBytes.Add((byte)mem.ReadByte());
+
+                Console.Error.WriteLine($"{mem.Position}: pitch bend, wheel assign");
+                v = mem.ReadByte();
+                // Pitch bend = s15 bits 0...3
+                _pitchBendRange = new PitchBendRangeType(v & 0b1111);
+                // Wheel assign = s15 bits 4...5
+                WheelAssign = (WheelAssignType)((v >> 4) & 0x03);
+
+                // Vibrato speed = s16 bits 0...6
+                Console.Error.WriteLine($"{mem.Position}: vibrato speed");
+                vibratoBytes.Add((byte)mem.ReadByte());
+
+                // Wheel depth = s17 bits 0...6
+                Console.Error.WriteLine($"{mem.Position}: wheel depth");
+                _wheelDepth = new DepthType((byte)mem.ReadByte());  // constructor adjusts 0~100 to ±50
+
+                // Construct the auto bend settings from collected bytes
+                Console.Error.WriteLine($"{mem.Position}: auto bend");
+                autoBendBytes.Add((byte)mem.ReadByte());
+                autoBendBytes.Add((byte)mem.ReadByte());
+                autoBendBytes.Add((byte)mem.ReadByte());
+                autoBendBytes.Add((byte)mem.ReadByte());
+                AutoBend = new AutoBendSettings(autoBendBytes.ToArray());
+
+                Console.Error.WriteLine($"{mem.Position}: vibrato pressure depth");
+                vibratoBytes.Add((byte)mem.ReadByte());
+
+                Console.Error.WriteLine($"{mem.Position}: vibrato depth");
+                vibratoBytes.Add((byte)mem.ReadByte());
+
+                // Now we have all the bytes for the vibrato settings
+                Vibrato = new VibratoSettings(vibratoBytes);
+
+                Console.Error.WriteLine($"{mem.Position}: LFO shape");
+                lfoBytes.Add((byte)mem.ReadByte());
+
+                Console.Error.WriteLine($"{mem.Position}: LFO speed");
+                lfoBytes.Add((byte)mem.ReadByte());
+
+                Console.Error.WriteLine($"{mem.Position}: LFO delay");
+                lfoBytes.Add((byte)mem.ReadByte());
+
+                Console.Error.WriteLine($"{mem.Position}: LFO depth");
+                lfoBytes.Add((byte)mem.ReadByte());
+
+                Console.Error.WriteLine($"{mem.Position}: LFO pressure depth");
+                lfoBytes.Add((byte)mem.ReadByte());
+
+                LFO = new LFOSettings(lfoBytes);
+
+                Console.Error.WriteLine($"{mem.Position}: pressure freq");
+                this._pressureFreq = new DepthType((byte)mem.ReadByte()); // constructor adjusts 0~100 to ±50
+
+                Console.Error.WriteLine($"{mem.Position}: sources");
+                mem.Read(sourceData, 0, totalSourceDataSize);
+                List<byte> sourceBytes = new List<byte>(sourceData);
+                Sources = new Source[SourceCount]
                 {
-                    SourceMutes[i] = true;
-                }
+                    new Source(Util.EveryNthElement(sourceBytes, 4, 0).ToArray()),
+                    new Source(Util.EveryNthElement(sourceBytes, 4, 1).ToArray()),
+                    new Source(Util.EveryNthElement(sourceBytes, 4, 2).ToArray()),
+                    new Source(Util.EveryNthElement(sourceBytes, 4, 3).ToArray())
+                };
+
+                Console.Error.WriteLine($"{mem.Position}: amplifiers");
+                mem.Read(ampData, 0, totalAmpDataSize);
+                List<byte> ampBytes = new List<byte>(ampData);
+                Amplifiers = new Amplifier[SourceCount]
+                {
+                    new Amplifier(Util.EveryNthElement(ampBytes, 4, 0).ToArray()),
+                    new Amplifier(Util.EveryNthElement(ampBytes, 4, 1).ToArray()),
+                    new Amplifier(Util.EveryNthElement(ampBytes, 4, 2).ToArray()),
+                    new Amplifier(Util.EveryNthElement(ampBytes, 4, 3).ToArray()),
+                };
+
+                Console.Error.WriteLine($"{mem.Position}: filters");
+                mem.Read(filterData, 0, totalFilterDataSize);
+                List<byte> filterBytes = new List<byte>(filterData);
+                Filter1 = new Filter(Util.EveryNthElement(filterBytes, 2, 0).ToArray());
+                Filter2 = new Filter(Util.EveryNthElement(filterBytes, 2, 1).ToArray());
+
+                // "Check sum value (s130) is the sum of the A5H and s0 ~ s129".
+                this.Checksum = (byte)mem.ReadByte(); // store the checksum as we got it from SysEx
             }
-
-            // Collect the bytes that make up the vibrato settings,
-            // to construct the object later from them.
-            List<byte> vibratoBytes = new List<byte>();
-            vibratoBytes.Add(b);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            // Pitch bend = s15 bits 0...3
-            _pitchBendRange = new PitchBendRangeType(b);
-            // Wheel assign = s15 bits 4...5
-            WheelAssign = (WheelAssignType)((b >> 4) & 0x03);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            // Vibrato speed = s16 bits 0...6
-            vibratoBytes.Add(b);
-
-            // Wheel depth = s17 bits 0...6
-            (b, offset) = Util.GetNextByte(data, offset);
-            _wheelDepth = new DepthType(b);  // constructor adjusts 0~100 to ±50
-
-            // Construct the auto bend settings from collected bytes
-            List<byte> autoBendBytes = new List<byte>();
-            (b, offset) = Util.GetNextByte(data, offset);
-            autoBendBytes.Add(b);
-            (b, offset) = Util.GetNextByte(data, offset);
-            autoBendBytes.Add(b);
-            (b, offset) = Util.GetNextByte(data, offset);
-            autoBendBytes.Add(b);
-            (b, offset) = Util.GetNextByte(data, offset);
-            autoBendBytes.Add(b);
-            AutoBend = new AutoBendSettings(autoBendBytes.ToArray());
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            vibratoBytes.Add(b);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            vibratoBytes.Add(b);
-
-            // Now we have all the bytes for the vibrato settings
-            Vibrato = new VibratoSettings(vibratoBytes);
-
-            List<byte> lfoBytes = new List<byte>();
-            (b, offset) = Util.GetNextByte(data, offset);
-            lfoBytes.Add(b);
-            (b, offset) = Util.GetNextByte(data, offset);
-            lfoBytes.Add(b);
-            (b, offset) = Util.GetNextByte(data, offset);
-            lfoBytes.Add(b);
-            (b, offset) = Util.GetNextByte(data, offset);
-            lfoBytes.Add(b);
-            (b, offset) = Util.GetNextByte(data, offset);
-            lfoBytes.Add(b);
-            LFO = new LFOSettings(lfoBytes);
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            _pressureFreq = new DepthType(b); // constructor adjusts 0~100 to ±50
-
-            int totalSourceDataSize = Source.DataSize * SourceCount;
-            byte[] sourceData = new byte[totalSourceDataSize];
-            Array.Copy(data, offset, sourceData, 0, totalSourceDataSize);
-            List<byte> allSourceData = new List<byte>(sourceData);
-            List<byte> source1Data = Util.EveryNthElement(allSourceData, 4, 0);
-            List<byte> source2Data = Util.EveryNthElement(allSourceData, 4, 1);
-            List<byte> source3Data = Util.EveryNthElement(allSourceData, 4, 2);
-            List<byte> source4Data = Util.EveryNthElement(allSourceData, 4, 3);
-
-            Sources = new Source[SourceCount];
-            Sources[0] = new Source(source1Data.ToArray());
-            Sources[1] = new Source(source2Data.ToArray());
-            Sources[2] = new Source(source3Data.ToArray());
-            Sources[3] = new Source(source4Data.ToArray());
-
-            offset += totalSourceDataSize;
-
-            int totalAmpDataSize = Amplifier.DataSize * SourceCount;
-            byte[] ampData = new byte[totalAmpDataSize];
-            Array.Copy(data, offset, ampData, 0, totalAmpDataSize);
-            List<byte> allAmpData = new List<byte>(ampData);
-            List<byte> amp1Data = Util.EveryNthElement(allAmpData, 4, 0);
-            List<byte> amp2Data = Util.EveryNthElement(allAmpData, 4, 1);
-            List<byte> amp3Data = Util.EveryNthElement(allAmpData, 4, 2);
-            List<byte> amp4Data = Util.EveryNthElement(allAmpData, 4, 3);
-
-            Amplifiers = new Amplifier[SourceCount];
-            Amplifiers[0] = new Amplifier(amp1Data.ToArray());
-            Amplifiers[1] = new Amplifier(amp2Data.ToArray());
-            Amplifiers[2] = new Amplifier(amp3Data.ToArray());
-            Amplifiers[3] = new Amplifier(amp4Data.ToArray());
-
-            offset += totalAmpDataSize;
-
-            // DCF
-            int totalFilterDataSize = Filter.DataSize * 2;
-            byte[] filterData = new byte[totalFilterDataSize];
-            Array.Copy(data, offset, filterData, 0, totalFilterDataSize);
-            List<byte> allFilterData = new List<byte>(filterData);
-            List<byte> filter1Data = Util.EveryNthElement(allFilterData, 2, 0);
-            List<byte> filter2Data = Util.EveryNthElement(allFilterData, 2, 1);
-            Filter1 = new Filter(filter1Data.ToArray());
-            Filter2 = new Filter(filter2Data.ToArray());
-
-            offset += totalFilterDataSize;
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            // "Check sum value (s130) is the sum of the A5H and s0 ~ s129".
-            this.Checksum = b; // store the checksum as we got it from SysEx
         }
 
         /// <summary>
