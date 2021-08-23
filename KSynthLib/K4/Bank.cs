@@ -9,14 +9,21 @@ namespace KSynthLib.K4
     {
         public const int SinglePatchCount = 64;
         public const int MultiPatchCount = 64;
+        public const int EffectPatchCount = 32;
 
         public List<SinglePatch> Singles;
         public List<MultiPatch> Multis;
+
+        public DrumPatch Drum;
+
+        public List<EffectPatch> Effects;
 
         public Bank()
         {
             Singles = new List<SinglePatch>();
             Multis = new List<MultiPatch>();
+            Drum = new DrumPatch();
+            Effects = new List<EffectPatch>();
         }
 
         public Bank(byte[] data) : this()
@@ -47,6 +54,19 @@ namespace KSynthLib.K4
                 Buffer.BlockCopy(patchData, offset, multiData, 0, MultiPatch.DataSize);
                 this.Multis.Add(new MultiPatch(multiData));
                 offset += MultiPatch.DataSize;
+            }
+
+            byte[] drumData = new byte[DrumPatch.DataSize];
+            Buffer.BlockCopy(patchData, offset, drumData, 0, DrumPatch.DataSize);
+            this.Drum = new DrumPatch(drumData);
+            offset += DrumPatch.DataSize;
+
+            for (int i = 0; i < EffectPatchCount; i++)
+            {
+                byte[] effectData = new byte[EffectPatch.DataSize];
+                Buffer.BlockCopy(patchData, offset, effectData, 0, EffectPatch.DataSize);
+                this.Effects.Add(new EffectPatch(effectData));
+                offset += EffectPatch.DataSize;
             }
         }
     }

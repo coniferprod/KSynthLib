@@ -1,4 +1,6 @@
 using System;
+using System.Text;
+
 using KSynthLib.Common;
 
 namespace KSynthLib.K4
@@ -327,6 +329,17 @@ namespace KSynthLib.K4
             //print("high = 0x\(String(high, radix: 16)), low = 0x\(String(low, radix: 16))")
             // Combine the h and l to one 8-bit value and make it 1~256
             return (ushort)(((h << 7) | l) + 1);
+        }
+
+        /// <summary>
+        /// Generates a printable representation of this patch.
+        /// </summary>
+        /// <returns>
+        /// String with patch parameter values.
+        /// </returns>
+        public override string ToString()
+        {
+            return string.Format($"{this.Number} {this.Name}");
         }
     }
 }

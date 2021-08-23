@@ -14,7 +14,7 @@ namespace Driver
         static void Main(string[] args)
         {
             var path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            var pathName = Path.Combine(path, $"tmp/A401.SYX");
+            var pathName = Path.Combine(path, $"tmp/K4/K4/A401.SYX");
 
             byte[] data = File.ReadAllBytes(pathName);
             Bank bank = new Bank(data);
@@ -22,6 +22,9 @@ namespace Driver
             {
                 Console.WriteLine(sp.Name);
             }
+
+            Console.WriteLine($"Drum has {bank.Drum.Notes.Count} notes");
+            Console.WriteLine(bank.Drum);
 
             pathName = Path.Combine(path, $"tmp/WizooIni.syx");
             data = File.ReadAllBytes(pathName);

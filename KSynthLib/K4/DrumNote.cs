@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 using KSynthLib.Common;
 
@@ -66,6 +67,22 @@ namespace KSynthLib.K4
             data.Add(Level);
 
             return data.ToArray();
+        }
+
+        /// <summary>
+        /// Generates a printable representation of this drum source.
+        /// </summary>
+        /// <returns>
+        /// String with note parameter values.
+        /// </returns>
+        public override string ToString()
+        {
+            StringBuilder builder = new StringBuilder();
+
+            builder.Append($"WAVE = {this.Wave.ToString()}" + "\n");
+            builder.Append($"Decay = {this.Decay}, Tune = {this.Tune}, Level = {this.Level}\n");
+
+            return builder.ToString();
         }
     }
 
@@ -181,6 +198,23 @@ namespace KSynthLib.K4
             data.AddRange(CollectData());
             data.Add(Checksum);  // computed by property accessor
             return data.ToArray();
+        }
+
+        /// <summary>
+        /// Generates a printable representation of this drum note.
+        /// </summary>
+        /// <returns>
+        /// String with note parameter values.
+        /// </returns>
+        public override string ToString()
+        {
+            StringBuilder builder = new StringBuilder();
+
+            builder.Append(OutputSelect.ToString() + "\n");
+            builder.Append($"SOURCE 1 = {this.Source1}\n");
+            builder.Append($"SOURCE 2 = {this.Source2}\n");
+
+            return builder.ToString();
         }
     }
 }

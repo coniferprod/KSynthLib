@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 using KSynthLib.Common;
 
@@ -131,6 +132,28 @@ namespace KSynthLib.K4
             }
 
             return data.ToArray();
+        }
+
+        /// <summary>
+        /// Generates a printable representation of this patch.
+        /// </summary>
+        /// <returns>
+        /// String with patch parameter values.
+        /// </returns>
+        public override string ToString()
+        {
+            StringBuilder builder = new StringBuilder();
+
+            builder.Append($"DRUM rcv ch = {this.ReceiveChannel}, volume = {this.Volume}, vel.depth = {this.VelocityDepth}\n");
+
+            int noteNumber = 36;
+            foreach (DrumNote note in this.Notes)
+            {
+                builder.Append(string.Format($"{noteNumber} {note.ToString()}"));
+                noteNumber++;
+            }
+
+            return builder.ToString();
         }
     }
 }

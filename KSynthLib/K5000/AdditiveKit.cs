@@ -101,7 +101,7 @@ namespace KSynthLib.K5000
 
     public class FormantLFOSettings
     {
-        private PositiveLevelType _speed; // 0~126
+        private PositiveLevelType _speed; // 0~127
         public byte Speed
         {
             get => _speed.Value;

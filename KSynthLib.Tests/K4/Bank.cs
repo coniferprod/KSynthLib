@@ -14,6 +14,7 @@ namespace KSynthLib.Tests.K4
             Bank bank = new Bank();
             Assert.Empty(bank.Singles);
             Assert.Empty(bank.Multis);
+            Assert.Empty(bank.Effects);
         }
 
         [Fact]
@@ -29,9 +30,10 @@ namespace KSynthLib.Tests.K4
             {
                 Console.Error.WriteLine(sp.Name);
             }
+
+            Assert.Equal(Bank.MultiPatchCount, bank.Multis.Count);
+            Assert.Equal(DrumPatch.NoteCount, bank.Drum.Notes.Count);
+            Assert.Equal(Bank.EffectPatchCount, bank.Effects.Count);
         }
-
     }
-
 }
-
