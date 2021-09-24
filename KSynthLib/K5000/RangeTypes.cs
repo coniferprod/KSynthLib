@@ -36,7 +36,7 @@ namespace KSynthLib.K5000
             this.range = new Range<sbyte>(-63, 63);
         }
 
-        public SignedLevelType(sbyte v) : this()
+        public SignedLevelType(sbyte v) : base()
         {
             this.Value = v;
         }
