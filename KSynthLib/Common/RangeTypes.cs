@@ -3,87 +3,67 @@ using Range.Net;
 
 namespace KSynthLib.Common
 {
-    //
-    // Here are a couple of ranged types.
-    // These could probably be made generic and/or use an interface.
-    //
-
-    // Used for velocity depth, pressure depth, key scaling depth
-    // that have the range -50 ... +50.
-    public class DepthType
+    public abstract class RangeType
     {
-        private Range<int> range;
-
-        private int _value;
-        public int Value
+        protected int minimumValue;
+        public int MinimumValue
         {
-            get
+            get => this.minimumValue;
+            protected set => this.minimumValue = value;
+        }
+
+        protected int maximumValue;
+        public int MaximumValue
+        {
+            get => this.maximumValue;
+            protected set => this.maximumValue = value;
+        }
+
+        public abstract int Value
+        {
+            get;
+            set;
+        }
+
+        protected int defaultValue;
+        public int DefaultValue
+        {
+            get => this.defaultValue;
+            protected set => this.defaultValue = value;
+        }
+
+        public RangeType()
+        {
+            this.SetRange(0, 99, 0);
+        }
+
+        protected void SetRange(int minimumValue, int maximumValue, int defaultValue)
+        {
+            this.MinimumValue = minimumValue;
+            this.MaximumValue = maximumValue;
+            this.DefaultValue = defaultValue;
+        }
+
+        protected int Clamp(int value)
+        {
+            int newValue = value;
+            if (value < this.MinimumValue)
             {
-                return _value;
+                newValue = this.MinimumValue;
             }
-
-            set
+            else if (value > this.maximumValue)
             {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
+                newValue = this.MaximumValue;
             }
+            return newValue;
         }
 
-        public DepthType()
+        // Returns the value as a raw SysEx byte.
+        public abstract byte ToByte();
+
+        public override string ToString()
         {
-            this.range = new Range<int>(-50, 50);
-        }
-
-        public DepthType(int v) : this()
-        {
-            this.Value = v;
-        }
-    }
-
-    public class LevelType
-    {
-        private Range<int> range;
-
-        private int _value;
-        public int Value
-        {
-            get
-            {
-                return _value;
-            }
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
-        public LevelType()
-        {
-            this.range = new Range<int>(0, 100);
-            this._value = 0;
-        }
-
-        public LevelType(int v) : this()
-        {
-            this.Value = v;  // setter throws exception of out-of-range values
+            return string.Format("{0}", this.Value);
         }
     }
 
@@ -209,45 +189,6 @@ namespace KSynthLib.Common
         }
 
         public byte Byte => (byte)(this.Value + 24);
-    }
-
-    public class EffectNumberType
-    {
-        private Range<int> range;
-
-        private int _value;
-        public int Value
-        {
-            get
-            {
-                return _value;
-            }
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})",
-                        this.range.ToString(), value));
-                }
-            }
-        }
-
-        public EffectNumberType()
-        {
-            this.range = new Range<int>(1, 32);
-            this._value = 0;
-        }
-
-        public EffectNumberType(int v) : this()
-        {
-            this.Value = v;  // setter throws exception for invalid value
-        }
     }
 
     public class EffectParameter1Type

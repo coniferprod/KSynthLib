@@ -10,12 +10,7 @@ namespace KSynthLib.K4
     {
         public const int DataSize = 14;
 
-        private LevelType _cutoff;
-        public byte Cutoff  // 0~100
-        {
-            get => _cutoff.Value;
-            set => _cutoff.Value = value;
-        }
+        public LevelType Cutoff;
 
         private ResonanceType _resonance; // 0 ~ 7 / 1 ~ 8
         public byte Resonance
@@ -25,36 +20,21 @@ namespace KSynthLib.K4
         }
 
         public LevelModulation CutoffMod;
-
         public bool IsLFO;  // 0/off, 1/on
-
         public FilterEnvelope Env;
-
-        private DepthType _envelopeDepth;
-        public sbyte EnvelopeDepth // 0 ~ 100 (±50)
-        {
-            get => _envelopeDepth.Value;
-            set => _envelopeDepth.Value = value;
-        }
-
-        private DepthType _envelopeVelocityDepth;
-        public sbyte EnvelopeVelocityDepth // 0 ~ 100 (±50)
-        {
-            get => _envelopeVelocityDepth.Value;
-            set => _envelopeVelocityDepth.Value = value;
-        }
-
+        public DepthType EnvelopeDepth;
+        public DepthType EnvelopeVelocityDepth;
         public TimeModulation TimeMod;
 
         public Filter()
         {
-            _cutoff = new LevelType(88);
+            Cutoff = new LevelType(88);
             _resonance = new ResonanceType();
             CutoffMod = new LevelModulation();
             IsLFO = false;
             Env = new FilterEnvelope();
-            _envelopeDepth = new DepthType();
-            _envelopeVelocityDepth = new DepthType();
+            EnvelopeDepth = new DepthType();
+            EnvelopeVelocityDepth = new DepthType();
             TimeMod = new TimeModulation();
         }
 
@@ -64,7 +44,7 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _cutoff = new LevelType(b);
+            Cutoff = new LevelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
             _resonance = new ResonanceType(b);
@@ -80,10 +60,10 @@ namespace KSynthLib.K4
             CutoffMod = new LevelModulation(cutoffModBytes);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _envelopeDepth = new DepthType(b);  // constructor with byte parameter adjusts to range
+            EnvelopeDepth = new DepthType(b);  // constructor with byte parameter adjusts to range
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _envelopeVelocityDepth = new DepthType(b);
+            EnvelopeVelocityDepth = new DepthType(b);
 
             List<byte> envBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
@@ -121,7 +101,7 @@ namespace KSynthLib.K4
         {
             List<byte> data = new List<byte>();
 
-            data.Add(Cutoff);
+            data.Add(Cutoff.ToByte());
 
             StringBuilder b104 = new StringBuilder("0000");
             b104.Append(IsLFO ? "1" : "0");
@@ -133,8 +113,8 @@ namespace KSynthLib.K4
 
             data.AddRange(CutoffMod.ToData());
 
-            data.Add(_envelopeDepth.AsByte());
-            data.Add(_envelopeVelocityDepth.AsByte());
+            data.Add(EnvelopeDepth.ToByte());
+            data.Add(EnvelopeVelocityDepth.ToByte());
 
             data.AddRange(Env.ToData());
             data.AddRange(TimeMod.ToData());

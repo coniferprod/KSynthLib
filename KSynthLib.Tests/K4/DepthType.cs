@@ -1,6 +1,6 @@
 using System;
 using Xunit;
-using KSynthLib.Common;
+using KSynthLib.K4;
 
 namespace KSynthLib.Tests.Common
 {
@@ -16,7 +16,7 @@ namespace KSynthLib.Tests.Common
         [Fact]
         public void Value_IsDefault()
         {
-            Assert.Equal(0, depth.Value);
+            Assert.Equal(depth.DefaultValue, depth.Value);
         }
 
         [Fact]

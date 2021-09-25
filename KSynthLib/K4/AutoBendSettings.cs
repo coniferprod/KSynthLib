@@ -5,40 +5,17 @@ namespace KSynthLib.K4
 {
     public class AutoBendSettings
     {
-        private LevelType _time;
-        public byte Time  // 0~100
-        {
-            get => _time.Value;
-            set => _time.Value = value;
-        }
-
-        private DepthType _depth;
-        public sbyte Depth // 0~100 (±50)
-        {
-            get => _depth.Value;
-            set => _depth.Value = value;
-        }
-
-        private DepthType _keyScalingTime;
-        public sbyte KeyScalingTime // 0~100 (±50)
-        {
-            get => _keyScalingTime.Value;
-            set => _keyScalingTime.Value = value;
-        }
-
-        private DepthType _velocityDepth;
-        public sbyte VelocityDepth // 0~100 (±50)
-        {
-            get => _velocityDepth.Value;
-            set => _velocityDepth.Value = value;
-        }
+        public LevelType Time;
+        public DepthType Depth;
+        public DepthType KeyScalingTime;
+        private DepthType VelocityDepth;
 
         public AutoBendSettings()
         {
-            _time = new LevelType();
-            _depth = new DepthType();
-            _keyScalingTime = new DepthType();
-            _velocityDepth = new DepthType();
+            Time = new LevelType();
+            Depth = new DepthType();
+            KeyScalingTime = new DepthType();
+            VelocityDepth = new DepthType();
         }
 
         public AutoBendSettings(byte[] data)
@@ -46,10 +23,10 @@ namespace KSynthLib.K4
             // When initializing the values, the constructors that take a `byte` argument
             // automatically reset the top bit and scale the value correctly, so we only
             // need to pass in the raw byte from SysEx.
-            _time = new LevelType(data[0]);
-            _depth = new DepthType(data[1]);
-            _keyScalingTime = new DepthType(data[2]);
-            _velocityDepth = new DepthType(data[3]);
+            Time = new LevelType(data[0]);
+            Depth = new DepthType(data[1]);
+            KeyScalingTime = new DepthType(data[2]);
+            VelocityDepth = new DepthType(data[3]);
         }
 
         public override string ToString()
@@ -64,12 +41,12 @@ namespace KSynthLib.K4
         {
             List<byte> data = new List<byte>();
 
-            data.Add(Time);
+            data.Add(Time.ToByte());
 
-            // The `AsByte` method returns the value as the raw SysEx byte.
-            data.Add(_depth.AsByte());
-            data.Add(_keyScalingTime.AsByte());
-            data.Add(_velocityDepth.AsByte());
+            // The `ToByte` method returns the value as the raw SysEx byte.
+            data.Add(Depth.ToByte());
+            data.Add(KeyScalingTime.ToByte());
+            data.Add(VelocityDepth.ToByte());
 
             return data.ToArray();
         }

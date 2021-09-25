@@ -1,291 +1,277 @@
 using System;
-
 using Range.Net;
+using KSynthLib.Common;
 
 namespace KSynthLib.K4
 {
-    //
-    // Here are a couple of ranged types.
-    // These could probably be made generic and/or use an interface.
-    //
-
-    // Used for velocity depth, pressure depth, key scaling depth
+    // Used for velocity depth, pressure depth, key scaling depth etc.
     // that have the range -50 ... +50.
-    public class DepthType
+    public class DepthType : RangeType
     {
-        public const sbyte MIN_VALUE = -50;
-        public const sbyte MAX_VALUE = 50;
-        public const sbyte DEFAULT_VALUE = 0;
+        private const int MIN_VALUE = -50;
+        private const int MAX_VALUE = 50;
+        private const int DEFAULT_VALUE = 0;
 
-        private Range<sbyte> range;
+        private int currentValue;
 
-        private sbyte _value;
-        public sbyte Value
+        // Construct a depth with the default value.
+        public DepthType()
         {
-            get => _value;
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = this.DefaultValue;
+        }
+
+        // Construct a depth value from a normal value, clamping it if necessary.
+        public DepthType(int value)
+        {
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = base.Clamp(value);
+        }
+
+        // Construct a depth value from a raw SysEx byte, adjusting as necessary.
+        // For example, a depth value of zero is stored in SysEx as 50, so
+        // the raw byte will need to be adjusted by -50.
+        public DepthType(byte value)
+        {
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = base.Clamp((int)value - this.MaximumValue);
+        }
+
+        public override int Value
+        {
+            get => this.currentValue;
 
             set
             {
-                if (range.Contains(value))
+                if (value >= this.minimumValue && value <= this.maximumValue)
                 {
-                    _value = value;
+                    this.currentValue = value;
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("Depth",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
+                    throw new ArgumentOutOfRangeException(this.GetType().Name,
+                        string.Format("Value {0} is not in range {1}...{2}",
+                            value, this.minimumValue, this.maximumValue));
                 }
             }
         }
 
-        public DepthType()
+        // Get the depth value as a SysEx byte, adjusted accordingly.
+        // For example, a depth value of zero is stored in SysEx as 50, so
+        // the depth value will need to be adjusted by +50 to get the byte in 0...100.
+        public override byte ToByte()
         {
-            this.range = new Range<sbyte>(DepthType.MIN_VALUE, DepthType.MAX_VALUE);
-            this._value = DepthType.DEFAULT_VALUE;
+            return (byte)(this.Value + this.MaximumValue);
         }
-
-        public DepthType(sbyte v) : this()
-        {
-            this.Value = v;
-        }
-
-        // Initializes value from raw SysEx byte.
-        public DepthType(byte b) : this()
-        {
-            this.Value = (sbyte)((b & 0x7f) - DepthType.MAX_VALUE);
-        }
-
-        // Returns the value as a raw SysEx byte.
-        public byte AsByte() => (byte)(this.Value + DepthType.MAX_VALUE);
     }
 
     // Level from 0...100, for example patch volume.
-    public class LevelType
+    public class LevelType : RangeType
     {
-        public const byte MIN_VALUE = 0;
-        public const byte MAX_VALUE = 100;
-        public const byte DEFAULT_VALUE = 100;
+        private const int MIN_VALUE = 0;
+        private const int MAX_VALUE = 100;
+        private const int DEFAULT_VALUE = 100;
 
-        private Range<byte> range;
+        private int currentValue;
 
-        private byte _value;
-        public byte Value
-        {
-            get => _value;
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Level",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
+        // Construct a level with the default value.
         public LevelType()
         {
-            this.range = new Range<byte>(LevelType.MIN_VALUE, LevelType.MAX_VALUE);
-            this._value = LevelType.DEFAULT_VALUE;
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = this.DefaultValue;
         }
 
-        public LevelType(byte v) : this()
+        // Construct a level value from a normal value, clamping it if necessary.
+        public LevelType(int value)
         {
-            this.Value = (byte)(v & 0x7f);  // setter throws exception of out-of-range values
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = base.Clamp(value);
         }
 
-        public LevelType(int v) : this()
+        // Construct a level value from a raw SysEx byte.
+        public LevelType(byte value)
         {
-            this.Value = (byte)v;
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = (int)(value & 0x7f);
         }
-    }
 
-    public class OutputSettingType
-    {
-        public const int MIN_VALUE = 0;
-        public const int MAX_VALUE = 7;
-        public const int DEFAULT_VALUE = 0;
-
-        private Range<int> range;
-
-        private int _value;
-        public int Value
+        public override int Value
         {
-            get => _value;
+            get => this.currentValue;
 
             set
             {
-                if (range.Contains(value))
+                if (value >= this.minimumValue && value <= this.maximumValue)
                 {
-                    _value = value;
+                    this.currentValue = value;
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("OutputSetting",
-                        string.Format("Value must be in range {0} (was {1})",
-                        this.range.ToString(), value));
+                    throw new ArgumentOutOfRangeException(this.GetType().Name,
+                        string.Format("Value {0} is not in range {1}...{2}",
+                            value, this.minimumValue, this.maximumValue));
                 }
             }
         }
 
-        public OutputSettingType()
+        // Get the level value as a SysEx byte.
+        public override byte ToByte()
         {
-            this.range = new Range<int>(OutputSettingType.MIN_VALUE, OutputSettingType.MAX_VALUE);
-            this._value = OutputSettingType.DEFAULT_VALUE;
+            return (byte)this.Value;
         }
-
-        public OutputSettingType(int v) : this()
-        {
-            this.Value = v;  // setter throws exception for invalid value
-        }
-
-        public const string OutputNames = "ABCDEFGH";
     }
 
-    public class PitchBendRangeType
+    public class PitchBendRangeType : RangeType
     {
-        public const byte MIN_VALUE = 0;
-        public const byte MAX_VALUE = 12;
-        public const byte DEFAULT_VALUE = 0;
+        private const int MIN_VALUE = 0;
+        private const int MAX_VALUE = 12;
+        private const int DEFAULT_VALUE = 0;
 
-        private Range<byte> range;
+        private int currentValue;
 
-        private byte _value;
-        public byte Value
-        {
-            get => _value;
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("PitchBendRange",
-                        string.Format("Value must be in range {0} (was {1})",
-                        this.range.ToString(), value));
-                }
-            }
-        }
-
+        // Construct a pitch bend range with the default value.
         public PitchBendRangeType()
         {
-            this.range = new Range<byte>(MIN_VALUE, MAX_VALUE);
-            this._value = DEFAULT_VALUE;
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = this.DefaultValue;
         }
 
-        public PitchBendRangeType(byte v) : this()
+        // Construct a pitch bend range from a normal value, clamping it if necessary.
+        public PitchBendRangeType(int value)
         {
-            this.Value = (byte)(v & 0x0f);  // setter throws exception for invalid value
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = base.Clamp(value);
         }
 
-        public PitchBendRangeType(int v) : this()
+        public override int Value
         {
-            this.Value = (byte)v;
-        }
-    }
-
-    public class CoarseType
-    {
-        public const sbyte MIN_VALUE = -24;
-        public const sbyte MAX_VALUE = 24;
-        public const sbyte DEFAULT_VALUE = 0;
-
-        private Range<sbyte> range;
-
-        private sbyte _value;
-        public sbyte Value
-        {
-            get => _value;
+            get => this.currentValue;
 
             set
             {
-                if (range.Contains(value))
+                if (value >= this.minimumValue && value <= this.maximumValue)
                 {
-                    _value = value;
+                    this.currentValue = value;
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("Coarse",
-                        string.Format("Value must be in range {0} (was {1})",
-                        this.range.ToString(), value));
+                    throw new ArgumentOutOfRangeException(this.GetType().Name,
+                        string.Format("Value {0} is not in range {1}...{2}",
+                            value, this.minimumValue, this.maximumValue));
                 }
             }
         }
 
+        // Get the pitch bend range value as a SysEx byte.
+        public override byte ToByte()
+        {
+            return (byte)this.Value;
+        }
+    }
+
+    public class CoarseType : RangeType
+    {
+        private const int MIN_VALUE = -24;
+        private const int MAX_VALUE = 24;
+        private const int DEFAULT_VALUE = 0;
+
+        private int currentValue;
+
+        // Construct a coarse setting with the default value.
         public CoarseType()
         {
-            this.range = new Range<sbyte>(MIN_VALUE, MAX_VALUE);
-            this._value = DEFAULT_VALUE;
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = this.DefaultValue;
         }
 
-        public CoarseType(sbyte v) : this()
+        // Construct a coarse setting from a normal value, clamping it if necessary.
+        public CoarseType(int value)
         {
-            this.Value = v;  // setter throws exception for invalid value
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = base.Clamp(value);
         }
 
-        public CoarseType(byte b) : this()
+        // Construct a coarse setting from a raw SysEx byte.
+        public CoarseType(byte value)
         {
-            this.Value = (sbyte)((b & 0x3f) - MAX_VALUE);
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = (int)(value & 0x3f) - this.MaximumValue;
         }
 
-        public byte AsByte() => (byte)(this.Value + MAX_VALUE);
+        public override int Value
+        {
+            get => this.currentValue;
+
+            set
+            {
+                if (value >= this.minimumValue && value <= this.maximumValue)
+                {
+                    this.currentValue = value;
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException(this.GetType().Name,
+                        string.Format("Value {0} is not in range {1}...{2}",
+                            value, this.minimumValue, this.maximumValue));
+                }
+            }
+        }
+
+        // Get the coarse setting value as a SysEx byte.
+        public override byte ToByte()
+        {
+            return (byte)(this.Value + this.MaximumValue);
+        }
     }
 
     // Effect number 1...32
-    public class EffectNumberType
+    public class EffectNumberType : RangeType
     {
-        public const byte MIN_VALUE = 1;
-        public const byte MAX_VALUE = 32;
-        public const byte DEFAULT_VALUE = 1;
+        private const int MIN_VALUE = 1;
+        private const int MAX_VALUE = 32;
+        private const int DEFAULT_VALUE = 1;
 
-        private Range<byte> range;
+        private int currentValue;
 
-        private byte _value;
-        public byte Value
+        // Construct an effect number, clamping it if necessary.
+        public EffectNumberType(int value)
         {
-            get => _value;
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = base.Clamp(value);
+        }
+
+        // Constructs a effect number from a raw SysEx byte.
+        // Adjusts the raw value into the range 1...32.
+        public EffectNumberType(byte value)
+        {
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = (int)(value + 1); // adjust from 0...31 to 1...32
+        }
+
+        public override int Value
+        {
+            get => this.currentValue;
 
             set
             {
-                if (range.Contains(value))
+                if (value >= this.minimumValue && value <= this.maximumValue)
                 {
-                    _value = value;
+                    this.currentValue = value;
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("EffectNumber",
-                        string.Format("Value must be in range {0} (was {1})",
-                        this.range.ToString(), value));
+                    throw new ArgumentOutOfRangeException(this.GetType().Name,
+                        string.Format("Value {0} is not in range {1}...{2}",
+                            value, this.minimumValue, this.maximumValue));
                 }
             }
         }
 
-        public EffectNumberType()
+        // Get the effect number as a SysEx byte.
+        public override byte ToByte()
         {
-            this.range = new Range<byte>(MIN_VALUE, MAX_VALUE);
-            this._value = DEFAULT_VALUE;
+            return (byte)(this.Value - 1);  // adjust from 1...32 to 0...31 for SysEx
         }
-
-        public EffectNumberType(byte v) : this()
-        {
-            this.Value = (byte)((v & 0x1f) + 1);  // setter throws exception for invalid value
-        }
-
-        public EffectNumberType(int v) : this()
-        {
-            this.Value = (byte)v;
-        }
-
-        public byte AsByte() => (byte)(this.Value - 1);
     }
 
     public class EffectParameter1Type
@@ -493,89 +479,62 @@ namespace KSynthLib.K4
         public byte AsByte() => (byte)(this.Value - 1);
     }
 
-    public class PanValueType
+    public class PanValueType : RangeType
     {
-        public const sbyte MIN_VALUE = -7;
-        public const sbyte MAX_VALUE = 7;
-        public const sbyte DEFAULT_VALUE = 0;
+        private const int MIN_VALUE = -7;
+        private const int MAX_VALUE = 7;
+        private const int DEFAULT_VALUE = 0;
 
-        private Range<sbyte> range;
+        private int currentValue;
 
-        private sbyte _value;
-        public sbyte Value
-        {
-            get => _value;
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("PanValue",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
+        // Construct a pan value with the default value.
         public PanValueType()
         {
-            this.range = new Range<sbyte>(MIN_VALUE, MAX_VALUE);
-            this._value = DEFAULT_VALUE;
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = this.DefaultValue;
         }
 
-        public PanValueType(sbyte v) : this()
+        // Construct a depth value from a normal value, clamping it if necessary.
+        public PanValueType(int value)
         {
-            this.Value = v;
-        }
-        public PanValueType(byte b) : this()
-        {
-            this.Value = (sbyte)(b - MAX_VALUE);
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = base.Clamp(value);
         }
 
-        public byte AsByte() => (byte)(this.Value + MAX_VALUE);
-    }
-
-    public class SendValueType
-    {
-        public const byte MIN_VALUE = 0;
-        public const byte MAX_VALUE = 100;
-        public const byte DEFAULT_VALUE = 0;
-
-        private Range<byte> range;
-
-        private byte _value;
-        public byte Value
+        // Construct a pan value from a raw SysEx byte, adjusting as necessary.
+        // For example, a pan value of 7 is stored in SysEx as 14, so
+        // the raw byte will need to be adjusted by -7.
+        public PanValueType(byte value)
         {
-            get => _value;
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = base.Clamp((int)value - this.MaximumValue);
+        }
+
+        public override int Value
+        {
+            get => this.currentValue;
 
             set
             {
-                if (range.Contains(value))
+                if (value >= this.minimumValue && value <= this.maximumValue)
                 {
-                    _value = value;
+                    this.currentValue = value;
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("SendValue",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
+                    throw new ArgumentOutOfRangeException(this.GetType().Name,
+                        string.Format("Value {0} is not in range {1}...{2}",
+                            value, this.MinimumValue, this.MaximumValue));
                 }
             }
         }
 
-        public SendValueType()
+        // Get the pan value as a SysEx byte, adjusted accordingly.
+        // For example, a pan value of +7 is stored in SysEx as 14, so
+        // the pan value will need to be adjusted by +7 to get the byte into 0...14.
+        public override byte ToByte()
         {
-            this.range = new Range<byte>(MIN_VALUE, MAX_VALUE);  // manual says 0...100, SysEx spec says 0...99
-            this._value = DEFAULT_VALUE;
-        }
-
-        public SendValueType(byte v) : this()
-        {
-            this.Value = v;  // setter throws exception for out-of-range values
+            return (byte)(this.Value + this.MaximumValue);
         }
     }
 
@@ -621,44 +580,52 @@ namespace KSynthLib.K4
         public byte AsByte() => (byte)(this.Value - 1);
     }
 
-    public class PatchNumberType
+    public class PatchNumberType : RangeType
     {
-        // TODO: Should this have 1...64? Or a more elaborate "A-1"..."D-16" etc.?
-        public const byte MIN_VALUE = 0;
-        public const byte MAX_VALUE = 63;
-        public const byte DEFAULT_VALUE = 0;
+        private const int MIN_VALUE = 1;
+        private const int MAX_VALUE = 64;
+        private const int DEFAULT_VALUE = 1;
 
-        private Range<byte> range;
+        private int currentValue;
 
-        private byte _value;
-        public byte Value
+        // Construct a patch number, clamping it if necessary.
+        public PatchNumberType(int value)
         {
-            get => _value;
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = base.Clamp(value);
+        }
+
+        // Constructs a patch number from a raw SysEx byte.
+        // Adjusts the raw value into the range 1...64.
+        public PatchNumberType(byte value)
+        {
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = (int)(value + 1); // adjust from 0...63 to 1...64
+        }
+
+        public override int Value
+        {
+            get => this.currentValue;
 
             set
             {
-                if (range.Contains(value))
+                if (value >= this.minimumValue && value <= this.maximumValue)
                 {
-                    _value = value;
+                    this.currentValue = value;
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("PatchNumber",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
+                    throw new ArgumentOutOfRangeException(this.GetType().Name,
+                        string.Format("Value {0} is not in range {1}...{2}",
+                            value, this.minimumValue, this.maximumValue));
                 }
             }
         }
 
-        public PatchNumberType()
+        // Get the patch number as a SysEx byte.
+        public override byte ToByte()
         {
-            this.range = new Range<byte>(MIN_VALUE, MAX_VALUE);
-            this._value = MIN_VALUE;
-        }
-
-        public PatchNumberType(byte v) : this()
-        {
-            this.Value = v;  // setter throws exception for out-of-range values
+            return (byte)(this.Value - 1);  // adjust from 1...64 to 0...63 for SysEx
         }
     }
 
@@ -699,58 +666,6 @@ namespace KSynthLib.K4
         public ZoneValueType(byte v) : this()
         {
             this.Value = v;  // setter throws exception for out-of-range values
-        }
-    }
-
-    public abstract class RangeType
-    {
-        private Range<int> range;
-
-        private int _minValue;
-        public int MinValue { get => _minValue; }
-
-        private int _maxValue;
-        public int MaxValue { get => MaxValue; }
-
-        private int _defaultValue;
-        public int DefaultValue { get => DefaultValue; }
-
-        private int _value;
-        public int Value
-        {
-            get => _value;
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("RangeType",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
-        public RangeType(int minValue, int maxValue, int defaultValue)
-        {
-            this._minValue = minValue;
-            this._maxValue = maxValue;
-            this._defaultValue = defaultValue;
-            this._value = defaultValue;
-        }
-    }
-
-    public class RangeDepthType : RangeType
-    {
-        public RangeDepthType() : base(-50, 50, 0) { }
-
-        public RangeDepthType(int value) : this()
-        {
-            this.Value = value;
         }
     }
 }

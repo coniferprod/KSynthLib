@@ -12,27 +12,17 @@ namespace KSynthLib.K4
 
         public const int SectionCount = 8;
 
-        private LevelType _volume;
-        public byte Volume  // 0~100
-        {
-            get => _volume.Value;
-            set => _volume.Value = value;
-        }
+        public LevelType Volume;
 
         public Section[] Sections;
 
-        private EffectNumberType _effectPatch;
-        public byte EffectPatch  // 1~32 (on K4)
-        {
-            get => _effectPatch.Value;
-            set =>_effectPatch.Value = value;
-        }
+        public EffectNumberType EffectPatch; // 1~32 (on K4)
 
         public MultiPatch()
         {
             this._name = "Init      ";
-            this._volume = new LevelType(80);
-            this._effectPatch = new EffectNumberType(1);
+            this.Volume = new LevelType(80);
+            this.EffectPatch = new EffectNumberType(1);
 
             this.Sections = new Section[SectionCount];
             for (int i = 0; i < SectionCount; i++)
@@ -51,10 +41,10 @@ namespace KSynthLib.K4
             offset += 10;  // name is M0 to M9
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Volume = b;
+            Volume = new LevelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            this.EffectPatch = (byte)(b + 1);  // store 0~31 as 1~32
+            this.EffectPatch = new EffectNumberType(b);
 
             for (int i = 0; i < SectionCount; i++)
             {
@@ -89,8 +79,8 @@ namespace KSynthLib.K4
             byte[] nameBytes = Encoding.ASCII.GetBytes(this.Name.PadRight(10));
             data.AddRange(nameBytes);
 
-            data.Add((byte)Volume);
-            data.Add((byte)(EffectPatch - 1));  // store 1~32 as 0~31
+            data.Add(Volume.ToByte());
+            data.Add(EffectPatch.ToByte());
 
             for (int i = 0; i < SectionCount; i++)
             {

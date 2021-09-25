@@ -11,34 +11,16 @@ namespace KSynthLib.K4
         public const int DataSize = 5;
 
         public Wave Wave;
-
-        private LevelType _decay;
-        public byte Decay
-        {
-            get => _decay.Value;
-            set => _decay.Value = value;
-        }
-
-        private DepthType _tune; // 0~100 / ±50
-        public sbyte Tune
-        {
-            get => _tune.Value;
-            set => _tune.Value = value;
-        }
-
-        private LevelType _level;  // manual says 0...100, SysEx spec says 0...99
-        public byte Level
-        {
-            get => _level.Value;
-            set => _level.Value = value;
-        }
+        public LevelType Decay;
+        public DepthType Tune; // 0~100 / ±50
+        private LevelType Level;  // manual says 0...100, SysEx spec says 0...99
 
         public DrumSource()
         {
             Wave = new Wave(97);  // "KICK"
-            _decay = new LevelType(100);
-            _tune = new DepthType();
-            _level = new LevelType(100);
+            Decay = new LevelType(99);
+            Tune = new DepthType();
+            Level = new LevelType(99);
         }
 
         public DrumSource(byte[] data) : this()
@@ -47,9 +29,9 @@ namespace KSynthLib.K4
             byte waveLow = (byte)(data[1] & 0x7f);
             Wave = new Wave(waveHigh, waveLow);
 
-            Decay = data[2];
-            _tune = new DepthType(data[3]);
-            Level = data[4];
+            Decay = new LevelType(data[2]);
+            Tune = new DepthType(data[3]);
+            Level = new LevelType(data[4]);
         }
 
         public byte[] ToData()
@@ -62,9 +44,9 @@ namespace KSynthLib.K4
             data.Add(high);
             data.Add(low);
 
-            data.Add(Decay);
-            data.Add(_tune.AsByte());
-            data.Add(Level);
+            data.Add(Decay.ToByte());
+            data.Add(Tune.ToByte());
+            data.Add(Level.ToByte());
 
             return data.ToArray();
         }
@@ -90,13 +72,7 @@ namespace KSynthLib.K4
     {
         public const int DataSize = 11;  // ten bytes plus checksum
 
-        private OutputSettingType _outputSelect;
-        public char OutputSelect
-        {
-            get => OutputSettingType.OutputNames[_outputSelect.Value];
-            set => _outputSelect.Value = OutputSettingType.OutputNames.IndexOf(value);
-        }
-
+        public SubmixType OutputSelect;
         public DrumSource Source1;
         public DrumSource Source2;
 
@@ -120,7 +96,7 @@ namespace KSynthLib.K4
 
         public DrumNote()
         {
-            _outputSelect = new OutputSettingType(0);
+            OutputSelect = SubmixType.A;
             Source1 = new DrumSource();
             Source2 = new DrumSource();
         }
@@ -136,7 +112,7 @@ namespace KSynthLib.K4
             (b, offset) = Util.GetNextByte(data, offset);
             source1Bytes.Add((byte)(b & 0x01));
 
-            _outputSelect = new OutputSettingType((byte)((b >> 4) & 0x07));
+            OutputSelect = (SubmixType)((b >> 4) & 0x07);
 
             (b, offset) = Util.GetNextByte(data, offset);
             source2Bytes.Add(b);
@@ -177,7 +153,7 @@ namespace KSynthLib.K4
             List<byte> data = new List<byte>();
 
             byte[] source1Bytes = this.Source1.ToData();
-            byte outputSelect = (byte)(OutputSettingType.OutputNames.IndexOf(OutputSelect));
+            byte outputSelect = (byte)OutputSelect;
             byte d11 = (byte)((outputSelect << 4) | source1Bytes[0]);
             source1Bytes[0] = d11;
 

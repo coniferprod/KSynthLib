@@ -25,47 +25,30 @@ namespace KSynthLib.K4
 
     public class EffectSubmix
     {
-        private PanValueType _pan;
-        public sbyte Pan
-        {
-            get => _pan.Value;
-            set => _pan.Value = value;
-        }
-
-        private SendValueType _send1;
-        public byte Send1
-        {
-            get => _send1.Value;
-            set => _send1.Value = value;
-        }
-
-        private SendValueType _send2;
-        public byte Send2
-        {
-            get => _send2.Value;
-            set => _send2.Value = value;
-        }
+        public PanValueType Pan;
+        public LevelType Send1;
+        public LevelType Send2;
 
         public EffectSubmix()
         {
-            _pan = new PanValueType();
-            _send1 = new SendValueType();
-            _send2 = new SendValueType();
+            Pan = new PanValueType();
+            Send1 = new LevelType();
+            Send2 = new LevelType();
         }
 
-        public EffectSubmix(sbyte d0, byte d1, byte d2) : this()
+        public EffectSubmix(int d0, int d1, int d2)
         {
-            Pan = d0;
-            Send1 = d1;
-            Send2 = d2;
+            Pan = new PanValueType(d0);
+            Send1 = new LevelType(d1);
+            Send2 = new LevelType(d2);
         }
 
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
-            data.Add(_pan.AsByte());
-            data.Add(Send1);
-            data.Add(Send2);
+            data.Add(Pan.ToByte());
+            data.Add(Send1.ToByte());
+            data.Add(Send2.ToByte());
             return data.ToArray();
         }
     }

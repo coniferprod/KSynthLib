@@ -20,19 +20,8 @@ namespace KSynthLib.K4
             set => _receiveChannel.Value = value;
         }
 
-        private LevelType _volume;
-        public byte Volume
-        {
-            get => _volume.Value;
-            set => _volume.Value = value;
-        }
-
-        private LevelType _velocityDepth;
-        public byte VelocityDepth
-        {
-            get => _velocityDepth.Value;
-            set => _velocityDepth.Value = value;
-        }
+        public LevelType Volume;
+        public LevelType VelocityDepth;
 
         public List<DrumNote> Notes;
 
@@ -44,8 +33,8 @@ namespace KSynthLib.K4
                 List<byte> data = new List<byte>();
 
                 data.Add(_receiveChannel.AsByte()); // 1~16 stored as 0~15
-                data.Add(Volume);
-                data.Add(VelocityDepth);
+                data.Add(Volume.ToByte());
+                data.Add(VelocityDepth.ToByte());
 
                 byte[] bs = data.ToArray();
                 byte sum = 0;
@@ -63,8 +52,8 @@ namespace KSynthLib.K4
         public DrumPatch()
         {
             _receiveChannel = new MidiChannelType();
-            _volume = new LevelType(99);
-            _velocityDepth = new LevelType(99);
+            Volume = new LevelType(99);
+            VelocityDepth = new LevelType(99);
 
             Notes = new List<DrumNote>();
             for (int i = 0; i < NoteCount; i++)
@@ -82,10 +71,10 @@ namespace KSynthLib.K4
             _receiveChannel = new MidiChannelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _volume = new LevelType(b);  // 0~100
+            Volume = new LevelType(b);  // 0~100
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _velocityDepth = new LevelType(b);
+            VelocityDepth = new LevelType(b);
 
             // Eat up the dummy bytes
             offset += 7;
@@ -110,8 +99,8 @@ namespace KSynthLib.K4
             List<byte> data = new List<byte>();
 
             data.Add(_receiveChannel.AsByte()); // 1~16 stored as 0~15
-            data.Add(Volume);
-            data.Add(VelocityDepth);
+            data.Add(Volume.ToByte());
+            data.Add(VelocityDepth.ToByte());
 
             // Add seven dummy bytes
             data.Add(0);

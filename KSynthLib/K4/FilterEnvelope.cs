@@ -4,56 +4,33 @@ namespace KSynthLib.K4
 {
     public class FilterEnvelope
     {
-        private LevelType _attack;
-        public byte Attack // 0~100
-        {
-            get => _attack.Value;
-            set => _attack.Value = value;
-        }
-
-        private LevelType _decay;
-        public byte Decay // 0~100
-        {
-            get => _decay.Value;
-            set => _decay.Value = value;
-        }
-
-        private DepthType _sustain;
-        public sbyte Sustain // -50~+50, in SysEx 0~100
-        {
-            get => _sustain.Value;
-            set => _sustain.Value = value;
-        }
-
-        private LevelType _release;
-        public byte Release // 0~100
-        {
-            get => _release.Value;
-            set => _release.Value = value;
-        }
+        public LevelType Attack;
+        public LevelType Decay;
+        public DepthType Sustain;
+        public LevelType Release;
 
         public FilterEnvelope()
         {
-            _attack = new LevelType();
-            _decay = new LevelType();
-            _sustain = new DepthType();
-            _release = new LevelType();
+            Attack = new LevelType();
+            Decay = new LevelType();
+            Sustain = new DepthType();
+            Release = new LevelType();
         }
 
-        public FilterEnvelope(byte a, byte d, sbyte s, byte r)
+        public FilterEnvelope(int a, int d, int s, int r)
         {
-            _attack = new LevelType(a);
-            _decay = new LevelType(d);
-            _sustain = new DepthType(s);
-            _release = new LevelType(r);
+            Attack = new LevelType(a);
+            Decay = new LevelType(d);
+            Sustain = new DepthType(s);
+            Release = new LevelType(r);
         }
 
         public FilterEnvelope(List<byte> data)
         {
-            _attack = new LevelType(data[0]);
-            _decay = new LevelType(data[1]);
-            _sustain = new DepthType(data[2]);  // constructor adjusts to range
-            _release = new LevelType(data[3]);
+            Attack = new LevelType(data[0]);
+            Decay = new LevelType(data[1]);
+            Sustain = new DepthType(data[2]);  // constructor adjusts to range
+            Release = new LevelType(data[3]);
         }
 
         public override string ToString()
@@ -64,10 +41,10 @@ namespace KSynthLib.K4
         public byte[] ToData()
         {
             List<byte> data = new List<byte>();
-            data.Add(Attack);
-            data.Add(Decay);
-            data.Add(_sustain.AsByte());
-            data.Add(Release);
+            data.Add(Attack.ToByte());
+            data.Add(Decay.ToByte());
+            data.Add(Sustain.ToByte());
+            data.Add(Release.ToByte());
             return data.ToArray();
         }
     }

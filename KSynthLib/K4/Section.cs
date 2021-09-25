@@ -23,12 +23,7 @@ namespace KSynthLib.K4
     {
         public const int DataSize = 8;
 
-        private PatchNumberType _singlePatch;
-        public byte SinglePatch
-        {
-            get => _singlePatch.Value;
-            set => _singlePatch.Value = value;
-        }
+        public PatchNumberType SinglePatch;
 
         private ZoneValueType _zoneLow;
         public byte ZoneLow
@@ -52,52 +47,26 @@ namespace KSynthLib.K4
         }
 
         public VelocitySwitchType VelocitySwitch;
-
         public bool IsMuted;
-
-        private OutputSettingType _output;
-        public char Output
-        {
-            get => OutputSettingType.OutputNames[_output.Value];
-            set => _output.Value = OutputSettingType.OutputNames.IndexOf(value);
-        }
-
+        public SubmixType Output;
         public PlayModeType PlayMode;
-
-        private LevelType _level;
-        public byte Level
-        {
-            get => _level.Value;
-            set => _level.Value = value;
-        }
-
-        private CoarseType _transpose;
-        public sbyte Transpose
-        {
-            get => _transpose.Value;
-            set => _transpose.Value = value;
-        }
-
-        private DepthType _tune;
-        public sbyte Tune
-        {
-            get => _tune.Value;
-            set => _tune.Value = value;
-        }
+        public LevelType Level;
+        public CoarseType Transpose;
+        public DepthType Tune;
 
         public Section()
         {
-            _singlePatch = new PatchNumberType();
+            SinglePatch = new PatchNumberType(1);
             _zoneLow = new ZoneValueType();
             _zoneHigh = new ZoneValueType(127);
             _receiveChannel = new MidiChannelType(1);
             VelocitySwitch = VelocitySwitchType.All;
             IsMuted = false;
-            _output = new OutputSettingType();
+            Output = SubmixType.A;
             PlayMode = PlayModeType.Keyboard;
-            _level = new LevelType(80);
-            _transpose = new CoarseType(0);
-            _tune = new DepthType(0);
+            Level = new LevelType(80);
+            Transpose = new CoarseType(0);
+            Tune = new DepthType(0);
         }
 
         public Section(byte[] data) : this()
@@ -106,7 +75,7 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            SinglePatch = b;
+            SinglePatch = new PatchNumberType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
             ZoneLow = b;
@@ -124,26 +93,25 @@ namespace KSynthLib.K4
 
             (b, offset) = Util.GetNextByte(data, offset);
             // out select = M16 bits 0...2
-            int outputNameIndex = (int)(b & 0x07); // 0b00000111;
-            Output = OutputSettingType.OutputNames[outputNameIndex];
+            Output = (SubmixType)(b & 0x07); // 0b00000111
 
             // play mode = M16 bits 3...4
             PlayMode = (PlayModeType)((b >> 3) & 0x03);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Level = b;
+            Level = new LevelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _transpose = new CoarseType(b);
+            Transpose = new CoarseType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _tune = new DepthType(b);
+            Tune = new DepthType(b);
         }
 
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(string.Format("single = {0}, recv ch = {1}, play mode = {2}\n", PatchUtil.GetPatchName(SinglePatch), ReceiveChannel, PlayMode));
+            builder.Append(string.Format("single = {0}, recv ch = {1}, play mode = {2}\n", PatchUtil.GetPatchName(SinglePatch.Value), ReceiveChannel, PlayMode));
             builder.Append(string.Format("zone = {0} to {1}, vel sw = {2}\n", GetNoteName(ZoneLow), GetNoteName(ZoneHigh), VelocitySwitch));
             builder.Append($"level = {Level}, transpose = {Transpose}, tune = {Tune}\n");
             builder.Append($"submix ch = {Output}\n");
@@ -154,7 +122,7 @@ namespace KSynthLib.K4
         {
             List<byte> data = new List<byte>();
 
-            data.Add((byte)SinglePatch);
+            data.Add(SinglePatch.ToByte());
             data.Add((byte)ZoneLow);
             data.Add((byte)ZoneHigh);
 
@@ -175,9 +143,9 @@ namespace KSynthLib.K4
             byte m16 = (byte)(os | m);
             data.Add(m16);
 
-            data.Add(Level);
-            data.Add(_transpose.AsByte());
-            data.Add(_tune.AsByte());
+            data.Add(Level.ToByte());
+            data.Add(Transpose.ToByte());
+            data.Add(Tune.ToByte());
 
             return data.ToArray();
         }
