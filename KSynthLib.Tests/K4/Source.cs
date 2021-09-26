@@ -8,27 +8,24 @@ namespace KSynthLib.Tests.K4
 {
     public class SourceTests
     {
-        string rawString =
-        "00 00 02 03 " +
-        "00 00 50 40 " +
-        "12 12 7E 7F " +
-        "4C 4C 5A 5B " +
-        "00 34 02 03 " +
-        "2C 37 34 35 " +
-        "02 02 15 11";
+        byte[] sourceData = new byte[]
+        {
+            // Common
+            0x00, 0x00, 0x02, 0x03,  // s30...s33 = delay for S1...S4
+            0x00, 0x00, 0x50, 0x40,  // s34...s37 = wave select h + ks curve for S1...S4
+            0x12, 0x12, 0x7E, 0x7F,  // s38...s41 = wave select l
+            0x4C, 0x4C, 0x5A, 0x5B,  // s42...s45 = coarse + key track
+            0x00, 0x34, 0x02, 0x03,  // s46...s49 = fix
+            0x2C, 0x37, 0x34, 0x35,  // s50...s53 = fine
+            0x02, 0x02, 0x15, 0x11,  // s54...s57 = prs>frq sw + vib/a.bend sw + vel curve
+        };
 
         [Fact]
         public void InitFromData_IsSuccessful()
         {
-            string hexString = rawString.Replace(" ", "");
-            byte[] data = Util.HexStringToByteArray(hexString);
-
-            int sourceDataLength = Source.DataSize * 4;
-            byte[] sourceData = new byte[sourceDataLength];
-            List<byte> source1Data = Util.EveryNthElement(new List<byte>(sourceData), 4, 0);
-            Source s1 = new Source(source1Data.ToArray());
+            List<byte[]> sourceBytes = Util.SeparateBytes(sourceData, 4);
+            Source s1 = new Source(sourceBytes[0]);
             Assert.Equal(0, s1.Delay.Value);
         }
-
     }
 }

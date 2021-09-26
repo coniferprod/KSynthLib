@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 using System.IO;
+using System.Diagnostics;
 
 using KSynthLib.Common;
 
@@ -138,23 +139,23 @@ namespace KSynthLib.K4
             using (MemoryStream mem = new MemoryStream(data))
             {
                 // Read the patch name in s00...s09
-                Console.Error.WriteLine($"{mem.Position}: name");
+                Console.Error.WriteLine($"{mem.Position}: s00...s09 name");
                 byte[] nameBytes = new byte[Patch.NameLength];
                 mem.Read(nameBytes, 0, Patch.NameLength);
                 this._name = this.GetName(nameBytes);
 
-                Console.Error.WriteLine($"{mem.Position}: volume");
+                Console.Error.WriteLine($"{mem.Position}: s10 volume");
                 this.Volume = new LevelType(mem.ReadByte());
 
                 // effect = s11 bits 0...4
-                Console.Error.WriteLine($"{mem.Position}: effect");
+                Console.Error.WriteLine($"{mem.Position}: s11 effect");
                 this.Effect = new EffectNumberType(mem.ReadByte());
 
                 // output select = s12 bits 0...2
-                Console.Error.WriteLine($"{mem.Position}: output");
+                Console.Error.WriteLine($"{mem.Position}: s12 output");
                 Submix = (SubmixType)(mem.ReadByte() & 0x07); // 0b00000111
 
-                Console.Error.WriteLine($"{mem.Position}: source mode, polyphony mode, AM 1>2, AM 3>4");
+                Console.Error.WriteLine($"{mem.Position}: s13 source mode, polyphony mode, AM 1>2, AM 3>4");
                 int v = mem.ReadByte();
                 // source mode = s13 bits 0...1
                 SourceMode = (SourceMode)(v & 0x03);
@@ -162,7 +163,7 @@ namespace KSynthLib.K4
                 AM12 = ((v >> 4) & 0x01) == 1;
                 AM34 = ((v >> 5) & 0x01) == 1;
 
-                Console.Error.WriteLine($"{mem.Position}: source mutes");
+                Console.Error.WriteLine($"{mem.Position}: s14 source mutes");
                 b = (byte)mem.ReadByte();
                 // the source mute bits are in s14:
                 // S1 = b0, S2 = b1, S3 = b2, S4 = b3
@@ -174,8 +175,7 @@ namespace KSynthLib.K4
                 }
 
                 // Save the first vibrato byte (the rest will come later)
-                Console.Error.WriteLine($"{mem.Position}: vibrato shape");
-                vibratoBytes.Add((byte)mem.ReadByte());
+                vibratoBytes.Add(b);
 
                 Console.Error.WriteLine($"{mem.Position}: pitch bend, wheel assign");
                 v = mem.ReadByte();
@@ -227,35 +227,36 @@ namespace KSynthLib.K4
                 this.LFO = new LFOSettings(lfoBytes);
 
                 Console.Error.WriteLine($"{mem.Position}: pressure freq");
-                this.PressureFreq = new DepthType((byte)mem.ReadByte()); // constructor adjusts 0~100 to ±50
+                this.PressureFreq = new DepthType((byte)mem.ReadByte());
 
                 Console.Error.WriteLine($"{mem.Position}: sources");
-                mem.Read(sourceData, 0, totalSourceDataSize);
-                List<byte> sourceBytes = new List<byte>(sourceData);
+                int count = mem.Read(sourceData, 0, totalSourceDataSize);
+                Debug.Assert(count == totalSourceDataSize);
+                List<byte[]> sourceBytes = Util.SeparateBytes(sourceData, 4);
                 Sources = new Source[SourceCount]
                 {
-                    new Source(Util.EveryNthElement(sourceBytes, 4, 0).ToArray()),
-                    new Source(Util.EveryNthElement(sourceBytes, 4, 1).ToArray()),
-                    new Source(Util.EveryNthElement(sourceBytes, 4, 2).ToArray()),
-                    new Source(Util.EveryNthElement(sourceBytes, 4, 3).ToArray())
+                    new Source(sourceBytes[0]),
+                    new Source(sourceBytes[1]),
+                    new Source(sourceBytes[2]),
+                    new Source(sourceBytes[3])
                 };
 
                 Console.Error.WriteLine($"{mem.Position}: amplifiers");
                 mem.Read(ampData, 0, totalAmpDataSize);
-                List<byte> ampBytes = new List<byte>(ampData);
+                List<byte[]> ampBytes = Util.SeparateBytes(ampData, 4);
                 Amplifiers = new Amplifier[SourceCount]
                 {
-                    new Amplifier(Util.EveryNthElement(ampBytes, 4, 0).ToArray()),
-                    new Amplifier(Util.EveryNthElement(ampBytes, 4, 1).ToArray()),
-                    new Amplifier(Util.EveryNthElement(ampBytes, 4, 2).ToArray()),
-                    new Amplifier(Util.EveryNthElement(ampBytes, 4, 3).ToArray()),
+                    new Amplifier(ampBytes[0]),
+                    new Amplifier(ampBytes[1]),
+                    new Amplifier(ampBytes[2]),
+                    new Amplifier(ampBytes[3]),
                 };
 
                 Console.Error.WriteLine($"{mem.Position}: filters");
                 mem.Read(filterData, 0, totalFilterDataSize);
-                List<byte> filterBytes = new List<byte>(filterData);
-                Filter1 = new Filter(Util.EveryNthElement(filterBytes, 2, 0).ToArray());
-                Filter2 = new Filter(Util.EveryNthElement(filterBytes, 2, 1).ToArray());
+                List<byte[]> filterBytes = Util.SeparateBytes(filterData, 2);
+                Filter1 = new Filter(filterBytes[0]);
+                Filter2 = new Filter(filterBytes[1]);
 
                 // "Check sum value (s130) is the sum of the A5H and s0 ~ s129".
                 this.Checksum = (byte)mem.ReadByte(); // store the checksum as we got it from SysEx

@@ -252,6 +252,17 @@ namespace KSynthLib.Common
             return result;
         }
 
+        public static List<byte[]> SeparateBytes(byte[] data, int count)
+        {
+            List<byte> dataBytes = new List<byte>(data);
+            List<byte[]> byteArrayLists = new List<byte[]>();
+            for (int i = 0; i < count; i++)
+            {
+                byteArrayLists.Add(Util.EveryNthElement(dataBytes, count, i).ToArray());
+            }
+            return byteArrayLists;
+        }
+
         public static byte[] HexStringToByteArray(String hex)
         {
             int charCount = hex.Length;

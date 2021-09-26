@@ -34,7 +34,7 @@ namespace KSynthLib.Tests.K4
             Console.WriteLine($"BlockCopy: srcOffset={srcOffset} dstOffset=0 count={bankDataLength}");
             Buffer.BlockCopy(fileData, srcOffset, data, 0, bankDataLength);
             Console.WriteLine($"About to parse bank from {data.Length} bytes of data");
-            Console.WriteLine(Util.HexDump(data));
+            //Console.WriteLine(Util.HexDump(data));
 
             Bank bank = new Bank(data);
             Assert.Equal(Bank.SinglePatchCount, bank.Singles.Count);
@@ -44,6 +44,9 @@ namespace KSynthLib.Tests.K4
             }
 
             Assert.Equal(Bank.MultiPatchCount, bank.Multis.Count);
+
+            Console.WriteLine($"Drum note count = {DrumPatch.NoteCount}");
+
             Assert.Equal(DrumPatch.NoteCount, bank.Drum.Notes.Count);
             Assert.Equal(Bank.EffectPatchCount, bank.Effects.Count);
         }

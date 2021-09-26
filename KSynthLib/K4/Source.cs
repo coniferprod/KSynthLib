@@ -62,9 +62,7 @@ namespace KSynthLib.K4
         }
 
         public DepthType Fine;
-
         public bool PressureFrequency;
-
         public bool Vibrato;
 
         private VelocityCurveType _velocityCurve;

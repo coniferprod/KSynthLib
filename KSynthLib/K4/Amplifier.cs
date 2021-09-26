@@ -8,9 +8,7 @@ namespace KSynthLib.K4
     public class LevelModulation
     {
         public DepthType VelocityDepth;
-
         public DepthType PressureDepth;
-
         public DepthType KeyScalingDepth;
 
         public LevelModulation()

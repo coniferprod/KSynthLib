@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics;
 
 using KSynthLib.Common;
 
@@ -62,7 +63,7 @@ namespace KSynthLib.K4
             }
         }
 
-        public DrumPatch(byte[] data) : this()
+        public DrumPatch(byte[] data)
         {
             int offset = 0;
             byte b = 0;  // will be reused when getting the next byte
@@ -82,6 +83,8 @@ namespace KSynthLib.K4
             (b, offset) = Util.GetNextByte(data, offset);
             Checksum = b;
 
+            Notes = new List<DrumNote>();
+
             for (int i = 0; i < NoteCount; i++)
             {
                 byte[] noteData = new byte[DrumNote.DataSize];
@@ -92,6 +95,8 @@ namespace KSynthLib.K4
 
                 offset += DrumNote.DataSize;
             }
+
+            Debug.Assert(Notes.Count == NoteCount);
         }
 
         public byte[] ToData()

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 using KSynthLib.Common;
 
@@ -36,7 +37,10 @@ namespace KSynthLib.K4
                 byte[] singleData = new byte[SinglePatch.DataSize];
                 //Console.Error.WriteLine($"Copying {SinglePatch.DataSize} bytes from offset {offset} to singleData");
                 Buffer.BlockCopy(data, offset, singleData, 0, SinglePatch.DataSize);
+                Debug.Assert(singleData.Length == SinglePatch.DataSize);
+                Console.Error.WriteLine($"Single data length = {singleData.Length}");
                 //Console.Error.WriteLine(Util.HexDump(singleData));
+
                 SinglePatch singlePatch = new SinglePatch(singleData);
                 this.Singles.Add(singlePatch);
                 offset += SinglePatch.DataSize;
