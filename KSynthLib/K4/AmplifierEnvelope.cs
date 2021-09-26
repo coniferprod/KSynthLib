@@ -7,7 +7,7 @@ namespace KSynthLib.K4
         public LevelType Attack;
         public LevelType Decay;
         public LevelType Sustain;
-        private LevelType Release;
+        public LevelType Release;
 
         public AmplifierEnvelope()
         {

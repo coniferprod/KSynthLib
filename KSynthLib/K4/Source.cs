@@ -1,7 +1,6 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
-
 using KSynthLib.Common;
 
 namespace KSynthLib.K4
@@ -14,63 +13,15 @@ namespace KSynthLib.K4
         public const int DataSize = 7;
 
         public LevelType Delay;
-
-        /// <summary>
-        /// Store for the WaveNumber property.
-        /// </summary>
-        public Wave _wave;
-
-        /// <summary>
-        /// The wave number of this source.
-        /// </summary>
-        /// <value>
-        /// Wave number value stored as 1~256.
-        /// </value>
-        /// <remarks>
-        /// In SysEx data the wave number is stored as 0~255 distributed over two bytes.
-        /// </remarks>
-        public ushort WaveNumber => _wave.Number;
-
-        /// <summary>
-        /// Store for the KeyScalingCurve property.
-        /// </summary>
-        private VelocityCurveType _keyScalingCurve;
-
-        /// <summary>
-        /// The key scaling curve.
-        /// </summary>
-        /// <value>
-        /// Key scaling curve stored as 1~8.
-        /// </value>
-        /// <remarks>
-        /// In SysEx data this is stored as 0~7.
-        /// </remarks>
-        public byte KeyScalingCurve
-        {
-            get => _keyScalingCurve.Value;
-            set => _keyScalingCurve.Value = value;
-        }
-
+        public Wave Wave;
+        public VelocityCurveType KeyScalingCurve;
         public CoarseType Coarse;
         public bool KeyTrack;
-
-        private FixedKeyType _fixedKey; // 0 ~ 115 / C-1 ~ G8
-        public byte FixedKey
-        {
-            get => _fixedKey.Value;
-            set => _fixedKey.Value = value;
-        }
-
+        public KeyType FixedKey;  // 0 ~ 115 / C-1 ~ G8
         public DepthType Fine;
         public bool PressureFrequency;
         public bool Vibrato;
-
-        private VelocityCurveType _velocityCurve;
-        public byte VelocityCurve // 0~7 / 1~8
-        {
-            get => _velocityCurve.Value;
-            set => _velocityCurve.Value = value;
-        }
+        public VelocityCurveType VelocityCurve;
 
         /// <summary>
         /// Constructs a source from default values.
@@ -78,15 +29,15 @@ namespace KSynthLib.K4
         public Source()
         {
             Delay = new LevelType();
-            _wave = new Wave(10);  // "SAW 1"
-            _keyScalingCurve = new VelocityCurveType();
+            Wave = new Wave(10);  // "SAW 1"
+            KeyScalingCurve = VelocityCurveType.Curve1;
             Coarse = new CoarseType(0);
             KeyTrack = true;
-            _fixedKey = new FixedKeyType();
+            FixedKey = new KeyType(60);
             Fine = new DepthType();
             PressureFrequency = true;
             Vibrato = false;
-            _velocityCurve = new VelocityCurveType();
+            VelocityCurve = VelocityCurveType.Curve1;
         }
 
         /// <summary>
@@ -108,14 +59,13 @@ namespace KSynthLib.K4
             byte waveSelectLow = 0;
             (b, offset) = Util.GetNextByte(data, offset);
             waveSelectHigh = (byte)(b & 0x01);
-            _keyScalingCurve = new VelocityCurveType((byte)((b >> 4) & 0x07));
+            KeyScalingCurve = (VelocityCurveType)((b >> 4) & 0x07);
 
             byte b2 = 0;
             (b2, offset) = Util.GetNextByte(data, offset);
             waveSelectLow = (byte)(b2 & 0x7f);
 
-            ushort waveNumber = Wave.numberFrom(waveSelectHigh, waveSelectLow);
-            _wave = new Wave(waveNumber);
+            Wave = new Wave(waveSelectHigh, waveSelectLow);
 
             (b, offset) = Util.GetNextByte(data, offset);
             // Here the MIDI implementation's SysEx format is a little unclear.
@@ -125,7 +75,7 @@ namespace KSynthLib.K4
             Coarse = new CoarseType((sbyte)((b & 0x3f) - 24));  // 00 ~ 48 to ±24
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _fixedKey = new FixedKeyType(b);
+            FixedKey = new KeyType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
             Fine = new DepthType(b);
@@ -133,7 +83,7 @@ namespace KSynthLib.K4
             (b, offset) = Util.GetNextByte(data, offset);
             PressureFrequency = b.IsBitSet(0);
             Vibrato = b.IsBitSet(1);
-            _velocityCurve = new VelocityCurveType((byte)((b >> 2) & 0x07));  // 0...7 to 1...8
+            VelocityCurve = (VelocityCurveType)((b >> 2) & 0x07);
         }
 
         public override string ToString()
@@ -144,10 +94,10 @@ namespace KSynthLib.K4
             builder.Append($"VEL CURVE  ={VelocityCurve,3}\n");
             builder.Append($"KS CURVE   ={KeyScalingCurve,3}\n");
             builder.Append("DCO\n");
-            builder.Append(string.Format("WAVE       ={0,3} ({1})\n", WaveNumber, _wave.Name));
+            builder.Append(string.Format("WAVE       ={0,3} ({1})\n", Wave.Number, Wave.Name));
             builder.Append(string.Format("KEY TRACK  ={0}\n", KeyTrack ? "ON" : "OFF"));
             builder.Append($"COARSE     ={Coarse,3}\nFINE       ={Fine,3}\n");
-            builder.Append($"FIXED KEY  ={_fixedKey.NoteName} ({FixedKey})\n");
+            builder.Append($"FIXED KEY  ={FixedKey.NoteName} ({FixedKey})\n");
             builder.Append(string.Format("PRESS      ={0}\nVIB/A.BEND ={1}\n", PressureFrequency ? "ON" : "OFF", Vibrato ? "ON" : "OFF"));
             return builder.ToString();
         }
@@ -164,8 +114,9 @@ namespace KSynthLib.K4
             data.Add(Delay.ToByte());
 
             // s34/s35/s36/s37 wave select h and ks
-            byte s34 = (byte)(KeyScalingCurve << 4);  // shift it to the top four bits
-            var (waveSelectHigh, waveSelectLow) = _wave.WaveSelect;
+
+            byte s34 = (byte)(((byte)KeyScalingCurve) << 4);  // shift it to the top four bits
+            var (waveSelectHigh, waveSelectLow) = Wave.WaveSelect;
             if (waveSelectHigh == 0x01)
             {
                 s34.SetBit(0);
@@ -182,11 +133,11 @@ namespace KSynthLib.K4
             }
             data.Add(s42);
 
-            data.Add((byte)FixedKey);
+            data.Add(FixedKey.ToByte());
             data.Add(Fine.ToByte());
 
             // s54/s55/s56/s57 vel curve, vib/a.bend, prs/freq
-            byte s54 = (byte)(VelocityCurve << 2);
+            byte s54 = (byte)(((byte)VelocityCurve) << 2);
             if (Vibrato)
             {
                 s54.SetBit(1);

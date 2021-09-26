@@ -4,8 +4,10 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K4
 {
-    // Used for velocity depth, pressure depth, key scaling depth etc.
-    // that have the range -50 ... +50.
+    /// <summary>
+    /// Used for velocity depth, pressure depth, key scaling depth etc.
+    /// that have the range -50 ... +50.
+    /// </summary>
     public class DepthType : RangeType
     {
         private const int MIN_VALUE = -50;
@@ -274,209 +276,225 @@ namespace KSynthLib.K4
         }
     }
 
-    public class EffectParameter1Type
+    public class SmallEffectParameterType : RangeType
     {
-        private Range<byte> range;
+        private const int MIN_VALUE = 0;
+        private const int MAX_VALUE = 7;
+        private const int DEFAULT_VALUE = 0;
 
-        private byte _value;
-        public byte Value
+        private int currentValue;
+
+        // Construct an effect parameter value with the default value.
+        public SmallEffectParameterType()
         {
-            get => _value;
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = this.DefaultValue;
+        }
+
+        // Construct an effect parameter value, clamping it if necessary.
+        public SmallEffectParameterType(int value)
+        {
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = base.Clamp(value);
+        }
+
+        // Constructs an effect parameter number from a raw SysEx byte.
+        public SmallEffectParameterType(byte value)
+        {
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = (int)(value);
+        }
+
+        public override int Value
+        {
+            get => this.currentValue;
 
             set
             {
-                if (range.Contains(value))
+                if (value >= this.minimumValue && value <= this.maximumValue)
                 {
-                    _value = value;
+                    this.currentValue = value;
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("EffectParameter1",
-                        string.Format("Value must be in range {0} (was {1})",
-                        this.range.ToString(), value));
+                    throw new ArgumentOutOfRangeException(this.GetType().Name,
+                        string.Format("Value {0} is not in range {1}...{2}",
+                            value, this.minimumValue, this.maximumValue));
                 }
             }
         }
 
-        public EffectParameter1Type()
+        // Get the effect parameter as a SysEx byte.
+        public override byte ToByte()
         {
-            this.range = new Range<byte>(0, 7);
-            this._value = 0;
-        }
-
-        public EffectParameter1Type(byte v) : this()
-        {
-            this.Value = v;  // setter throws exception for invalid value
+            return (byte)(this.Value);
         }
     }
 
-    // There is no EffectParameter2Type.
-    // Effect param1 and param2 are the same type (EffectParameter1Type).
-    public class EffectParameter3Type
+    public class LargeEffectParameterType : RangeType
     {
-        private Range<byte> range;
+        private const int MIN_VALUE = 0;
+        private const int MAX_VALUE = 31;
+        private const int DEFAULT_VALUE = 0;
 
-        private byte _value;
-        public byte Value
+        private int currentValue;
+
+        // Construct an effect parameter value with the default value.
+        public LargeEffectParameterType()
         {
-            get => _value;
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = this.DefaultValue;
+        }
+        // Construct an effect parameter value, clamping it if necessary.
+        public LargeEffectParameterType(int value)
+        {
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = base.Clamp(value);
+        }
+
+        // Constructs an effect parameter number from a raw SysEx byte.
+        public LargeEffectParameterType(byte value)
+        {
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = (int)(value);
+        }
+
+        public override int Value
+        {
+            get => this.currentValue;
 
             set
             {
-                if (range.Contains(value))
+                if (value >= this.minimumValue && value <= this.maximumValue)
                 {
-                    _value = value;
+                    this.currentValue = value;
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("EffectParameter3",
-                        string.Format("Value must be in range {0} (was {1})",
-                        this.range.ToString(), value));
+                    throw new ArgumentOutOfRangeException(this.GetType().Name,
+                        string.Format("Value {0} is not in range {1}...{2}",
+                            value, this.minimumValue, this.maximumValue));
                 }
             }
         }
 
-        public EffectParameter3Type()
+        // Get the effect parameter as a SysEx byte.
+        public override byte ToByte()
         {
-            this.range = new Range<byte>(0, 31);
-            this._value = 0;
-        }
-
-        public EffectParameter3Type(byte v) : this()
-        {
-            this.Value = v;  // setter throws exception for invalid value
+            return (byte)(this.Value);
         }
     }
 
-    public class FixedKeyType
+    public class KeyType : RangeType
     {
-        private Range<byte> range;
+        private const int MIN_VALUE = 0;
+        private const int MAX_VALUE = 127;
+        private const int DEFAULT_VALUE = 60;
 
-        private byte _value;
-        public byte Value
+        private int currentValue;
+
+        // Construct a key number, clamping if necessary.
+        public KeyType(int value)
         {
-            get => _value;
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = base.Clamp(value);
+        }
+
+        // Constructs a key number from a raw SysEx byte.
+        public KeyType(byte value)
+        {
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = (int)(value);
+        }
+
+        public override int Value
+        {
+            get => this.currentValue;
 
             set
             {
-                if (range.Contains(value))
+                if (value >= this.minimumValue && value <= this.maximumValue)
                 {
-                    _value = value;
+                    this.currentValue = value;
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("FixedKey",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
+                    throw new ArgumentOutOfRangeException(this.GetType().Name,
+                        string.Format("Value {0} is not in range {1}...{2}",
+                            value, this.minimumValue, this.maximumValue));
                 }
             }
         }
 
-        public FixedKeyType()
+        // Get the key number as a SysEx byte.
+        public override byte ToByte()
         {
-            this.range = new Range<byte>(0, 115); // 0 ~ 115 / C-1 ~ G8
-        }
-
-        public FixedKeyType(byte v) : this()
-        {
-            this.Value = (byte)(v & 0x7f);
+            return (byte)this.Value;
         }
 
         public string NoteName
         {
-            get
-            {
-                string[] notes = new string[] {"A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"};
-                int octave = _value / 12 + 1;
-                string name = notes[_value % 12];
-                return name + octave;
-            }
+            get => PatchUtil.GetNoteName(Value);
         }
     }
 
-    // Kawai K4 velocity curve value: 1~8 (in SysEx as 0~7)
-    public class VelocityCurveType
+    public enum VelocityCurveType
     {
-        public const byte MIN_VALUE = 1;
-        public const byte MAX_VALUE = 8;
-        public const byte DEFAULT_VALUE = 1;
-
-        private Range<byte> range;
-
-        private byte _value;
-        public byte Value
-        {
-            get => _value;
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("VelocityCurve",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
-        public VelocityCurveType()
-        {
-            this.range = new Range<byte>(MIN_VALUE, MAX_VALUE);
-            this._value = DEFAULT_VALUE;
-        }
-
-        public VelocityCurveType(byte v) : this()
-        {
-            this.Value = (byte)(v + 1);
-        }
-
-        public byte AsByte() => (byte)(this.Value - 1);
+        Curve1,
+        Curve2,
+        Curve3,
+        Curve4,
+        Curve5,
+        Curve6,
+        Curve7,
+        Curve8
     }
 
-    public class ResonanceType
+    public class ResonanceType : RangeType
     {
-        public const byte MIN_VALUE = 1;
-        public const byte MAX_VALUE = 8;
-        public const byte DEFAULT_VALUE = 1;
+        private const int MIN_VALUE = 0;
+        private const int MAX_VALUE = 7;
+        private const int DEFAULT_VALUE = 0;
+        private int currentValue;
 
-        private Range<byte> range;
-
-        private byte _value;
-        public byte Value
+        // Construct a resonance, clamping if necessary.
+        public ResonanceType(int value)
         {
-            get => _value;
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = base.Clamp(value);
+        }
+
+        // Constructs a resonance from a raw SysEx byte.
+        public ResonanceType(byte value)
+        {
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = (int)(value);
+        }
+
+        public override int Value
+        {
+            get => this.currentValue;
 
             set
             {
-                if (range.Contains(value))
+                if (value >= this.minimumValue && value <= this.maximumValue)
                 {
-                    _value = value;
+                    this.currentValue = value;
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("Resonance",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
+                    throw new ArgumentOutOfRangeException(this.GetType().Name,
+                        string.Format("Value {0} is not in range {1}...{2}",
+                            value, this.minimumValue, this.maximumValue));
                 }
             }
         }
 
-        public ResonanceType()
+        // Get the resonance as a SysEx byte.
+        public override byte ToByte()
         {
-            this.range = new Range<byte>(MIN_VALUE, MAX_VALUE);
-            this._value = DEFAULT_VALUE;
+            return (byte)this.Value;
         }
-
-        public ResonanceType(byte v) : this()
-        {
-            this.Value = (byte)((v & 0x07) + 1);
-        }
-
-        public byte AsByte() => (byte)(this.Value - 1);
     }
 
     public class PanValueType : RangeType
@@ -538,46 +556,59 @@ namespace KSynthLib.K4
         }
     }
 
-    public class MidiChannelType
+    public class ChannelType : RangeType
     {
-        public const byte MIN_VALUE = 1;
-        public const byte MAX_VALUE = 16;
-        public const byte DEFAULT_VALUE = 1;
+        private const int MIN_VALUE = 1;
+        private const int MAX_VALUE = 16;
+        private const int DEFAULT_VALUE = 1;
 
-        private Range<byte> range;
+        private int currentValue;
 
-        private byte _value;
-        public byte Value
+        // Construct a MIDI channel value with the default value.
+        public ChannelType()
         {
-            get => _value;
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = this.DefaultValue;
+        }
+
+        // Construct a MIDI channel value from a normal value, clamping it if necessary.
+        public ChannelType(int value)
+        {
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = base.Clamp(value);
+        }
+
+        // Construct a MIDI channel value from a raw SysEx byte, adjusting to 1...16.
+        public ChannelType(byte value)
+        {
+            base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
+            this.Value = base.Clamp((int)value + 1);
+        }
+
+        public override int Value
+        {
+            get => this.currentValue;
 
             set
             {
-                if (range.Contains(value))
+                if (value >= this.minimumValue && value <= this.maximumValue)
                 {
-                    _value = value;
+                    this.currentValue = value;
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("MidiChannel",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
+                    throw new ArgumentOutOfRangeException(this.GetType().Name,
+                        string.Format("Value {0} is not in range {1}...{2}",
+                            value, this.MinimumValue, this.MaximumValue));
                 }
             }
         }
 
-        public MidiChannelType()
+        // Get the MIDI channel value as a SysEx byte, adjusted to 0...15.
+        public override byte ToByte()
         {
-            this.range = new Range<byte>(MIN_VALUE, MAX_VALUE);
-            this._value = DEFAULT_VALUE;  // default zero would be out of range
+            return (byte)(this.Value - 1);
         }
-
-        public MidiChannelType(byte v) : this()
-        {
-            this.Value = (byte)(v + 1);
-        }
-
-        public byte AsByte() => (byte)(this.Value - 1);
     }
 
     public class PatchNumberType : RangeType
@@ -626,46 +657,6 @@ namespace KSynthLib.K4
         public override byte ToByte()
         {
             return (byte)(this.Value - 1);  // adjust from 1...64 to 0...63 for SysEx
-        }
-    }
-
-    public class ZoneValueType
-    {
-        public const byte MIN_VALUE = 0;
-        public const byte MAX_VALUE = 127;
-        public const byte DEFAULT_VALUE = 0;
-
-        private Range<byte> range;
-
-        private byte _value;
-        public byte Value
-        {
-            get => _value;
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("ZoneValue",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
-        public ZoneValueType()
-        {
-            this.range = new Range<byte>(MIN_VALUE, MAX_VALUE);
-            this._value = DEFAULT_VALUE;
-        }
-
-        public ZoneValueType(byte v) : this()
-        {
-            this.Value = v;  // setter throws exception for out-of-range values
         }
     }
 }

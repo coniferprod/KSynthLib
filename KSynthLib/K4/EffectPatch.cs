@@ -56,32 +56,12 @@ namespace KSynthLib.K4
     public class EffectPatch
     {
         public const int DataSize = 35;
-
         public const int SubmixCount = 8;
 
         public EffectType Type;
-
-        private EffectParameter1Type _param1;
-        public byte Param1
-        {
-            get => _param1.Value;
-            set => _param1.Value = value;
-        }
-
-        private EffectParameter1Type _param2;
-        public byte Param2
-        {
-            get => _param2.Value;
-            set => _param2.Value = value;
-        }
-
-        private EffectParameter3Type _param3;
-        public byte Param3
-        {
-            get => _param3.Value;
-            set => _param3.Value = value;
-        }
-
+        public SmallEffectParameterType Param1;
+        public SmallEffectParameterType Param2;
+        public LargeEffectParameterType Param3;
         public EffectSubmix[] Submixes;
 
         private byte _checksum;
@@ -105,9 +85,9 @@ namespace KSynthLib.K4
         public EffectPatch()
         {
             Type = EffectType.Reverb1;
-            _param1 = new EffectParameter1Type();
-            _param2 = new EffectParameter1Type();
-            _param3 = new EffectParameter3Type();
+            Param1 = new SmallEffectParameterType();
+            Param2 = new SmallEffectParameterType();
+            Param3 = new LargeEffectParameterType();
 
             Submixes = new EffectSubmix[SubmixCount];
             for (int i = 0; i < SubmixCount; i++)
@@ -119,9 +99,9 @@ namespace KSynthLib.K4
         public EffectPatch(byte[] data) : this()
         {
             Type = (EffectType)data[0];
-            _param1 = new EffectParameter1Type(data[1]);
-            _param2 = new EffectParameter1Type(data[2]);
-            _param3 = new EffectParameter3Type(data[3]);
+            Param1 = new SmallEffectParameterType(data[1]);
+            Param2 = new SmallEffectParameterType(data[2]);
+            Param3 = new LargeEffectParameterType(data[3]);
 
             int offset = 4;
             Submixes = new EffectSubmix[SubmixCount];
@@ -141,9 +121,9 @@ namespace KSynthLib.K4
             List<byte> data = new List<byte>();
 
             data.Add((byte)this.Type);
-            data.Add((byte)this.Param1);
-            data.Add((byte)this.Param2);
-            data.Add((byte)this.Param3);
+            data.Add(Param1.ToByte());
+            data.Add(Param2.ToByte());
+            data.Add(Param3.ToByte());
 
             // Add six dummy bytes
             data.Add(0);
@@ -176,15 +156,13 @@ namespace KSynthLib.K4
         {
             StringBuilder builder = new StringBuilder();
             string name = EffectNames[(int)Type];
-            builder.Append($"{name} P1 = {Param1} P2 = {Param2} P3 = {Param3}\n");
+            builder.Append($"{name} P1 = {Param1.Value} P2 = {Param2.Value} P3 = {Param3.Value}\n");
 
-            /*
             for (int i = 0; i < SubmixCount; i++)
             {
                 EffectSubmix submix = Submixes[i];
-                builder.Append($"{i}: pan = {submix.Pan} send1 = {submix.Send1} send2 = {submix.Send2}\n");
+                builder.Append($"{i}: pan = {submix.Pan.Value} send1 = {submix.Send1.Value} send2 = {submix.Send2.Value}\n");
             }
-            */
 
             return builder.ToString();
         }

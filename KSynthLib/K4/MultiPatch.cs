@@ -9,13 +9,10 @@ namespace KSynthLib.K4
     public class MultiPatch : Patch
     {
         public const int DataSize = 77;
-
         public const int SectionCount = 8;
 
         public LevelType Volume;
-
         public Section[] Sections;
-
         public EffectNumberType EffectPatch; // 1~32 (on K4)
 
         public MultiPatch()

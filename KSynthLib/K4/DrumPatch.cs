@@ -11,19 +11,11 @@ namespace KSynthLib.K4
     public class DrumPatch
     {
         public const int DataSize = 682;
-
         public const int NoteCount = 61;  // from C1 to C6
 
-        private MidiChannelType _receiveChannel;
-        public byte ReceiveChannel
-        {
-            get => _receiveChannel.Value;
-            set => _receiveChannel.Value = value;
-        }
-
+        public ChannelType ReceiveChannel;
         public LevelType Volume;
         public LevelType VelocityDepth;
-
         public List<DrumNote> Notes;
 
         private byte _checksum;
@@ -33,7 +25,7 @@ namespace KSynthLib.K4
             {
                 List<byte> data = new List<byte>();
 
-                data.Add(_receiveChannel.AsByte()); // 1~16 stored as 0~15
+                data.Add(ReceiveChannel.ToByte());
                 data.Add(Volume.ToByte());
                 data.Add(VelocityDepth.ToByte());
 
@@ -52,7 +44,7 @@ namespace KSynthLib.K4
 
         public DrumPatch()
         {
-            _receiveChannel = new MidiChannelType();
+            ReceiveChannel = new ChannelType(1);
             Volume = new LevelType(99);
             VelocityDepth = new LevelType(99);
 
@@ -69,7 +61,7 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _receiveChannel = new MidiChannelType(b);
+            ReceiveChannel = new ChannelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
             Volume = new LevelType(b);  // 0~100
@@ -103,7 +95,7 @@ namespace KSynthLib.K4
         {
             List<byte> data = new List<byte>();
 
-            data.Add(_receiveChannel.AsByte()); // 1~16 stored as 0~15
+            data.Add(ReceiveChannel.ToByte());
             data.Add(Volume.ToByte());
             data.Add(VelocityDepth.ToByte());
 

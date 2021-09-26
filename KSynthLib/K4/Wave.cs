@@ -305,7 +305,7 @@ namespace KSynthLib.K4
 
         public Wave(byte high, byte low)
         {
-            ushort waveNumber = Wave.numberFrom(high, low);
+            ushort waveNumber = Wave.NumberFrom(high, low);
             this._number = waveNumber;
             this._name = Names[waveNumber];
         }
@@ -322,7 +322,7 @@ namespace KSynthLib.K4
             }
         }
 
-        public static ushort numberFrom(byte high, byte low)
+        public static ushort NumberFrom(byte high, byte low)
         {
             int h = high & 0x01;  // `wave select h` is b0 of s34/s35/s36/s37
             int l = low & 0x7f;    // `wave select l` is bits 0...6 of s38/s39/s40/s41

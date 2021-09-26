@@ -3,6 +3,9 @@ using Range.Net;
 
 namespace KSynthLib.Common
 {
+    /// <summary>
+    /// Base class for range types used to represent parameter values.
+    /// </summary>
     public abstract class RangeType
     {
         protected int minimumValue;

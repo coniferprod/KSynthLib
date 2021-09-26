@@ -19,33 +19,20 @@ namespace KSynthLib.K4
         Mix
     }
 
+    public class Zone
+    {
+        public int Low;
+        public int High;
+
+    }
+
     public class Section
     {
         public const int DataSize = 8;
 
         public PatchNumberType SinglePatch;
-
-        private ZoneValueType _zoneLow;
-        public byte ZoneLow
-        {
-            get => _zoneLow.Value;
-            set => _zoneLow.Value = value;
-        }
-
-        private ZoneValueType _zoneHigh;
-        public byte ZoneHigh
-        {
-            get => _zoneHigh.Value;
-            set => _zoneHigh.Value = value;
-        }
-
-        private MidiChannelType _receiveChannel;
-        public byte ReceiveChannel
-        {
-            get => _receiveChannel.Value;
-            set => _receiveChannel.Value = value;
-        }
-
+        public Zone KeyboardZone;
+        public ChannelType ReceiveChannel;
         public VelocitySwitchType VelocitySwitch;
         public bool IsMuted;
         public SubmixType Output;
@@ -57,9 +44,8 @@ namespace KSynthLib.K4
         public Section()
         {
             SinglePatch = new PatchNumberType(1);
-            _zoneLow = new ZoneValueType();
-            _zoneHigh = new ZoneValueType(127);
-            _receiveChannel = new MidiChannelType(1);
+            KeyboardZone = new Zone { Low = 0, High = 127 };
+            ReceiveChannel = new ChannelType(1);
             VelocitySwitch = VelocitySwitchType.All;
             IsMuted = false;
             Output = SubmixType.A;
@@ -78,14 +64,14 @@ namespace KSynthLib.K4
             SinglePatch = new PatchNumberType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            ZoneLow = b;
-
+            int zoneLow = b;
             (b, offset) = Util.GetNextByte(data, offset);
-            ZoneHigh = b;
+            int zoneHigh = b;
+            KeyboardZone = new Zone { Low = zoneLow, High = zoneHigh };
 
             (b, offset) = Util.GetNextByte(data, offset);
             // rcv ch = M15 bits 0...3
-            ReceiveChannel = (byte)((b & 0x0f) + 1);  // 0~15 to 1~16
+            ReceiveChannel = new ChannelType((byte)(b & 0x0f));
             // velo sw = M15 bits 4..5
             VelocitySwitch = (VelocitySwitchType)((b >> 4) & 0x03);
             // section mute = M15 bit 6
@@ -111,8 +97,8 @@ namespace KSynthLib.K4
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(string.Format("single = {0}, recv ch = {1}, play mode = {2}\n", PatchUtil.GetPatchName(SinglePatch.Value), ReceiveChannel, PlayMode));
-            builder.Append(string.Format("zone = {0} to {1}, vel sw = {2}\n", GetNoteName(ZoneLow), GetNoteName(ZoneHigh), VelocitySwitch));
+            builder.Append(string.Format("single = {0}, recv ch = {1}, play mode = {2}\n", PatchUtil.GetPatchName(SinglePatch.Value), ReceiveChannel.Value, PlayMode));
+            builder.Append(string.Format("zone = {0} to {1}, vel sw = {2}\n", PatchUtil.GetNoteName(KeyboardZone.Low), PatchUtil.GetNoteName(KeyboardZone.High), VelocitySwitch));
             builder.Append($"level = {Level}, transpose = {Transpose}, tune = {Tune}\n");
             builder.Append($"submix ch = {Output}\n");
             return builder.ToString();
@@ -123,12 +109,12 @@ namespace KSynthLib.K4
             List<byte> data = new List<byte>();
 
             data.Add(SinglePatch.ToByte());
-            data.Add((byte)ZoneLow);
-            data.Add((byte)ZoneHigh);
+            data.Add((byte)KeyboardZone.Low);
+            data.Add((byte)KeyboardZone.High);
 
             // Combine rcv ch, velo sw and section mute into one byte for M15/M23 etc.
             byte vb = (byte)VelocitySwitch;
-            byte rb = (byte)(ReceiveChannel - 1);
+            byte rb = ReceiveChannel.ToByte();
             byte vbp = (byte)(vb << 4);
             byte m15 = (byte)(rb | vbp);
             if (IsMuted)
@@ -148,14 +134,6 @@ namespace KSynthLib.K4
             data.Add(Tune.ToByte());
 
             return data.ToArray();
-        }
-
-        // 0 ~ 127 / C-2 ~ G8
-        private string GetNoteName(int noteNumber) {
-            string[] notes = new string[] { "C", "C#", "D", "Eb", "E", "F", "F#", "G", "G#", "A", "Bb", "B" };
-            int octave = noteNumber / 12 + 1;
-            string name = notes[noteNumber % 12];
-            return name + octave;
         }
     }
 }

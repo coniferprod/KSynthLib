@@ -8,7 +8,7 @@ namespace KSynthLib.K4
         public LevelType Time;
         public DepthType Depth;
         public DepthType KeyScalingTime;
-        private DepthType VelocityDepth;
+        public DepthType VelocityDepth;
 
         public AutoBendSettings()
         {

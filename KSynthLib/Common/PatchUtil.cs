@@ -36,5 +36,13 @@ namespace KSynthLib.Common
 
             return bankIndex * 16 + number;
         }
+
+        // 0 ~ 127 / C-2 ~ G8
+        public static string GetNoteName(int noteNumber) {
+            string[] notes = new string[] { "C", "C#", "D", "Eb", "E", "F", "F#", "G", "G#", "A", "Bb", "B" };
+            int octave = noteNumber / 12 + 1;
+            string name = notes[noteNumber % 12];
+            return name + octave;
+        }
     }
 }

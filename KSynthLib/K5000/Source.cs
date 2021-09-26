@@ -123,7 +123,9 @@ namespace KSynthLib.K5000
         Random
     }
 
-    /// <summary>Represents a source in a single patch.</summary>
+    /// <summary>
+    /// Represents a source in a single patch.
+    /// </summary>
     public class Source
     {
         public static int DataSize = 86;

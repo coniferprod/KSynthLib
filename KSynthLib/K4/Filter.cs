@@ -11,14 +11,7 @@ namespace KSynthLib.K4
         public const int DataSize = 14;
 
         public LevelType Cutoff;
-
-        private ResonanceType _resonance; // 0 ~ 7 / 1 ~ 8
-        public byte Resonance
-        {
-            get => _resonance.Value;
-            set => _resonance.Value = value;
-        }
-
+        public ResonanceType Resonance;
         public LevelModulation CutoffMod;
         public bool IsLFO;  // 0/off, 1/on
         public FilterEnvelope Env;
@@ -29,7 +22,7 @@ namespace KSynthLib.K4
         public Filter()
         {
             Cutoff = new LevelType(88);
-            _resonance = new ResonanceType();
+            Resonance = new ResonanceType(0);
             CutoffMod = new LevelModulation();
             IsLFO = false;
             Env = new FilterEnvelope();
@@ -47,7 +40,7 @@ namespace KSynthLib.K4
             Cutoff = new LevelType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _resonance = new ResonanceType(b);
+            Resonance = new ResonanceType(b & 0b00000111);
             IsLFO = b.IsBitSet(3);
 
             List<byte> cutoffModBytes = new List<byte>();
@@ -89,7 +82,7 @@ namespace KSynthLib.K4
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append($"cutoff = {Cutoff}, resonance = {Resonance}\n");
+            builder.Append($"cutoff = {Cutoff.Value}, resonance = {Resonance.Value}\n");
             builder.Append(string.Format("LFO = {0}\n", IsLFO ? "ON" : "OFF"));
             builder.Append($"envelope: {Env}\n");
             builder.Append(string.Format("cutoff modulation: velocity = {0}, pressure = {1}, key scaling = {2}\n", CutoffMod.VelocityDepth, CutoffMod.PressureDepth, CutoffMod.KeyScalingDepth));
@@ -105,7 +98,7 @@ namespace KSynthLib.K4
 
             StringBuilder b104 = new StringBuilder("0000");
             b104.Append(IsLFO ? "1" : "0");
-            int resonance = Resonance - 1;  // from 1...8 to 0...7
+            int resonance = Resonance.ToByte();
             string resonanceString = Convert.ToString(resonance, 2);
             //Console.Error.WriteLine(string.Format("Filter resonance = {0}, as bit string = '{1}'", resonance, resonanceString));
             b104.Append(resonanceString.PadLeft(3, '0'));
