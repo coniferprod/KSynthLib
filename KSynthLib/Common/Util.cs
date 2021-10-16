@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace KSynthLib.Common
@@ -282,6 +283,63 @@ namespace KSynthLib.Common
                 bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
             }
             return bytes;
+        }
+
+        public static List<byte> InterleaveBytes(List<List<byte>> buffers)
+        {
+            // Collect the element counts of each buffer
+            var counts = new List<int>();
+            foreach (var buf in buffers)
+            {
+                counts.Add(buf.Count);
+            }
+
+            // Find the smallest element count
+            var minimumLength = counts.Min(x => x);
+
+            var result = new List<byte>();
+            for (var i = 0; i < minimumLength; i++)
+            {
+                // Get the current byte from each buffer
+                foreach (var buf in buffers)
+                {
+                    result.Add(buf[i]);
+                }
+            }
+
+            return result;
+        }
+
+        public static List<byte> InterleaveBytes(List<byte> a1, List<byte> a2)
+        {
+            var result = new List<byte>();
+
+            var minimumLength = Math.Min(a1.Count, a2.Count);
+            for (var i = 0; i < minimumLength; i++)
+            {
+                result.Add(a1[i]);
+                result.Add(a2[i]);
+            }
+
+            return result;
+        }
+
+        public static (List<byte>, List<byte>) DivideBytes(List<byte> a)
+        {
+            var a1 = new List<byte>();
+            var a2 = new List<byte>();
+
+            var length = a.Count % 2 == 0 ? a.Count : a.Count - 1;
+            var index = 0;
+            while (index < length)
+            {
+                a1.Add(a[index]);
+                index++;
+                a2.Add(a[index]);
+                index++;
+            }
+
+            return (a1, a2);
         }
     }
 }

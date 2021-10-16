@@ -256,19 +256,13 @@ namespace KSynthLib.K1
             // Hope the SysEx spec has this the right way around...
             buf.Add(mutesValue);
 
-            // TODO: Interleave data from each source
-            byte[] s1Data = Sources[0].ToData();
-            byte[] s2Data = Sources[1].ToData();
-            byte[] s3Data = Sources[2].ToData();
-            byte[] s4Data = Sources[3].ToData();
-
-            for (var i = 0; i < s1Data.Length; i++)  // they are all the same length
+            // Collect the source data lists into one list, then interleave
+            var allSourceData = new List<List<byte>>();
+            foreach (var source in Sources)
             {
-                buf.Add(s1Data[i]);
-                buf.Add(s2Data[i]);
-                buf.Add(s3Data[i]);
-                buf.Add(s4Data[i]);
+                allSourceData.Add(new List<byte>(source.ToData()));
             }
+            buf.AddRange(Util.InterleaveBytes(allSourceData));
 
             byte checksum = ComputeChecksum(buf.ToArray());
             buf.Add(checksum);

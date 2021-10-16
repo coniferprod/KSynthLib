@@ -362,43 +362,29 @@ namespace KSynthLib.K4
 
             data.Add(PressureFreq.ToByte());
 
-            // The source data are interleaved, with one byte from each first,
-            // then the second, etc. That's why they are emitted in this slightly
-            // inelegant way. The same applies for DCA and DCF data.
-
-            byte[] source1Data = Sources[0].ToData();
-            byte[] source2Data = Sources[1].ToData();
-            byte[] source3Data = Sources[2].ToData();
-            byte[] source4Data = Sources[3].ToData();
-
-            for (var i = 0; i < Source.DataSize; i++)
+            // Collect the source data lists into one list, then interleave.
+            var allSourceData = new List<List<byte>>();
+            foreach (var source in Sources)
             {
-                data.Add(source1Data[i]);
-                data.Add(source2Data[i]);
-                data.Add(source3Data[i]);
-                data.Add(source4Data[i]);
+                allSourceData.Add(new List<byte>(source.ToData()));
             }
+            data.AddRange(Util.InterleaveBytes(allSourceData));
 
-            byte[] amp1Data = Amplifiers[0].ToData();
-            byte[] amp2Data = Amplifiers[1].ToData();
-            byte[] amp3Data = Amplifiers[2].ToData();
-            byte[] amp4Data = Amplifiers[3].ToData();
-
-            for (var i = 0; i < Amplifier.DataSize; i++)
+            // Similarly for amp data:
+            var allAmplifierData = new List<List<byte>>();
+            foreach (var amplifier in Amplifiers)
             {
-                data.Add(amp1Data[i]);
-                data.Add(amp2Data[i]);
-                data.Add(amp3Data[i]);
-                data.Add(amp4Data[i]);
+                allAmplifierData.Add(new List<byte>(amplifier.ToData()));
             }
+            data.AddRange(Util.InterleaveBytes(allAmplifierData));
 
-            byte[] filter1Data = Filter1.ToData();
-            byte[] filter2Data = Filter2.ToData();
-            for (var i = 0; i < Filter.DataSize; i++)
-            {
-                data.Add(filter1Data[i]);
-                data.Add(filter2Data[i]);
-            }
+            // And finally for filters:
+            data.AddRange(
+                Util.InterleaveBytes(
+                    new List<byte>(Filter1.ToData()),
+                    new List<byte>(Filter2.ToData())
+                )
+            );
 
             return data.ToArray();
         }

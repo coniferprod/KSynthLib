@@ -255,23 +255,9 @@ namespace KSynthLib.K5
             //Console.Error.WriteLine(string.Format("About to copy {0} bytes from data at {1} to sourceData at {2}", dataLength, offset, 0));
             Array.Copy(data, offset, sourceData, 0, dataLength);
 
-            // Separate S1 and S2 data. Even bytes are S1, odd bytes are S2.
-            // Note that this kind of assumes that the original data length is even.
-            var s1d = new byte[dataLength / 2];
-            var s2d = new byte[dataLength / 2];
-            for (int src = 0, dst = 0; src < dataLength; src += 2, dst++)
-            {
-                s1d[dst] = sourceData[src];
-                s2d[dst] = sourceData[src + 1];
-            }
-
-            //Console.Error.WriteLine(string.Format("Source 1 data ({0} bytes):", s1d.Length));
-            //Console.Error.WriteLine(Util.HexDump(s1d));
-            Source1 = new Source(s1d, 1);
-
-            //Console.Error.WriteLine(string.Format("Source 2 data ({0} bytes):", s2d.Length));
-            //Console.Error.WriteLine(Util.HexDump(s2d));
-            Source2 = new Source(s2d, 2);
+            var (source1Data, source2Data) = Util.DivideBytes(new List<byte>(sourceData));
+            Source1 = new Source(source1Data.ToArray(), 1);
+            Source2 = new Source(source2Data.ToArray(), 2);
 
             offset = 468;
 
@@ -441,17 +427,7 @@ namespace KSynthLib.K5
             byte[] s2d = Source2.ToData();
             Console.Error.WriteLine($"S1 data = {s1d.Length} bytes, S2 data = {s2d.Length} bytes");
 
-            // Interleave the two byte arrays:
-            int dataLength = s1d.Length;
-            var sd = new List<byte>();
-            int index = 0;
-            while (index < dataLength)
-            {
-                sd.Add(s1d[index]);
-                sd.Add(s2d[index]);
-                index++;
-            }
-            buf.AddRange(sd);
+            buf.AddRange(Util.InterleaveBytes(new List<byte>(s1d), new List<byte>(s2d)));
 
             buf.AddRange(LFO.ToData());
 
