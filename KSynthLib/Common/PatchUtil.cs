@@ -15,16 +15,16 @@ namespace KSynthLib.Common
 
         public static int GetPatchNumber(string s)
         {
-            string us = s.ToUpper();
-            char[] bankNames = new char[] { 'A', 'B', 'C', 'D' };
-            int bankIndex = Array.IndexOf(bankNames, us[0]);
+            var us = s.ToUpper();
+            var bankNames = new char[] { 'A', 'B', 'C', 'D' };
+            var bankIndex = Array.IndexOf(bankNames, us[0]);
             if (bankIndex < 0)
             {
                 return 0;
             }
 
-            int number = 0;
-            string ns = us.Substring(1);  // take the rest after the bank letter
+            var number = 0;
+            var ns = us.Substring(1);  // take the rest after the bank letter
             try
             {
                 number = Int32.Parse(ns) - 1;  // bring to range 0...15
@@ -39,9 +39,9 @@ namespace KSynthLib.Common
 
         // 0 ~ 127 / C-2 ~ G8
         public static string GetNoteName(int noteNumber) {
-            string[] notes = new string[] { "C", "C#", "D", "Eb", "E", "F", "F#", "G", "G#", "A", "Bb", "B" };
+            var notes = new string[] { "C", "C#", "D", "Eb", "E", "F", "F#", "G", "G#", "A", "Bb", "B" };
             int octave = noteNumber / 12 + 1;
-            string name = notes[noteNumber % 12];
+            var name = notes[noteNumber % 12];
             return name + octave;
         }
     }

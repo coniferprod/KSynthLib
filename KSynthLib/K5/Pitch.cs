@@ -45,7 +45,7 @@ namespace KSynthLib.K5
         public PitchEnvelope()
         {
             Segments = new PitchEnvelopeSegment[SegmentCount];
-            for (int i = 0; i < SegmentCount; i++)
+            for (var i = 0; i < SegmentCount; i++)
             {
                 Segments[i] = new PitchEnvelopeSegment();
             }
@@ -53,18 +53,18 @@ namespace KSynthLib.K5
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append("*DFG ENV*\n");
             builder.Append("    SEG  | 1 | 2 | 3 | 4 | 5 | 6 |\n");
             builder.Append("    ------------------------------\n");
             builder.Append("    RATE |");
-            for (int i = 0; i < Segments.Length; i++)
+            for (var i = 0; i < Segments.Length; i++)
             {
                 builder.Append($"{Segments[i].Rate,3}|");
             }
             builder.Append("\n");
             builder.Append("    LEVEL|");
-            for (int i = 0; i < Segments.Length; i++)
+            for (var i = 0; i < Segments.Length; i++)
             {
                 builder.Append($"{Segments[i].Level,3}|");
             }
@@ -159,22 +159,22 @@ namespace KSynthLib.K5
         {
             return string.Format(
                 "*DFG*              \n\n" +
-                "COARSE= {0,2}        <DEPTH>\n" + 
-                "FINE  = {1,2}        ENV= {2,2}-VEL {3}\n" + 
-                "                  PRS= {4}\n" + 
-                "                  LFO= {5,2}-PRS= {6,3}\n" + 
-                "KEY    ={7}     BND= {8}\n" + 
-                "FIXNO  ={9}\n\n", 
+                "COARSE= {0,2}        <DEPTH>\n" +
+                "FINE  = {1,2}        ENV= {2,2}-VEL {3}\n" +
+                "                  PRS= {4}\n" +
+                "                  LFO= {5,2}-PRS= {6,3}\n" +
+                "KEY    ={7}     BND= {8}\n" +
+                "FIXNO  ={9}\n\n",
                 Coarse, Fine, EnvelopeDepth, VelocityEnvelopeDepth,
                 PressureDepth, LFODepth, PressureLFODepth,
                 KeyTracking, BenderDepth,
-                Key) + 
+                Key) +
                 Envelope;
         }
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
             byte b = 0;
             data.Add(Coarse.ToByte());
             data.Add(Fine.ToByte());
@@ -195,7 +195,7 @@ namespace KSynthLib.K5
             data.Add(LFODepth);
             data.Add(PressureLFODepth.ToByte());
 
-            for (int i = 0; i < Source.PitchEnvelopeSegmentCount; i++)
+            for (var i = 0; i < Source.PitchEnvelopeSegmentCount; i++)
             {
                 b = Envelope.Segments[i].Rate;
 
@@ -210,7 +210,7 @@ namespace KSynthLib.K5
                 data.Add(b);
             }
 
-            for (int i = 0; i < Source.PitchEnvelopeSegmentCount; i++)
+            for (var i = 0; i < Source.PitchEnvelopeSegmentCount; i++)
             {
                 sbyte sb = Envelope.Segments[i].Level;
                 data.Add(sb.ToByte());
@@ -224,6 +224,4 @@ namespace KSynthLib.K5
             return data.ToArray();
         }
     }
-
-
 }

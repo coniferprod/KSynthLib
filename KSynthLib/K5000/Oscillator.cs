@@ -88,18 +88,18 @@ namespace KSynthLib.K5000
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append("                        DCO\n");
 
-            string waveName = "PCM";
+            var waveName = "PCM";
             if (WaveNumber == AdditiveKit.WaveNumber)
             {
                 waveName = "ADD";
             }
             builder.Append($"Wave Type = {waveName}    KS Pitch = {KSPitch}\n");
 
-            string fixedKeySetting = FixedKey == 0 ? "OFF" : Convert.ToString(FixedKey);
-            string waveNumber = "   ";
+            var fixedKeySetting = FixedKey == 0 ? "OFF" : Convert.ToString(FixedKey);
+            var waveNumber = "   ";
             if (waveName.Equals("PCM"))
             {
                 //builder.Append(string.Format("PCM Wave No. {0} ({1})\n", Wave.Instance[WaveNumber], WaveNumber + 1));
@@ -116,7 +116,7 @@ namespace KSynthLib.K5000
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             // Convert wave kit number to binary string with 10 digits
             string waveBitString = Convert.ToString(WaveNumber, 2).PadLeft(10, '0');

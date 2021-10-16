@@ -23,7 +23,7 @@ namespace KSynthLib.K4
         {
             get
             {
-                List<byte> data = new List<byte>();
+                var data = new List<byte>();
 
                 data.Add(ReceiveChannel.ToByte());
                 data.Add(Volume.ToByte());
@@ -31,7 +31,7 @@ namespace KSynthLib.K4
 
                 byte[] bs = data.ToArray();
                 byte sum = 0;
-                foreach (byte b in bs)
+                foreach (var b in bs)
                 {
                     sum += b;
                 }
@@ -49,7 +49,7 @@ namespace KSynthLib.K4
             VelocityDepth = new LevelType(99);
 
             Notes = new List<DrumNote>();
-            for (int i = 0; i < NoteCount; i++)
+            for (var i = 0; i < NoteCount; i++)
             {
                 Notes.Add(new DrumNote());
             }
@@ -77,7 +77,7 @@ namespace KSynthLib.K4
 
             Notes = new List<DrumNote>();
 
-            for (int i = 0; i < NoteCount; i++)
+            for (var i = 0; i < NoteCount; i++)
             {
                 byte[] noteData = new byte[DrumNote.DataSize];
                 Array.Copy(data, offset, noteData, 0, DrumNote.DataSize);
@@ -93,7 +93,7 @@ namespace KSynthLib.K4
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.Add(ReceiveChannel.ToByte());
             data.Add(Volume.ToByte());
@@ -112,7 +112,7 @@ namespace KSynthLib.K4
             data.Add(Checksum);
 
             // Add all the drum notes. Each one computes and adds its own checksum.
-            foreach (DrumNote note in Notes)
+            foreach (var note in Notes)
             {
                 data.AddRange(note.ToData());
             }
@@ -128,12 +128,12 @@ namespace KSynthLib.K4
         /// </returns>
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
             builder.Append($"DRUM rcv ch = {this.ReceiveChannel}, volume = {this.Volume}, vel.depth = {this.VelocityDepth}\n");
 
-            int noteNumber = 36;
-            foreach (DrumNote note in this.Notes)
+            var noteNumber = 36;
+            foreach (var note in this.Notes)
             {
                 builder.Append(string.Format($"{noteNumber} {note.ToString()}"));
                 noteNumber++;

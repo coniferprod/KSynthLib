@@ -89,7 +89,7 @@ namespace KSynthLib.K5000
         public override string ToString()
         {
             ReverbName name = ReverbNames[ReverbType];
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append($"{name.Name}, Dry/Wet 1 = {DryWet1}\n");
             builder.Append($"P1 {name.ParameterNames[0]} = {DryWet2}\n");
             builder.Append($"P2 {name.ParameterNames[1]} = {Param2}\n");

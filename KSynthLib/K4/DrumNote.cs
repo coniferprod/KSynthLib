@@ -36,7 +36,7 @@ namespace KSynthLib.K4
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             byte high = 0x00;
             byte low = 0x00;
@@ -59,7 +59,7 @@ namespace KSynthLib.K4
         /// </returns>
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
             builder.Append($"WAVE = {this.Wave.ToString()}" + "\n");
             builder.Append($"Decay = {this.Decay}, Tune = {this.Tune}, Level = {this.Level}\n");
@@ -106,8 +106,8 @@ namespace KSynthLib.K4
             int offset = 0;
             byte b = 0;  // will be reused when getting the next byte
 
-            List<byte> source1Bytes = new List<byte>();
-            List<byte> source2Bytes = new List<byte>();
+            var source1Bytes = new List<byte>();
+            var source2Bytes = new List<byte>();
 
             (b, offset) = Util.GetNextByte(data, offset);
             source1Bytes.Add((byte)(b & 0x01));
@@ -150,7 +150,7 @@ namespace KSynthLib.K4
 
         private byte[] CollectData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             byte[] source1Bytes = this.Source1.ToData();
             byte outputSelect = (byte)OutputSelect;
@@ -159,7 +159,7 @@ namespace KSynthLib.K4
 
             byte[] source2Bytes = this.Source2.ToData();
 
-            for (int i = 0; i < source1Bytes.Length; i++)
+            for (var i = 0; i < source1Bytes.Length; i++)
             {
                 data.Add(source1Bytes[i]);
                 data.Add(source2Bytes[i]);
@@ -170,7 +170,7 @@ namespace KSynthLib.K4
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
             data.AddRange(CollectData());
             data.Add(Checksum);  // computed by property accessor
             return data.ToArray();
@@ -184,7 +184,7 @@ namespace KSynthLib.K4
         /// </returns>
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
             builder.Append(OutputSelect.ToString() + "\n");
             builder.Append($"SOURCE 1 = {this.Source1}\n");

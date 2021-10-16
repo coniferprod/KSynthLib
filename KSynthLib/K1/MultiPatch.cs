@@ -22,10 +22,9 @@ namespace KSynthLib.K1
 
         }
 
-
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append(Name);
             builder.Append("\n");
             builder.Append(string.Format("volume = {0}\n", Volume + 1));
@@ -34,20 +33,19 @@ namespace KSynthLib.K1
 
         private string GetName(byte[] data, int offset)
         {
-            byte[] bytes = 
-            { 
-                data[offset], 
-                data[offset + 1], 
-                data[offset + 2], 
-                data[offset + 3], 
-                data[offset + 4], 
-                data[offset + 5], 
-                data[offset + 6], 
+            byte[] bytes =
+            {
+                data[offset],
+                data[offset + 1],
+                data[offset + 2],
+                data[offset + 3],
+                data[offset + 4],
+                data[offset + 5],
+                data[offset + 6],
                 data[offset + 7]
             };
             string name = Encoding.ASCII.GetString(bytes);
             return name;
         }
-
     }
 }

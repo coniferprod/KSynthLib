@@ -96,7 +96,7 @@ namespace KSynthLib.K4
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append(string.Format("single = {0}, recv ch = {1}, play mode = {2}\n", PatchUtil.GetPatchName(SinglePatch.Value), ReceiveChannel.Value, PlayMode));
             builder.Append(string.Format("zone = {0} to {1}, vel sw = {2}\n", PatchUtil.GetNoteName(KeyboardZone.Low), PatchUtil.GetNoteName(KeyboardZone.High), VelocitySwitch));
             builder.Append($"level = {Level}, transpose = {Transpose}, tune = {Tune}\n");
@@ -106,7 +106,7 @@ namespace KSynthLib.K4
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.Add(SinglePatch.ToByte());
             data.Add((byte)KeyboardZone.Low);

@@ -41,7 +41,7 @@ namespace KSynthLib.K4
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.Add(VelocityDepth.ToByte());
             data.Add(PressureDepth.ToByte());
@@ -85,7 +85,7 @@ namespace KSynthLib.K4
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.Add(AttackVelocity.ToByte());
             data.Add(ReleaseVelocity.ToByte());
@@ -123,7 +123,7 @@ namespace KSynthLib.K4
             (b, offset) = Util.GetNextByte(data, offset);
             EnvelopeLevel = new LevelType(b);
 
-            List<byte> envBytes = new List<byte>();
+            var envBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
             envBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
@@ -134,7 +134,7 @@ namespace KSynthLib.K4
             envBytes.Add(b);
             Env = new AmplifierEnvelope(envBytes);
 
-            List<byte> levelModBytes = new List<byte>();
+            var levelModBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
             levelModBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
@@ -145,7 +145,7 @@ namespace KSynthLib.K4
 
             // Same goes for the time modulation values:
 
-            List<byte> timeModBytes = new List<byte>();
+            var timeModBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
             timeModBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
@@ -157,7 +157,7 @@ namespace KSynthLib.K4
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append($"envelope = {Env}, level = {EnvelopeLevel}\n");
             builder.Append($"level modulation: {LevelMod}\n");
             builder.Append($"time modulation: {TimeMod}\n");
@@ -166,7 +166,7 @@ namespace KSynthLib.K4
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.Add(EnvelopeLevel.ToByte());
             data.AddRange(Env.ToData());

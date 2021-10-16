@@ -45,7 +45,7 @@ namespace KSynthLib.K5000
             _checksum = b;
 
             // Create single patch common settings from binary data:
-            byte[] singleCommonData = new byte[SingleCommonSettings.DataSize];
+            var singleCommonData = new byte[SingleCommonSettings.DataSize];
             Buffer.BlockCopy(data, offset, singleCommonData, 0, SingleCommonSettings.DataSize);
             SingleCommon = new SingleCommonSettings(singleCommonData);
 
@@ -53,26 +53,25 @@ namespace KSynthLib.K5000
 
             // Create each of the sources, as many as indicated by the common data:
             Sources = new Source[SingleCommon.SourceCount];
-            for (int i = 0; i < SingleCommon.SourceCount; i++)
+            for (var i = 0; i < SingleCommon.SourceCount; i++)
             {
-                byte[] sourceData = new byte[Source.DataSize];
+                var sourceData = new byte[Source.DataSize];
 
                 // BlockCopy argument list: Array src, int srcOffset, Array dst, int dstOffset, int count
                 Buffer.BlockCopy(data, offset, sourceData, 0, Source.DataSize);
                 string hex = Util.HexDump(sourceData);
                 //Console.Error.WriteLine($"Source {i + 1} data:\n{hex}");
-                Source source = new Source(sourceData);
-                Sources[i] = source;
+                Sources[i] = new Source(sourceData);
                 offset += Source.DataSize;
                 //Console.Error.WriteLine($"{offset:X6} parsed {Source.DataSize} bytes of source data");
             }
 
-            for (int i = 0; i < SingleCommon.SourceCount; i++)
+            for (var i = 0; i < SingleCommon.SourceCount; i++)
             {
-                Source source = Sources[i];
+                var source = Sources[i];
                 if (source.IsAdditive)  // ADD source, so include wave kit size in calculation
                 {
-                    byte[] additiveData = new byte[AdditiveKit.DataSize];
+                    var additiveData = new byte[AdditiveKit.DataSize];
                     //Console.Error.WriteLine(string.Format("About to copy from data at offset {0:X4} to start of new buffer", offset));
                     Buffer.BlockCopy(data, offset, additiveData, 0, AdditiveKit.DataSize);
                     string hex = Util.HexDump(additiveData);
@@ -86,10 +85,10 @@ namespace KSynthLib.K5000
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append(SingleCommon);
             builder.Append("SOURCES:\n");
-            for (int i = 0; i < SingleCommon.SourceCount; i++)
+            for (var i = 0; i < SingleCommon.SourceCount; i++)
             {
                 builder.Append($"S{i + 1}:\n{Sources[i]}\n");
             }
@@ -99,11 +98,11 @@ namespace KSynthLib.K5000
 
         protected override byte[] CollectData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.AddRange(SingleCommon.ToData());
 
-            for (int i = 0; i < SingleCommon.SourceCount; i++)
+            for (var i = 0; i < SingleCommon.SourceCount; i++)
             {
                 byte[] sourceData = Sources[i].ToData();
                 data.AddRange(sourceData);
@@ -120,7 +119,7 @@ namespace KSynthLib.K5000
                 byte total = 0;
 
                 // For each source, compute the sum of source data and add it to the total:
-                for (int i = 0; i < SingleCommon.SourceCount; i++)
+                for (var i = 0; i < SingleCommon.SourceCount; i++)
                 {
                     byte[] sourceData = Sources[i].ToData();
                     byte sourceSum = 0;

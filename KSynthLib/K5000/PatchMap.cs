@@ -25,10 +25,10 @@ namespace KSynthLib.K5000
 
             include = new bool[PatchCount];
 
-            StringBuilder buf = new StringBuilder();
-            for (int i = 0; i < data.Length; i++)
+            var buf = new StringBuilder();
+            for (var i = 0; i < data.Length; i++)
             {
-                for (int j = 0; j < 7; j++)
+                for (var j = 0; j < 7; j++)
                 {
                     buf.Append(data[i].IsBitSet(j) ? "1" : "0");
                 }
@@ -38,8 +38,8 @@ namespace KSynthLib.K5000
             // Of the last byte of the patch map, only the bottom two bits are used.
             // The conversion to bit string will have some extra bits, so truncate
             // the result to exactly 128 "bits".
-            string bitString = buf.ToString().Substring(0, PatchCount);
-            for (int i = 0; i < bitString.Length; i++)
+            var bitString = buf.ToString().Substring(0, PatchCount);
+            for (var i = 0; i < bitString.Length; i++)
             {
                 include[i] = bitString[i] == '1' ? true : false;
             }
@@ -49,7 +49,7 @@ namespace KSynthLib.K5000
         {
             include = new bool[PatchCount];
             // TODO: Check that lengths match
-            for (int i = 0; i < incl.Length; i++)
+            for (var i = 0; i < incl.Length; i++)
             {
                 include[i] = incl[i];
             }
@@ -62,8 +62,8 @@ namespace KSynthLib.K5000
 
         public byte[] ToData()
         {
-            StringBuilder buf = new StringBuilder();
-            for (int i = 0; i < include.Length; i++)
+            var buf = new StringBuilder();
+            for (var i = 0; i < include.Length; i++)
             {
                 buf.Append(include[i] ? "1" : "0");
                 // each byte maps seven patches, and every 8th bit must be a zero
@@ -73,11 +73,11 @@ namespace KSynthLib.K5000
                 }
             }
             // The patches are enumerated starting from the low bits, so reverse the string.
-            string bitString = buf.ToString().Reversed();
+            var bitString = buf.ToString().Reversed();
             // Now we have a long bit string. Slice it into chunks of eight bits to convert to bytes.
             string[] parts = bitString.Split(8);
-            List<byte> data = new List<byte>();
-            foreach (string s in parts)
+            var data = new List<byte>();
+            foreach (var s in parts)
             {
                 data.Add(Convert.ToByte(s, 2));
             }

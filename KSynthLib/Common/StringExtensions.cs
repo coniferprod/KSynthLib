@@ -7,17 +7,17 @@ namespace KSynthLib.Common
     {
         public static string[] Split(this string value, int desiredLength, bool strict = false)
         {
-            if (value.Length == 0) 
-            { 
-                return new string[0]; 
+            if (value.Length == 0)
+            {
+                return new string[0];
             }
 
             int numberOfItems = value.Length / desiredLength;
             int remaining = (value.Length > numberOfItems * desiredLength) ? 1 : 0;
 
-            List<string> split = new List<string>(numberOfItems + remaining);
+            var split = new List<string>(numberOfItems + remaining);
 
-            for (int i = 0; i < numberOfItems; i++)
+            for (var i = 0; i < numberOfItems; i++)
             {
                 split.Add(value.Substring(i * desiredLength, desiredLength));
             }
@@ -38,6 +38,6 @@ namespace KSynthLib.Common
             char[] arr = s.ToCharArray();
             Array.Reverse(arr);
             return new string(arr);
-        }        
+        }
     }
 }

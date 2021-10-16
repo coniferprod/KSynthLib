@@ -91,7 +91,7 @@ namespace KSynthLib.K5
             IsActive = false;
 
             Segments = new HarmonicEnvelopeSegment[SegmentCount];
-            for (int i = 0; i < SegmentCount; i++)
+            for (var i = 0; i < SegmentCount; i++)
             {
                 Segments[i] = new HarmonicEnvelopeSegment();
             }
@@ -209,7 +209,7 @@ namespace KSynthLib.K5
             _rangeTo = new HarmonicNumberType();
 
             Envelopes = new HarmonicEnvelope[HarmonicEnvelopeCount];
-            for (int i = 0; i < HarmonicEnvelopeCount; i++)
+            for (var i = 0; i < HarmonicEnvelopeCount; i++)
             {
                 Envelopes[i] = new HarmonicEnvelope();
             }
@@ -219,41 +219,41 @@ namespace KSynthLib.K5
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append(string.Format("*DHG 1*  MOD={0}\n\n", IsModulationActive ? "ON" : "OFF"));
             builder.Append(string.Format("*DHG 2*\n<DEPTH>\n VEL={0,3}  KS={1,3}\n PRS={2,3} LFO={3,3}\n\n",
                 VelocityDepth, KeyScalingDepth, PressureDepth, LFODepth));
             builder.Append("ENV|");
-            for (int i = 0; i < HarmonicSettings.HarmonicEnvelopeCount; i++)
+            for (var i = 0; i < HarmonicSettings.HarmonicEnvelopeCount; i++)
             {
                 builder.Append(string.Format("{0,2}|", i + 1));
             }
             builder.Append("\nACT|");
-            for (int i = 0; i < HarmonicSettings.HarmonicEnvelopeCount; i++)
+            for (var i = 0; i < HarmonicSettings.HarmonicEnvelopeCount; i++)
             {
                 builder.Append(string.Format("{0}|", Envelopes[i].IsActive ? "ON" : "--"));
             }
             builder.Append("\nEFF|");
-            for (int i = 0; i < HarmonicSettings.HarmonicEnvelopeCount; i++)
+            for (var i = 0; i < HarmonicSettings.HarmonicEnvelopeCount; i++)
             {
                 builder.Append(string.Format("{0,2}|", Envelopes[i].Effect));
             }
             builder.Append("\n\n");
 
             builder.Append("*DHG ENV*\n\nSEG |");
-            for (int i = 0; i < HarmonicEnvelope.SegmentCount; i++)
+            for (var i = 0; i < HarmonicEnvelope.SegmentCount; i++)
             {
                 builder.Append(string.Format("{0,5}|", i + 1));
             }
             builder.Append("\n----|RT|LV|RT|LV|RT|LV|RT|LV|RT|LV|RT|LV|\n");
 
-            for (int ei = 0; ei < HarmonicSettings.HarmonicEnvelopeCount; ei++)
+            for (var ei = 0; ei < HarmonicSettings.HarmonicEnvelopeCount; ei++)
             {
                 builder.Append(string.Format("ENV{0}|", ei + 1));
-                for (int si = 0; si < HarmonicEnvelope.SegmentCount; si++)
+                for (var si = 0; si < HarmonicEnvelope.SegmentCount; si++)
                 {
                     HarmonicEnvelopeSegment segment = Envelopes[ei].Segments[si];
-                    string levelString = segment.IsMaxSegment ? " *" : string.Format("{0,2}", segment.Level);
+                    var levelString = segment.IsMaxSegment ? " *" : string.Format("{0,2}", segment.Level);
                     builder.Append(string.Format("{0,2}|{1}|", segment.Rate, levelString));
                 }
                 builder.Append("\n");
@@ -269,7 +269,7 @@ namespace KSynthLib.K5
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.Add(VelocityDepth.ToByte());
             data.Add(PressureDepth.ToByte());
@@ -277,7 +277,7 @@ namespace KSynthLib.K5
             data.Add(LFODepth);
 
             byte b = 0;
-            for (int i = 0; i < HarmonicSettings.HarmonicEnvelopeCount; i++)
+            for (var i = 0; i < HarmonicSettings.HarmonicEnvelopeCount; i++)
             {
                 b = Envelopes[i].Effect;
                 if (Envelopes[i].IsActive)
@@ -335,9 +335,9 @@ namespace KSynthLib.K5
             data.Add((byte)Angle);
             data.Add(HarmonicNumber);
 
-            for (int ei = 0; ei < HarmonicSettings.HarmonicEnvelopeCount; ei++)
+            for (var ei = 0; ei < HarmonicSettings.HarmonicEnvelopeCount; ei++)
             {
-                for (int si = 0; si < HarmonicEnvelope.SegmentCount; si++)
+                for (var si = 0; si < HarmonicEnvelope.SegmentCount; si++)
                 {
                     b = Envelopes[ei].Segments[si].Level;
                     if (Envelopes[ei].Segments[si].IsMaxSegment)
@@ -361,7 +361,7 @@ namespace KSynthLib.K5
                     }
                     data.Add(b);
                 }
-                for (int si = 0; si < HarmonicEnvelope.SegmentCount; si++)
+                for (var si = 0; si < HarmonicEnvelope.SegmentCount; si++)
                 {
                     b = Envelopes[ei].Segments[si].Rate;
                     data.Add(b);

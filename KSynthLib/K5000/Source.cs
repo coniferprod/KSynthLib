@@ -108,7 +108,7 @@ namespace KSynthLib.K5000
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
             data.Add((byte)Source);
             data.AddRange(Target.ToData());
             return data.ToArray();
@@ -268,7 +268,7 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);
             BenderCutoff = b;
 
-            List<byte> pressBytes = new List<byte>();
+            var pressBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
             pressBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
@@ -279,7 +279,7 @@ namespace KSynthLib.K5000
             pressBytes.Add(b);
             Press = new ControllerSettings(pressBytes);
 
-            List<byte> wheelBytes = new List<byte>();
+            var wheelBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
             wheelBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
@@ -290,7 +290,7 @@ namespace KSynthLib.K5000
             wheelBytes.Add(b);
             Wheel = new ControllerSettings(wheelBytes);
 
-            List<byte> expressBytes = new List<byte>();
+            var expressBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
             expressBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
@@ -334,7 +334,7 @@ namespace KSynthLib.K5000
             DCA = new DCASettings(data, offset);
             offset += DCA.ToData().Length;
 
-            List<byte> lfoBytes = new List<byte>();
+            var lfoBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
             lfoBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
@@ -373,7 +373,7 @@ namespace KSynthLib.K5000
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append($"Zone: low = {ZoneLow}, high = {ZoneHigh}\n");
             builder.Append(string.Format("Vel. sw type = {0}, velocity = {1}\n", VelocitySwitch.SwitchType, VelocitySwitch.Threshold));
             builder.Append(string.Format("Effect path = {0}\n", EffectPath));
@@ -395,7 +395,7 @@ namespace KSynthLib.K5000
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.Add(ZoneLow);
             data.Add(ZoneHigh);

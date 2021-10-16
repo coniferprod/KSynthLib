@@ -179,7 +179,7 @@ namespace KSynthLib.K5000
         {
             //Console.Error.WriteLine(string.Format("Effect type = {0}", _type));
             EffectName name = EffectNames[_type];
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append(string.Format("{0}, depth = {1}\n", name.Name, Depth));
             builder.Append(string.Format("P1 {0} = {1}\n", name.ParameterNames[0], Param1));
             builder.Append(string.Format("P2 {0} = {1}\n", name.ParameterNames[1], Param2));
@@ -190,7 +190,7 @@ namespace KSynthLib.K5000
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             // Adjust the effect type back to 11~47:
             data.Add((byte)(_type + 11));

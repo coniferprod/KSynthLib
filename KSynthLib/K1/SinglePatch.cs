@@ -20,7 +20,7 @@ namespace KSynthLib.K1
         Solo
     }
 
-    public enum AmplitudeModulationMode 
+    public enum AmplitudeModulationMode
     {
         Off,
         Modulated,
@@ -141,12 +141,12 @@ namespace KSynthLib.K1
             SourceMuted[2] = !b.IsBitSet(2);
             SourceMuted[3] = !b.IsBitSet(3);
 
-            byte[] source1Data = new byte[16];
-            byte[] source2Data = new byte[16];
-            byte[] source3Data = new byte[16];
-            byte[] source4Data = new byte[16];
-            
-            for (int i = 0; i < 16; i++)
+            var source1Data = new byte[16];
+            var source2Data = new byte[16];
+            var source3Data = new byte[16];
+            var source4Data = new byte[16];
+
+            for (var i = 0; i < 16; i++)
             {
                 (b, offset) = Util.GetNextByte(data, offset);
                 source1Data[i] = b;
@@ -173,10 +173,10 @@ namespace KSynthLib.K1
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append(Name);
             builder.Append("\n");
-            string modeString = "???";
+            var modeString = "???";
             if (SMode == SourceMode.FourSource)
             {
                 modeString = "FOUR";
@@ -187,7 +187,7 @@ namespace KSynthLib.K1
             }
             builder.Append(string.Format("volume = {0}, sources = {1}\n", Volume + 1, modeString));
             builder.Append("SOURCES:\n");
-            for (int i = 0; i < NumSources; i++)
+            for (var i = 0; i < NumSources; i++)
             {
                 builder.Append(string.Format("S{0}: {1}\n", i + 1, Sources[i].ToString()));
             }
@@ -198,15 +198,15 @@ namespace KSynthLib.K1
 
         private string GetName(byte[] data, int offset)
         {
-            byte[] bytes = 
-            { 
-                data[offset], 
-                data[offset + 1], 
-                data[offset + 2], 
-                data[offset + 3], 
-                data[offset + 4], 
-                data[offset + 5], 
-                data[offset + 6], 
+            byte[] bytes =
+            {
+                data[offset],
+                data[offset + 1],
+                data[offset + 2],
+                data[offset + 3],
+                data[offset + 4],
+                data[offset + 5],
+                data[offset + 6],
                 data[offset + 7],
                 data[offset + 8],
                 data[offset + 9]
@@ -217,10 +217,10 @@ namespace KSynthLib.K1
 
         public byte[] ToData()
         {
-            List<byte> buf = new List<byte>();
+            var buf = new List<byte>();
 
             byte[] nameBytes = ASCIIEncoding.ASCII.GetBytes(Name);
-            foreach (byte b in nameBytes)
+            foreach (var b in nameBytes)
             {
                 buf.Add(b);
             }
@@ -246,7 +246,7 @@ namespace KSynthLib.K1
             buf.Add((byte)AutoBendKeyScalingTime);
 
             byte mutesValue = 0x00;
-            for (int i = 0; i < NumSources; i++)
+            for (var i = 0; i < NumSources; i++)
             {
                 if (SourceMuted[i])
                 {
@@ -262,7 +262,7 @@ namespace KSynthLib.K1
             byte[] s3Data = Sources[2].ToData();
             byte[] s4Data = Sources[3].ToData();
 
-            for (int i = 0; i < s1Data.Length; i++)  // they are all the same length
+            for (var i = 0; i < s1Data.Length; i++)  // they are all the same length
             {
                 buf.Add(s1Data[i]);
                 buf.Add(s2Data[i]);
@@ -280,7 +280,7 @@ namespace KSynthLib.K1
         {
             Console.Error.WriteLine(string.Format("Computing checksum from a buffer of {0} bytes...", data.Length));
             int sum = 0xA5;
-            foreach (byte b in data)
+            foreach (var b in data)
             {
                 sum = (sum + b) & 255;
             }

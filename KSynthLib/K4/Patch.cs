@@ -101,10 +101,10 @@ namespace KSynthLib.K4
 
         protected byte[] GetNameBytes(string name)
         {
-            List<byte> bytes = new List<byte>();
+            var bytes = new List<byte>();
 
-            char[] charArray = name.ToCharArray();
-            for (int i = 0; i < charArray.Length; i++)
+            var charArray = name.ToCharArray();
+            for (var i = 0; i < charArray.Length; i++)
             {
                 char ch = charArray[i];
                 byte b = (byte)ch;
@@ -128,11 +128,11 @@ namespace KSynthLib.K4
 
         protected string GetName(byte[] data, int offset = 0)
         {
-            List<char> chars = new List<char>();
+            var chars = new List<char>();
 
-            for (int i = offset; i < NameLength; i++)
+            for (var i = offset; i < NameLength; i++)
             {
-                byte b = data[i];
+                var b = data[i];
 
                 // If there is a character not found in the allowed list,
                 // replace it with a space and go to the next character
@@ -167,7 +167,7 @@ namespace KSynthLib.K4
 
         public byte[] ToData()
         {
-            List<byte> allData = new List<byte>();
+            var allData = new List<byte>();
             allData.AddRange(CollectData());
             allData.Add(this.Checksum);  // calls CollectData again, perf?
             return allData.ToArray();

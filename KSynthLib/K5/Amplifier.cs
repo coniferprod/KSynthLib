@@ -57,7 +57,7 @@ namespace KSynthLib.K5
         public AmplifierEnvelope()
         {
             Segments = new AmplifierEnvelopeSegment[SegmentCount];
-            for (int i = 0; i < SegmentCount; i++)
+            for (var i = 0; i < SegmentCount; i++)
             {
                 Segments[i] = new AmplifierEnvelopeSegment();
             }
@@ -168,7 +168,7 @@ namespace KSynthLib.K5
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
             builder.Append("*DDA*=");
             builder.Append(IsActive ? "ON" : "--");
@@ -186,7 +186,7 @@ namespace KSynthLib.K5
             // be good for learning). Maybe I'll revisit this some day.
 
             builder.Append("*DDA ENV*\n\n    SEG  |");
-            for (int i = 0; i < AmplifierEnvelope.SegmentCount; i++)
+            for (var i = 0; i < AmplifierEnvelope.SegmentCount; i++)
             {
                 builder.Append($"{i + 1,3} |");
             }
@@ -200,13 +200,13 @@ namespace KSynthLib.K5
             builder.Append("\n    LEVEL|");
             for (int i = 0; i < AmplifierEnvelope.SegmentCount; i++)
             {
-                string levelString = string.Format("{0,3}{1}", Envelope.Segments[i].Level, Envelope.Segments[i].IsMaxSegment ? "*" : " ");
+                var levelString = string.Format("{0,3}{1}", Envelope.Segments[i].Level, Envelope.Segments[i].IsMaxSegment ? "*" : " ");
                 builder.Append($"{levelString}|");
             }
             builder.Append("\n    RTMOD|");
             for (int i = 0; i < AmplifierEnvelope.SegmentCount; i++)
             {
-                string rateModulationString = Envelope.Segments[i].IsRateModulationOn ? " ON" : " --";
+                var rateModulationString = Envelope.Segments[i].IsRateModulationOn ? " ON" : " --";
                 builder.Append($"{rateModulationString} |");
             }
 
@@ -219,7 +219,7 @@ namespace KSynthLib.K5
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.Add(AttackVelocityDepth.ToByte());
             data.Add(PressureDepth.ToByte());
@@ -238,7 +238,7 @@ namespace KSynthLib.K5
             data.Add(ReleaseVelocityRate.ToByte());
             data.Add(KeyScalingRate.ToByte());
 
-            for (int i = 0; i < AmplifierEnvelope.SegmentCount; i++)
+            for (var i = 0; i < AmplifierEnvelope.SegmentCount; i++)
             {
                 b = Envelope.Segments[i].Rate;
                 //Console.Error.WriteLine(string.Format("seg={0}, rate={1}, mod={2}", i, Envelope.Segments[i].Rate, Envelope.Segments[i].IsRateModulationOn));
@@ -254,7 +254,7 @@ namespace KSynthLib.K5
                 //Console.Error.WriteLine(string.Format("{0:X2}H", b));
             }
 
-            for (int i = 0; i < AmplifierEnvelope.SegmentCount - 1; i++)
+            for (var i = 0; i < AmplifierEnvelope.SegmentCount - 1; i++)
             {
                 b = Envelope.Segments[i].Level;
                 if (Envelope.Segments[i].IsMaxSegment)

@@ -94,7 +94,7 @@ namespace KSynthLib.K5000
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
             data.Add((byte)Source);
             data.Add((byte)Destination);
             data.Add(_depth.AsByte());
@@ -185,14 +185,14 @@ namespace KSynthLib.K5000
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append($"Dest1 = {Param1.Type}, Depth = {Param1.Depth}. Dest2 = {Param2.Type}, Depth = {Param2.Depth}");
             return builder.ToString();
         }
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
             data.AddRange(this.Param1.ToData());
             data.AddRange(this.Param2.ToData());
             return data.ToArray();
@@ -308,7 +308,7 @@ namespace KSynthLib.K5000
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append($"Name = '{Name}' Volume = {Volume}\n");
 
             builder.Append($"REVERB:\n{Reverb}\n");
@@ -322,7 +322,7 @@ namespace KSynthLib.K5000
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
             data.Add(EffectAlgorithm);
 
             data.AddRange(Reverb.ToData());
@@ -335,7 +335,7 @@ namespace KSynthLib.K5000
 
             data.Add(0); // drum_mark, 0=normal(not drum)
 
-            foreach (char ch in Name)
+            foreach (var ch in Name)
             {
                 data.Add(Convert.ToByte(ch));
             }

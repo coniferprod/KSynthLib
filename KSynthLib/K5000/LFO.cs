@@ -107,7 +107,7 @@ namespace KSynthLib.K5000
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append(string.Format("Waveform={0}  Speed={1}  Delay Onset={2}\n", Waveform, Speed, DelayOnset));
             builder.Append(string.Format("Fade In Time={0}  Fade In To Speed={1}\n", FadeInTime, FadeInToSpeed));
             builder.Append("LFO Modulation:\n");
@@ -119,7 +119,7 @@ namespace KSynthLib.K5000
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.AddRange(new List<byte>() {
                 (byte)Waveform,

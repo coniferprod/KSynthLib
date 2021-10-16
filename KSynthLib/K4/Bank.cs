@@ -31,37 +31,37 @@ namespace KSynthLib.K4
         // SysEx header.
         public Bank(byte[] data) : this()
         {
-            int offset = 0;
-            for (int i = 0; i < SinglePatchCount; i++)
+            var offset = 0;
+            for (var i = 0; i < SinglePatchCount; i++)
             {
-                byte[] singleData = new byte[SinglePatch.DataSize];
+                var singleData = new byte[SinglePatch.DataSize];
                 //Console.Error.WriteLine($"Copying {SinglePatch.DataSize} bytes from offset {offset} to singleData");
                 Buffer.BlockCopy(data, offset, singleData, 0, SinglePatch.DataSize);
                 Debug.Assert(singleData.Length == SinglePatch.DataSize);
                 Console.Error.WriteLine($"Single data length = {singleData.Length}");
                 //Console.Error.WriteLine(Util.HexDump(singleData));
 
-                SinglePatch singlePatch = new SinglePatch(singleData);
+                var singlePatch = new SinglePatch(singleData);
                 this.Singles.Add(singlePatch);
                 offset += SinglePatch.DataSize;
             }
 
-            for (int i = 0; i < MultiPatchCount; i++)
+            for (var i = 0; i < MultiPatchCount; i++)
             {
-                byte[] multiData = new byte[MultiPatch.DataSize];
+                var multiData = new byte[MultiPatch.DataSize];
                 Buffer.BlockCopy(data, offset, multiData, 0, MultiPatch.DataSize);
                 this.Multis.Add(new MultiPatch(multiData));
                 offset += MultiPatch.DataSize;
             }
 
-            byte[] drumData = new byte[DrumPatch.DataSize];
+            var drumData = new byte[DrumPatch.DataSize];
             Buffer.BlockCopy(data, offset, drumData, 0, DrumPatch.DataSize);
             this.Drum = new DrumPatch(drumData);
             offset += DrumPatch.DataSize;
 
-            for (int i = 0; i < EffectPatchCount; i++)
+            for (var i = 0; i < EffectPatchCount; i++)
             {
-                byte[] effectData = new byte[EffectPatch.DataSize];
+                var effectData = new byte[EffectPatch.DataSize];
                 Buffer.BlockCopy(data, offset, effectData, 0, EffectPatch.DataSize);
                 this.Effects.Add(new EffectPatch(effectData));
                 offset += EffectPatch.DataSize;

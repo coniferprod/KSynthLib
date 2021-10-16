@@ -188,7 +188,7 @@ namespace KSynthLib.K5000
             SourceCount = b;  // No. 51
 
             (b, offset) = Util.GetNextByte(data, offset);
-            for (int i = 0; i < MaxSources; i++)
+            for (var i = 0; i < MaxSources; i++)
             {
                 bool isNotMuted = b.IsBitSet(i);
                 IsSourceMuted[i] = ! isNotMuted;
@@ -265,7 +265,7 @@ namespace KSynthLib.K5000
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
             builder.Append($"{Name}\n");
 
@@ -293,7 +293,7 @@ namespace KSynthLib.K5000
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.Add(EffectAlgorithm);
             data.AddRange(Reverb.ToData());
@@ -313,7 +313,7 @@ namespace KSynthLib.K5000
 
             data.Add((byte)SourceCount);
             byte sourceMute = 0;
-            for (int i = 0; i < MaxSources; i++)
+            for (var i = 0; i < MaxSources; i++)
             {
                 if (IsSourceMuted[i])
                 {

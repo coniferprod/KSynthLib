@@ -78,7 +78,7 @@ namespace KSynthLib.K5
             _lfoDepth = new PositiveDepthType();
 
             EnvelopeSegments = new FilterEnvelopeSegment[Source.FilterEnvelopeSegmentCount];
-            for (int i = 0; i < Source.FilterEnvelopeSegmentCount; i++)
+            for (var i = 0; i < Source.FilterEnvelopeSegmentCount; i++)
             {
                 EnvelopeSegments[i] = new FilterEnvelopeSegment();
             }
@@ -86,7 +86,7 @@ namespace KSynthLib.K5
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
             builder.Append(string.Format("*DDF*={0}   MOD={1}\n", IsActive ? "ON" : "--", IsModulationActive ? "ON" : "--"));
             builder.Append("                   <DEPTH>\n");
@@ -98,20 +98,20 @@ namespace KSynthLib.K5
             builder.Append("\n\n");
 
             builder.Append("*DDF ENV*\n\n    SEG  |");
-            for (int i = 0; i < Source.FilterEnvelopeSegmentCount; i++)
+            for (var i = 0; i < Source.FilterEnvelopeSegmentCount; i++)
             {
                 builder.Append(string.Format("{0,3}|", i + 1));
             }
             builder.Append("\n    ------------------------------\n");
             builder.Append("    RATE |");
-            for (int i = 0; i < Source.FilterEnvelopeSegmentCount; i++)
+            for (var i = 0; i < Source.FilterEnvelopeSegmentCount; i++)
             {
                 builder.Append(string.Format("{0,3}|", EnvelopeSegments[i].Rate));
             }
             builder.Append("\n    LEVEL|");
-            for (int i = 0; i < Source.FilterEnvelopeSegmentCount; i++)
+            for (var i = 0; i < Source.FilterEnvelopeSegmentCount; i++)
             {
-                string levelString = EnvelopeSegments[i].IsMaxSegment ? "  *" : string.Format("{0,3}", EnvelopeSegments[i].Level);
+                var levelString = EnvelopeSegments[i].IsMaxSegment ? "  *" : string.Format("{0,3}", EnvelopeSegments[i].Level);
                 builder.Append($"{levelString}|");
             }
             builder.Append("\n\n    MAX SEG = ?\n\n");
@@ -123,7 +123,7 @@ namespace KSynthLib.K5
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.Add(Cutoff);
             data.Add(CutoffModulation);
@@ -155,12 +155,12 @@ namespace KSynthLib.K5
             }
             data.Add(b);
 
-            for (int i = 0; i < Source.FilterEnvelopeSegmentCount; i++)
+            for (var i = 0; i < Source.FilterEnvelopeSegmentCount; i++)
             {
                 data.Add(EnvelopeSegments[i].Rate);
             }
 
-            for (int i = 0; i < Source.FilterEnvelopeSegmentCount; i++)
+            for (var i = 0; i < Source.FilterEnvelopeSegmentCount; i++)
             {
                 b = EnvelopeSegments[i].Level;
                 if (EnvelopeSegments[i].IsMaxSegment)

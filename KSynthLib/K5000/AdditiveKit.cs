@@ -70,7 +70,7 @@ namespace KSynthLib.K5000
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.AddRange(new List<byte>() {
                 (byte)(Morf ? 1 : 0),
@@ -194,7 +194,7 @@ namespace KSynthLib.K5000
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.Add(_bias.Byte);
             data.Add(EnvLFOSel);
@@ -238,7 +238,7 @@ namespace KSynthLib.K5000
             FormantFilter = new byte[FilterBandCount];
 
             HarmonicEnvelopes = new HarmonicEnvelope[HarmonicCount];
-            for (int i = 0; i < HarmonicCount; i++)
+            for (var i = 0; i < HarmonicCount; i++)
             {
                 HarmonicEnvelopes[i] = new HarmonicEnvelope();
             }
@@ -351,14 +351,14 @@ namespace KSynthLib.K5000
             Formant.LFO.Depth = b;
 
             SoftHarmonics = new byte[HarmonicCount];
-            for (int i = 0; i < HarmonicCount; i++)
+            for (var i = 0; i < HarmonicCount; i++)
             {
                 (b, offset) = Util.GetNextByte(data, offset);
                 SoftHarmonics[i] = b;
             }
 
             LoudHarmonics = new byte[HarmonicCount];
-            for (int i = 0; i < HarmonicCount; i++)
+            for (var i = 0; i < HarmonicCount; i++)
             {
                 (b, offset) = Util.GetNextByte(data, offset);
                 LoudHarmonics[i] = b;
@@ -366,14 +366,14 @@ namespace KSynthLib.K5000
 
             // TODO: Maybe the filter bands could be combined with the formant parameters?
             FormantFilter = new byte[FilterBandCount];
-            for (int i = 0; i < FilterBandCount; i++)
+            for (var i = 0; i < FilterBandCount; i++)
             {
                 (b, offset) = Util.GetNextByte(data, offset);
                 FormantFilter[i] = b;
             }
 
             HarmonicEnvelopes = new HarmonicEnvelope[HarmonicCount];
-            for (int i = 0; i < HarmonicCount; i++)
+            for (var i = 0; i < HarmonicCount; i++)
             {
                 HarmonicEnvelopes[i] = new HarmonicEnvelope();
                 (b, offset) = Util.GetNextByte(data, offset);
@@ -404,23 +404,23 @@ namespace KSynthLib.K5000
 
         public override string ToString()
         {
-            StringBuilder b = new StringBuilder();
+            var b = new StringBuilder();
             b.Append(string.Format("MORF is {0}\n", Harmonics.Morf ? "ON" : "OFF"));
             b.Append($"Total Gain = {Harmonics.TotalGain}\n");
             b.Append($"Harm group = {Harmonics.Group}\n");
             b.Append("Soft harmonics:\n");
-            for (int i = 0; i < HarmonicCount; i++)
+            for (var i = 0; i < HarmonicCount; i++)
             {
                 b.Append($"{i}: {SoftHarmonics[i]}\n");
             }
             b.Append("Loud harmonics:\n");
-            for (int i = 0; i < HarmonicCount; i++)
+            for (var i = 0; i < HarmonicCount; i++)
             {
                 b.Append($"{i}: {LoudHarmonics[i]}\n");
             }
 
             b.Append("Harmonic envelopes:\n    Atk  Dc1  Dc2  Rls\n");
-            for (int i = 0; i < HarmonicCount; i++)
+            for (var i = 0; i < HarmonicCount; i++)
             {
                 HarmonicEnvelope env = HarmonicEnvelopes[i];
                 b.Append(string.Format("{0}: Level {1}  {2}  {3}  {4}\n", i + 1, env.Segment0.Level, env.Segment1.Level, env.Segment2.Level, env.Segment3.Level));
@@ -432,7 +432,7 @@ namespace KSynthLib.K5000
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.AddRange(Harmonics.ToData());
             data.AddRange(Formant.ToData());
@@ -440,7 +440,7 @@ namespace KSynthLib.K5000
             data.AddRange(LoudHarmonics);
             data.AddRange(FormantFilter);
 
-            for (int i = 0; i < HarmonicCount; i++)
+            for (var i = 0; i < HarmonicCount; i++)
             {
                 data.AddRange(HarmonicEnvelopes[i].ToData());
             }
@@ -464,39 +464,39 @@ namespace KSynthLib.K5000
             // HCKIT sum = MORF flag, harmonics, formant
             total += (byte)(Harmonics.Morf ? 1 : 0);
             byte[] harmonicsData = Harmonics.ToData();
-            foreach (byte b in harmonicsData)
+            foreach (var b in harmonicsData)
             {
                 total += b;
             }
 
             byte[] formantParameterData = Formant.ToData();
-            foreach (byte b in formantParameterData)
+            foreach (var b in formantParameterData)
             {
                 total += b;
             }
 
             // HC code 1 sum
-            foreach (byte b in SoftHarmonics)
+            foreach (var b in SoftHarmonics)
             {
                 total += b;
             }
 
             // HC code 2 sum
-            foreach (byte b in LoudHarmonics)
+            foreach (var b in LoudHarmonics)
             {
                 total += b;
             }
 
             // FF sum
-            foreach (byte b in FormantFilter)
+            foreach (var b in FormantFilter)
             {
                 total += b;
             }
 
-            for (int i = 0; i < HarmonicCount; i++)
+            for (var i = 0; i < HarmonicCount; i++)
             {
                 byte[] harmonicEnvelopeData = HarmonicEnvelopes[i].ToData();
-                foreach (byte b in harmonicEnvelopeData)
+                foreach (var b in harmonicEnvelopeData)
                 {
                     total += b;
                 }

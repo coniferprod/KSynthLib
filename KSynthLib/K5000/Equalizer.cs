@@ -82,7 +82,7 @@ namespace KSynthLib.K5000
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append($"{Freq1} {Freq2} {Freq3} {Freq4} {Freq5} {Freq6} {Freq7}\n");
             // TODO: Add the sign, like "+6" or "-6"
             return builder.ToString();
@@ -90,7 +90,7 @@ namespace KSynthLib.K5000
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
             data.Add(_freq1.AsByte());
             data.Add(_freq2.AsByte());
             data.Add(_freq3.AsByte());

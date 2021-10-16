@@ -41,7 +41,7 @@ namespace KSynthLib.K5
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
             builder.Append("*LFO*\n\n");
             builder.Append($" SHAPE= {Shape}\n SPEED= {Speed,2}\n DELAY= {Delay,2}\n TREND= {Trend,2}\n\n\n");
@@ -51,7 +51,7 @@ namespace KSynthLib.K5
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.Add(Convert.ToByte(Shape));
             data.Add(Speed);

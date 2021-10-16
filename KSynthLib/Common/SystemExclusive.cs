@@ -42,7 +42,7 @@ namespace KSynthLib.Common
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
             data.Add(ManufacturerID);
             data.Add(Channel);
             data.Add(Function);

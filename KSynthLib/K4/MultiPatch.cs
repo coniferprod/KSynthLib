@@ -22,7 +22,7 @@ namespace KSynthLib.K4
             this.EffectPatch = new EffectNumberType(1);
 
             this.Sections = new Section[SectionCount];
-            for (int i = 0; i < SectionCount; i++)
+            for (var i = 0; i < SectionCount; i++)
             {
                 this.Sections[i] = new Section();
             }
@@ -32,7 +32,7 @@ namespace KSynthLib.K4
         {
             this.Sections = new Section[SectionCount];
 
-            int offset = 0;
+            var offset = 0;
             byte b = 0;  // will be reused when getting the next byte
             _name = GetName(data, offset);
             offset += 10;  // name is M0 to M9
@@ -43,9 +43,9 @@ namespace KSynthLib.K4
             (b, offset) = Util.GetNextByte(data, offset);
             this.EffectPatch = new EffectNumberType(b);
 
-            for (int i = 0; i < SectionCount; i++)
+            for (var i = 0; i < SectionCount; i++)
             {
-                byte[] sectionData = new byte[Section.DataSize];
+                var sectionData = new byte[Section.DataSize];
                 Array.Copy(data, offset, sectionData, 0, Section.DataSize);
                 this.Sections[i] = new Section(sectionData);
                 offset += Section.DataSize;
@@ -57,9 +57,9 @@ namespace KSynthLib.K4
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append($"name = {Name}, volume = {Volume}, effect = {EffectPatch}\n");
-            for (int i = 0; i < SectionCount; i++)
+            for (var i = 0; i < SectionCount; i++)
             {
                 builder.Append($"Section {i + 1}:\n");
                 builder.Append(this.Sections[i].ToString());
@@ -71,7 +71,7 @@ namespace KSynthLib.K4
 
         protected override byte[] CollectData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             byte[] nameBytes = Encoding.ASCII.GetBytes(this.Name.PadRight(10));
             data.AddRange(nameBytes);
@@ -79,7 +79,7 @@ namespace KSynthLib.K4
             data.Add(Volume.ToByte());
             data.Add(EffectPatch.ToByte());
 
-            for (int i = 0; i < SectionCount; i++)
+            for (var i = 0; i < SectionCount; i++)
             {
                 data.AddRange(this.Sections[i].ToData());
             }

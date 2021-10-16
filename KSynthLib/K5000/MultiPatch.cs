@@ -27,7 +27,7 @@ namespace KSynthLib.K5000
 
         protected override byte[] CollectData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             // TODO: Collect the data
 
@@ -38,7 +38,7 @@ namespace KSynthLib.K5000
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
             // TODO: generate string representation
 

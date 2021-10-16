@@ -46,7 +46,7 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);
             VelocityCurve = (byte)(b + 1);  // adjust from 0~11 to 1~12
 
-            List<byte> envBytes = new List<byte>();
+            var envBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
             envBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
@@ -61,7 +61,7 @@ namespace KSynthLib.K5000
             envBytes.Add(b);
             Envelope = new AmplifierEnvelope(envBytes);
 
-            List<byte> ksEnvBytes = new List<byte>();
+            var ksEnvBytes = new List<byte>();
             KeyScaling = new KeyScalingControlEnvelope();
             (b, offset) = Util.GetNextByte(data, offset);
             ksEnvBytes.Add(b);
@@ -73,7 +73,7 @@ namespace KSynthLib.K5000
             ksEnvBytes.Add(b);
             KeyScaling = new KeyScalingControlEnvelope(ksEnvBytes);
 
-            List<byte> velEnvBytes = new List<byte>();
+            var velEnvBytes = new List<byte>();
             VelocitySensitivity = new VelocityControlEnvelope();
             (b, offset) = Util.GetNextByte(data, offset);
             velEnvBytes.Add(b);
@@ -88,7 +88,7 @@ namespace KSynthLib.K5000
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
             builder.Append("                   DCA Envelope\n");
             builder.Append($"VelCrv      {VelocityCurve,3}   Dcy2 T    {Envelope.Decay2Time,3}\n");
@@ -108,7 +108,7 @@ namespace KSynthLib.K5000
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.Add((byte)(VelocityCurve - 1));  // adjust from 1~12 to 0~11
 

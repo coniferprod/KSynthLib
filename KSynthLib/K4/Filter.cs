@@ -43,7 +43,7 @@ namespace KSynthLib.K4
             Resonance = new ResonanceType(b & 0b00000111);
             IsLFO = b.IsBitSet(3);
 
-            List<byte> cutoffModBytes = new List<byte>();
+            var cutoffModBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
             cutoffModBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
@@ -58,7 +58,7 @@ namespace KSynthLib.K4
             (b, offset) = Util.GetNextByte(data, offset);
             EnvelopeVelocityDepth = new DepthType(b);
 
-            List<byte> envBytes = new List<byte>();
+            var envBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
             envBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
@@ -69,7 +69,7 @@ namespace KSynthLib.K4
             envBytes.Add(b);
             Env = new FilterEnvelope(envBytes);
 
-            List<byte> timeModBytes = new List<byte>();
+            var timeModBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
             timeModBytes.Add(b);
             (b, offset) = Util.GetNextByte(data, offset);
@@ -81,7 +81,7 @@ namespace KSynthLib.K4
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append($"cutoff = {Cutoff.Value}, resonance = {Resonance.Value}\n");
             builder.Append(string.Format("LFO = {0}\n", IsLFO ? "ON" : "OFF"));
             builder.Append($"envelope: {Env}\n");
@@ -92,11 +92,11 @@ namespace KSynthLib.K4
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.Add(Cutoff.ToByte());
 
-            StringBuilder b104 = new StringBuilder("0000");
+            var b104 = new StringBuilder("0000");
             b104.Append(IsLFO ? "1" : "0");
             int resonance = Resonance.ToByte();
             string resonanceString = Convert.ToString(resonance, 2);

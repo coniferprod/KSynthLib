@@ -172,10 +172,10 @@ namespace KSynthLib.K5000
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append("                     DCF\n");
 
-            string activeSetting = IsActive ? "Active" : "--";
+            var activeSetting = IsActive ? "Active" : "--";
             builder.Append($"DCF      {activeSetting}     Resonance    {Resonance}\n");
             builder.Append($"Cutoff      {Cutoff}        DCF Level    {Level}\n");
             builder.Append($"Mode      {Mode}      KS to Cut   {CutoffKeyScalingDepth}\n");
@@ -196,7 +196,7 @@ namespace KSynthLib.K5000
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.AddRange(new List<byte>() {
                 (byte)(IsActive ? 1 : 0),

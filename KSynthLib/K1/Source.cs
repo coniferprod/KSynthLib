@@ -27,14 +27,14 @@ namespace KSynthLib.K1
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append(string.Format("A:{0} D:{1} S:{2} R:{3}", Attack, Decay, Sustain, Release));
             return builder.ToString();
         }
 
        public byte[] ToData()
         {
-            List<byte> buf = new List<byte>();
+            var buf = new List<byte>();
             buf.Add((byte)Attack);
             buf.Add((byte)Decay);
             buf.Add((byte)Sustain);
@@ -132,8 +132,8 @@ namespace KSynthLib.K1
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
-            string coarseString = "N/A";
+            var builder = new StringBuilder();
+            var coarseString = "N/A";
             if (IsKeyTrack)
             {
                 coarseString = string.Format("{0}", Coarse - 84);  // 60 ~ 108 = ±24  // TODO: is this right?
@@ -151,7 +151,7 @@ namespace KSynthLib.K1
 
         public byte[] ToData()
         {
-            List<byte> buf = new List<byte>();
+            var buf = new List<byte>();
 
             buf.Add((byte)Fine);
             if (IsKeyTrack)
@@ -177,7 +177,7 @@ namespace KSynthLib.K1
             buf.Add(EnvelopeLevel);
             buf.Add(EnvelopeDelay);
 
-            foreach (byte b in Env.ToData())
+            foreach (var b in Env.ToData())
             {
                 buf.Add(b);
             }

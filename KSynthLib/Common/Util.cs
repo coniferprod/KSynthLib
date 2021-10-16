@@ -10,7 +10,7 @@ namespace KSynthLib.Common
         // Probably should be augmented to include the delimiter.
         public static List<byte[]> SplitBytesByDelimiter(byte[] data, byte delimiter)
         {
-            List<byte[]> retList = new List<byte[]>();
+            var retList = new List<byte[]>();
             if (data == null || data.Length < 1)
             {
                 return retList; // rather return empty than null, or than throw an exception
@@ -23,7 +23,10 @@ namespace KSynthLib.Common
             while (true)
             {
                 // Console.WriteLine("pos " + pos + " start " + start);
-                if (pos >= data.Length) break;
+                if (pos >= data.Length)
+                {
+                    break;
+                }
 
                 if (data[pos] == delimiter)
                 {
@@ -53,7 +56,7 @@ namespace KSynthLib.Common
                     else
                     {
                         // Console.WriteLine("creating new byte[] at pos " + pos + " start " + start);
-                        byte[] ba = new byte[(pos - start)];
+                        var ba = new byte[(pos - start)];
                         Buffer.BlockCopy(data, start, ba, 0, (pos - start));
                         retList.Add(ba);
 
@@ -130,9 +133,9 @@ namespace KSynthLib.Common
 
         public static byte[] ConvertToTwoNybbleFormat(byte[] data)
         {
-            byte[] result = new byte[data.Length * 2];
+            var result = new byte[data.Length * 2];
             int index = 0;
-            for (int i = 0; i < data.Length; i++)
+            for (var i = 0; i < data.Length; i++)
             {
                 byte highNybble = 0;
                 byte lowNybble = 0;
@@ -149,8 +152,12 @@ namespace KSynthLib.Common
         // From https://www.codeproject.com/Articles/36747/Quick-and-Dirty-HexDump-of-a-Byte-Array
         public static string HexDump(byte[] bytes, int bytesPerLine = 16)
         {
-            if (bytes == null) return "<null>";
-            int bytesLength = bytes.Length;
+            if (bytes == null)
+            {
+                return "<null>";
+            }
+
+            var bytesLength = bytes.Length;
 
             char[] HexChars = "0123456789ABCDEF".ToCharArray();
 
@@ -169,9 +176,9 @@ namespace KSynthLib.Common
 
             char[] line = (new String(' ', lineLength - Environment.NewLine.Length) + Environment.NewLine).ToCharArray();
             int expectedLines = (bytesLength + bytesPerLine - 1) / bytesPerLine;
-            StringBuilder result = new StringBuilder(expectedLines * lineLength);
+            var result = new StringBuilder(expectedLines * lineLength);
 
-            for (int i = 0; i < bytesLength; i += bytesPerLine)
+            for (var i = 0; i < bytesLength; i += bytesPerLine)
             {
                 line[0] = HexChars[(i >> 28) & 0xF];
                 line[1] = HexChars[(i >> 24) & 0xF];
@@ -182,12 +189,15 @@ namespace KSynthLib.Common
                 line[6] = HexChars[(i >> 4) & 0xF];
                 line[7] = HexChars[(i >> 0) & 0xF];
 
-                int hexColumn = firstHexColumn;
-                int charColumn = firstCharColumn;
+                var hexColumn = firstHexColumn;
+                var charColumn = firstCharColumn;
 
-                for (int j = 0; j < bytesPerLine; j++)
+                for (var j = 0; j < bytesPerLine; j++)
                 {
-                    if (j > 0 && (j & 7) == 0) hexColumn++;
+                    if (j > 0 && (j & 7) == 0) {
+                        hexColumn++;
+                    }
+
                     if (i + j >= bytesLength)
                     {
                         line[hexColumn] = ' ';
@@ -216,7 +226,7 @@ namespace KSynthLib.Common
 
         public static (byte[], int) GetNextBytes(byte[] data, int offset, int count = 1)
         {
-            byte[] slice = new byte[count];
+            var slice = new byte[count];
             Array.Copy(data, offset, slice, 0, count);
             return (slice, offset + count);
         }
@@ -228,7 +238,7 @@ namespace KSynthLib.Common
                 return (false, -1);
             }
 
-            for (int i = 0; i < a1.Length; i++)
+            for (var i = 0; i < a1.Length; i++)
             {
                 if (a1[i] != a2[i])
                 {
@@ -241,8 +251,8 @@ namespace KSynthLib.Common
 
         public static List<byte> EveryNthElement(List<byte> list, int n, int start)
         {
-            List<byte> result = new List<byte>();
-            for (int i = 0; i < list.Count; i++)
+            var result = new List<byte>();
+            for (var i = 0; i < list.Count; i++)
             {
                 if ((i % n) == 0)
                 {
@@ -254,9 +264,9 @@ namespace KSynthLib.Common
 
         public static List<byte[]> SeparateBytes(byte[] data, int count)
         {
-            List<byte> dataBytes = new List<byte>(data);
-            List<byte[]> byteArrayLists = new List<byte[]>();
-            for (int i = 0; i < count; i++)
+            var dataBytes = new List<byte>(data);
+            var byteArrayLists = new List<byte[]>();
+            for (var i = 0; i < count; i++)
             {
                 byteArrayLists.Add(Util.EveryNthElement(dataBytes, count, i).ToArray());
             }
@@ -266,8 +276,8 @@ namespace KSynthLib.Common
         public static byte[] HexStringToByteArray(String hex)
         {
             int charCount = hex.Length;
-            byte[] bytes = new byte[charCount / 2];
-            for (int i = 0; i < charCount; i += 2)
+            var bytes = new byte[charCount / 2];
+            for (var i = 0; i < charCount; i += 2)
             {
                 bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
             }

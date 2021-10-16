@@ -88,7 +88,7 @@ namespace KSynthLib.K4
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append("S.COMMON\n");
             builder.Append($"DELAY      ={Delay,3}\n");
             builder.Append($"VEL CURVE  ={VelocityCurve,3}\n");
@@ -110,7 +110,7 @@ namespace KSynthLib.K4
         /// </returns>
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
             data.Add(Delay.ToByte());
 
             // s34/s35/s36/s37 wave select h and ks

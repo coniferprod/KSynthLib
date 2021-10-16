@@ -40,7 +40,7 @@ namespace KSynthLib.K4
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
             data.Add(Attack.ToByte());
             data.Add(Decay.ToByte());
             data.Add(Sustain.ToByte());

@@ -37,7 +37,7 @@ namespace KSynthLib.K5
         public const int HarmonicEnvelopeSegmentCount = 6;
         public const int FilterEnvelopeSegmentCount = 6;
         public const int AmplifierEnvelopeSegmentCount = 7;
-    
+
         public PitchSettings Pitch;
         public Harmonic[] Harmonics;
         public Harmonic Harmonic63bis;
@@ -87,7 +87,7 @@ namespace KSynthLib.K5
                 Pitch.KeyTracking = KeyTracking.Fixed;
                 Pitch.Key = (byte)(b & 0b01111111);
             }
-            else 
+            else
             {
                 Pitch.KeyTracking = KeyTracking.Track;
                 Pitch.Key = (byte)(b & 0b01111111);
@@ -113,7 +113,7 @@ namespace KSynthLib.K5
             Pitch.PressureLFODepth = b.ToSignedByte();
 
             Pitch.Envelope.Segments = new PitchEnvelopeSegment[PitchEnvelopeSegmentCount];
-            for (int i = 0; i < PitchEnvelopeSegmentCount; i++)
+            for (var i = 0; i < PitchEnvelopeSegmentCount; i++)
             {
                 (b, offset) = Util.GetNextByte(data, offset);
                 //buf.Add(b);
@@ -128,7 +128,7 @@ namespace KSynthLib.K5
                 }
             }
 
-            for (int i = 0; i < PitchEnvelopeSegmentCount; i++)
+            for (var i = 0; i < PitchEnvelopeSegmentCount; i++)
             {
                 (b, offset) = Util.GetNextByte(data, offset);
                 //buf.Add(b);
@@ -138,9 +138,9 @@ namespace KSynthLib.K5
             // DHG (S63 ... S380)
 
             //Harmonics = new Harmonic[HarmonicCount]; // created by no-arg ctor
-            for (int i = 0; i < HarmonicCount; i++)
+            for (var i = 0; i < HarmonicCount; i++)
             {
-                Harmonic harm = new Harmonic();
+                var harm = new Harmonic();
                 (b, offset) = Util.GetNextByte(data, offset);
                 harm.Level = b;
                 Harmonics[i] = harm;
@@ -148,8 +148,8 @@ namespace KSynthLib.K5
 
             // The values are packed into 31 + 1 bytes. The first 31 bytes contain the settings
             // for harmonics 1 to 62. The solitary byte that follows has the harm 63 settings.
-            List<byte> harmData = new List<byte>();
-            int count = 0;
+            var harmData = new List<byte>();
+            var count = 0;
             byte lowNybble = 0;
             byte highNybble = 0;
             while (count < HarmonicCount - 1)
@@ -179,14 +179,14 @@ namespace KSynthLib.K5
             // emitted SysEx data will fail. But it is close enough for now.
 
 	        // Now harmData should have data for all the 63 harmonics
-	        for (int i = 0; i < Harmonics.Length; i++) 
+	        for (var i = 0; i < Harmonics.Length; i++)
             {
 		        Harmonics[i].IsModulationActive = harmData[i].IsBitSet(2);
 		        Harmonics[i].EnvelopeNumber = (byte)(harmData[i] + 1);  // add one to make env number 1...4
 	        }
 
             // DHG harmonic settings (S253 ... S260)
-            HarmonicSettings harmSet = new HarmonicSettings();
+            var harmSet = new HarmonicSettings();
 
 	        (b, offset) = Util.GetNextByte(data, offset);
         	harmSet.VelocityDepth = b.ToSignedByte();
@@ -202,20 +202,20 @@ namespace KSynthLib.K5
 
             // Harmonic envelope 1 - 4 settings (these will be augmented later in the process)
             harmSet.Envelopes = new HarmonicEnvelope[HarmonicEnvelopeCount];
-            for (int i = 0; i < HarmonicEnvelopeCount; i++) 
+            for (var i = 0; i < HarmonicEnvelopeCount; i++)
             {
-                HarmonicEnvelope he = new HarmonicEnvelope();
+                var he = new HarmonicEnvelope();
     	        (b, offset) = Util.GetNextByte(data, offset);
                 he.IsActive = b.IsBitSet(7);
 			    he.Effect = (byte)(b & 0x1f);
                 harmSet.Envelopes[i] = he;
 		    }
 
-            // The master modulation setting is packed with the harmonic selection value 
+            // The master modulation setting is packed with the harmonic selection value
     	    (b, offset) = Util.GetNextByte(data, offset);
 	        harmSet.IsModulationActive = b.IsBitSet(7);
 
-            HarmonicSelection selection = HarmonicSelection.All;
+            var selection = HarmonicSelection.All;
             byte v = (byte)(b & 0x03);
 	        switch (v) {
 	        case 0:
@@ -244,12 +244,12 @@ namespace KSynthLib.K5
             (highNybble, lowNybble) = Util.NybblesFromByte(b);
 
             // odd and even are in the same byte
-            HarmonicModulation odd = new HarmonicModulation();
+            var odd = new HarmonicModulation();
             odd.IsOn = highNybble.IsBitSet(3);
             odd.EnvelopeNumber = (byte)((highNybble & 0b00000011) + 1);
         	harmSet.Odd = odd;
 
-            HarmonicModulation even = new HarmonicModulation();
+            var even = new HarmonicModulation();
             even.IsOn = lowNybble.IsBitSet(3);
             even.EnvelopeNumber = (byte)((lowNybble & 0b00000011) + 1);
             harmSet.Even = even;
@@ -258,19 +258,19 @@ namespace KSynthLib.K5
             (highNybble, lowNybble) = Util.NybblesFromByte(b);
 
             // octave and fifth are in the same byte
-            HarmonicModulation octave = new HarmonicModulation();
+            var octave = new HarmonicModulation();
             octave.IsOn = highNybble.IsBitSet(3);
             octave.EnvelopeNumber = (byte)((highNybble & 0b00000011) + 1);
             harmSet.Octave = octave;
 
-            HarmonicModulation fifth = new HarmonicModulation();
+            var fifth = new HarmonicModulation();
             fifth.IsOn = lowNybble.IsBitSet(3);
             fifth.EnvelopeNumber = (byte)((lowNybble & 0b00000011) + 1);
             harmSet.Fifth = fifth;
 
     	    (b, offset) = Util.GetNextByte(data, offset);
             (highNybble, lowNybble) = Util.NybblesFromByte(b);
-            HarmonicModulation all = new HarmonicModulation();
+            var all = new HarmonicModulation();
             all.IsOn = highNybble.IsBitSet(3);
             all.EnvelopeNumber = (byte)((highNybble & 0b00000011) + 1);
         	harmSet.All = all;
@@ -297,15 +297,15 @@ namespace KSynthLib.K5
 
             // Harmonic envelopes (S285 ... S380) - these were created earlier.
             // There are six segments for each of the four envelopes.
-            int harmonicEnvelopeDataCount = 0;
-            int desiredHarmonicEnvelopeDataCount = 6 * 4 * 2;  // 4 envs, 6 segs each, level + rate for each seg
-            bool shadow = false;
-            for (int ei = 0; ei < HarmonicEnvelopeCount; ei++)
+            var harmonicEnvelopeDataCount = 0;
+            var desiredHarmonicEnvelopeDataCount = 6 * 4 * 2;  // 4 envs, 6 segs each, level + rate for each seg
+            var shadow = false;
+            for (var ei = 0; ei < HarmonicEnvelopeCount; ei++)
             {
-                HarmonicEnvelopeSegment[] segments = new HarmonicEnvelopeSegment[HarmonicEnvelopeSegmentCount];
-                for (int si = 0; si < HarmonicEnvelopeSegmentCount; si++)
+                var segments = new HarmonicEnvelopeSegment[HarmonicEnvelopeSegmentCount];
+                for (var si = 0; si < HarmonicEnvelopeSegmentCount; si++)
                 {
-                    HarmonicEnvelopeSegment segment = new HarmonicEnvelopeSegment();
+                    var segment = new HarmonicEnvelopeSegment();
             	    (b, offset) = Util.GetNextByte(data, offset);
                     harmonicEnvelopeDataCount++;
                     if (si == 0)
@@ -318,7 +318,7 @@ namespace KSynthLib.K5
                     segments[si] = segment;
                 }
 
-                for (int si = 0; si < HarmonicEnvelopeSegmentCount; si++)
+                for (var si = 0; si < HarmonicEnvelopeSegmentCount; si++)
                 {
                     (b, offset) = Util.GetNextByte(data, offset);
                     harmonicEnvelopeDataCount++;
@@ -362,14 +362,14 @@ namespace KSynthLib.K5
             Filter.LFODepth = (byte)(b & 0b00011111);
 
             Filter.EnvelopeSegments = new FilterEnvelopeSegment[FilterEnvelopeSegmentCount];
-            for (int i = 0; i < FilterEnvelopeSegmentCount; i++)
+            for (var i = 0; i < FilterEnvelopeSegmentCount; i++)
             {
-                FilterEnvelopeSegment segment = new FilterEnvelopeSegment();
+                var segment = new FilterEnvelopeSegment();
         	    (b, offset) = Util.GetNextByte(data, offset);
                 segment.Rate = b;
                 Filter.EnvelopeSegments[i] = segment;
             }
-            for (int i = 0; i < FilterEnvelopeSegmentCount; i++)
+            for (var i = 0; i < FilterEnvelopeSegmentCount; i++)
             {
         	    (b, offset) = Util.GetNextByte(data, offset);
                 Filter.EnvelopeSegments[i].IsMaxSegment = b.IsBitSet(6);
@@ -379,7 +379,7 @@ namespace KSynthLib.K5
             // DDA (S427 ... S468)
     	    (b, offset) = Util.GetNextByte(data, offset);
             Amplifier.AttackVelocityDepth = b.ToSignedByte();
-            
+
     	    (b, offset) = Util.GetNextByte(data, offset);
             Amplifier.PressureDepth = b.ToSignedByte();
 
@@ -404,9 +404,9 @@ namespace KSynthLib.K5
             Amplifier.Envelope = new AmplifierEnvelope();  // also creates the segments
 
             // First, the amp envelope rates:
-            for (int i = 0; i < AmplifierEnvelopeSegmentCount; i++)
+            for (var i = 0; i < AmplifierEnvelopeSegmentCount; i++)
             {
-                AmplifierEnvelopeSegment segment = new AmplifierEnvelopeSegment();
+                var segment = new AmplifierEnvelopeSegment();
         	    (b, offset) = Util.GetNextByte(data, offset);
                 segment.IsRateModulationOn = b.IsBitSet(6);
                 segment.Rate = (byte)(b & 0b00111111);
@@ -414,7 +414,7 @@ namespace KSynthLib.K5
             }
 
             // Then, the amp envelope levels and max settings:
-            for (int i = 0; i < AmplifierEnvelopeSegmentCount - 1; i++)
+            for (var i = 0; i < AmplifierEnvelopeSegmentCount - 1; i++)
             {
         	    (b, offset) = Util.GetNextByte(data, offset);
                 Amplifier.Envelope.Segments[i].IsMaxSegment = b.IsBitSet(6);
@@ -440,14 +440,14 @@ namespace KSynthLib.K5
 
             buf.AddRange(Pitch.ToData());
 
-            for (int i = 0; i < HarmonicCount; i++)
+            for (var i = 0; i < HarmonicCount; i++)
             {
                 buf.Add(Harmonics[i].Level);
             }
 
             byte b = 0;
             byte lowNybble = 0, highNybble = 0;
-            int count = 0;
+            var count = 0;
             // Harmonics 1...62 (0...61)
             while (count < HarmonicCount - 2)
             {
@@ -487,7 +487,7 @@ namespace KSynthLib.K5
             {
                 extraByte = extraByte.SetBit(3);
             }
-            byte finalByte = Util.ByteFromNybbles(b, extraByte);
+            var finalByte = Util.ByteFromNybbles(b, extraByte);
             buf.Add(finalByte);
 
             buf.AddRange(HarmonicSettings.ToData());

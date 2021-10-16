@@ -123,15 +123,15 @@ namespace KSynthLib.K4
         /// </remarks>
         public SinglePatch(byte[] data) : this()
         {
-            List<byte> vibratoBytes = new List<byte>();
-            List<byte> autoBendBytes = new List<byte>();
-            List<byte> lfoBytes = new List<byte>();
-            int totalSourceDataSize = Source.DataSize * SourceCount;
-            byte[] sourceData = new byte[totalSourceDataSize];
-            int totalAmpDataSize = Amplifier.DataSize * SourceCount;
-            byte[] ampData = new byte[totalAmpDataSize];
-            int totalFilterDataSize = Filter.DataSize * 2;
-            byte[] filterData = new byte[totalFilterDataSize];
+            var vibratoBytes = new List<byte>();
+            var autoBendBytes = new List<byte>();
+            var lfoBytes = new List<byte>();
+            var totalSourceDataSize = Source.DataSize * SourceCount;
+            var sourceData = new byte[totalSourceDataSize];
+            var totalAmpDataSize = Amplifier.DataSize * SourceCount;
+            var ampData = new byte[totalAmpDataSize];
+            var totalFilterDataSize = Filter.DataSize * 2;
+            var filterData = new byte[totalFilterDataSize];
 
             byte b = 0;  // will be reused when getting the next byte
 
@@ -140,7 +140,7 @@ namespace KSynthLib.K4
             {
                 // Read the patch name in s00...s09
                 Console.Error.WriteLine($"{mem.Position}: s00...s09 name");
-                byte[] nameBytes = new byte[Patch.NameLength];
+                var nameBytes = new byte[Patch.NameLength];
                 mem.Read(nameBytes, 0, Patch.NameLength);
                 this._name = this.GetName(nameBytes);
 
@@ -169,7 +169,7 @@ namespace KSynthLib.K4
                 // S1 = b0, S2 = b1, S3 = b2, S4 = b3
                 // The K4 MIDI spec says 0/mute, 1/not mute,
                 // so we flip it to make this value actually mean muted.
-                for (int i = 0; i < SourceCount; i++)
+                for (var i = 0; i < SourceCount; i++)
                 {
                     SourceMutes[i] = !(b.IsBitSet(i));
                 }
@@ -271,7 +271,7 @@ namespace KSynthLib.K4
         /// </returns>
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
             builder.Append($"{Name}\n");
             builder.Append($"VOLUME     ={Volume:3}\nEFFECT PACH= {Effect:2}\nSUBMIX CH  =  {Submix}\n");
@@ -287,9 +287,9 @@ namespace KSynthLib.K4
             builder.Append($"VIBRATO\n{Vibrato}\n");
             builder.Append($"LFO\n{LFO}\n");
 
-            StringBuilder sourceString = new StringBuilder();
-            StringBuilder ampString = new StringBuilder();
-            for (int i = 0; i < SourceCount; i++)
+            var sourceString = new StringBuilder();
+            var ampString = new StringBuilder();
+            for (var i = 0; i < SourceCount; i++)
             {
                 sourceString.Append($"Source {i+1}:\n{Sources[i]}");
                 ampString.Append($"DCA: {Amplifiers[i]}");
@@ -313,7 +313,7 @@ namespace KSynthLib.K4
         /// </remarks>
         protected override byte[] CollectData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             //byte[] nameBytes = Encoding.ASCII.GetBytes(this.Name.PadRight(10));
             byte[] nameBytes = GetNameBytes(this.Name.PadRight(10));
@@ -325,7 +325,7 @@ namespace KSynthLib.K4
 
             // s13 combines source mode, poly mode, and source AM into one byte.
             // Construct a bit string, then convert it to byte.
-            StringBuilder b13 = new StringBuilder("00");
+            var b13 = new StringBuilder("00");
             b13.Append(AM34 ? "1" : "0");
             b13.Append(AM12 ? "1" : "0");
             b13.Append(Convert.ToString((byte)PolyphonyMode, 2).PadLeft(2, '0'));
@@ -333,7 +333,7 @@ namespace KSynthLib.K4
             data.Add(Convert.ToByte(b13.ToString(), 2));
 
             // s14 combines vibrato shape and source mutes into one byte.
-            StringBuilder b14 = new StringBuilder("00");
+            var b14 = new StringBuilder("00");
             b14.Append(Convert.ToString((byte)Vibrato.Shape, 2).PadLeft(2, '0'));
 
             // Our "SourceMutes" is true if the source is muted,
@@ -345,7 +345,7 @@ namespace KSynthLib.K4
             data.Add(Convert.ToByte(b14.ToString(), 2));
 
             // s15 combines pitch bend and wheel assign into one byte.
-            StringBuilder b15 = new StringBuilder("");
+            var b15 = new StringBuilder("");
             b15.Append(Convert.ToString((byte)WheelAssign, 2).PadLeft(4, '0'));
             b15.Append(Convert.ToString(PitchBendRange.ToByte(), 2).PadLeft(4, '0'));
             data.Add(Convert.ToByte(b15.ToString(), 2));
@@ -371,7 +371,7 @@ namespace KSynthLib.K4
             byte[] source3Data = Sources[2].ToData();
             byte[] source4Data = Sources[3].ToData();
 
-            for (int i = 0; i < Source.DataSize; i++)
+            for (var i = 0; i < Source.DataSize; i++)
             {
                 data.Add(source1Data[i]);
                 data.Add(source2Data[i]);
@@ -384,7 +384,7 @@ namespace KSynthLib.K4
             byte[] amp3Data = Amplifiers[2].ToData();
             byte[] amp4Data = Amplifiers[3].ToData();
 
-            for (int i = 0; i < Amplifier.DataSize; i++)
+            for (var i = 0; i < Amplifier.DataSize; i++)
             {
                 data.Add(amp1Data[i]);
                 data.Add(amp2Data[i]);
@@ -394,7 +394,7 @@ namespace KSynthLib.K4
 
             byte[] filter1Data = Filter1.ToData();
             byte[] filter2Data = Filter2.ToData();
-            for (int i = 0; i < Filter.DataSize; i++)
+            for (var i = 0; i < Filter.DataSize; i++)
             {
                 data.Add(filter1Data[i]);
                 data.Add(filter2Data[i]);
@@ -407,7 +407,7 @@ namespace KSynthLib.K4
         {
             get
             {
-                StringBuilder builder = new StringBuilder();
+                var builder = new StringBuilder();
                 builder.Append(SourceMutes[0] ? "1" : "-");
                 builder.Append(SourceMutes[1] ? "2" : "-");
                 builder.Append(SourceMutes[2] ? "3" : "-");

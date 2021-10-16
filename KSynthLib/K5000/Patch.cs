@@ -36,7 +36,7 @@ namespace KSynthLib.K5000
 
         public byte[] ToData()
         {
-            List<byte> allData = new List<byte>();
+            var allData = new List<byte>();
             byte[] data = CollectData();
             allData.AddRange(data);
             allData.Add(this.Checksum);

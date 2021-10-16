@@ -45,7 +45,7 @@ namespace KSynthLib.K4
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
             data.Add(Pan.ToByte());
             data.Add(Send1.ToByte());
             data.Add(Send2.ToByte());
@@ -71,7 +71,7 @@ namespace KSynthLib.K4
             {
                 byte[] bs = CollectData();
                 byte sum = 0;
-                foreach (byte b in bs)
+                foreach (var b in bs)
                 {
                     sum += b;
                 }
@@ -90,7 +90,7 @@ namespace KSynthLib.K4
             Param3 = new LargeEffectParameterType();
 
             Submixes = new EffectSubmix[SubmixCount];
-            for (int i = 0; i < SubmixCount; i++)
+            for (var i = 0; i < SubmixCount; i++)
             {
                 Submixes[i] = new EffectSubmix();
             }
@@ -103,9 +103,9 @@ namespace KSynthLib.K4
             Param2 = new SmallEffectParameterType(data[2]);
             Param3 = new LargeEffectParameterType(data[3]);
 
-            int offset = 4;
+            var offset = 4;
             Submixes = new EffectSubmix[SubmixCount];
-            for (int i = 0; i < SubmixCount; i++)
+            for (var i = 0; i < SubmixCount; i++)
             {
                 Submixes[i] = new EffectSubmix(
                     (sbyte)(data[offset] - 7),  // 0~15/0~±7 (K4); 0~15/0~±7, 16~21/I1~I6 (K4r)
@@ -118,7 +118,7 @@ namespace KSynthLib.K4
 
         protected byte[] CollectData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.Add((byte)this.Type);
             data.Add(Param1.ToByte());
@@ -133,7 +133,7 @@ namespace KSynthLib.K4
             data.Add(0);
             data.Add(0);
 
-            for (int i = 0; i < SubmixCount; i++)
+            for (var i = 0; i < SubmixCount; i++)
             {
                 data.AddRange(this.Submixes[i].ToData());
             }
@@ -143,7 +143,7 @@ namespace KSynthLib.K4
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
             data.AddRange(CollectData());
 
             // Add checksum (gets computed by the property)
@@ -154,13 +154,13 @@ namespace KSynthLib.K4
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             string name = EffectNames[(int)Type];
             builder.Append($"{name} P1 = {Param1.Value} P2 = {Param2.Value} P3 = {Param3.Value}\n");
 
-            for (int i = 0; i < SubmixCount; i++)
+            for (var i = 0; i < SubmixCount; i++)
             {
-                EffectSubmix submix = Submixes[i];
+                var submix = Submixes[i];
                 builder.Append($"{i}: pan = {submix.Pan.Value} send1 = {submix.Send1.Value} send2 = {submix.Send2.Value}\n");
             }
 

@@ -70,7 +70,7 @@ namespace KSynthLib.K5000
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
             data.AddRange(Attack.ToData());
             data.AddRange(Decay1.ToData());
             data.AddRange(Decay2.ToData());
@@ -148,7 +148,7 @@ namespace KSynthLib.K5000
 
         public byte[] ToData()
         {
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
 
             data.Add((byte)Segment0.Rate);
             data.Add((byte)Segment0.Level);
@@ -559,7 +559,7 @@ namespace KSynthLib.K5000
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append("                  Pitch Envelope\n");
             builder.Append($"Strt L  {StartLevel,3}       Vel to\n");
             builder.Append($"Atak T  {AttackTime,3}     Level {LevelVelocitySensitivity,3}\n");

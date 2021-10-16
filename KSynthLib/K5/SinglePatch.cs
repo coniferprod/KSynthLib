@@ -188,7 +188,7 @@ namespace KSynthLib.K5
 
             // Source 1 and Source 2 settings.
         	// Note that the pedal assign and the wheel assign for one source are in the same byte.
-            SourceSettings s1s = new SourceSettings();
+            var s1s = new SourceSettings();
             s1s.Delay = data[offset];          // S11
             s1s.PedalDepth = data[offset + 2].ToSignedByte(); // S13
             s1s.WheelDepth = data[offset + 4].ToSignedByte(); // S15
@@ -200,7 +200,7 @@ namespace KSynthLib.K5
                 Breakpoint = 0
             };
 
-            SourceSettings s2s = new SourceSettings();
+            var s2s = new SourceSettings();
             s2s.Delay = data[offset + 1];                           // S12
             s2s.PedalDepth = data[offset + 3].ToSignedByte();               // S14
             s2s.WheelDepth = data[offset + 5].ToSignedByte();               // S16
@@ -249,16 +249,16 @@ namespace KSynthLib.K5
 
             // S1 and S2 data are interleaved in S21 ... S468.
 
-            int dataLength = data.Length - (offset + FormantLevelCount + 1 + 2);
+            var dataLength = data.Length - (offset + FormantLevelCount + 1 + 2);
             //Console.Error.WriteLine(string.Format("dataLength = {0}", dataLength));
-            byte[] sourceData = new byte[dataLength];
+            var sourceData = new byte[dataLength];
             //Console.Error.WriteLine(string.Format("About to copy {0} bytes from data at {1} to sourceData at {2}", dataLength, offset, 0));
             Array.Copy(data, offset, sourceData, 0, dataLength);
 
             // Separate S1 and S2 data. Even bytes are S1, odd bytes are S2.
             // Note that this kind of assumes that the original data length is even.
-            byte[] s1d = new byte[dataLength / 2];
-            byte[] s2d = new byte[dataLength / 2];
+            var s1d = new byte[dataLength / 2];
+            var s2d = new byte[dataLength / 2];
             for (int src = 0, dst = 0; src < dataLength; src += 2, dst++)
             {
                 s1d[dst] = sourceData[src];
@@ -315,7 +315,7 @@ namespace KSynthLib.K5
 
             // DFT (S479 ... S489)
             FormantLevels = new int[FormantLevelCount];
-            for (int i = 0; i < FormantLevelCount; i++)
+            for (var i = 0; i < FormantLevelCount; i++)
             {
         	    (b, offset) = Util.GetNextByte(data, offset);
                 if (i == 0)
@@ -347,7 +347,7 @@ namespace KSynthLib.K5
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
             builder.Append($"*SINGLE BASIC*          {Name}\n\n");
             builder.Append($"-----|  S1  |  S2  |   NAME={Name}\n");
@@ -362,19 +362,19 @@ namespace KSynthLib.K5
 
             builder.Append($"\n{Source1}\n{Source2}\n");
 
-            StringBuilder formantStringBuilder = new StringBuilder();
-            for (int i = 0; i < FormantLevelCount; i++)
+            var formantStringBuilder = new StringBuilder();
+            for (var i = 0; i < FormantLevelCount; i++)
             {
                 formantStringBuilder.Append($"C{i - 1} ");
             }
             formantStringBuilder.Append("\n");
-            for (int i = 0; i < FormantLevelCount; i++)
+            for (var i = 0; i < FormantLevelCount; i++)
             {
                 formantStringBuilder.Append($"{FormantLevels[i],3}");
             }
             formantStringBuilder.Append("\n");
-            string formantString = formantStringBuilder.ToString();
-            string formantSetting = IsFormantOn ? "ON" : "--";
+            var formantString = formantStringBuilder.ToString();
+            var formantSetting = IsFormantOn ? "ON" : "--";
 
             builder.Append(LFO);
 
@@ -390,7 +390,7 @@ namespace KSynthLib.K5
             byte lowNybble = 0;
             byte highNybble = 0;
 
-            foreach (char ch in Name)
+            foreach (var ch in Name)
             {
                 buf.Add(Convert.ToByte(ch));
             }
@@ -443,7 +443,7 @@ namespace KSynthLib.K5
 
             // Interleave the two byte arrays:
             int dataLength = s1d.Length;
-            List<byte> sd = new List<byte>();
+            var sd = new List<byte>();
             int index = 0;
             while (index < dataLength)
             {
@@ -462,14 +462,14 @@ namespace KSynthLib.K5
             buf.Add(Source1Settings.KeyScaling.Breakpoint);
             buf.Add(Source2Settings.KeyScaling.Breakpoint);
 
-            for (int i = 0; i < FormantLevelCount; i++)
+            for (var i = 0; i < FormantLevelCount; i++)
             {
                 buf.Add((byte)FormantLevels[i]);
             }
 
             buf.Add(Filler);
 
-            int count = buf.Count;
+            var count = buf.Count;
             int checksum = ComputeChecksum(buf.GetRange(0, count).ToArray());
             buf.Add((byte)(checksum & 0xff));
             buf.Add((byte)((((uint)checksum) >> 8) & 0xFF));
