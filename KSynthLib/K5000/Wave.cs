@@ -1,27 +1,85 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+using KSynthLib.Common;
+
 namespace KSynthLib.K5000
 {
-    public sealed class Wave
+    public class Wave
     {
-        private static readonly Wave instance = new Wave();
+        public const int WaveCount = 464;
 
-        // Explicit static constructor to tell C# compiler
-        // not to mark type as beforefieldinit        
-        static Wave() { }
+        private string _name;
+        public string Name => _name;
 
-        private Wave() { }
+        private ushort _number;
+        public ushort Number => _number;
 
-        public static Wave Instance
+        public Wave()
+        {
+            this._number = 1;
+            this._name = Names[this._number];
+        }
+
+        public Wave(ushort number)
+        {
+            this._number = number;
+            this._name = Names[number];
+        }
+
+        public Wave(byte high, byte low)
+        {
+            ushort waveNumber = Wave.NumberFrom(high, low);
+            this._number = waveNumber;
+            this._name = Names[waveNumber];
+        }
+
+        public (byte high, byte low) WaveSelect
         {
             get
             {
-                return instance;
+                // Convert wave kit number to binary string with 10 digits
+                var waveString = Convert.ToString(this.Number - 1, 2).PadLeft(10, '0');
+
+                // Take the first three bits and convert them to a number
+                var waveMSBString = waveString.Substring(0, 3);
+                var msb = Convert.ToByte(waveMSBString);
+
+                // Take the last seven bits and convert them to a number
+                var waveLSBString = waveString.Substring(3);
+                var lsb = Convert.ToByte(waveLSBString);
+
+                return (msb, lsb);
             }
         }
 
-        public const int NumWaves = 464;
-
-        private string[] waves = new string[]
+        public static ushort NumberFrom(byte msb, byte lsb)
         {
+            var waveMSBString = Convert.ToString(msb, 2).PadLeft(3, '0');
+            var waveLSBString = Convert.ToString(lsb, 2).PadLeft(7, '0');
+            var waveString = waveMSBString + waveLSBString;
+            return (ushort)(Convert.ToUInt16(waveString) + 1);
+        }
+
+        public bool IsAdditive()
+        {
+            return this.Number == 512;
+        }
+
+        public byte[] ToData()
+        {
+            var data = new List<byte>();
+            var (msb, lsb) = this.WaveSelect;
+            data.Add(msb);
+            data.Add(lsb);
+            return data.ToArray();
+        }
+
+        public static string[] Names = new string[]
+        {
+            "(not used)",  // just to bring the index in line with the one-based wave number
+
             /*  1 */ "OldUprit1",
             /*  2 */ "OldUprit2",
             /*  3 */ "Gr.Piano",
@@ -508,9 +566,20 @@ namespace KSynthLib.K5000
             /* 464 */ "Omnibus Loop 8"
         };
 
-        public string this[int i]
+        /// <summary>
+        /// Generates a printable representation of this wave.
+        /// </summary>
+        /// <returns>
+        /// String representing the wave.
+        /// </returns>
+        public override string ToString()
         {
-            get { return waves[i]; }
-        }        
+            if (this.IsAdditive())
+            {
+                return "ADD";
+            }
+
+            return string.Format($"{this.Number} {this.Name}");
+        }
     }
 }

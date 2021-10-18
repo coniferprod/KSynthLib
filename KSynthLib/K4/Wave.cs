@@ -332,10 +332,10 @@ namespace KSynthLib.K4
         }
 
         /// <summary>
-        /// Generates a printable representation of this patch.
+        /// Generates a printable representation of this wave.
         /// </summary>
         /// <returns>
-        /// String with patch parameter values.
+        /// String representing the wave.
         /// </returns>
         public override string ToString()
         {

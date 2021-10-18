@@ -203,7 +203,7 @@ namespace KSynthLib.K5000
 
         public AdditiveKit ADD;
 
-        public bool IsAdditive => DCO.WaveNumber == AdditiveKit.WaveNumber;
+        public bool IsAdditive => DCO.Wave.IsAdditive();
 
         public Source()
         {
@@ -386,7 +386,7 @@ namespace KSynthLib.K5000
             builder.Append($"DCA:\n{DCA}\n");
             builder.Append($"LFO:\n{LFO}\n");
 
-            if (DCO.WaveNumber == AdditiveKit.WaveNumber)
+            if (IsAdditive)
             {
                 builder.Append(string.Format("ADD data:\n{0}", ADD.ToString()));
             }
