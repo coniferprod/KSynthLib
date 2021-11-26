@@ -165,7 +165,7 @@ namespace KSynthLib.K5000
         {
             // Effect type is 11~47 in SysEx, so a value of 11 means effect 0, and 47 means effect 36.
             // Adjust the value from SysEx to 0~36.
-            Console.Error.WriteLine($"effect type from SysEx = {data[offset]}");
+            //Console.Error.WriteLine($"effect type from SysEx = {data[offset]}");
             Type = (EffectType)(data[offset] - 11);
 
             _depth = new EffectDepthType(data[offset + 1]);

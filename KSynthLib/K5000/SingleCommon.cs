@@ -140,46 +140,46 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);
             // Seems like the K5000 could set the top bits of this, so mask them off
             EffectAlgorithm = (byte)((b & 0x03) + 1); // 0 ~ 3 --> 1 ~ 4
-            Console.Error.WriteLine($"Effect Algorithm = {EffectAlgorithm}");
+            //Console.Error.WriteLine($"Effect Algorithm = {EffectAlgorithm}");
 
             Reverb = new ReverbSettings(data, offset);
             offset += ReverbSettings.DataSize;
-            Console.Error.WriteLine($"Reverb = {Reverb}");
+            //Console.Error.WriteLine($"Reverb = {Reverb}");
 
             Effect1 = new EffectSettings(data, offset);
             offset += EffectSettings.DataSize;
-            Console.Error.WriteLine($"E1 = {Effect1}");
+            //Console.Error.WriteLine($"E1 = {Effect1}");
 
             Effect2 = new EffectSettings(data, offset);
             offset += EffectSettings.DataSize;
-            Console.Error.WriteLine($"E2 = {Effect2}");
+            //Console.Error.WriteLine($"E2 = {Effect2}");
 
             Effect3 = new EffectSettings(data, offset);
             offset += EffectSettings.DataSize;
-            Console.Error.WriteLine($"E3 = {Effect3}");
+            //Console.Error.WriteLine($"E3 = {Effect3}");
 
             Effect4 = new EffectSettings(data, offset);
             offset += EffectSettings.DataSize;
-            Console.Error.WriteLine($"E4 = {Effect4}");
+            //Console.Error.WriteLine($"E4 = {Effect4}");
 
             GEQ = new GEQSettings(data, offset);
             offset += GEQSettings.DataSize;
-            Console.Error.WriteLine($"GEQ = {GEQ}");
+            //Console.Error.WriteLine($"GEQ = {GEQ}");
 
             (b, offset) = Util.GetNextByte(data, offset);
             DrumMark = (b == 1);
 
             Name = CollectName(data, offset);
             offset += NameLength;
-            Console.Error.WriteLine($"Name = {Name}");
+            //Console.Error.WriteLine($"Name = {Name}");
 
             (b, offset) = Util.GetNextByte(data, offset);
             Volume = b;
-            Console.Error.WriteLine($"Volume = {Volume}");
+            //Console.Error.WriteLine($"Volume = {Volume}");
 
             (b, offset) = Util.GetNextByte(data, offset);
             Poly = (PolyphonyMode) b; // 0=POLY, 1=SOLO1, 2=SOLO2
-            Console.Error.WriteLine($"Polyphony = {Poly}");
+            //Console.Error.WriteLine($"Polyphony = {Poly}");
 
             // No. 50 or "no use" can be ignored
             (b, offset) = Util.GetNextByte(data, offset);
@@ -243,7 +243,7 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);
             FootSwitch2 = (Switch)b;
 
-            Console.Error.WriteLine(string.Format("Common data parsed, offset = {0:X2} ({0})", offset));
+            //Console.Error.WriteLine(string.Format("Common data parsed, offset = {0:X2} ({0})", offset));
         }
 
         private string CollectName(byte[] data, int offset)

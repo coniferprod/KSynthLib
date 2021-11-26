@@ -254,7 +254,7 @@ namespace KSynthLib.K5000
             VelocitySwitch = new VelocitySwitchSettings();
             VelocitySwitch.SwitchType = (VelocitySwitchType)(b >> 5);
             VelocitySwitch.Threshold = (byte)(b & 0x1F);
-            Console.Error.WriteLine($"velo sw original value = {b:X2}");
+            //Console.Error.WriteLine($"velo sw original value = {b:X2}");
 
             (b, offset) = Util.GetNextByte(data, offset);
             EffectPath = b;

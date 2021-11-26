@@ -40,15 +40,15 @@ namespace KSynthLib.K5000
             get
             {
                 // Convert wave kit number to binary string with 10 digits
-                var waveString = Convert.ToString(this.Number - 1, 2).PadLeft(10, '0');
+                var waveString = Convert.ToString(this.Number, 2).PadLeft(10, '0');
 
                 // Take the first three bits and convert them to a number
                 var waveMSBString = waveString.Substring(0, 3);
-                var msb = Convert.ToByte(waveMSBString);
+                var msb = Convert.ToByte(waveMSBString, 2);
 
                 // Take the last seven bits and convert them to a number
                 var waveLSBString = waveString.Substring(3);
-                var lsb = Convert.ToByte(waveLSBString);
+                var lsb = Convert.ToByte(waveLSBString, 2);
 
                 return (msb, lsb);
             }
@@ -59,7 +59,7 @@ namespace KSynthLib.K5000
             var waveMSBString = Convert.ToString(msb, 2).PadLeft(3, '0');
             var waveLSBString = Convert.ToString(lsb, 2).PadLeft(7, '0');
             var waveString = waveMSBString + waveLSBString;
-            return (ushort)(Convert.ToUInt16(waveString) + 1);
+            return (ushort)(Convert.ToUInt16(waveString, 2));
         }
 
         public bool IsAdditive()

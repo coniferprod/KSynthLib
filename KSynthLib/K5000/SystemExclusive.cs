@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace KSynthLib.K5000
@@ -53,32 +54,48 @@ namespace KSynthLib.K5000
         }
     }
 
-    public enum Cardinality
+    public enum Cardinality: byte
     {
-        One,
-        Block
+        One = 0x20,
+        Block = 0x21
     }
 
-    public enum BankIdentifier
+    public enum BankIdentifier: byte
     {
-        A,
-        B,
-        D,
-        E,
-        F
+        A = 0x00,
+        B = 0x01,
+        // there is no Bank C
+        D = 0x02,  // only on K5000S/R
+        E = 0x03,
+        F = 0x04,
+        None = 0xff  // for drum kit/drum inst/combi
     }
 
-    public enum PatchKind
+    public enum PatchKind: byte
     {
-        Single,
-        Multi
+        Single = 0x00,
+        Combi = 0x20, // multi on K5000S/R
+        DrumKit = 0x10,
+        DrumInstrument = 0x11
     }
 
-    public class DumpHeader
+    public class DumpHeader: IEquatable<DumpHeader>
     {
         private Cardinality cardinality;
+        public Cardinality Card => this.cardinality;
+
         private BankIdentifier bankIdentifier;
+        public BankIdentifier Bank => this.bankIdentifier;
+
         private PatchKind patchKind;
+        public PatchKind Kind => this.patchKind;
+
+        public DumpHeader(byte[] data)
+        {
+            this.cardinality = (Cardinality)data[3];
+            this.bankIdentifier = (BankIdentifier)data[7];
+            this.patchKind = (PatchKind)data[6];
+        }
 
         public DumpHeader(Cardinality cardinality, BankIdentifier bankIdentifier, PatchKind patchKind)
         {
@@ -86,6 +103,35 @@ namespace KSynthLib.K5000
             this.bankIdentifier = bankIdentifier;
             this.patchKind = patchKind;
         }
+
+        public override bool Equals(object obj) => this.Equals(obj as DumpHeader);
+
+        public bool Equals(DumpHeader p)
+        {
+            if (p is null)
+            {
+                return false;
+            }
+
+            // Optimization for a common success case.
+            if (Object.ReferenceEquals(this, p))
+            {
+                return true;
+            }
+
+            // If run-time types are not exactly the same, return false.
+            if (this.GetType() != p.GetType())
+            {
+                return false;
+            }
+
+            // Return true if the fields match.
+            // Note that the base class is not invoked because it is
+            // System.Object, which defines Equals as reference equality.
+            return (Card == p.Card) && (Kind == p.Kind) && (Bank == p.Bank);
+        }
+
+        public override int GetHashCode() => (Card, Kind, Bank).GetHashCode();
 
         public byte[] ToData()
         {
