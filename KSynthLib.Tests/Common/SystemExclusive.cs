@@ -9,7 +9,7 @@ namespace KSynthLib.Tests.Common
 
         public SystemExclusiveTests()
         {
-            _systemExclusive = new SystemExclusiveHeader();
+            _systemExclusive = new SystemExclusiveHeader(0);
         }
 
         [Fact]

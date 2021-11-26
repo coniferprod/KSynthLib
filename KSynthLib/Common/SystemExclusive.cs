@@ -18,9 +18,10 @@ namespace KSynthLib.Common
 	    public byte Substatus1;
 	    public byte Substatus2;
 
-        public SystemExclusiveHeader()
+        public SystemExclusiveHeader(byte channel)
         {
-
+            this.ManufacturerID = Constants.ManufacturerID;
+            this.Channel = channel;
         }
 
         public SystemExclusiveHeader(byte[] data)

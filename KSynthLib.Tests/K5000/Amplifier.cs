@@ -23,7 +23,6 @@ namespace KSynthLib.Tests.K5000
             settings.VelocityCurve = 1;
             Assert.Equal(1, settings.VelocityCurve);
         }
-
     }
 
     public class AmplifierEnvelopeTests
@@ -33,7 +32,6 @@ namespace KSynthLib.Tests.K5000
         public AmplifierEnvelopeTests()
         {
             envelope = new AmplifierEnvelope();
-
         }
 
         [Fact]
