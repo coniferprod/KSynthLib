@@ -150,7 +150,7 @@ namespace KSynthLib.K5000
         }
     }
 
-    public enum PanType
+    public enum PanKind
     {
         Normal,
         KeyScaling,
@@ -166,8 +166,7 @@ namespace KSynthLib.K5000
         public static int DataSize = 86;
 
         public PositiveLevel Volume;
-        public PositiveLevel ZoneLow;
-        public PositiveLevel ZoneHigh;
+        public Zone Zone;
         public VelocitySwitchSettings VelocitySwitch;
         public EffectPath EffectPath;
         public BenderPitch BenderPitch;
@@ -180,7 +179,7 @@ namespace KSynthLib.K5000
 
         public PositiveLevel KeyOnDelay;
 
-        public PanType Pan;  // enumeration
+        public PanKind Pan;  // enumeration
 
         public SignedLevel PanValue;  // (63L)1 ~ (63R)127
 
@@ -205,11 +204,10 @@ namespace KSynthLib.K5000
             BenderPitch = new BenderPitch();
             BenderCutoff = new BenderCutoff();
 
-            Pan = PanType.Normal;
+            Pan = PanKind.Normal;
             PanValue = new SignedLevel();
 
-            ZoneLow = new PositiveLevel();
-            ZoneHigh = new PositiveLevel(127);
+            Zone = new Zone(0, 127);
 
             VelocitySwitch = new VelocitySwitchSettings();  // defaults to OFF / 31
 
@@ -232,10 +230,10 @@ namespace KSynthLib.K5000
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            ZoneLow = new PositiveLevel(b);
-
+            var low = b;
             (b, offset) = Util.GetNextByte(data, offset);
-            ZoneHigh = new PositiveLevel(b);
+            var high = b;
+            Zone = new Zone(low, high);
 
             (b, offset) = Util.GetNextByte(data, offset);
             VelocitySwitch = new VelocitySwitchSettings(b);
@@ -305,7 +303,7 @@ namespace KSynthLib.K5000
             KeyOnDelay = new PositiveLevel(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Pan = (PanType)b;
+            Pan = (PanKind)b;
             (b, offset) = Util.GetNextByte(data, offset);
             PanValue = new SignedLevel(b);  // (63L)1~(63R)127
 
@@ -358,7 +356,7 @@ namespace KSynthLib.K5000
         public override string ToString()
         {
             var builder = new StringBuilder();
-            builder.Append($"Zone: low = {ZoneLow.Value}, high = {ZoneHigh.Value}\n");
+            builder.Append($"Zone: low = {Zone.Low}, high = {Zone.High}\n");
             builder.Append(string.Format("Vel. sw type = {0}, velocity = {1}\n", VelocitySwitch.SwitchKind, VelocitySwitch.Threshold));
             builder.Append(string.Format("Effect path = {0}\n", EffectPath));
             builder.Append(string.Format("Volume = {0}\n", Volume.Value));
@@ -381,8 +379,8 @@ namespace KSynthLib.K5000
         {
             var data = new List<byte>();
 
-            data.Add(ZoneLow.ToByte());
-            data.Add(ZoneHigh.ToByte());
+            data.AddRange(Zone.ToData());
+
             data.AddRange(VelocitySwitch.ToData());
             data.Add((byte)EffectPath);
             data.Add(Volume.ToByte());

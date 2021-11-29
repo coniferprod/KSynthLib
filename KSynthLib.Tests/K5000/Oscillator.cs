@@ -20,8 +20,8 @@ namespace KSynthLib.Tests.K5000
         [Fact]
         public void Coarse_IsCorrectlySet()
         {
-            settings.Coarse = -12;
-            Assert.Equal(-12, settings.Coarse);
+            settings.Coarse.Value = -12;
+            Assert.Equal(-12, settings.Coarse.Value);
         }
     }
 }

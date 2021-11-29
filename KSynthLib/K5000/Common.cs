@@ -393,4 +393,38 @@ namespace KSynthLib.K5000
             return name;
         }
     }
+
+    public class Zone
+    {
+        public Key Low;
+        public Key High;
+
+        public Zone(byte low, byte high)
+        {
+            Low = new Key(low);
+            High = new Key(high);
+        }
+
+        public byte[] ToData()
+        {
+            return new byte[] { Low.ToByte(), High.ToByte() };
+        }
+    }
+
+    public class FixedKey
+    {
+        public bool IsOn;
+        public Key Key;
+
+        public FixedKey()
+        {
+            Key = new Key();
+            IsOn = false;
+        }
+        public FixedKey(byte key)
+        {
+            Key = new Key(key);
+            IsOn = key != 0x00;
+        }
+    }
 }

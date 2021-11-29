@@ -1,53 +1,9 @@
 using System;
-
+using KSynthLib.Common;
 using Range.Net;
 
 namespace KSynthLib.K5000
 {
-        public abstract class RangedValue
-    {
-        protected string _name;
-        public string Name
-        {
-            get => this._name;
-        }
-
-        protected int _defaultValue;
-        public int DefaultValue
-        {
-            get => this._defaultValue;
-            protected set => this._defaultValue = value;
-        }
-
-        protected Range<int> _range;
-
-        protected int _value;
-        public int Value
-        {
-            get => _value;
-            set
-            {
-                if (_range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException(this._name,
-                        string.Format("Value must be in range {0} (was {1})",
-                        this._range.ToString(), value));
-                }
-            }
-        }
-
-        protected RangedValue(string name, Range<int> range, int defaultValue, int initialValue)
-        {
-            this._name = name;
-            this._range = range;
-            this._defaultValue = defaultValue;
-            this._value = initialValue;
-        }
-    }
 
     public class SignedLevel: RangedValue
     {
@@ -121,156 +77,19 @@ namespace KSynthLib.K5000
         public byte ToByte() => (byte)(this.Value);
     }
 
-
-    public class BenderCutoffType
+    public class Key: RangedValue
     {
-        private Range<byte> range;
-
-        private byte _value;
-        public byte Value
-        {
-            get
-            {
-                return _value;
-            }
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
-        public BenderCutoffType()
-        {
-            this.range = new Range<byte>(0, 31);
-        }
-
-        public BenderCutoffType(byte v) : this()
-        {
-            this.Value = v;
-        }
+        public Key() : this(0) { }
+        public Key(int value) : base("Key", new Range<int>(0, 127), 0, value) { }
+        public Key(byte value) : this((int)value) { }
+        public byte ToByte() => (byte)(this.Value);
     }
 
-    public class VelocityThresholdType
+    public class PatchNumber: RangedValue
     {
-        private Range<byte> range;
-
-        private byte _value;
-        public byte Value
-        {
-            get
-            {
-                return _value;
-            }
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
-        public VelocityThresholdType()
-        {
-            this.range = new Range<byte>(31, 127);
-        }
-
-        public VelocityThresholdType(byte v) : this()
-        {
-            this.Value = v;
-        }
-    }
-
-    public class FixedKeyType
-    {
-        private Range<byte> range;
-
-        private byte _value;
-        public byte Value
-        {
-            get
-            {
-                return _value;
-            }
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
-        public FixedKeyType()
-        {
-            this.range = new Range<byte>(0, 108); // 0=OFF, 21 ~ 108=ON(A-1 ~ C7)
-        }
-
-        public FixedKeyType(byte v) : this()
-        {
-            this.Value = v;
-        }
-    }
-
-    public class PatchNumberType
-    {
-        private Range<byte> range;
-
-        private byte _value;
-        public byte Value
-        {
-            get
-            {
-                return _value;
-            }
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
-        public PatchNumberType()
-        {
-            this.range = new Range<byte>(0, 127);
-        }
-
-        public PatchNumberType(byte v) : this()
-        {
-            this.Value = v;
-        }
+        public PatchNumber() : this(0) { }
+        public PatchNumber(int value) : base("PatchNumber", new Range<int>(0, 127), 0, value) { }
+        public PatchNumber(byte value) : this((int)value) { }
+        public byte ToByte() => (byte)(this.Value);
     }
 }

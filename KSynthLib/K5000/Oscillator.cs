@@ -17,23 +17,9 @@ namespace KSynthLib.K5000
     public class DCOSettings
     {
         public Wave Wave;
-
-        private CoarseType _coarse;
-        public int Coarse
-        {
-            get => _coarse.Value;
-            set => _coarse.Value = value;
-        }
-
+        public Coarse Coarse;
         public SignedLevel Fine;
-
-        private FixedKeyType _fixedKey; // 0=OFF, 21 ~ 108=ON(A-1 ~ C7)
-        public byte FixedKey
-        {
-            get => _fixedKey.Value;
-            set => _fixedKey.Value = value;
-        }
-
+        public FixedKey FixedKey; // 0=OFF, 21 ~ 108=ON(A-1 ~ C7)
         public KeyScalingToPitch KSPitch;  // enumeration
         public PitchEnvelope Envelope;
 
@@ -41,9 +27,9 @@ namespace KSynthLib.K5000
         {
             Wave = new Wave();
             Envelope = new PitchEnvelope();
-            _coarse = new CoarseType();
+            Coarse = new Coarse();
             Fine = new SignedLevel();
-            _fixedKey = new FixedKeyType();
+            FixedKey = new FixedKey();
         }
 
         public DCOSettings(byte[] data, int offset)
@@ -61,13 +47,13 @@ namespace KSynthLib.K5000
             Wave = new Wave(waveMSB, waveLSB);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _coarse = new CoarseType(b);
+            Coarse = new Coarse(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
             Fine = new SignedLevel(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            FixedKey = b;
+            FixedKey = new FixedKey(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
             KSPitch = (KeyScalingToPitch)b;
@@ -88,7 +74,12 @@ namespace KSynthLib.K5000
             }
             builder.Append($"Wave Type = {waveName}    KS Pitch = {KSPitch}\n");
 
-            var fixedKeySetting = FixedKey == 0 ? "OFF" : Convert.ToString(FixedKey);
+            string fixedKeySetting = "OFF";
+            if (FixedKey.IsOn)
+            {
+                fixedKeySetting = string.Format("{0}", FixedKey.Key.Value);
+            }
+
             var waveNumber = "   ";
             if (waveName.Equals("PCM"))
             {
@@ -97,7 +88,7 @@ namespace KSynthLib.K5000
             }
 
             builder.Append($"PCM Wave No.   {waveNumber}   Fixed Key = {fixedKeySetting}\n");
-            builder.Append($"Coarse         {Coarse}\nFine          {Fine.Value}\n\n");
+            builder.Append($"Coarse         {Coarse.Value}\nFine          {Fine.Value}\n\n");
             builder.Append($"{Envelope}\n");
 
             return builder.ToString();
@@ -109,9 +100,9 @@ namespace KSynthLib.K5000
 
             data.AddRange(Wave.ToData());
 
-            data.Add(_coarse.Byte);
+            data.Add(Coarse.ToByte());
             data.Add(Fine.ToByte());
-            data.Add((byte)FixedKey);
+            data.Add(FixedKey.Key.ToByte());
             data.Add((byte)KSPitch);
 
             data.AddRange(Envelope.ToData());

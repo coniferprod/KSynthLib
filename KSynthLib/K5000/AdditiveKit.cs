@@ -7,22 +7,16 @@ namespace KSynthLib.K5000
 {
     public class HarmonicCopyParameters
     {
-        private PatchNumberType _patchNumber;
-        public byte PatchNumber
-        {
-            get => _patchNumber.Value;
-            set => _patchNumber.Value = value;
-        }
-
+        public PatchNumber PatchNumber;
         public byte SourceNumber; // 0~11 (0~5:soft,6~11:loud)
 
         public HarmonicCopyParameters()
         {
-            _patchNumber = new PatchNumberType();
+            PatchNumber = new PatchNumber();
             SourceNumber = 0;
         }
 
-        public byte[] ToData() => new List<byte>() { PatchNumber, SourceNumber }.ToArray();
+        public byte[] ToData() => new List<byte>() { PatchNumber.ToByte(), SourceNumber }.ToArray();
     }
 
     public enum MORFHarmonicGroup
@@ -231,25 +225,25 @@ namespace KSynthLib.K5000
 
             Harmonics.Copy1 = new HarmonicCopyParameters();
             (b, offset) = Util.GetNextByte(data, offset);
-            Harmonics.Copy1.PatchNumber = b;
+            Harmonics.Copy1.PatchNumber = new PatchNumber(b);
             (b, offset) = Util.GetNextByte(data, offset);
             Harmonics.Copy1.SourceNumber = b;
 
             Harmonics.Copy2 = new HarmonicCopyParameters();
             (b, offset) = Util.GetNextByte(data, offset);
-            Harmonics.Copy2.PatchNumber = b;
+            Harmonics.Copy2.PatchNumber = new PatchNumber(b);
             (b, offset) = Util.GetNextByte(data, offset);
             Harmonics.Copy2.SourceNumber = b;
 
             Harmonics.Copy3 = new HarmonicCopyParameters();
             (b, offset) = Util.GetNextByte(data, offset);
-            Harmonics.Copy3.PatchNumber = b;
+            Harmonics.Copy3.PatchNumber = new PatchNumber(b);
             (b, offset) = Util.GetNextByte(data, offset);
             Harmonics.Copy3.SourceNumber = b;
 
             Harmonics.Copy4 = new HarmonicCopyParameters();
             (b, offset) = Util.GetNextByte(data, offset);
-            Harmonics.Copy4.PatchNumber = b;
+            Harmonics.Copy4.PatchNumber = new PatchNumber(b);
             (b, offset) = Util.GetNextByte(data, offset);
             Harmonics.Copy4.SourceNumber = b;
 
