@@ -39,13 +39,7 @@ namespace KSynthLib.K5000
         // Non-MORF parameters
         public MORFHarmonicGroup Group;  // 0 = LO (1~64), 1 = HI (65~128)
 
-        private SignedLevelType _keyScalingToGain; // (-63)1 ... (+63)127
-        public sbyte KeyScalingToGain
-        {
-            get => _keyScalingToGain.Value;
-            set => _keyScalingToGain.Value = value;
-        }
-
+        public SignedLevel KeyScalingToGain; // (-63)1 ... (+63)127
         public byte BalanceVelocityCurve;
         public byte BalanceVelocityDepth;
 
@@ -60,7 +54,7 @@ namespace KSynthLib.K5000
 
         public HarmonicParameters()
         {
-            _keyScalingToGain = new SignedLevelType();
+            KeyScalingToGain = new SignedLevel();
             Copy1 = new HarmonicCopyParameters();
             Copy2 = new HarmonicCopyParameters();
             Copy3 = new HarmonicCopyParameters();
@@ -76,7 +70,7 @@ namespace KSynthLib.K5000
                 (byte)(Morf ? 1 : 0),
                 TotalGain,
                 (byte)Group,
-                _keyScalingToGain.Byte,
+                KeyScalingToGain.ToByte(),
                 BalanceVelocityCurve,
                 BalanceVelocityDepth
             });
@@ -101,94 +95,56 @@ namespace KSynthLib.K5000
 
     public class FormantLFOSettings
     {
-        private PositiveLevelType _speed; // 0~127
-        public byte Speed
-        {
-            get => _speed.Value;
-            set => _speed.Value = value;
-        }
-
+        public PositiveLevel Speed; // 0~127
         public FormantLFOShape Shape;  // enumeration
-
-        private UnsignedLevelType _depth;  // 0~63
-        public byte Depth
-        {
-            get => _depth.Value;
-            set => _depth.Value = value;
-        }
+        public UnsignedLevel Depth;  // 0~63
 
         public FormantLFOSettings()
         {
-            _speed = new PositiveLevelType();
+            Speed = new PositiveLevel();
             Shape = FormantLFOShape.Sawtooth;
-            _depth = new UnsignedLevelType();
+            Depth = new UnsignedLevel();
         }
 
         public FormantLFOSettings(List<byte> data)
         {
-            _speed = new PositiveLevelType(data[0]);
+            Speed = new PositiveLevel(data[0]);
             Shape = (FormantLFOShape)data[1];
-            _depth = new UnsignedLevelType(data[2]);
+            Depth = new UnsignedLevel(data[2]);
         }
 
-        public byte[] ToData() => new List<byte>() { Speed, (byte)Shape, Depth }.ToArray();
+        public byte[] ToData() => new List<byte>() { Speed.ToByte(), (byte)Shape, Depth.ToByte() }.ToArray();
     }
 
     public class FormantParameters
     {
-        private SignedLevelType _bias; // (-63)1 ... (+63)127
-        public sbyte Bias
-        {
-            get => _bias.Value;
-            set => _bias.Value = value;
-        }
-
+        public SignedLevel Bias; // (-63)1 ... (+63)127
         public byte EnvLFOSel;  // 0 = ENV, 1 = LFO
-
-        private SignedLevelType _envelopeDepth; // (-63)1 ... (+63)127
-        public sbyte EnvelopeDepth
-        {
-            get => _envelopeDepth.Value;
-            set => _envelopeDepth.Value = value;
-        }
-
+        public SignedLevel EnvelopeDepth; // (-63)1 ... (+63)127
         public LoopingEnvelope Envelope;
-
-        private SignedLevelType _velocitySensitivityEnvelopeDepth; // (-63)1 ... (+63)127
-        public sbyte VelocitySensitivityEnvelopeDepth
-        {
-            get => _velocitySensitivityEnvelopeDepth.Value;
-            set => _velocitySensitivityEnvelopeDepth.Value = value;
-        }
-
-        private SignedLevelType _keyScalingEnvelopeDepth;  // (-63)1 ... (+63)127
-        public sbyte KeyScalingEnvelopeDepth
-        {
-            get => _keyScalingEnvelopeDepth.Value;
-            set => _keyScalingEnvelopeDepth.Value = value;
-        }
-
+        public SignedLevel VelocitySensitivityEnvelopeDepth; // (-63)1 ... (+63)127
+        public SignedLevel KeyScalingEnvelopeDepth;  // (-63)1 ... (+63)127
         public FormantLFOSettings LFO;
 
         public FormantParameters()
         {
-            _bias = new SignedLevelType();
-            _envelopeDepth = new SignedLevelType();
+            Bias = new SignedLevel();
+            EnvelopeDepth = new SignedLevel();
             Envelope = new LoopingEnvelope();
             EnvLFOSel = 0;
-            _velocitySensitivityEnvelopeDepth = new SignedLevelType();
-            _keyScalingEnvelopeDepth = new SignedLevelType();
+            VelocitySensitivityEnvelopeDepth = new SignedLevel();
+            KeyScalingEnvelopeDepth = new SignedLevel();
             LFO = new FormantLFOSettings();
         }
 
         public FormantParameters(List<byte> data)
         {
-            _bias = new SignedLevelType(data[0]);
-            _envelopeDepth = new SignedLevelType(data[1]);
+            Bias = new SignedLevel(data[0]);
+            EnvelopeDepth = new SignedLevel(data[1]);
             Envelope = new LoopingEnvelope(data.GetRange(2, 9));
             EnvLFOSel = data[11];
-            _velocitySensitivityEnvelopeDepth = new SignedLevelType(data[12]);
-            _keyScalingEnvelopeDepth = new SignedLevelType(data[13]);
+            VelocitySensitivityEnvelopeDepth = new SignedLevel(data[12]);
+            KeyScalingEnvelopeDepth = new SignedLevel(data[13]);
             LFO = new FormantLFOSettings(data.GetRange(14, 3));
         }
 
@@ -196,14 +152,14 @@ namespace KSynthLib.K5000
         {
             var data = new List<byte>();
 
-            data.Add(_bias.Byte);
+            data.Add(Bias.ToByte());
             data.Add(EnvLFOSel);
-            data.Add(_envelopeDepth.Byte);
+            data.Add(EnvelopeDepth.ToByte());
 
             data.AddRange(Envelope.ToData());
 
-            data.Add(_velocitySensitivityEnvelopeDepth.Byte);
-            data.Add(_keyScalingEnvelopeDepth.Byte);
+            data.Add(VelocitySensitivityEnvelopeDepth.ToByte());
+            data.Add(KeyScalingEnvelopeDepth.ToByte());
 
             data.AddRange(LFO.ToData());
 
@@ -265,7 +221,7 @@ namespace KSynthLib.K5000
             Harmonics.Group = (MORFHarmonicGroup)b;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Harmonics.KeyScalingToGain = (sbyte)(b - 64);
+            Harmonics.KeyScalingToGain = new SignedLevel(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
             Harmonics.BalanceVelocityCurve = b;
@@ -299,23 +255,23 @@ namespace KSynthLib.K5000
 
             Harmonics.MORFEnvelope = new MORFHarmonicEnvelope();
             (b, offset) = Util.GetNextByte(data, offset);
-            Harmonics.MORFEnvelope.Time1 = b;
+            Harmonics.MORFEnvelope.Time1 = new PositiveLevel(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Harmonics.MORFEnvelope.Time2 = b;
+            Harmonics.MORFEnvelope.Time2 = new PositiveLevel(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Harmonics.MORFEnvelope.Time3 = b;
+            Harmonics.MORFEnvelope.Time3 = new PositiveLevel(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Harmonics.MORFEnvelope.Time4 = b;
+            Harmonics.MORFEnvelope.Time4 = new PositiveLevel(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Harmonics.MORFEnvelope.LoopType = (EnvelopeLoopType)b;
+            Harmonics.MORFEnvelope.LoopKind = (EnvelopeLoopKind)b;
 
             Formant = new FormantParameters();
             (b, offset) = Util.GetNextByte(data, offset);
-            Formant.Bias = (sbyte)(b - 64);
+            Formant.Bias = new SignedLevel(b);
             (b, offset) = Util.GetNextByte(data, offset);
             Formant.EnvLFOSel = b;
             (b, offset) = Util.GetNextByte(data, offset);
-            Formant.EnvelopeDepth = (sbyte)(b - 64);
+            Formant.EnvelopeDepth = new SignedLevel(b);
 
             List<byte> formantEnvelopeBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
@@ -339,16 +295,16 @@ namespace KSynthLib.K5000
             Formant.Envelope = new LoopingEnvelope(formantEnvelopeBytes);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Formant.VelocitySensitivityEnvelopeDepth = (sbyte)(b - 64);
+            Formant.VelocitySensitivityEnvelopeDepth = new SignedLevel(b);
             (b, offset) = Util.GetNextByte(data, offset);
-            Formant.KeyScalingEnvelopeDepth = (sbyte)(b - 64);
+            Formant.KeyScalingEnvelopeDepth = new SignedLevel(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Formant.LFO.Speed = b;
+            Formant.LFO.Speed = new PositiveLevel(b);
             (b, offset) = Util.GetNextByte(data, offset);
             Formant.LFO.Shape = (FormantLFOShape)b;
             (b, offset) = Util.GetNextByte(data, offset);
-            Formant.LFO.Depth = b;
+            Formant.LFO.Depth = new UnsignedLevel(b);
 
             SoftHarmonics = new byte[HarmonicCount];
             for (var i = 0; i < HarmonicCount; i++)
@@ -377,26 +333,26 @@ namespace KSynthLib.K5000
             {
                 HarmonicEnvelopes[i] = new HarmonicEnvelope();
                 (b, offset) = Util.GetNextByte(data, offset);
-                HarmonicEnvelopes[i].Segment0.Rate = b;
+                HarmonicEnvelopes[i].Segment0.Rate = new PositiveLevel(b);
                 (b, offset) = Util.GetNextByte(data, offset);
-                HarmonicEnvelopes[i].Segment0.Level = (sbyte)b;
+                HarmonicEnvelopes[i].Segment0.Level = new SignedLevel(b);
 
                 (b, offset) = Util.GetNextByte(data, offset);
-                HarmonicEnvelopes[i].Segment1.Rate = b;
+                HarmonicEnvelopes[i].Segment1.Rate = new PositiveLevel(b);
                 (b, offset) = Util.GetNextByte(data, offset);
                 HarmonicEnvelopes[i].Segment1Loop = b.IsBitSet(6);
-                HarmonicEnvelopes[i].Segment1.Level = (sbyte)(b & 0x3F);  // bottom 6 bits = 0~63
+                HarmonicEnvelopes[i].Segment1.Level = new SignedLevel(b & 0x3F);  // bottom 6 bits = 0~63
 
                 (b, offset) = Util.GetNextByte(data, offset);
-                HarmonicEnvelopes[i].Segment2.Rate = b;
+                HarmonicEnvelopes[i].Segment2.Rate = new PositiveLevel(b);
                 (b, offset) = Util.GetNextByte(data, offset);
                 HarmonicEnvelopes[i].Segment2Loop = b.IsBitSet(6);
-                HarmonicEnvelopes[i].Segment2.Level = (sbyte)(b & 0x3F);
+                HarmonicEnvelopes[i].Segment2.Level = new SignedLevel(b & 0x3F);
 
                 (b, offset) = Util.GetNextByte(data, offset);
-                HarmonicEnvelopes[i].Segment3.Rate = b;  // 0~127
+                HarmonicEnvelopes[i].Segment3.Rate = new PositiveLevel(b);  // 0~127
                 (b, offset) = Util.GetNextByte(data, offset);
-                HarmonicEnvelopes[i].Segment3.Level = (sbyte)b;  // 0~63
+                HarmonicEnvelopes[i].Segment3.Level = new SignedLevel(b);  // 0~63
             }
 
             (b, offset) = Util.GetNextByte(data, offset);  // 806 dummy

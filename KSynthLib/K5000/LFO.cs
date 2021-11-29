@@ -14,67 +14,31 @@ namespace KSynthLib.K5000
 
     public class LFOControl
     {
-        private UnsignedLevelType _depth;
-        public byte Depth // 0 ~ 63
-        {
-            get => _depth.Value;
-            set => _depth.Value = value;
-        }
-
-        private SignedLevelType _keyScaling;
-        public sbyte KeyScaling // (-63)1 ~ (+63)127
-        {
-            get => _keyScaling.Value;
-            set => _keyScaling.Value = value;
-        }
+        public UnsignedLevel Depth;
+        public SignedLevel KeyScaling;
 
         public LFOControl()
         {
-            _depth = new UnsignedLevelType();
-            _keyScaling = new SignedLevelType();
+            Depth = new UnsignedLevel();
+            KeyScaling = new SignedLevel();
         }
 
         public LFOControl(byte d, byte k)
         {
-            _depth = new UnsignedLevelType(d);
-            _keyScaling = new SignedLevelType(k);
+            Depth = new UnsignedLevel(d);
+            KeyScaling = new SignedLevel(k);
         }
 
-        public byte[] ToData() => new List<byte>() { Depth, _keyScaling.Byte }.ToArray();
+        public byte[] ToData() => new List<byte>() { Depth.ToByte(), KeyScaling.ToByte() }.ToArray();
     }
 
     public class LFOSettings
     {
         public LFOWaveform Waveform;
-
-        private PositiveLevelType _speed;
-        public byte Speed
-        {
-            get => _speed.Value;
-            set => _speed.Value = value;
-        }
-
-        private PositiveLevelType _delayOnset;
-        public byte DelayOnset
-        {
-            get => _delayOnset.Value;
-            set => _delayOnset.Value = value;
-        }
-
-        private PositiveLevelType _fadeInTime;
-        public byte FadeInTime
-        {
-            get => _fadeInTime.Value;
-            set => _fadeInTime.Value = value;
-        }
-
-        private UnsignedLevelType _fadeInToSpeed;  // or "fade-in speed"?
-        public byte FadeInToSpeed
-        {
-            get => _fadeInToSpeed.Value;
-            set => _fadeInToSpeed.Value = value;
-        }
-
+        public PositiveLevel Speed;
+        public PositiveLevel DelayOnset;
+        public PositiveLevel FadeInTime;
+        public UnsignedLevel FadeInToSpeed;  // or "fade-in speed"?
         public LFOControl Vibrato;
         public LFOControl Growl;
         public LFOControl Tremolo;
@@ -82,11 +46,10 @@ namespace KSynthLib.K5000
         public LFOSettings()
         {
             Waveform = LFOWaveform.Triangle;
-            _speed = new PositiveLevelType();
-            _delayOnset = new PositiveLevelType();
-            _fadeInTime = new PositiveLevelType();
-            _fadeInToSpeed = new UnsignedLevelType();
-
+            Speed = new PositiveLevel();
+            DelayOnset = new PositiveLevel();
+            FadeInTime = new PositiveLevel();
+            FadeInToSpeed = new UnsignedLevel();
             Vibrato = new LFOControl();
             Growl = new LFOControl();
             Tremolo = new LFOControl();
@@ -95,11 +58,10 @@ namespace KSynthLib.K5000
         public LFOSettings(List<byte> data)
         {
             Waveform = (LFOWaveform)data[0];
-            _speed = new PositiveLevelType(data[1]);
-            _delayOnset = new PositiveLevelType(data[2]);
-            _fadeInTime = new PositiveLevelType(data[3]);
-            _fadeInToSpeed = new UnsignedLevelType(data[4]);
-
+            Speed = new PositiveLevel(data[1]);
+            DelayOnset = new PositiveLevel(data[2]);
+            FadeInTime = new PositiveLevel(data[3]);
+            FadeInToSpeed = new UnsignedLevel(data[4]);
             Vibrato = new LFOControl(data[4], data[5]);
             Growl = new LFOControl(data[6], data[7]);
             Tremolo = new LFOControl(data[8], data[9]);
@@ -108,8 +70,8 @@ namespace KSynthLib.K5000
         public override string ToString()
         {
             var builder = new StringBuilder();
-            builder.Append(string.Format("Waveform={0}  Speed={1}  Delay Onset={2}\n", Waveform, Speed, DelayOnset));
-            builder.Append(string.Format("Fade In Time={0}  Fade In To Speed={1}\n", FadeInTime, FadeInToSpeed));
+            builder.Append(string.Format("Waveform={0}  Speed={1}  Delay Onset={2}\n", Waveform, Speed.Value, DelayOnset.Value));
+            builder.Append(string.Format("Fade In Time={0}  Fade In To Speed={1}\n", FadeInTime.Value, FadeInToSpeed.Value));
             builder.Append("LFO Modulation:\n");
             builder.Append(string.Format("Vibrato(DCO) = {0}   KS To Vibrato={1}\n", Vibrato.Depth, Vibrato.KeyScaling));
             builder.Append(string.Format("Growl(DCF) = {0}   KS To Growl={1}\n", Growl.Depth, Growl.KeyScaling));
@@ -123,10 +85,10 @@ namespace KSynthLib.K5000
 
             data.AddRange(new List<byte>() {
                 (byte)Waveform,
-                Speed,
-                DelayOnset,
-                FadeInTime,
-                FadeInToSpeed
+                Speed.ToByte(),
+                DelayOnset.ToByte(),
+                FadeInTime.ToByte(),
+                FadeInToSpeed.ToByte()
             });
 
             data.AddRange(Vibrato.ToData());

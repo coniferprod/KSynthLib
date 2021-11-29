@@ -5,7 +5,7 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K5000
 {
-    public enum EnvelopeLoopType
+    public enum EnvelopeLoopKind
     {
         Off,
         Loop1,
@@ -14,33 +14,22 @@ namespace KSynthLib.K5000
 
     public class EnvelopeSegment
     {
-        private PositiveLevelType _rate; // 0 ~ 127
-        public byte Rate
-        {
-            get => _rate.Value;
-            set => _rate.Value = value;
-        }
-
-        private SignedLevelType _level; // (-63)1 ... (+63)127
-        public sbyte Level
-        {
-            get => _level.Value;
-            set => _level.Value = value;
-        }
+        public PositiveLevel Rate; // 0 ~ 127
+        public SignedLevel Level; // (-63)1 ... (+63)127
 
         public EnvelopeSegment()
         {
-            _rate = new PositiveLevelType();
-            _level = new SignedLevelType();
+            Rate = new PositiveLevel();
+            Level = new SignedLevel();
         }
 
         public EnvelopeSegment(byte rate, byte level)
         {
-            _rate = new PositiveLevelType(rate);
-            _level = new SignedLevelType((sbyte)(level - 64));
+            Rate = new PositiveLevel(rate);
+            Level = new SignedLevel(level);
         }
 
-        public byte[] ToData() => new List<byte>() { Rate, _level.Byte }.ToArray();
+        public byte[] ToData() => new List<byte>() { Rate.ToByte(), Level.ToByte() }.ToArray();
     }
 
     public class LoopingEnvelope {
@@ -48,7 +37,7 @@ namespace KSynthLib.K5000
         public EnvelopeSegment Decay1;
         public EnvelopeSegment Decay2;
         public EnvelopeSegment Release;
-        public EnvelopeLoopType LoopType;
+        public EnvelopeLoopKind LoopKind;
 
         public LoopingEnvelope()
         {
@@ -56,7 +45,7 @@ namespace KSynthLib.K5000
             Decay1 = new EnvelopeSegment();
             Decay2 = new EnvelopeSegment();
             Release = new EnvelopeSegment();
-            LoopType = EnvelopeLoopType.Off;
+            LoopKind = EnvelopeLoopKind.Off;
         }
 
         public LoopingEnvelope(List<byte> data)
@@ -65,7 +54,7 @@ namespace KSynthLib.K5000
             Decay1 = new EnvelopeSegment(data[2], data[3]);
             Decay2 = new EnvelopeSegment(data[4], data[5]);
             Release = new EnvelopeSegment(data[6], data[7]);
-            LoopType = (EnvelopeLoopType)data[8];
+            LoopKind = (EnvelopeLoopKind)data[8];
         }
 
         public byte[] ToData()
@@ -84,46 +73,23 @@ namespace KSynthLib.K5000
     /// </summary>
     public class MORFHarmonicEnvelope
     {
-        private PositiveLevelType _time1;
-        public byte Time1
-        {
-            get => _time1.Value;
-            set => _time1.Value = value;
-        }
-
-        private PositiveLevelType _time2;
-        public byte Time2
-        {
-            get => _time2.Value;
-            set => _time2.Value = value;
-        }
-
-        private PositiveLevelType _time3;
-        public byte Time3
-        {
-            get => _time3.Value;
-            set => _time3.Value = value;
-        }
-
-        private PositiveLevelType _time4;
-        public byte Time4
-        {
-            get => _time4.Value;
-            set => _time4.Value = value;
-        }
-        public EnvelopeLoopType LoopType;
+        public PositiveLevel Time1;
+        public PositiveLevel Time2;
+        public PositiveLevel Time3;
+        public PositiveLevel Time4;
+        public EnvelopeLoopKind LoopKind;
 
         public MORFHarmonicEnvelope()
         {
-            _time1 = new PositiveLevelType();
-            _time2 = new PositiveLevelType();
-            _time3 = new PositiveLevelType();
-            _time4 = new PositiveLevelType();
-            LoopType = EnvelopeLoopType.Off;
+            Time1 = new PositiveLevel();
+            Time2 = new PositiveLevel();
+            Time3 = new PositiveLevel();
+            Time4 = new PositiveLevel();
+            LoopKind = EnvelopeLoopKind.Off;
         }
 
         public byte[] ToData() => new List<byte>() {
-            Time1, Time2, Time3, Time4, (byte)LoopType
+            Time1.ToByte(), Time2.ToByte(), Time3.ToByte(), Time4.ToByte(), (byte)LoopKind
         }.ToArray();
     }
 
@@ -150,27 +116,27 @@ namespace KSynthLib.K5000
         {
             var data = new List<byte>();
 
-            data.Add((byte)Segment0.Rate);
-            data.Add((byte)Segment0.Level);
+            data.Add(Segment0.Rate.ToByte());
+            data.Add(Segment0.Level.ToByte());
 
-            data.Add((byte)Segment1.Rate);
-            byte s1Level = (byte)Segment1.Level;
+            data.Add(Segment1.Rate.ToByte());
+            byte s1Level = Segment1.Level.ToByte();
             if (Segment1Loop)
             {
                 s1Level.SetBit(6);
             }
             data.Add(s1Level);
 
-            data.Add((byte)Segment2.Rate);
-            byte s2Level = (byte)Segment2.Level;
+            data.Add(Segment2.Rate.ToByte());
+            byte s2Level = Segment2.Level.ToByte();
             if (Segment2Loop)
             {
                 s2Level.SetBit(6);
             }
             data.Add(s2Level);
 
-            data.Add((byte)Segment3.Rate);
-            data.Add((byte)Segment3.Level);
+            data.Add(Segment3.Rate.ToByte());
+            data.Add(Segment3.Level.ToByte());
 
             return data.ToArray();
         }
@@ -181,66 +147,31 @@ namespace KSynthLib.K5000
     /// </summary>
     public class AmplifierEnvelope
     {
-        private PositiveLevelType _attackTime; // 0~127
-        public byte AttackTime
-        {
-            get => _attackTime.Value;
-            set => _attackTime.Value = value;
-        }
-
-        private PositiveLevelType _decay1Time; // 0~127
-        public byte Decay1Time
-        {
-            get => _decay1Time.Value;
-            set => _decay1Time.Value = value;
-        }
-
-        private PositiveLevelType _decay1Level; // 0~127
-        public byte Decay1Level
-        {
-            get => _decay1Level.Value;
-            set => _decay1Level.Value = value;
-        }
-
-        private PositiveLevelType _decay2Time; // 0~127
-        public byte Decay2Time
-        {
-            get => _decay2Time.Value;
-            set => _decay2Time.Value = value;
-        }
-
-        private PositiveLevelType _decay2Level; // 0~127
-        public byte Decay2Level
-        {
-            get => _decay2Level.Value;
-            set => _decay2Level.Value = value;
-        }
-
-        private PositiveLevelType _releaseTime; // 0~127
-        public byte ReleaseTime
-        {
-            get => _releaseTime.Value;
-            set => _releaseTime.Value = value;
-        }
+        public PositiveLevel AttackTime; // 0~127
+        public PositiveLevel Decay1Time; // 0~127
+        public PositiveLevel Decay1Level; // 0~127
+        public PositiveLevel Decay2Time; // 0~127
+        public PositiveLevel Decay2Level; // 0~127
+        public PositiveLevel ReleaseTime; // 0~127
 
         public AmplifierEnvelope()
         {
-            _attackTime = new PositiveLevelType();
-            _decay1Time = new PositiveLevelType();
-            _decay1Level = new PositiveLevelType();
-            _decay2Time = new PositiveLevelType();
-            _decay2Level = new PositiveLevelType();
-            _releaseTime = new PositiveLevelType();
+            AttackTime = new PositiveLevel();
+            Decay1Time = new PositiveLevel();
+            Decay1Level = new PositiveLevel();
+            Decay2Time = new PositiveLevel();
+            Decay2Level = new PositiveLevel();
+            ReleaseTime = new PositiveLevel();
         }
 
         public AmplifierEnvelope(byte a, byte d1t, byte d1l, byte d2t, byte d2l, byte r)
         {
-            _attackTime = new PositiveLevelType(a);
-            _decay1Time = new PositiveLevelType(d1t);
-            _decay1Level = new PositiveLevelType(d1l);
-            _decay2Time = new PositiveLevelType(d2t);
-            _decay2Level = new PositiveLevelType(d2l);
-            _releaseTime = new PositiveLevelType(r);
+            AttackTime = new PositiveLevel(a);
+            Decay1Time = new PositiveLevel(d1t);
+            Decay1Level = new PositiveLevel(d1l);
+            Decay2Time = new PositiveLevel(d2t);
+            Decay2Level = new PositiveLevel(d2l);
+            ReleaseTime = new PositiveLevel(r);
         }
 
         public AmplifierEnvelope(List<byte> data) : this(data[0], data[1], data[2], data[3], data[4], data[5])
@@ -253,12 +184,12 @@ namespace KSynthLib.K5000
         }
 
         public byte[] ToData() => new List<byte>() {
-            AttackTime,
-            Decay1Time,
-            Decay1Level,
-            Decay2Time,
-            Decay2Level,
-            ReleaseTime
+            AttackTime.ToByte(),
+            Decay1Time.ToByte(),
+            Decay1Level.ToByte(),
+            Decay2Time.ToByte(),
+            Decay2Level.ToByte(),
+            ReleaseTime.ToByte()
         }.ToArray();
     }
 
@@ -267,48 +198,25 @@ namespace KSynthLib.K5000
     /// </summary>
     public class KeyScalingControlEnvelope
     {
-        private SignedLevelType _level;
-        public sbyte Level // (-63)1 ~ (+63)127
-        {
-            get => _level.Value;
-            set => _level.Value = value;
-        }
-
-        private SignedLevelType _attackTime;
-        public sbyte AttackTime // (-63)1 ~ (+63)127
-        {
-            get => _attackTime.Value;
-            set => _attackTime.Value = value;
-        }
-
-        private SignedLevelType _decay1Time;
-        public sbyte Decay1Time
-        {
-            get => _decay1Time.Value;
-            set => _decay1Time.Value = value;
-        }
-
-        private SignedLevelType _releaseTime;
-        public sbyte ReleaseTime
-        {
-            get => _releaseTime.Value;
-            set => _releaseTime.Value = value;
-        }
+        public SignedLevel Level;  // (-63)1 ~ (+63)127
+        public SignedLevel AttackTime;  // (-63)1 ~ (+63)127
+        public SignedLevel Decay1Time;
+        public SignedLevel ReleaseTime;
 
         public KeyScalingControlEnvelope()
         {
-            _level = new SignedLevelType();
-            _attackTime = new SignedLevelType();
-            _decay1Time = new SignedLevelType();
-            _releaseTime = new SignedLevelType();
+            Level = new SignedLevel();
+            AttackTime = new SignedLevel();
+            Decay1Time = new SignedLevel();
+            ReleaseTime = new SignedLevel();
         }
 
         public KeyScalingControlEnvelope(List<byte> data)
         {
-            _level = new SignedLevelType(data[0]);
-            _attackTime = new SignedLevelType(data[1]);
-            _decay1Time = new SignedLevelType(data[2]);
-            _releaseTime = new SignedLevelType(data[3]);
+            Level = new SignedLevel(data[0]);
+            AttackTime = new SignedLevel(data[1]);
+            Decay1Time = new SignedLevel(data[2]);
+            ReleaseTime = new SignedLevel(data[3]);
         }
 
         public override string ToString()
@@ -317,69 +225,46 @@ namespace KSynthLib.K5000
         }
 
         public byte[] ToData() => new List<byte>() {
-            _level.Byte,
-            _attackTime.Byte,
-            _decay1Time.Byte,
-            _releaseTime.Byte
+            Level.ToByte(),
+            AttackTime.ToByte(),
+            Decay1Time.ToByte(),
+            ReleaseTime.ToByte()
         }.ToArray();
     }
 
     public class VelocityControlEnvelope
     {
-        private UnsignedLevelType _level;   // 0 ~ 63
-        public byte Level
-        {
-            get => _level.Value;
-            set => _level.Value = value;
-        }
-
-        private SignedLevelType _attackTime; // (-63)1 ~ (+63)127
-        public sbyte AttackTime
-        {
-            get => _attackTime.Value;
-            set => _attackTime.Value = value;
-        }
-
-        private SignedLevelType _decay1Time; // (-63)1 ~ (+63)127
-        public sbyte Decay1Time
-        {
-            get => _decay1Time.Value;
-            set => _decay1Time.Value = value;
-        }
-
-        private SignedLevelType _releaseTime; // (-63)1 ~ (+63)127
-        public sbyte ReleaseTime
-        {
-            get => _releaseTime.Value;
-            set => _releaseTime.Value = value;
-        }
+        public UnsignedLevel Level;   // 0 ~ 63
+        public SignedLevel AttackTime; // (-63)1 ~ (+63)127
+        public SignedLevel Decay1Time; // (-63)1 ~ (+63)127
+        public SignedLevel ReleaseTime; // (-63)1 ~ (+63)127
 
         public VelocityControlEnvelope()
         {
-            _level = new UnsignedLevelType();
-            _attackTime = new SignedLevelType();
-            _decay1Time = new SignedLevelType();
-            _releaseTime = new SignedLevelType();
+            Level = new UnsignedLevel();
+            AttackTime = new SignedLevel();
+            Decay1Time = new SignedLevel();
+            ReleaseTime = new SignedLevel();
         }
 
         public VelocityControlEnvelope(List<byte> data)
         {
-            _level = new UnsignedLevelType(data[0]);
-            _attackTime = new SignedLevelType(data[1]);
-            _decay1Time = new SignedLevelType(data[2]);
-            _releaseTime = new SignedLevelType(data[3]);
+            Level = new UnsignedLevel(data[0]);
+            AttackTime = new SignedLevel(data[1]);
+            Decay1Time = new SignedLevel(data[2]);
+            ReleaseTime = new SignedLevel(data[3]);
         }
 
         public override string ToString()
         {
-            return $"Level={Level} Attack={AttackTime} Decay1={Decay1Time} Release={ReleaseTime}";
+            return $"Level={Level.Value} Attack={AttackTime.Value} Decay1={Decay1Time.Value} Release={ReleaseTime.Value}";
         }
 
         public byte[] ToData() => new List<byte>() {
-            Level,
-            _attackTime.Byte,
-            _decay1Time.Byte,
-            _releaseTime.Byte
+            Level.ToByte(),
+            AttackTime.ToByte(),
+            Decay1Time.ToByte(),
+            ReleaseTime.ToByte()
         }.ToArray();
     }
 
@@ -388,56 +273,21 @@ namespace KSynthLib.K5000
     {
         public const int DataSize = 6;
 
-        private PositiveLevelType _attackTime; // 0~127
-        public byte AttackTime
-        {
-            get => _attackTime.Value;
-            set => _attackTime.Value = value;
-        }
-
-        private PositiveLevelType _decay1Time;
-        public byte Decay1Time
-        {
-            get => _decay1Time.Value;
-            set => _decay1Time.Value = value;
-        }
-
-        private SignedLevelType _decay1Level;
-        public sbyte Decay1Level
-        {
-            get => _decay1Level.Value;
-            set => _decay1Level.Value = value;
-        }
-
-        private PositiveLevelType _decay2Time;
-        public byte Decay2Time
-        {
-            get => _decay2Time.Value;
-            set => _decay2Time.Value = value;
-        }
-
-        private SignedLevelType _decay2Level;
-        public sbyte Decay2Level
-        {
-            get => _decay2Level.Value;
-            set => _decay2Level.Value = value;
-        }
-
-        private PositiveLevelType _releaseTime;
-        public byte ReleaseTime
-        {
-            get => _releaseTime.Value;
-            set => _releaseTime.Value = value;
-        }
+        public PositiveLevel AttackTime; // 0~127
+        public PositiveLevel Decay1Time;
+        public SignedLevel Decay1Level;
+        public PositiveLevel Decay2Time;
+        public SignedLevel Decay2Level;
+        public PositiveLevel ReleaseTime;
 
         public FilterEnvelope()
         {
-            _attackTime = new PositiveLevelType();
-            _decay1Time = new PositiveLevelType(63);
-            _decay1Level = new SignedLevelType(32);
-            _decay2Time = new PositiveLevelType(63);
-            _decay2Level = new SignedLevelType(32);
-            _releaseTime = new PositiveLevelType(63);
+            AttackTime = new PositiveLevel();
+            Decay1Time = new PositiveLevel(63);
+            Decay1Level = new SignedLevel(32);
+            Decay2Time = new PositiveLevel(63);
+            Decay2Level = new SignedLevel(32);
+            ReleaseTime = new PositiveLevel(63);
         }
 
         public FilterEnvelope(byte[] data, int offset)
@@ -445,36 +295,36 @@ namespace KSynthLib.K5000
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            AttackTime = b;
+            AttackTime = new PositiveLevel(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Decay1Time = b;
+            Decay1Time = new PositiveLevel(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _decay1Level = new SignedLevelType(b);
+            Decay1Level = new SignedLevel(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Decay2Time = b;
+            Decay2Time = new PositiveLevel(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _decay2Level = new SignedLevelType(b);
+            Decay2Level = new SignedLevel(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            ReleaseTime = b;
+            ReleaseTime = new PositiveLevel(b);
         }
 
         public override string ToString()
         {
-            return $"A={AttackTime}, D1=T{Decay1Time} L{Decay1Level}, D2=T{Decay2Time} L{Decay2Level}, R={ReleaseTime}";
+            return $"A={AttackTime.Value}, D1=T{Decay1Time.Value} L{Decay1Level.Value}, D2=T{Decay2Time.Value} L{Decay2Level.Value}, R={ReleaseTime.Value}";
         }
 
         public byte[] ToData() => new List<byte>() {
-            AttackTime,
-            Decay1Time,
-            _decay1Level.Byte,
-            Decay2Time,
-            _decay2Level.Byte,
-            ReleaseTime
+            AttackTime.ToByte(),
+            Decay1Time.ToByte(),
+            Decay1Level.ToByte(),
+            Decay2Time.ToByte(),
+            Decay2Level.ToByte(),
+            ReleaseTime.ToByte()
         }.ToArray();
     }
 
@@ -482,56 +332,21 @@ namespace KSynthLib.K5000
     {
         public const int DataSize = 6;
 
-        private SignedLevelType _startLevel; // (-63)1 ~ (+63)127
-        public sbyte StartLevel
-        {
-            get => _startLevel.Value;
-            set => _startLevel.Value = value;
-        }
-
-        private PositiveLevelType _attackTime; // 0 ~ 127
-        public byte AttackTime
-        {
-            get => _attackTime.Value;
-            set => _attackTime.Value = value;
-        }
-
-        private SignedLevelType _attackLevel; // (-63)1 ~ (+63)127
-        public sbyte AttackLevel
-        {
-            get => _attackLevel.Value;
-            set => _attackLevel.Value = value;
-        }
-
-        private PositiveLevelType _decayTime; // 0 ~ 127
-        public byte DecayTime
-        {
-            get => _decayTime.Value;
-            set => _decayTime.Value = value;
-        }
-
-        private SignedLevelType _timeVelocitySensitivity; // (-63)1 ~ (+63)127
-        public sbyte TimeVelocitySensitivity
-        {
-            get => _timeVelocitySensitivity.Value;
-            set => _timeVelocitySensitivity.Value = value;
-        }
-
-        private SignedLevelType _levelVelocitySensitivity; // (-63)1 ~ (+63)127
-        public sbyte LevelVelocitySensitivity
-        {
-            get => _levelVelocitySensitivity.Value;
-            set => _levelVelocitySensitivity.Value = value;
-        }
+        public SignedLevel StartLevel; // (-63)1 ~ (+63)127
+        public PositiveLevel AttackTime; // 0 ~ 127
+        public SignedLevel AttackLevel; // (-63)1 ~ (+63)127
+        public PositiveLevel DecayTime; // 0 ~ 127
+        public SignedLevel TimeVelocitySensitivity; // (-63)1 ~ (+63)127
+        public SignedLevel LevelVelocitySensitivity; // (-63)1 ~ (+63)127
 
         public PitchEnvelope()
         {
-            _startLevel = new SignedLevelType();
-            _attackTime = new PositiveLevelType();
-            _attackLevel = new SignedLevelType(63);
-            _decayTime = new PositiveLevelType(64);
-            _timeVelocitySensitivity = new SignedLevelType();
-            _levelVelocitySensitivity = new SignedLevelType();
+            StartLevel = new SignedLevel();
+            AttackTime = new PositiveLevel();
+            AttackLevel = new SignedLevel(63);
+            DecayTime = new PositiveLevel(64);
+            TimeVelocitySensitivity = new SignedLevel();
+            LevelVelocitySensitivity = new SignedLevel();
         }
 
         public PitchEnvelope(byte[] data, int offset)
@@ -539,38 +354,38 @@ namespace KSynthLib.K5000
             byte b = 0;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _startLevel = new SignedLevelType(b);
+            StartLevel = new SignedLevel(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _attackTime = new PositiveLevelType(b);
+            AttackTime = new PositiveLevel(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _attackLevel = new SignedLevelType(b);
+            AttackLevel = new SignedLevel(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _decayTime = new PositiveLevelType(b);
+            DecayTime = new PositiveLevel(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _timeVelocitySensitivity = new SignedLevelType(b);
+            TimeVelocitySensitivity = new SignedLevel(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _levelVelocitySensitivity = new SignedLevelType(b);
+            LevelVelocitySensitivity = new SignedLevel(b);
         }
 
         public override string ToString()
         {
             var builder = new StringBuilder();
             builder.Append("                  Pitch Envelope\n");
-            builder.Append($"Strt L  {StartLevel,3}       Vel to\n");
-            builder.Append($"Atak T  {AttackTime,3}     Level {LevelVelocitySensitivity,3}\n");
-            builder.Append($"Atak L  {AttackLevel,3}     Time  {TimeVelocitySensitivity,3}\n");  // TODO: Sign
-            builder.Append($"Decy T  {DecayTime,3}\n");
+            builder.Append($"Strt L  {StartLevel.Value,3}       Vel to\n");
+            builder.Append($"Atak T  {AttackTime.Value,3}     Level {LevelVelocitySensitivity.Value,3}\n");
+            builder.Append($"Atak L  {AttackLevel.Value,3}     Time  {TimeVelocitySensitivity.Value,3}\n");  // TODO: Sign
+            builder.Append($"Decy T  {DecayTime.Value,3}\n");
             return builder.ToString();
         }
 
         public byte[] ToData() => new List<byte>() {
-            _startLevel.Byte, AttackTime, _attackLevel.Byte, DecayTime,
-            _timeVelocitySensitivity.Byte, _levelVelocitySensitivity.Byte
+            StartLevel.ToByte(), AttackTime.ToByte(), AttackLevel.ToByte(), DecayTime.ToByte(),
+            TimeVelocitySensitivity.ToByte(), LevelVelocitySensitivity.ToByte()
         }.ToArray();
     }
 }

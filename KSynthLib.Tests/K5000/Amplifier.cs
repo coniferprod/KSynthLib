@@ -20,8 +20,8 @@ namespace KSynthLib.Tests.K5000
         [Fact]
         public void VelocityCurve_IsSetCorrectly()
         {
-            settings.VelocityCurve = 1;
-            Assert.Equal(1, settings.VelocityCurve);
+            settings.VelocityCurve = VelocityCurve.Curve6;
+            Assert.Equal(VelocityCurve.Curve6, settings.VelocityCurve);
         }
     }
 
@@ -37,15 +37,15 @@ namespace KSynthLib.Tests.K5000
         [Fact]
         public void AttackTime_IsCorrectlySet()
         {
-            envelope.AttackTime = 100;
+            envelope.AttackTime.Value = 100;
             var attackTime = envelope.AttackTime;
-            Assert.Equal(100, attackTime);
+            Assert.Equal(100, attackTime.Value);
         }
 
         [Fact]
         public void AttackTime_RejectsBadValue()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => envelope.AttackTime = 200);
+            Assert.Throws<ArgumentOutOfRangeException>(() => envelope.AttackTime.Value = 200);
         }
     }
 
@@ -61,16 +61,16 @@ namespace KSynthLib.Tests.K5000
         [Fact]
         public void Level_IsSetCorrectly()
         {
-            envelope.Level = 32;
+            envelope.Level.Value = 32;
             var level = envelope.Level;
-            Assert.Equal(32, level);
+            Assert.Equal(32, level.Value);
         }
 
         [Fact]
         public void Level_BadValueIsRejected()
         {
             // Try to set a value that is out of range -63...+63:
-            Assert.Throws<ArgumentOutOfRangeException>(() => envelope.Level = 100);
+            Assert.Throws<ArgumentOutOfRangeException>(() => envelope.Level.Value = 100);
         }
     }
 }

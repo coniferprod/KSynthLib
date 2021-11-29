@@ -25,12 +25,7 @@ namespace KSynthLib.K5000
             set => _coarse.Value = value;
         }
 
-        private SignedLevelType _fine;
-        public sbyte Fine
-        {
-            get => _fine.Value;
-            set => _fine.Value = value;
-        }
+        public SignedLevel Fine;
 
         private FixedKeyType _fixedKey; // 0=OFF, 21 ~ 108=ON(A-1 ~ C7)
         public byte FixedKey
@@ -47,7 +42,7 @@ namespace KSynthLib.K5000
             Wave = new Wave();
             Envelope = new PitchEnvelope();
             _coarse = new CoarseType();
-            _fine = new SignedLevelType();
+            Fine = new SignedLevel();
             _fixedKey = new FixedKeyType();
         }
 
@@ -61,13 +56,15 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);
             var waveLSB = b;
 
+            ushort waveNumber = Wave.NumberFrom(waveMSB, waveLSB);
+            //Console.Error.WriteLine($"wave MSB = {waveMSB:X2}h, wave LSB = {waveLSB:X2}h, wave number = {waveNumber}");
             Wave = new Wave(waveMSB, waveLSB);
 
             (b, offset) = Util.GetNextByte(data, offset);
             _coarse = new CoarseType(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _fine = new SignedLevelType(b);
+            Fine = new SignedLevel(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
             FixedKey = b;
@@ -98,10 +95,9 @@ namespace KSynthLib.K5000
                 //builder.Append(string.Format("PCM Wave No. {0} ({1})\n", Wave.Instance[WaveNumber], WaveNumber + 1));
                 waveNumber = $"{Wave.Number}";
             }
+
             builder.Append($"PCM Wave No.   {waveNumber}   Fixed Key = {fixedKeySetting}\n");
-
-            builder.Append($"Coarse         {Coarse}\nFine          {Fine}\n\n");
-
+            builder.Append($"Coarse         {Coarse}\nFine          {Fine.Value}\n\n");
             builder.Append($"{Envelope}\n");
 
             return builder.ToString();
@@ -114,7 +110,7 @@ namespace KSynthLib.K5000
             data.AddRange(Wave.ToData());
 
             data.Add(_coarse.Byte);
-            data.Add(_fine.Byte);
+            data.Add(Fine.ToByte());
             data.Add((byte)FixedKey);
             data.Add((byte)KSPitch);
 

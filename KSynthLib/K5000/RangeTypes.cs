@@ -4,423 +4,123 @@ using Range.Net;
 
 namespace KSynthLib.K5000
 {
-    public class SignedLevelType
+        public abstract class RangedValue
     {
-        private Range<sbyte> range;
-
-        private sbyte _value;
-        public sbyte Value
+        protected string _name;
+        public string Name
         {
-            get
-            {
-                return _value;
-            }
+            get => this._name;
+        }
 
+        protected int _defaultValue;
+        public int DefaultValue
+        {
+            get => this._defaultValue;
+            protected set => this._defaultValue = value;
+        }
+
+        protected Range<int> _range;
+
+        protected int _value;
+        public int Value
+        {
+            get => _value;
             set
             {
-                if (range.Contains(value))
+                if (_range.Contains(value))
                 {
                     _value = value;
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("Value",
+                    throw new ArgumentOutOfRangeException(this._name,
                         string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
+                        this._range.ToString(), value));
                 }
             }
         }
 
-        public SignedLevelType()
+        protected RangedValue(string name, Range<int> range, int defaultValue, int initialValue)
         {
-            this.range = new Range<sbyte>(-63, 63);
+            this._name = name;
+            this._range = range;
+            this._defaultValue = defaultValue;
+            this._value = initialValue;
         }
-
-        public SignedLevelType(sbyte v) : this()
-        {
-            this.Value = v;
-        }
-
-        public SignedLevelType(byte b) : this()
-        {
-            this.Value = (sbyte)(b - 64);
-        }
-
-        public byte Byte => (byte)(this.Value + 64);
     }
 
-    public class UnsignedLevelType
+    public class SignedLevel: RangedValue
     {
-        private Range<byte> range;
-
-        private byte _value;
-        public byte Value
-        {
-            get
-            {
-                return _value;
-            }
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
-        public UnsignedLevelType()
-        {
-            this.range = new Range<byte>(0, 63);
-        }
-
-        public UnsignedLevelType(byte v) : this()
-        {
-            this.Value = v;
-        }
+        public SignedLevel() : this(0) { }
+        public SignedLevel(int value) : base("SignedLevel", new Range<int>(-63, 63), 0, value) { }
+        public SignedLevel(byte value) : this(value - 64) { }
+        public byte ToByte() => (byte)(this.Value + 64);
     }
 
-    public class PositiveLevelType
+    public class UnsignedLevel: RangedValue
     {
-        private Range<byte> range;
-
-        private byte _value;
-        public byte Value
-        {
-            get
-            {
-                return _value;
-            }
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
-        public PositiveLevelType()
-        {
-            this.range = new Range<byte>(0, 127);
-        }
-
-        public PositiveLevelType(byte v) : this()
-        {
-            this.Value = v;
-        }
+        public UnsignedLevel() : this(0) { }
+        public UnsignedLevel(int value) : base("UnsignedLevel", new Range<int>(0, 63), 0, value) { }
+        public UnsignedLevel(byte value) : this((int)value) { }
+        public byte ToByte() => (byte)(this.Value);
     }
 
-    public class VelocityCurveType
+    public class PositiveLevel: RangedValue
     {
-        private Range<byte> range;
-
-        private byte _value;
-        public byte Value
-        {
-            get
-            {
-                return _value;
-            }
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
-        public VelocityCurveType()
-        {
-            this.range = new Range<byte>(1, 12);
-            this._value = 1;  // default zero would be out of range
-        }
-
-        public VelocityCurveType(byte v) : this()
-        {
-            this.Value = v;
-        }
+        public PositiveLevel() : this(0) { }
+        public PositiveLevel(int value) : base("PositiveLevel", new Range<int>(0, 127), 0, value) { }
+        public PositiveLevel(byte value) : this((int)value) { }
+        public byte ToByte() => (byte)(this.Value);
     }
 
-    public class EffectControlDepthType
+    public class ControlDepth: RangedValue
     {
-        private Range<sbyte> range;
-
-        private sbyte _value;
-        public sbyte Value
-        {
-            get
-            {
-                return _value;
-            }
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
-        public EffectControlDepthType()
-        {
-            this.range = new Range<sbyte>(-31, 31);
-        }
-
-        public EffectControlDepthType(sbyte v) : this()
-        {
-            this.Value = v;
-        }
-
-        public EffectControlDepthType(byte b) : this()
-        {
-            this.Value = (sbyte)(b - 64);
-        }
-
-        public byte AsByte()
-        {
-            return (byte)(this.Value + 64);
-        }
+        public ControlDepth() : this(0) { }
+        public ControlDepth(int value) : base("ControlDepth", new Range<int>(-31, 31), 0, value) { }
+        public ControlDepth(byte value) : this((int)value - 64) { }
+        public byte ToByte() => (byte)(this.Value + 64);
     }
 
-    public class EffectDepthType
+    public class EffectDepth: RangedValue
     {
-        private Range<byte> range;
-
-        private byte _value;
-        public byte Value
-        {
-            get
-            {
-                return _value;
-            }
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
-        public EffectDepthType()
-        {
-            this.range = new Range<byte>(0, 100);
-        }
-
-        public EffectDepthType(byte v) : this()
-        {
-            this.Value = v;
-        }
+        public EffectDepth() : this(0) { }
+        public EffectDepth(int value) : base("EffectDepth", new Range<int>(0, 100), 0, value) { }
+        public EffectDepth(byte value) : this((int)value) { }
+        public byte ToByte() => (byte)(this.Value);
     }
 
-    public class MacroDepthType
+    public class ResonanceLevel: RangedValue
     {
-        private Range<sbyte> range;
-
-        private sbyte _value;
-        public sbyte Value
-        {
-            get
-            {
-                return _value;
-            }
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
-        public MacroDepthType()
-        {
-            this.range = new Range<sbyte>(-31, 31);
-        }
-
-        public MacroDepthType(sbyte v) : this()
-        {
-            this.Value = v;
-        }
-
-        public MacroDepthType(byte b) : this()
-        {
-            this.Value = (sbyte)(b - 64);
-        }
-
-        public byte AsByte()
-        {
-            return (byte)(this.Value + 64);
-        }
+        public ResonanceLevel() : this(0) { }
+        public ResonanceLevel(int value) : base("ResonanceLevel", new Range<int>(0, 7), 0, value) { }
+        public ResonanceLevel(byte value) : this((int)value) { }
+        public byte ToByte() => (byte)(this.Value);
     }
 
-    public class FreqType
+    public class Frequency: RangedValue
     {
-        private Range<sbyte> range;
-
-        private sbyte _value;
-        public sbyte Value
-        {
-            get
-            {
-                return _value;
-            }
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
-        public FreqType()
-        {
-            this.range = new Range<sbyte>(-6, 6);
-        }
-
-        public FreqType(sbyte v) : this()
-        {
-            this.Value = v;
-        }
-
-        public FreqType(byte b) : this()
-        {
-            this.Value = (sbyte)(b - 64);
-        }
-
-        public byte AsByte()
-        {
-            return (byte)(this.Value + 64);
-        }
+        public Frequency() : this(0) { }
+        public Frequency(int value) : base("Frequency", new Range<int>(-6, 6), 0, value) { }
+        public Frequency(byte value) : this((int)value - 64) { }
+        public byte ToByte() => (byte)(this.Value + 64);
     }
 
-    public class ResonanceType
+    public class BenderPitch: RangedValue
     {
-        private Range<byte> range;
-
-        private byte _value;
-        public byte Value
-        {
-            get
-            {
-                return _value;
-            }
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
-        public ResonanceType()
-        {
-            this.range = new Range<byte>(0, 7);
-        }
-
-        public ResonanceType(byte v) : this()
-        {
-            this.Value = v;
-        }
+        public BenderPitch() : this(0) { }
+        public BenderPitch(int value) : base("BenderPitch", new Range<int>(0, 24), 0, value) { }
+        public BenderPitch(byte value) : this((int)value) { }
+        public byte ToByte() => (byte)(this.Value);
     }
 
-    public class BenderPitchType
+    public class BenderCutoff: RangedValue
     {
-        private Range<byte> range;
-
-        private byte _value;
-        public byte Value
-        {
-            get
-            {
-                return _value;
-            }
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
-        public BenderPitchType()
-        {
-            this.range = new Range<byte>(0, 24);
-        }
-
-        public BenderPitchType(byte v) : this()
-        {
-            this.Value = v;
-        }
+        public BenderCutoff() : this(0) { }
+        public BenderCutoff(int value) : base("BenderCutoff", new Range<int>(0, 31), 0, value) { }
+        public BenderCutoff(byte value) : this((int)value) { }
+        public byte ToByte() => (byte)(this.Value);
     }
+
 
     public class BenderCutoffType
     {
@@ -460,44 +160,6 @@ namespace KSynthLib.K5000
         }
     }
 
-    public class EffectPathType
-    {
-        private Range<byte> range;
-
-        private byte _value;
-        public byte Value
-        {
-            get
-            {
-                return _value;
-            }
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
-        public EffectPathType()
-        {
-            this.range = new Range<byte>(0, 3);
-        }
-
-        public EffectPathType(byte v) : this()
-        {
-            this.Value = v;
-        }
-    }
-
     public class VelocityThresholdType
     {
         private Range<byte> range;
@@ -531,45 +193,6 @@ namespace KSynthLib.K5000
         }
 
         public VelocityThresholdType(byte v) : this()
-        {
-            this.Value = v;
-        }
-    }
-
-    public class EffectAlgorithmType
-    {
-        private Range<byte> range;
-
-        private byte _value;
-        public byte Value
-        {
-            get
-            {
-                return _value;
-            }
-
-            set
-            {
-                if (range.Contains(value))
-                {
-                    _value = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Value",
-                        string.Format("Value must be in range {0} (was {1})",
-                            this.range.ToString(), value));
-                }
-            }
-        }
-
-        public EffectAlgorithmType()
-        {
-            this.range = new Range<byte>(1, 4);
-            _value = 1;  // default zero would be out of range
-        }
-
-        public EffectAlgorithmType(byte v) : this()
         {
             this.Value = v;
         }
@@ -650,5 +273,4 @@ namespace KSynthLib.K5000
             this.Value = v;
         }
     }
-
 }

@@ -26,18 +26,10 @@ namespace KSynthLib.K5000
     public class SingleCommonSettings
     {
         public const int DataSize = 81;
-
         public const int MaxSources = 6;
-
         public const int NameLength = 8;
 
-        private EffectAlgorithmType _effectAlgorithm; // 1~4 (in SysEx 0~3)
-        public byte EffectAlgorithm
-        {
-            get => _effectAlgorithm.Value;
-            set => _effectAlgorithm.Value = value;
-        }
-
+        public EffectAlgorithm EffectAlgorithm; // 1~4 (in SysEx 0~3)
         public ReverbSettings Reverb;
         public EffectSettings Effect1;
         public EffectSettings Effect2;
@@ -53,38 +45,19 @@ namespace KSynthLib.K5000
             set => _name = value.Substring(0, NameLength);
         }
 
-        private PositiveLevelType _volume;
-        public byte Volume
-        {
-            get => _volume.Value;
-            set => _volume.Value = value;
-        }
-
+        public PositiveLevel Volume;
         public PolyphonyMode Poly;  // enumeration
-
         public bool IsPortamentoEnabled;  // 0=off, 1=on
-
-        private PositiveLevelType _portamentoSpeed;
-        public byte PortamentoSpeed  // 0 ~ 127
-        {
-            get => _portamentoSpeed.Value;
-            set => _portamentoSpeed.Value = value;
-        }
-
+        public PositiveLevel PortamentoSpeed;
         public int SourceCount;
-
         public bool[] IsSourceMuted;  // 0=muted, 1=not muted - store the inverse here
-
         public AmplitudeModulation AM;  // 0=off, value=1~5(src2~6)
-
         public EffectControl EffectControl1;
         public EffectControl EffectControl2;
-
         public MacroController Macro1;
         public MacroController Macro2;
         public MacroController Macro3;
         public MacroController Macro4;
-
         public Switch Switch1;
         public Switch Switch2;
         public Switch FootSwitch1;
@@ -94,7 +67,7 @@ namespace KSynthLib.K5000
         {
             // 3.1.2.1 COMMON DATA (No. 1...38)
 
-            _effectAlgorithm = new EffectAlgorithmType(1);  // select the first by default
+            EffectAlgorithm = EffectAlgorithm.Algorithm1;
             Reverb = new ReverbSettings();
             Effect1 = new EffectSettings();
             Effect2 = new EffectSettings();
@@ -104,7 +77,7 @@ namespace KSynthLib.K5000
 
             Name = "NewSound";
 
-            _volume = new PositiveLevelType(79);
+            Volume = new PositiveLevel(79);
 
             Poly = PolyphonyMode.Poly; // No. 49
 
@@ -117,7 +90,7 @@ namespace KSynthLib.K5000
             EffectControl2 = new EffectControl();  // No. 57-59
 
             IsPortamentoEnabled = false;  // No. 60
-            _portamentoSpeed = new PositiveLevelType();  // No. 61
+            PortamentoSpeed = new PositiveLevel();  // No. 61
 
             // No. 62 ... 77
             Macro1 = new MacroController();
@@ -138,8 +111,8 @@ namespace KSynthLib.K5000
             byte b = 0;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            // Seems like the K5000 could set the top bits of this, so mask them off
-            EffectAlgorithm = (byte)((b & 0x03) + 1); // 0 ~ 3 --> 1 ~ 4
+            // Seems like the K5000 might set the top bits of this, so mask them off
+            EffectAlgorithm = (EffectAlgorithm)(b & 0x03);
             //Console.Error.WriteLine($"Effect Algorithm = {EffectAlgorithm}");
 
             Reverb = new ReverbSettings(data, offset);
@@ -174,7 +147,7 @@ namespace KSynthLib.K5000
             //Console.Error.WriteLine($"Name = {Name}");
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Volume = b;
+            Volume = new PositiveLevel(b);
             //Console.Error.WriteLine($"Volume = {Volume}");
 
             (b, offset) = Util.GetNextByte(data, offset);
@@ -209,7 +182,7 @@ namespace KSynthLib.K5000
             IsPortamentoEnabled = (b == 1);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            PortamentoSpeed = b;
+            PortamentoSpeed = new PositiveLevel(b);
 
             // The four macro definitions are packed into 16 bytes like this:
             // m1 p1 t, m1 p2 t, m2 p1 t, m2 p2 t, m3 p1 t, m3 p2 t, m4 p1 t, m4 p2 t
@@ -269,14 +242,14 @@ namespace KSynthLib.K5000
 
             builder.Append($"{Name}\n");
 
-            builder.Append($"Volume       {Volume,3}  Sources        {SourceCount}\n");
+            builder.Append($"Volume       {Volume.Value,3}  Sources        {SourceCount}\n");
 
             string amSettingString = (AM == 0) ? "OFF" : Convert.ToString(AM);
             builder.Append($"Poly        {Poly, 4}  AM           {amSettingString}\n");
 
             string portamentoSettingString = IsPortamentoEnabled ? "ON" : "OFF";
             builder.Append($"Portamento   {portamentoSettingString}\n");
-            builder.Append($"Porta Speed  {PortamentoSpeed}\n");
+            builder.Append($"Porta Speed  {PortamentoSpeed.Value}\n");
 
             builder.Append("\nMacro Controller\n");
             builder.Append($"User 1: {Macro1}\n");
@@ -295,7 +268,7 @@ namespace KSynthLib.K5000
         {
             var data = new List<byte>();
 
-            data.Add(EffectAlgorithm);
+            data.Add((byte)EffectAlgorithm);  // 0...3
             data.AddRange(Reverb.ToData());
             data.AddRange(Effect1.ToData());
             data.AddRange(Effect2.ToData());
@@ -307,7 +280,7 @@ namespace KSynthLib.K5000
             string PaddedName = Name.PadRight(NameLength, ' ');
             data.AddRange(ASCIIEncoding.ASCII.GetBytes(PaddedName));
 
-            data.Add((byte)Volume);
+            data.Add(Volume.ToByte());
             data.Add((byte)Poly);
             data.Add(0); // "no use"
 
@@ -328,7 +301,7 @@ namespace KSynthLib.K5000
             data.AddRange(EffectControl2.ToData());
 
             data.Add((byte)(IsPortamentoEnabled ? 1 : 0));  // only bit 0 is used for this
-            data.Add((byte)PortamentoSpeed);
+            data.Add(PortamentoSpeed.ToByte());
 
             var m1p1 = Macro1.Param1.Bytes;
             var m1p2 = Macro1.Param2.Bytes;

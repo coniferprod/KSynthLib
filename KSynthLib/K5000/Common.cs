@@ -5,6 +5,23 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K5000
 {
+
+    public enum VelocityCurve
+    {
+        Curve1,
+        Curve2,
+        Curve3,
+        Curve4,
+        Curve5,
+        Curve6,
+        Curve7,
+        Curve8,
+        Curve9,
+        Curve10,
+        Curve11,
+        Curve12
+    }
+
     public enum EffectDestination
     {
         Effect1DryWet,
@@ -66,30 +83,25 @@ namespace KSynthLib.K5000
         public ControlSource Source { get; }
         public EffectDestination Destination { get; }
 
-        private EffectControlDepthType _depth; // (-31)33 ~ (+31)95
-        public sbyte Depth
-        {
-            get => _depth.Value;
-            set => _depth.Value = value;
-        }
+        public ControlDepth Depth; // (-31)33 ~ (+31)95
 
         public EffectControl()
         {
             this.Source = ControlSource.Bender;
             this.Destination = EffectDestination.ReverbDryWet1;
-            this._depth = new EffectControlDepthType();
+            this.Depth = new ControlDepth();
         }
 
         public EffectControl(byte[] data)
         {
             this.Source = (ControlSource)data[0];
             this.Destination = (EffectDestination)data[1];
-            this._depth = new EffectControlDepthType(data[2]);
+            this.Depth = new ControlDepth(data[2]);
         }
 
         public override string ToString()
         {
-            return $"source = {Source} destination = {Destination} depth = {Depth}";
+            return $"source = {Source} destination = {Destination} depth = {Depth.Value}";
         }
 
         public byte[] ToData()
@@ -97,12 +109,12 @@ namespace KSynthLib.K5000
             var data = new List<byte>();
             data.Add((byte)Source);
             data.Add((byte)Destination);
-            data.Add(_depth.AsByte());
+            data.Add(Depth.ToByte());
             return data.ToArray();
         }
     }
 
-    public enum MacroControllerType
+    public enum MacroControllerKind
     {
         PitchOffset,
         CutoffOffset,
@@ -132,38 +144,30 @@ namespace KSynthLib.K5000
 
     public class MacroControllerParameter
     {
-        public MacroControllerType Type { get; }
+        public MacroControllerKind Kind { get; }
+        public ControlDepth Depth;
 
-        private MacroDepthType _depth;
-        public sbyte Depth
+        public MacroControllerParameter(byte kind, byte depth)
         {
-            get => _depth.Value;
-            set => _depth.Value = value;
+            this.Kind = (MacroControllerKind)kind;
+            this.Depth = new ControlDepth(depth);
         }
 
-        public MacroControllerParameter(byte type, byte depth)
+        public MacroControllerParameter(MacroControllerKind kind, byte depth)
         {
-            this.Type = (MacroControllerType)type;
-
-            int d = depth - 64;  // scale 33...95 to -31...31
-            this._depth = new MacroDepthType((sbyte)d);
-        }
-
-        public MacroControllerParameter(MacroControllerType type, sbyte depth)
-        {
-            this.Type = type;
-            this._depth = new MacroDepthType(depth);
+            this.Kind = kind;
+            this.Depth = new ControlDepth(depth);
         }
 
         public MacroControllerParameter()
         {
-            this.Type = MacroControllerType.Level;
-            this._depth = new MacroDepthType();  // default 0 is halfway between -31 and 31
+            this.Kind = MacroControllerKind.Level;
+            this.Depth = new ControlDepth();
         }
 
-        public byte[] ToData() => new List<byte>() { (byte)Type, _depth.AsByte() }.ToArray();
+        public byte[] ToData() => new List<byte>() { (byte)Kind, Depth.ToByte() }.ToArray();
 
-        public (byte Type, byte Depth) Bytes => ((byte)Type, _depth.AsByte());
+        public (byte Type, byte Depth) Bytes => ((byte)Kind, Depth.ToByte());
     }
 
     public class MacroController
@@ -186,7 +190,7 @@ namespace KSynthLib.K5000
         public override string ToString()
         {
             var builder = new StringBuilder();
-            builder.Append($"Dest1 = {Param1.Type}, Depth = {Param1.Depth}. Dest2 = {Param2.Type}, Depth = {Param2.Depth}");
+            builder.Append($"Dest1 = {Param1.Kind}, Depth = {Param1.Depth}. Dest2 = {Param2.Kind}, Depth = {Param2.Depth}");
             return builder.ToString();
         }
 
@@ -234,12 +238,7 @@ namespace KSynthLib.K5000
         public bool DrumMark;
         public string Name;
 
-        private PositiveLevelType _volume;
-        public byte Volume
-        {
-            get => _volume.Value;
-            set => _volume.Value = value;
-        }
+        public PositiveLevel Volume;
 
         public CommonSettings()
         {
@@ -251,7 +250,7 @@ namespace KSynthLib.K5000
             DrumMark = false;
             GEQ = new GEQSettings();
             Name = "Init    ";
-            _volume = new PositiveLevelType(80);
+            Volume = new PositiveLevel(80);
         }
 
         public CommonSettings(byte[] data) : this()
@@ -303,13 +302,13 @@ namespace KSynthLib.K5000
             offset += 8;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            _volume = new PositiveLevelType(b);
+            Volume = new PositiveLevel(b);
         }
 
         public override string ToString()
         {
             var builder = new StringBuilder();
-            builder.Append($"Name = '{Name}' Volume = {Volume}\n");
+            builder.Append($"Name = '{Name}' Volume = {Volume.Value}\n");
 
             builder.Append($"REVERB:\n{Reverb}\n");
             builder.Append($"Effect algorithm = {EffectAlgorithm + 1}\n");
@@ -340,7 +339,7 @@ namespace KSynthLib.K5000
                 data.Add(Convert.ToByte(ch));
             }
 
-            data.Add(Volume);
+            data.Add(Volume.ToByte());
 
             return data.ToArray();
         }
@@ -350,11 +349,11 @@ namespace KSynthLib.K5000
             return new ReverbSettings()
             {
                 ReverbType = data[offset],
-                DryWet1 = data[offset + 1],
-                DryWet2 = data[offset + 2],
-                Param2 = data[offset + 3],
-                Param3 = data[offset + 4],
-                Param4 = data[offset + 5]
+                DryWet1 = new EffectDepth(data[offset + 1]),
+                DryWet2 = new EffectDepth(data[offset + 2]),
+                Param2 = new PositiveLevel(data[offset + 3]),
+                Param3 = new PositiveLevel(data[offset + 4]),
+                Param4 = new PositiveLevel(data[offset + 5])
             };
         }
 
@@ -362,28 +361,18 @@ namespace KSynthLib.K5000
         {
             return new EffectSettings()
             {
-                Type = (EffectType)(data[offset] - 11),
-                Depth = data[offset + 1],
-                Param1 = data[offset + 2],
-                Param2 = data[offset + 3],
-                Param3 = data[offset + 4],
-                Param4 = data[offset + 5]
+                Kind = (EffectKind)(data[offset] - 11),
+                Depth = new EffectDepth(data[offset + 1]),
+                Param1 = new PositiveLevel(data[offset + 2]),
+                Param2 = new PositiveLevel(data[offset + 3]),
+                Param3 = new PositiveLevel(data[offset + 4]),
+                Param4 = new PositiveLevel(data[offset + 5])
             };
         }
 
         private GEQSettings GetGEQ(byte[] data, int offset)
         {
-            return new GEQSettings()
-            {
-                // 58(-6) ~ 70(+6), so 64 is zero
-                Freq1 = (sbyte)(data[offset] - 64),
-                Freq2 = (sbyte)(data[offset + 1] - 64),
-                Freq3 = (sbyte)(data[offset + 2] - 64),
-                Freq4 = (sbyte)(data[offset + 3] - 64),
-                Freq5 = (sbyte)(data[offset + 4] - 64),
-                Freq6 = (sbyte)(data[offset + 5] - 64),
-                Freq7 = (sbyte)(data[offset + 6] - 64)
-            };
+            return new GEQSettings(data, offset);
         }
 
         private string GetName(byte[] data, int offset)

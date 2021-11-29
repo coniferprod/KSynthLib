@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 using KSynthLib.Common;
 
@@ -43,6 +44,7 @@ namespace KSynthLib.K5000
 
             // Ingest the checksum
             _checksum = b;
+            Debug.Assert(offset == 1);
 
             // Create single patch common settings from binary data:
             var singleCommonData = new byte[SingleCommonSettings.DataSize];

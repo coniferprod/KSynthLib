@@ -25,14 +25,28 @@ namespace KSynthLib.K5000
         public Wave(ushort number)
         {
             this._number = number;
-            this._name = Names[number];
+            if (number == 512)
+            {
+                this._name = "ADD";
+            }
+            else
+            {
+                this._name = Names[number];
+            }
         }
 
         public Wave(byte high, byte low)
         {
-            ushort waveNumber = Wave.NumberFrom(high, low);
-            this._number = waveNumber;
-            this._name = Names[waveNumber];
+            ushort number = Wave.NumberFrom(high, low);
+            this._number = number;
+            if (number == 512)
+            {
+                this._name = "ADD";
+            }
+            else
+            {
+                this._name = Names[number];
+            }
         }
 
         public (byte high, byte low) WaveSelect

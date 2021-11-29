@@ -8,13 +8,7 @@ namespace KSynthLib.K5000
 
     public class DCASettings
     {
-        private VelocityCurveType _velocityCurve; // values are 0 ~ 11, shown as 1 ~ 12
-        public byte VelocityCurve
-        {
-            get => _velocityCurve.Value;
-            set => _velocityCurve.Value = value;
-        }
-
+        public VelocityCurve VelocityCurve;
         public AmplifierEnvelope Envelope;
         public KeyScalingControlEnvelope KeyScaling;
         public VelocityControlEnvelope VelocitySensitivity;
@@ -23,20 +17,8 @@ namespace KSynthLib.K5000
         {
             KeyScaling = new KeyScalingControlEnvelope();
             VelocitySensitivity = new VelocityControlEnvelope();
-
-            _velocityCurve = new VelocityCurveType(5);
-
-            Envelope = new AmplifierEnvelope
-            {
-                AttackTime = 20,
-                Decay1Time = 95,
-                Decay1Level = 127,
-                Decay2Time = 110,
-                Decay2Level = 127,
-                ReleaseTime = 11
-            };
-            // Note that an object initializer invokes the default constructor,
-            // not the one with six arguments
+            VelocityCurve = VelocityCurve.Curve6;
+            Envelope = new AmplifierEnvelope(20, 95, 127, 110, 127, 11);
         }
 
         public DCASettings(byte[] data, int offset)
@@ -44,7 +26,7 @@ namespace KSynthLib.K5000
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            VelocityCurve = (byte)(b + 1);  // adjust from 0~11 to 1~12
+            VelocityCurve = (VelocityCurve)b;
 
             var envBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);

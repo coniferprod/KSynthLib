@@ -14,41 +14,11 @@ namespace KSynthLib.K5000
         public const int DataSize = 6;
 
         public byte ReverbType;  // 0 ~ 10
-
-        private EffectDepthType _dryWet1;
-        public byte DryWet1  // 0 ~ 100
-        {
-            get => _dryWet1.Value;
-            set => _dryWet1.Value = value;
-        }
-
-        private EffectDepthType _dryWet2;
-        public byte DryWet2  // 0 ~ 100
-        {
-            get => _dryWet2.Value;
-            set => _dryWet2.Value = value;
-        }
-
-        private PositiveLevelType _param2;
-        public byte Param2  // 0 ~ 127
-        {
-            get => _param2.Value;
-            set => _param2.Value = value;
-        }
-
-        private PositiveLevelType _param3;
-        public byte Param3  // 0 ~ 127
-        {
-            get => _param3.Value;
-            set => _param3.Value = value;
-        }
-
-        private PositiveLevelType _param4;
-        public byte Param4  // 0 ~ 127
-        {
-            get => _param4.Value;
-            set => _param4.Value = value;
-        }
+        public EffectDepth DryWet1;
+        public EffectDepth DryWet2;
+        public PositiveLevel Param2;
+        public PositiveLevel Param3;
+        public PositiveLevel Param4;
 
         public static ReverbName[] ReverbNames =
         {
@@ -69,35 +39,35 @@ namespace KSynthLib.K5000
         {
             ReverbType = 0;
 
-            _dryWet1 = new EffectDepthType(50);
-            _dryWet2 = new EffectDepthType(50);
-            _param2 = new PositiveLevelType(64);
-            _param3 = new PositiveLevelType(64);
-            _param4 = new PositiveLevelType(64);
+            DryWet1 = new EffectDepth(50);
+            DryWet2 = new EffectDepth(50);
+            Param2 = new PositiveLevel(64);
+            Param3 = new PositiveLevel(64);
+            Param4 = new PositiveLevel(64);
         }
 
         public ReverbSettings(byte[] data, int offset) : this()
         {
             ReverbType = data[offset];
-            _dryWet1 = new EffectDepthType(data[offset + 1]);
-            _dryWet2 = new EffectDepthType(data[offset + 2]);
-            _param2 = new PositiveLevelType(data[offset + 3]);
-            _param3 = new PositiveLevelType(data[offset + 4]);
-            _param4 = new PositiveLevelType(data[offset + 5]);
+            DryWet1 = new EffectDepth(data[offset + 1]);
+            DryWet2 = new EffectDepth(data[offset + 2]);
+            Param2 = new PositiveLevel(data[offset + 3]);
+            Param3 = new PositiveLevel(data[offset + 4]);
+            Param4 = new PositiveLevel(data[offset + 5]);
         }
 
         public override string ToString()
         {
             ReverbName name = ReverbNames[ReverbType];
             var builder = new StringBuilder();
-            builder.Append($"{name.Name}, Dry/Wet 1 = {DryWet1}\n");
-            builder.Append($"P1 {name.ParameterNames[0]} = {DryWet2}\n");
-            builder.Append($"P2 {name.ParameterNames[1]} = {Param2}\n");
-            builder.Append($"P3 {name.ParameterNames[2]} = {Param3}\n");
-            builder.Append($"P4 {name.ParameterNames[3]} = {Param4}\n");
+            builder.Append($"{name.Name}, Dry/Wet 1 = {DryWet1.Value}\n");
+            builder.Append($"P1 {name.ParameterNames[0]} = {DryWet2.Value}\n");
+            builder.Append($"P2 {name.ParameterNames[1]} = {Param2.Value}\n");
+            builder.Append($"P3 {name.ParameterNames[2]} = {Param3.Value}\n");
+            builder.Append($"P4 {name.ParameterNames[3]} = {Param4.Value}\n");
             return builder.ToString();
         }
 
-        public byte[] ToData() => new List<byte>() { ReverbType, DryWet1, DryWet2, Param2, Param3, Param4 }.ToArray();
+        public byte[] ToData() => new List<byte>() { ReverbType, DryWet1.ToByte(), DryWet2.ToByte(), Param2.ToByte(), Param3.ToByte(), Param4.ToByte() }.ToArray();
     }
 }

@@ -4,7 +4,23 @@ using System.Text;
 
 namespace KSynthLib.K5000
 {
-    public enum EffectType
+    public enum EffectAlgorithm
+    {
+        Algorithm1,
+        Algorithm2,
+        Algorithm3,
+        Algorithm4
+    }
+
+    public enum EffectPath
+    {
+        Path1,
+        Path2,
+        Path3,
+        Path4
+    }
+
+    public enum EffectKind
     {
         EarlyReflection1,
         EarlyReflection2,
@@ -55,47 +71,12 @@ namespace KSynthLib.K5000
     {
         public const int DataSize = 6;
 
-        private int _type;  // 0~36 (in SysEx 11~47)
-        public EffectType Type
-        {
-            get => (EffectType)_type;
-            set => _type = (int)value;
-        }
-
-        private EffectDepthType _depth;
-        public byte Depth  // 0 ~ 100
-        {
-            get => _depth.Value;
-            set => _depth.Value = value;
-        }
-
-        private PositiveLevelType _param1;
-        public byte Param1 // 0 ~ 127
-        {
-            get => _param1.Value;
-            set => _param1.Value = value;
-        }
-
-        private PositiveLevelType _param2;
-        public byte Param2 // 0 ~ 127
-        {
-            get => _param2.Value;
-            set => _param2.Value = value;
-        }
-
-        private PositiveLevelType _param3;
-        public byte Param3 // 0 ~ 127
-        {
-            get => _param3.Value;
-            set => _param3.Value = value;
-        }
-
-        private PositiveLevelType _param4;
-        public byte Param4 // 0 ~ 127
-        {
-            get => _param4.Value;
-            set => _param4.Value = value;
-        }
+        public EffectKind Kind;
+        public EffectDepth Depth;
+        public PositiveLevel Param1;
+        public PositiveLevel Param2;
+        public PositiveLevel Param3;
+        public PositiveLevel Param4;
 
         public static EffectName[] EffectNames =
         {
@@ -152,13 +133,12 @@ namespace KSynthLib.K5000
         // Create an effect with sensible default settings.
         public EffectSettings()
         {
-            Type = EffectType.SingleDelay;
-
-            _depth = new EffectDepthType(50);
-            _param1 = new PositiveLevelType(50);
-            _param2 = new PositiveLevelType(50);
-            _param3 = new PositiveLevelType(50);
-            _param4 = new PositiveLevelType(50);
+            Kind = EffectKind.SingleDelay;
+            Depth = new EffectDepth(50);
+            Param1 = new PositiveLevel(50);
+            Param2 = new PositiveLevel(50);
+            Param3 = new PositiveLevel(50);
+            Param4 = new PositiveLevel(50);
         }
 
         public EffectSettings(byte[] data, int offset)
@@ -166,25 +146,25 @@ namespace KSynthLib.K5000
             // Effect type is 11~47 in SysEx, so a value of 11 means effect 0, and 47 means effect 36.
             // Adjust the value from SysEx to 0~36.
             //Console.Error.WriteLine($"effect type from SysEx = {data[offset]}");
-            Type = (EffectType)(data[offset] - 11);
+            Kind = (EffectKind)(data[offset] - 11);
 
-            _depth = new EffectDepthType(data[offset + 1]);
-            _param1 = new PositiveLevelType(data[offset + 2]);
-            _param2 = new PositiveLevelType(data[offset + 3]);
-            _param3 = new PositiveLevelType(data[offset + 4]);
-            _param4 = new PositiveLevelType(data[offset + 5]);
+            Depth = new EffectDepth(data[offset + 1]);
+            Param1 = new PositiveLevel(data[offset + 2]);
+            Param2 = new PositiveLevel(data[offset + 3]);
+            Param3 = new PositiveLevel(data[offset + 4]);
+            Param4 = new PositiveLevel(data[offset + 5]);
         }
 
         public override string ToString()
         {
             //Console.Error.WriteLine(string.Format("Effect type = {0}", _type));
-            EffectName name = EffectNames[_type];
+            EffectName name = EffectNames[(int)Kind];
             var builder = new StringBuilder();
-            builder.Append(string.Format("{0}, depth = {1}\n", name.Name, Depth));
-            builder.Append(string.Format("P1 {0} = {1}\n", name.ParameterNames[0], Param1));
-            builder.Append(string.Format("P2 {0} = {1}\n", name.ParameterNames[1], Param2));
-            builder.Append(string.Format("P3 {0} = {1}\n", name.ParameterNames[2], Param3));
-            builder.Append(string.Format("P4 {0} = {1}\n", name.ParameterNames[3], Param4));
+            builder.Append(string.Format("{0}, depth = {1}\n", name.Name, Depth.Value));
+            builder.Append(string.Format("P1 {0} = {1}\n", name.ParameterNames[0], Param1.Value));
+            builder.Append(string.Format("P2 {0} = {1}\n", name.ParameterNames[1], Param2.Value));
+            builder.Append(string.Format("P3 {0} = {1}\n", name.ParameterNames[2], Param3.Value));
+            builder.Append(string.Format("P4 {0} = {1}\n", name.ParameterNames[3], Param4.Value));
             return builder.ToString();
         }
 
@@ -193,13 +173,14 @@ namespace KSynthLib.K5000
             var data = new List<byte>();
 
             // Adjust the effect type back to 11~47:
-            data.Add((byte)(_type + 11));
+            data.Add((byte)((int)Kind + 11));
 
-            data.Add(Depth);
-            data.Add(Param1);
-            data.Add(Param2);
-            data.Add(Param3);
-            data.Add(Param4);
+            data.Add(Depth.ToByte());
+            data.Add(Param1.ToByte());
+            data.Add(Param2.ToByte());
+            data.Add(Param3.ToByte());
+            data.Add(Param4.ToByte());
+
             return data.ToArray();
         }
     }

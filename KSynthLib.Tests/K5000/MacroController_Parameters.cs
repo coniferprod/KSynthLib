@@ -6,7 +6,7 @@ namespace KSynthLib.Tests.K5000
     public class MacroControllerParameters
     {
         private readonly MacroControllerParameter _macroControllerParameter = new MacroControllerParameter();
-        
+
         public MacroControllerParameters()
         {
             // type = 2 or Level
@@ -15,16 +15,16 @@ namespace KSynthLib.Tests.K5000
         }
 
         [Fact]
-        public void Type_IsCorrect()
+        public void Kind_IsCorrect()
         {
-            MacroControllerType type = this._macroControllerParameter.Type;
-            Assert.Equal(MacroControllerType.Level, type);
+            MacroControllerKind kind = this._macroControllerParameter.Kind;
+            Assert.Equal(MacroControllerKind.Level, kind);
         }
 
         [Fact]
         public void Depth_IsCorrect()
         {
-            int depth = this._macroControllerParameter.Depth;
+            int depth = this._macroControllerParameter.Depth.Value;
             Assert.Equal(-21, depth);
         }
     }

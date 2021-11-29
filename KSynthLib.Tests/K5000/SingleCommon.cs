@@ -27,9 +27,8 @@ namespace KSynthLib.Tests.K5000
         [Fact]
         public void EffectSettings_IsParsedCorrectly()
         {
-            Assert.Equal(1, singleCommon.EffectAlgorithm);
+            Assert.Equal(EffectAlgorithm.Algorithm1, singleCommon.EffectAlgorithm);
             Assert.Equal(0, singleCommon.Reverb.ReverbType);
-
         }
 
         [Fact]
