@@ -225,7 +225,7 @@ namespace KSynthLib.Common
             return (data[offset], offset + 1);
         }
 
-        public static (byte[], int) GetNextBytes(byte[] data, int offset, int count = 1)
+        public static (byte[], int) GetNextBytes(byte[] data, int offset = 0, int count = 1)
         {
             var slice = new byte[count];
             Array.Copy(data, offset, slice, 0, count);

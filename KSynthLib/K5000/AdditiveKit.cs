@@ -373,8 +373,8 @@ namespace KSynthLib.K5000
             for (var i = 0; i < HarmonicCount; i++)
             {
                 HarmonicEnvelope env = HarmonicEnvelopes[i];
-                b.Append(string.Format("{0}: Level {1}  {2}  {3}  {4}\n", i + 1, env.Segment0.Level, env.Segment1.Level, env.Segment2.Level, env.Segment3.Level));
-                b.Append(string.Format("   Rate  {0}  {1}  {2}  {3}\n", env.Segment0.Rate, env.Segment1.Rate, env.Segment2.Rate, env.Segment3.Rate));
+                b.Append(string.Format("{0}: Level {1}  {2}  {3}  {4}\n", i + 1, env.Segment0.Level.Value, env.Segment1.Level.Value, env.Segment2.Level.Value, env.Segment3.Level.Value));
+                b.Append(string.Format("   Rate  {0}  {1}  {2}  {3}\n", env.Segment0.Rate.Value, env.Segment1.Rate.Value, env.Segment2.Rate.Value, env.Segment3.Rate.Value));
             }
 
             return b.ToString();

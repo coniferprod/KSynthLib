@@ -356,13 +356,13 @@ namespace KSynthLib.K5000
         public override string ToString()
         {
             var builder = new StringBuilder();
-            builder.Append($"Zone: low = {Zone.Low}, high = {Zone.High}\n");
+            builder.Append($"Zone: low = {Zone.Low.Value}, high = {Zone.High.Value}\n");
             builder.Append(string.Format("Vel. sw type = {0}, velocity = {1}\n", VelocitySwitch.SwitchKind, VelocitySwitch.Threshold));
             builder.Append(string.Format("Effect path = {0}\n", EffectPath));
             builder.Append(string.Format("Volume = {0}\n", Volume.Value));
             builder.Append(string.Format("Bender Pitch = {0}  Bender Cutoff = {1}\n", BenderPitch.Value, BenderCutoff.Value));
-            builder.Append(string.Format("Key ON Delay = {0}\n", KeyOnDelay));
-            builder.Append(string.Format("Pan type = {0}, value = {1}\n", Pan, PanValue));
+            builder.Append(string.Format("Key ON Delay = {0}\n", KeyOnDelay.Value));
+            builder.Append(string.Format("Pan type = {0}, value = {1}\n", Pan, PanValue.Value));
             builder.Append($"DCO:\n{DCO}\n");
             builder.Append($"DCF:\n{DCF}\n");
             builder.Append($"DCA:\n{DCA}\n");

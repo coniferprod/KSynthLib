@@ -2,6 +2,7 @@
 using System.IO;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Linq;
 
 using KSynthLib.Common;
 using KSynthLib.K4;
@@ -44,9 +45,12 @@ namespace Driver
             var offset = 8;  // skip the SysEx header
 
             // For a block data dump, need to parse the tone map
-            var patchMapData = new byte[PatchMap.Size];
-            Array.Copy(fileData, offset, patchMapData, 0, PatchMap.Size);
-            var patchMap = new PatchMap(patchMapData);
+            byte[] buffer;
+            (buffer, offset) = Util.GetNextBytes(fileData, offset, PatchMap.Size);
+            // now the offset has been updated to past the tone map
+            var patchMap = new PatchMap(buffer);
+
+            List<int> patchNumbers = new List<int>();
 
             Console.WriteLine("Patches included:");
             var patchCount = 0;
@@ -57,57 +61,37 @@ namespace Driver
                     patchCount += 1;
                     Console.Write(i + 1);
                     Console.Write(" ");
+
+                    patchNumbers.Add(i);
                 }
             }
             Console.WriteLine($"\nTotal = {patchCount} patches");
 
-            offset += PatchMap.Size;  // skip past the tone map
-
             // Console.Error.WriteLine($"offset = {offset}");
-            var patchDataLength = fileData.Length - offset - 1;  // leave out the header, tonemap and SysEx terminator
-            var patchData = new byte[patchDataLength];
-            Array.Copy(fileData, offset, patchData, 0, patchDataLength);
 
-            var totalPatchSize = 0;
-
-            // Whatever the first patch is, it must be at least this many bytes
+            // Whatever the first patch is, it must be at least this many bytes (always has at least two sources)
             var minimumPatchSize = SingleCommonSettings.DataSize + 2 * KSynthLib.K5000.Source.DataSize;
             //Console.Error.WriteLine($"minimum patch size = {minimumPatchSize}");
+
+            var totalPatchSize = 0;  // the total size of all the single patches
 
             var singlePatches = new List<KSynthLib.K5000.SinglePatch>();
             for (var i = 0; i < patchCount; i++)
             {
-                // We don't know yet how many bytes the patch is, but it is at least the minimum size:
-                var singleData = new byte[minimumPatchSize];
+                var startOffset = offset;  // save the current offset because we need to copy more bytes later
 
-                Array.Copy(fileData, offset, singleData, 0, minimumPatchSize);
+                var sizeToRead = Math.Max(minimumPatchSize, fileData.Length - offset);
+                Console.WriteLine($"About to read {sizeToRead} bytes starting from offset {offset:X4}h");
+
+                // We don't know yet how many bytes the patch is, but it is at least the minimum size
+                (buffer, offset) = Util.GetNextBytes(fileData, offset, sizeToRead);
+                // the offset has now been updated past the read size, so need to adjust it back later
+
                 //Console.Error.WriteLine($"Copied {minimumPatchSize} bytes from offset {offset} to singleData");
-                Console.Error.WriteLine(Util.HexDump(singleData));
-                Console.Error.WriteLine($"checksum = {singleData[0]:X2}H");
+                //Console.Error.WriteLine(Util.HexDump(buffer));
+                Console.Error.WriteLine($"checksum = {buffer[0]:X2}H");
 
-/*
-                var patchOffset = 1;  // skip the checksum
-                var singleCommonData = new byte[SingleCommonSettings.DataSize];
-                Buffer.BlockCopy(singleData, patchOffset, singleCommonData, 0, SingleCommonSettings.DataSize);
-                var singleCommon = new SingleCommonSettings(singleCommonData);
-                Console.Error.WriteLine(Util.HexDump(singleCommonData));
-                Console.Error.WriteLine(singleCommon);
-
-                var sourceData = new byte[KSynthLib.K5000.Source.DataSize];
-                Array.Copy(fileData, offset, sourceData, 0, KSynthLib.K5000.Source.DataSize);
-                Console.Error.WriteLine($"zone low = {sourceData[0]:X2}H, zone high = {sourceData[1]:X2}H");
-                Console.Error.WriteLine($"vel sw = {sourceData[2].ToBinaryString()}b ({sourceData[2]:X2}h)");
-                var velocitySwitch = new VelocitySwitchSettings();
-                velocitySwitch.SwitchKind = (VelocitySwitchKind)(sourceData[2] >> 5);  // isolate bits 5 & 6
-                velocitySwitch.Threshold = (byte)(sourceData[2] & 0b00011111);  // isolate bottom 5 bits
-                Console.Error.WriteLine($"Vel.SW = {velocitySwitch}");
-
-                var testSource = new KSynthLib.K5000.Source();
-                Console.Error.WriteLine(testSource);
-*/
-
-
-                var patch = new KSynthLib.K5000.SinglePatch(singleData);
+                var patch = new KSynthLib.K5000.SinglePatch(buffer);
 
                 // Find out how many PCM and ADD sources
                 var pcmCount = 0;
@@ -125,22 +109,38 @@ namespace Driver
                 }
 
                 // Figure out the total size of the single patch based on the counts
-                var patchSize = SingleCommonSettings.DataSize + pcmCount * KSynthLib.K5000.Source.DataSize + addCount * KSynthLib.K5000.Source.DataSize + addCount * AdditiveKit.DataSize;
+                var patchSize = 1 + SingleCommonSettings.DataSize  // includes the checksum
+                    + patch.Sources.Length * KSynthLib.K5000.Source.DataSize  // all sources have this part
+                    + addCount * AdditiveKit.DataSize;
                 Console.WriteLine($"{pcmCount}PCM {addCount}ADD size={patchSize} bytes");
-                Array.Copy(patchData, offset, singleData, 0, patchSize);
 
-                offset += patchSize;
-                totalPatchSize = patchSize;
+                offset = startOffset;  // back up to the start of the patch data
+                // Read the whole patch now that we know its size
+                Console.WriteLine($"About to read {patchSize} bytes starting from offset {offset:X4}h");
+                (buffer, offset) = Util.GetNextBytes(fileData, offset, patchSize);
+
+                totalPatchSize += patchSize;
 
                 singlePatches.Add(patch);
+                //Console.WriteLine(patch);
+                Console.WriteLine($"{patch.SingleCommon.Name}");
+                Console.WriteLine("------------");
             }
 
             Console.WriteLine($"Total patch size = {totalPatchSize} bytes");
 
+            var patches = patchNumbers.Zip(singlePatches, (k, v) => new { k, v }).ToDictionary(x => x.k, x => x.v);
+            foreach (var key in patches.Keys)
+            {
+                Console.WriteLine($"{dumpHeader.Bank}{(key + 1):D3} {patches[key].SingleCommon.Name}");
+            }
+
+/*
             foreach (var singlePatch in singlePatches)
             {
                 Console.WriteLine($"{singlePatch.SingleCommon.Name}");
             }
+*/
 
         }
     }

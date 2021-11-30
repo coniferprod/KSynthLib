@@ -73,17 +73,17 @@ namespace KSynthLib.K5000
             var builder = new StringBuilder();
 
             builder.Append("                   DCA Envelope\n");
-            builder.Append($"VelCrv      {VelocityCurve,3}   Dcy2 T    {Envelope.Decay2Time,3}\n");
-            builder.Append($"Atak T      {Envelope.AttackTime,3}   Dcy2 L   {Envelope.Decay2Level,3}\n");
-            builder.Append($"Dcy1 T      {Envelope.Decay1Time,3}   Rels T   {Envelope.ReleaseTime,3}\n");
-            builder.Append($"Dcy1 L      {Envelope.Decay1Level,3}\n");
+            builder.Append($"VelCrv      {VelocityCurve,3}   Dcy2 T    {Envelope.Decay2Time.Value,3}\n");
+            builder.Append($"Atak T      {Envelope.AttackTime.Value,3}   Dcy2 L   {Envelope.Decay2Level.Value,3}\n");
+            builder.Append($"Dcy1 T      {Envelope.Decay1Time.Value,3}   Rels T   {Envelope.ReleaseTime.Value,3}\n");
+            builder.Append($"Dcy1 L      {Envelope.Decay1Level.Value,3}\n");
 
             builder.Append("                   DCA Modulation\n");
             builder.Append("  KS TO DCA ENV       VELO TO DCA ENV\n");
-            builder.Append($"Level         {KeyScaling.Level,3}     Level   {VelocitySensitivity.Level,3}\n");
-            builder.Append($"Attack Time   {KeyScaling.AttackTime,3}    Attack Time    {VelocitySensitivity.AttackTime,3}\n");
-            builder.Append($"Decay1 Time   {KeyScaling.Decay1Time,3}    Decay1 Time    {VelocitySensitivity.Decay1Time,3}\n");
-            builder.Append($"Release       {KeyScaling.ReleaseTime,3}   Release        {VelocitySensitivity.ReleaseTime,3}\n");
+            builder.Append($"Level         {KeyScaling.Level.Value,3}     Level   {VelocitySensitivity.Level.Value,3}\n");
+            builder.Append($"Attack Time   {KeyScaling.AttackTime.Value,3}    Attack Time    {VelocitySensitivity.AttackTime.Value,3}\n");
+            builder.Append($"Decay1 Time   {KeyScaling.Decay1Time.Value,3}    Decay1 Time    {VelocitySensitivity.Decay1Time.Value,3}\n");
+            builder.Append($"Release       {KeyScaling.ReleaseTime.Value,3}   Release        {VelocitySensitivity.ReleaseTime.Value,3}\n");
 
             return builder.ToString();
         }
