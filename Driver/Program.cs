@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 
+using Newtonsoft.Json;
+
 using KSynthLib.Common;
 using KSynthLib.K4;
 
@@ -37,7 +39,7 @@ namespace Driver
             Console.WriteLine(singlePatch.SingleCommon.Name);
             */
 
-            pathName = Path.Combine(path, $"tmp/K5000/ASL-SYX/Disk1/Collctn1.syx");
+            pathName = Path.Combine(path, $"tmp/K5000/ASL-SYX/Disk1/DBankINT.syx");
             fileData = File.ReadAllBytes(pathName);
             var dumpHeader = new DumpHeader(fileData);
             Console.WriteLine($"Card = {dumpHeader.Card}, Bank = {dumpHeader.Bank}, Kind = {dumpHeader.Kind}");
@@ -123,22 +125,24 @@ namespace Driver
 
                 singlePatches.Add(patch);
                 //Console.WriteLine(patch);
-                Console.WriteLine($"{patch.SingleCommon.Name}");
-                Console.WriteLine("------------");
+                //Console.WriteLine($"{patch.SingleCommon.Name}");
+                //Console.WriteLine("------------");
+
+                string jsonString = JsonConvert.SerializeObject(
+                    	patch,
+                    	Newtonsoft.Json.Formatting.Indented,
+                    	new Newtonsoft.Json.Converters.StringEnumConverter()
+                	);
+	                Console.WriteLine(jsonString);
             }
 
+/*
             Console.WriteLine($"Total patch size = {totalPatchSize} bytes");
 
             var patches = patchNumbers.Zip(singlePatches, (k, v) => new { k, v }).ToDictionary(x => x.k, x => x.v);
             foreach (var key in patches.Keys)
             {
                 Console.WriteLine($"{dumpHeader.Bank}{(key + 1):D3} {patches[key].SingleCommon.Name}");
-            }
-
-/*
-            foreach (var singlePatch in singlePatches)
-            {
-                Console.WriteLine($"{singlePatch.SingleCommon.Name}");
             }
 */
 

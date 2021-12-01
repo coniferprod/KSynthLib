@@ -2,14 +2,21 @@ using System.Collections.Generic;
 
 namespace KSynthLib.K5000
 {
-    /// <summary>Abstract base class providing subclasses customization points
+    /// <summary>
+    /// Abstract base class providing subclasses customization points
     /// for computing checksums and collecting data for building System Exclusive
-    /// messages.</summary>
+    /// messages.
+    /// </summary>
     public abstract class Patch
     {
         protected byte _checksum;
 
-        /// <summary>Virtual property to compute a checksum for patch data.</summary>
+        /// <value>
+        /// Virtual property to compute a checksum for patch data.
+        /// </value>
+        /// <remarks>
+        /// This property should be overridden by any subclass.
+        /// </remarks>
         public virtual byte Checksum
         {
             get
@@ -34,6 +41,10 @@ namespace KSynthLib.K5000
 
         protected abstract byte[] CollectData();
 
+        /// <summary>
+        /// Collects the data that makes up this patch in System Exclusive format.
+        /// </summary>
+        /// <returns>The SysEx data bytes.</returns>
         public byte[] ToData()
         {
             var allData = new List<byte>();

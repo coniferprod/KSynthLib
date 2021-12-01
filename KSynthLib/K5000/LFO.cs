@@ -73,9 +73,9 @@ namespace KSynthLib.K5000
             builder.Append(string.Format("Waveform={0}  Speed={1}  Delay Onset={2}\n", Waveform, Speed.Value, DelayOnset.Value));
             builder.Append(string.Format("Fade In Time={0}  Fade In To Speed={1}\n", FadeInTime.Value, FadeInToSpeed.Value));
             builder.Append("LFO Modulation:\n");
-            builder.Append(string.Format("Vibrato(DCO) = {0}   KS To Vibrato={1}\n", Vibrato.Depth, Vibrato.KeyScaling));
-            builder.Append(string.Format("Growl(DCF) = {0}   KS To Growl={1}\n", Growl.Depth, Growl.KeyScaling));
-            builder.Append(string.Format("Tremolo(DCA) = {0}   KS To Tremolo={1}\n", Tremolo.Depth, Tremolo.KeyScaling));
+            builder.Append(string.Format("Vibrato(DCO) = {0}   KS To Vibrato={1}\n", Vibrato.Depth.Value, Vibrato.KeyScaling.Value));
+            builder.Append(string.Format("Growl(DCF) = {0}   KS To Growl={1}\n", Growl.Depth.Value, Growl.KeyScaling.Value));
+            builder.Append(string.Format("Tremolo(DCA) = {0}   KS To Tremolo={1}\n", Tremolo.Depth.Value, Tremolo.KeyScaling.Value));
             return builder.ToString();
         }
 

@@ -9,6 +9,7 @@ namespace KSynthLib.Common
         public string Name
         {
             get => this._name;
+            protected set => this._name = value;
         }
 
         protected int _defaultValue;

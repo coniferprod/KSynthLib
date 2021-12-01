@@ -167,7 +167,7 @@ namespace KSynthLib.K5000
 
         public byte[] ToData() => new List<byte>() { (byte)Kind, Depth.ToByte() }.ToArray();
 
-        public (byte Type, byte Depth) Bytes => ((byte)Kind, Depth.ToByte());
+        public (byte Kind, byte Depth) Bytes => ((byte)Kind, Depth.ToByte());
     }
 
     public class MacroController

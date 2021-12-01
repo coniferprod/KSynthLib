@@ -7,12 +7,18 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K5000
 {
+    /// <summary>
+    /// Represents a K5000 single patch.
+    /// </summary>
     public class SinglePatch : Patch
     {
         public SingleCommonSettings SingleCommon;
 
         public Source[] Sources;
 
+        /// <value>
+        /// The size of single patch data in bytes.
+        /// </value>
         public int DataSize
         {
             get
@@ -22,7 +28,9 @@ namespace KSynthLib.K5000
             }
         }
 
-        /// <summary>Constructs a single patch with default settings.</summary>
+        /// <summary>
+        /// Constructs a single patch with default settings.
+        /// </summary>
         public SinglePatch() : base()
         {
             SingleCommon = new SingleCommonSettings();
@@ -35,7 +43,10 @@ namespace KSynthLib.K5000
             }
         }
 
-        /// <summary>Constructs a single patch from System Exclusive data.</summary>
+        /// <summary>
+        /// Constructs a single patch from System Exclusive data.
+        /// </summary>
+        /// <param name="data">The SysEx data bytes.</param>
         public SinglePatch(byte[] data) : base()
         {
             int offset = 0;
@@ -85,6 +96,12 @@ namespace KSynthLib.K5000
             }
         }
 
+        /// <summary>
+        /// Returns a printable string representation of this single patch.
+        /// </string>
+        /// <returns>
+        /// String representation.
+        /// </returns>
         public override string ToString()
         {
             var builder = new StringBuilder();
@@ -113,6 +130,9 @@ namespace KSynthLib.K5000
             return data.ToArray();
         }
 
+        /// <value>
+        /// Computes the checksum for this single patch.
+        /// </value>
         public override byte Checksum
         {
             get

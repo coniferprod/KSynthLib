@@ -109,10 +109,10 @@ namespace KSynthLib.K5000
 
             builder.Append("             DCF Envelope\n");
 
-            builder.Append($"Depth     {EnvelopeDepth.Value}       Dcy2 T    {Envelope.Decay2Time}\n");
-            builder.Append($"Atak T    {Envelope.AttackTime}       Dcy2 L    {Envelope.Decay2Level}\n");
-            builder.Append($"Dcy1 T    {Envelope.Decay1Time}       Release   {Envelope.ReleaseTime}\n");
-            builder.Append($"Dcy1 L    {Envelope.Decay1Level}\n");
+            builder.Append($"Depth     {EnvelopeDepth.Value}       Dcy2 T    {Envelope.Decay2Time.Value}\n");
+            builder.Append($"Atak T    {Envelope.AttackTime.Value}       Dcy2 L    {Envelope.Decay2Level.Value}\n");
+            builder.Append($"Dcy1 T    {Envelope.Decay1Time.Value}       Release   {Envelope.ReleaseTime.Value}\n");
+            builder.Append($"Dcy1 L    {Envelope.Decay1Level.Value}\n");
             builder.Append($"KS to Attack  {KeyScalingToEnvelopeAttackTime.Value,3}   Velo to Env   {VelocityToEnvelopeDepth.Value,3}\n");
             builder.Append($"KS to DCY1    {KeyScalingToEnvelopeDecay1Time.Value,3}   Velo to Atk   {VelocityToEnvelopeAttackTime.Value,3}\n");
             builder.Append($"                        Vel to DCY1 = {VelocityToEnvelopeDecay1Time.Value}\n");

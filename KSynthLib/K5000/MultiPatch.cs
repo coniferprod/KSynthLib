@@ -5,14 +5,22 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K5000
 {
+    /// <summary>
+    /// Represents a K5000 multi patch (combi on K5000W/R).
+    /// </summary>
     public class MultiPatch : Patch
     {
+        /// <summary>
+        /// Constructs a multi patch with default values.
+        /// </summary>
         public MultiPatch() : base()
         {
 
         }
 
-        /// <summary>Constructs a multi patch from System Exclusive data.</summary>
+        /// <summary>
+        /// Constructs a multi patch from System Exclusive data.
+        /// </summary>
         public MultiPatch(byte[] data) : base()
         {
             int offset = 0;
@@ -36,6 +44,12 @@ namespace KSynthLib.K5000
 
         public override byte Checksum => 0;  // TODO: Calculate checksum for multi
 
+        /// <summary>
+        /// Returns a string representation of this multi patch.
+        /// </summary>
+        /// <returns>
+        /// String representation.
+        /// </returns>
         public override string ToString()
         {
             var builder = new StringBuilder();

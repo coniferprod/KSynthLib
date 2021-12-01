@@ -180,7 +180,7 @@ namespace KSynthLib.K5000
 
         public override string ToString()
         {
-            return $"A={AttackTime}, D1={Decay1Time}/{Decay1Level}, D2={Decay2Time}/{Decay2Level}, R={ReleaseTime}";
+            return $"A={AttackTime.Value}, D1={Decay1Time.Value}/{Decay1Level.Value}, D2={Decay2Time.Value}/{Decay2Level.Value}, R={ReleaseTime.Value}";
         }
 
         public byte[] ToData() => new List<byte>() {
@@ -221,7 +221,7 @@ namespace KSynthLib.K5000
 
         public override string ToString()
         {
-            return $"Level={Level} Attack={AttackTime} Decay1={Decay1Time} Release={ReleaseTime}";
+            return $"Level={Level.Value} Attack={AttackTime.Value} Decay1={Decay1Time.Value} Release={ReleaseTime.Value}";
         }
 
         public byte[] ToData() => new List<byte>() {

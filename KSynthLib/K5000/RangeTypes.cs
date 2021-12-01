@@ -29,6 +29,14 @@ namespace KSynthLib.K5000
         public byte ToByte() => (byte)(this.Value);
     }
 
+    public class Volume: RangedValue
+    {
+        public Volume() : this(0) { }
+        public Volume(int value) : base("Volume", new Range<int>(0, 127), 0, value) { }
+        public Volume(byte value) : this((int)value) { }
+        public byte ToByte() => (byte)(this.Value);
+    }
+
     public class ControlDepth: RangedValue
     {
         public ControlDepth() : this(0) { }

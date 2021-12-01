@@ -23,6 +23,9 @@ namespace KSynthLib.K5000
         Source6
     }
 
+    /// <summary>
+    /// Common settings for a single patch.
+    /// </summary>
     public class SingleCommonSettings
     {
         public const int DataSize = 81;
@@ -39,6 +42,10 @@ namespace KSynthLib.K5000
         public bool DrumMark;  // dummy, always zero for single patch
 
         private string _name;  // eight characters
+
+        /// <value>
+        /// Name of the single patch.
+        /// </value>
         public string Name
         {
             get => _name.Substring(0, NameLength);
@@ -63,6 +70,9 @@ namespace KSynthLib.K5000
         public Switch FootSwitch1;
         public Switch FootSwitch2;
 
+        /// <summary>
+        /// Constructs single common settings with default values.
+        /// </summary>
         public SingleCommonSettings()
         {
             // 3.1.2.1 COMMON DATA (No. 1...38)
@@ -105,6 +115,15 @@ namespace KSynthLib.K5000
             FootSwitch2 = Switch.Off;
         }
 
+        /// <summary>
+        /// Constructs single common settings from System Exclusive data.
+        /// </summary>
+        /// <remarks>
+        /// Calls the no-argument constructor to initialize all data members.
+        /// </remarks>
+        /// <param name="data">
+        /// The SysEx bytes.
+        /// </param>
         public SingleCommonSettings(byte[] data) : this()
         {
             int offset = 0;
@@ -236,6 +255,12 @@ namespace KSynthLib.K5000
             return name;
         }
 
+        /// <summary>
+        /// Returns a printable string representation of the single common settings.
+        /// </string>
+        /// <returns>
+        /// String representation.
+        /// </returns>
         public override string ToString()
         {
             var builder = new StringBuilder();
@@ -264,6 +289,16 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
+        /// <summary>
+        /// Returns the settings as System Exclusive data.
+        /// </summary>
+        /// <remarks>
+        /// Calls the <c>ToData</c> method of all its aggregate data members,
+        /// or the <c>ToByte</c> method of its ranged value data members.
+        /// </remarks>
+        /// <returns>
+        /// The SysEx bytes.
+        /// </returns>
         public byte[] ToData()
         {
             var data = new List<byte>();
@@ -277,8 +312,8 @@ namespace KSynthLib.K5000
             data.AddRange(GEQ.ToData());
             data.Add(0);  // drum_mark
 
-            string PaddedName = Name.PadRight(NameLength, ' ');
-            data.AddRange(ASCIIEncoding.ASCII.GetBytes(PaddedName));
+            string paddedName = Name.PadRight(NameLength, ' ');
+            data.AddRange(ASCIIEncoding.ASCII.GetBytes(paddedName));
 
             data.Add(Volume.ToByte());
             data.Add((byte)Poly);
@@ -313,8 +348,8 @@ namespace KSynthLib.K5000
             var m4p2 = Macro4.Param2.Bytes;
 
             data.AddRange(new List<byte>() {
-                m1p1.Type, m1p2.Type, m2p1.Type, m2p2.Type,
-                m3p1.Type, m3p2.Type, m4p1.Type, m4p2.Type
+                m1p1.Kind, m1p2.Kind, m2p1.Kind, m2p2.Kind,
+                m3p1.Kind, m3p2.Kind, m4p1.Kind, m4p2.Kind
             });
 
             data.AddRange(new List<byte>() {

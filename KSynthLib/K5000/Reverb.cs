@@ -9,6 +9,9 @@ namespace KSynthLib.K5000
         public string[] ParameterNames;
     }
 
+    /// <summary>
+    /// Reverb settings.
+    /// </summary>
     public class ReverbSettings
     {
         public const int DataSize = 6;
@@ -35,6 +38,9 @@ namespace KSynthLib.K5000
             /* 10 */ new ReverbName { Name = "Long Delay", ParameterNames = new string[]{ "Dry/Wet 2", "Feedback", "Delay Time", "High Frequency Damping" } }
         };
 
+        /// <summary>
+        /// Constructs reverb settings with default values.
+        /// </summary>
         public ReverbSettings()
         {
             ReverbType = 0;
@@ -46,6 +52,11 @@ namespace KSynthLib.K5000
             Param4 = new PositiveLevel(64);
         }
 
+        /// <summary>
+        /// Constructs reverb settings from System Exclusive data.
+        /// </summary>
+        /// <param name="data">The SysEx bytes</param>
+        /// <param name="offset">The start offset in the bytes.</param>
         public ReverbSettings(byte[] data, int offset) : this()
         {
             ReverbType = data[offset];
@@ -56,6 +67,12 @@ namespace KSynthLib.K5000
             Param4 = new PositiveLevel(data[offset + 5]);
         }
 
+        /// <summary>
+        /// Returns a printable string representation of the reverb settings.
+        /// </string>
+        /// <returns>
+        /// String representation.
+        /// </returns>
         public override string ToString()
         {
             ReverbName name = ReverbNames[ReverbType];
@@ -68,6 +85,20 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        public byte[] ToData() => new List<byte>() { ReverbType, DryWet1.ToByte(), DryWet2.ToByte(), Param2.ToByte(), Param3.ToByte(), Param4.ToByte() }.ToArray();
+        /// <summary>
+        /// Returns the reverb settings as System Exclusive data.
+        /// </summary>
+        /// <returns>
+        /// The SysEx bytes.
+        /// </returns>
+        public byte[] ToData() => new List<byte>()
+        {
+            ReverbType,
+            DryWet1.ToByte(),
+            DryWet2.ToByte(),
+            Param2.ToByte(),
+            Param3.ToByte(),
+            Param4.ToByte()
+        }.ToArray();
     }
 }
