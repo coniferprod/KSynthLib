@@ -17,21 +17,54 @@ namespace Driver
     {
         static void Main(string[] args)
         {
+            DoK4();
+
+        }
+
+        static void DoK4()
+        {
             var path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             var pathName = Path.Combine(path, $"tmp/K4/K4/A401.SYX");
 
             byte[] fileData = File.ReadAllBytes(pathName);
 
-            /*
-            Bank bank = new Bank(fileData);
+            var header = new SystemExclusiveHeader(fileData);
+            // TODO: Check the SysEx file header for validity
+
+            // Extract the patch bytes (discarding the SysEx header and terminator)
+            var dataLength = fileData.Length - SystemExclusiveHeader.DataSize - 1;
+            var data = new byte[dataLength];
+            Array.Copy(fileData, SystemExclusiveHeader.DataSize, data, 0, dataLength);
+
+            Bank bank = new Bank(data);
+
+            Console.WriteLine("Single patches:");
+            var patchNumber = 0;
             foreach (KSynthLib.K4.SinglePatch sp in bank.Singles)
             {
-                Console.WriteLine(sp.Name);
+                string name = PatchUtil.GetPatchName(patchNumber);
+                Console.WriteLine($"{name} {sp.Name}");
+                patchNumber += 1;
             }
 
+            Console.WriteLine("\nMulti patches:");
+            patchNumber = 0;
+            foreach (KSynthLib.K4.MultiPatch mp in bank.Multis)
+            {
+                string name = PatchUtil.GetPatchName(patchNumber);
+                Console.WriteLine($"{name} {mp.Name}");
+                patchNumber += 1;
+            }
+
+/*
             Console.WriteLine($"Drum has {bank.Drum.Notes.Count} notes");
             Console.WriteLine(bank.Drum);
+*/
+        }
 
+        static void DoK5000()
+        {
+            /*
             byte[] fileData = File.ReadAllBytes(pathName);
             pathName = Path.Combine(path, $"tmp/WizooIni.syx");
             fileData = File.ReadAllBytes(pathName);
@@ -39,8 +72,9 @@ namespace Driver
             Console.WriteLine(singlePatch.SingleCommon.Name);
             */
 
-            pathName = Path.Combine(path, $"tmp/K5000/ASL-SYX/Disk1/DBankINT.syx");
-            fileData = File.ReadAllBytes(pathName);
+            var path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            var pathName = Path.Combine(path, $"tmp/K5000/ASL-SYX/Disk1/DBankINT.syx");
+            byte[] fileData = File.ReadAllBytes(pathName);
             var dumpHeader = new DumpHeader(fileData);
             Console.WriteLine($"Card = {dumpHeader.Card}, Bank = {dumpHeader.Bank}, Kind = {dumpHeader.Kind}");
 

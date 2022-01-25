@@ -94,7 +94,7 @@ namespace KSynthLib.K4
         public LevelType(byte value)
         {
             base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
-            this.Value = (int)(value & 0x7f);
+            this.Value = base.Clamp((int)(value & 0x7f));
         }
 
         public override int Value
@@ -197,7 +197,7 @@ namespace KSynthLib.K4
         public CoarseType(byte value)
         {
             base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
-            this.Value = (int)(value & 0x3f) - this.MaximumValue;
+            this.Value = base.Clamp((int)(value & 0x3f) - this.MaximumValue);
         }
 
         public override int Value
@@ -302,7 +302,7 @@ namespace KSynthLib.K4
         public SmallEffectParameterType(byte value)
         {
             base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
-            this.Value = (int)(value);
+            this.Value = (int)(value & 0x07);
         }
 
         public override int Value
@@ -356,7 +356,7 @@ namespace KSynthLib.K4
         public LargeEffectParameterType(byte value)
         {
             base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
-            this.Value = (int)(value);
+            this.Value = (int)(value & 0x1f);
         }
 
         public override int Value
@@ -631,7 +631,7 @@ namespace KSynthLib.K4
         public PatchNumberType(byte value)
         {
             base.SetRange(MIN_VALUE, MAX_VALUE, DEFAULT_VALUE);
-            this.Value = (int)(value + 1); // adjust from 0...63 to 1...64
+            this.Value = (int)((value & 0x3f) + 1); // adjust from 0...63 to 1...64
         }
 
         public override int Value

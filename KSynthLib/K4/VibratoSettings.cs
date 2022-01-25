@@ -29,9 +29,9 @@ namespace KSynthLib.K4
         public VibratoSettings(List<byte> data)
         {
             Shape = (LFOShape)((data[0] >> 4) & 0x03);
-            Speed = new LevelType(data[1]);
-            Pressure = new DepthType(data[2]);
-            Depth = new DepthType(data[3]);
+            Speed = new LevelType(data[1] & 0x7f);
+            Pressure = new DepthType(data[2] & 0x7f);
+            Depth = new DepthType(data[3] & 0x7f);
         }
 
         public override string ToString()

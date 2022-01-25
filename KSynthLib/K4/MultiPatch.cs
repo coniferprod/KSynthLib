@@ -38,10 +38,10 @@ namespace KSynthLib.K4
             offset += 10;  // name is M0 to M9
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Volume = new LevelType(b);
+            Volume = new LevelType(b & 0x7f);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            this.EffectPatch = new EffectNumberType(b);
+            this.EffectPatch = new EffectNumberType(b & 0x1f);
 
             for (var i = 0; i < SectionCount; i++)
             {

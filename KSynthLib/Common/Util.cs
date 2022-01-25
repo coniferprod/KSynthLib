@@ -222,7 +222,13 @@ namespace KSynthLib.Common
 
         public static (byte, int) GetNextByte(byte[] data, int offset)
         {
-            return (data[offset], offset + 1);
+            var b = data[offset];
+/*
+#if DEBUG
+            Console.WriteLine(string.Format("{0:D4}: 0x{1:X2}", offset, b));
+#endif
+*/
+            return (b, offset + 1);
         }
 
         public static (byte[], int) GetNextBytes(byte[] data, int offset = 0, int count = 1)

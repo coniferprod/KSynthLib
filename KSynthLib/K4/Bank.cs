@@ -38,7 +38,7 @@ namespace KSynthLib.K4
                 //Console.Error.WriteLine($"Copying {SinglePatch.DataSize} bytes from offset {offset} to singleData");
                 Buffer.BlockCopy(data, offset, singleData, 0, SinglePatch.DataSize);
                 Debug.Assert(singleData.Length == SinglePatch.DataSize);
-                Console.Error.WriteLine($"Single data length = {singleData.Length}");
+                //Console.Error.WriteLine($"Single data length = {singleData.Length}");
                 //Console.Error.WriteLine(Util.HexDump(singleData));
 
                 var singlePatch = new SinglePatch(singleData);
@@ -50,7 +50,10 @@ namespace KSynthLib.K4
             {
                 var multiData = new byte[MultiPatch.DataSize];
                 Buffer.BlockCopy(data, offset, multiData, 0, MultiPatch.DataSize);
-                this.Multis.Add(new MultiPatch(multiData));
+                Debug.Assert(multiData.Length == MultiPatch.DataSize);
+                //Console.Error.WriteLine($"Multi data length = {multiData.Length}");
+                var multiPatch = new MultiPatch(multiData);
+                this.Multis.Add(multiPatch);
                 offset += MultiPatch.DataSize;
             }
 
