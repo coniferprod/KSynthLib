@@ -7,8 +7,8 @@ using System.Linq;
 using Newtonsoft.Json;
 
 using KSynthLib.Common;
+using KSynthLib.SystemExclusive;
 using KSynthLib.K4;
-
 using KSynthLib.K5000;
 
 namespace Driver
@@ -28,15 +28,26 @@ namespace Driver
 
             byte[] fileData = File.ReadAllBytes(pathName);
 
-            var header = new SystemExclusiveHeader(fileData);
-            // TODO: Check the SysEx file header for validity
+            // Exercise the new SystemExclusive.ManufacturerSpecificMessage type:
+            var message = Message.Create(fileData);
+            Console.WriteLine("Message created from file data");
+            Console.WriteLine(message);
+
+            var header = new SystemExclusiveHeader(message.Payload.ToArray());
+            Console.WriteLine("Header: {0}", header);
+
+            var patchDataLength = message.Payload.Count - SystemExclusiveHeader.DataSize;
+            var patchData = message.Payload.GetRange(SystemExclusiveHeader.DataSize, patchDataLength);
+            Console.WriteLine("Patch data length = {0}", patchDataLength);
 
             // Extract the patch bytes (discarding the SysEx header and terminator)
+            /*
             var dataLength = fileData.Length - SystemExclusiveHeader.DataSize - 1;
             var data = new byte[dataLength];
             Array.Copy(fileData, SystemExclusiveHeader.DataSize, data, 0, dataLength);
+            */
 
-            Bank bank = new Bank(data);
+            Bank bank = new Bank(patchData.ToArray());
 
             Console.WriteLine("Single patches:");
             var patchNumber = 0;
