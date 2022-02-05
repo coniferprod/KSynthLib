@@ -137,5 +137,17 @@ namespace KSynthLib.SystemExclusive
 
             return builder.ToString();
         }
+
+        public byte[] ToData()
+        {
+            var result = new List<byte>();
+            result.Add(Constants.Initiator);
+            if (this.Payload != null)
+            {
+                result.AddRange(this.Payload);
+            }
+            result.Add(Constants.Terminator);
+            return result.ToArray();
+        }
     }
 }
