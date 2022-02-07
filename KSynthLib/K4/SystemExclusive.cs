@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 using KSynthLib.Common;
 
@@ -43,51 +44,40 @@ namespace KSynthLib.K4
             return builder.ToString();
         }
 
-        private string GetFunctionName(SystemExclusiveFunction function)
+        public static readonly Dictionary<SystemExclusiveFunction, string> FunctionNames = new Dictionary<SystemExclusiveFunction, string>()
         {
-            switch (function)
+            { SystemExclusiveFunction.AllPatchDataDump, "All Patch Data Dump" },
+            { SystemExclusiveFunction.AllPatchDumpRequest, "All Patch Data Dump Request" },
+            { SystemExclusiveFunction.BlockPatchDataDump, "Block Patch Data Dump" },
+            { SystemExclusiveFunction.BlockPatchDumpRequest, "Block Patch Data Dump Request" },
+            { SystemExclusiveFunction.EditBufferDump, "Edit Buffer Dump" },
+            { SystemExclusiveFunction.OnePatchDataDump, "One Patch Data Dump" },
+            { SystemExclusiveFunction.OnePatchDumpRequest, "One Patch Data Dump Request" },
+            { SystemExclusiveFunction.ParameterSend, "Parameter Send" },
+            { SystemExclusiveFunction.ProgramChange, "Program Change" },
+            { SystemExclusiveFunction.WriteComplete, "Write Complete" },
+            { SystemExclusiveFunction.WriteError, "Write Error" },
+            { SystemExclusiveFunction.WriteErrorProtect, "Write Error (Protect)" },
+            { SystemExclusiveFunction.WriteErrorNoCard, "Write Error (No Card)" }
+        };
+
+        public static bool IsValidFunction(byte functionByte)
+        {
+            Dictionary<SystemExclusiveFunction, string>.KeyCollection keys = FunctionNames.Keys;
+            var keyBytes = keys.Select(k => (byte)k).ToArray();
+            return keyBytes.Contains(functionByte);
+        }
+
+        public static string GetFunctionName(SystemExclusiveFunction function)
+        {
+            var functionName = "";
+            if (FunctionNames.TryGetValue(function, out functionName))
             {
-                case SystemExclusiveFunction.OnePatchDumpRequest:
-                    return "One Patch Dump Request";
-
-                case SystemExclusiveFunction.BlockPatchDumpRequest:
-                    return "Block Patch Dump Request";
-
-                case SystemExclusiveFunction.AllPatchDumpRequest:
-                    return "All Patch Dump Request";
-
-                case SystemExclusiveFunction.ParameterSend:
-                    return "Parameter Send";
-
-                case SystemExclusiveFunction.OnePatchDataDump:
-                    return "One Patch Data Dump";
-
-                case SystemExclusiveFunction.BlockPatchDataDump:
-                    return "Block Patch Data Dump";
-
-                case SystemExclusiveFunction.AllPatchDataDump:
-                    return "All Patch Data Dump";
-
-                case SystemExclusiveFunction.EditBufferDump:
-                    return "Edit Buffer Dump";
-
-                case SystemExclusiveFunction.ProgramChange:
-                    return "Program Change";
-
-                case SystemExclusiveFunction.WriteComplete:
-                    return "Write Complete";
-
-                case SystemExclusiveFunction.WriteError:
-                    return "Write Error";
-
-                case SystemExclusiveFunction.WriteErrorProtect:
-                    return "Write Error (Protect)";
-
-                case SystemExclusiveFunction.WriteErrorNoCard:
-                    return "Write Error (No Card)";
-
-                default:
-                    return "Unknown function";
+                return functionName;
+            }
+            else
+            {
+                return "unknown";
             }
         }
 

@@ -3,9 +3,6 @@ namespace KSynthLib.Common
     public class Constants
     {
         public const byte ManufacturerID = 0x40;  // Kawai = 40h
-
-        public const byte SystemExclusiveInitiator = 0xF0;
-        public const byte SystemExclusiveTerminator = 0xF7;
     }
 
     public enum MachineID
