@@ -9,24 +9,14 @@ namespace KSynthLib.K5
 {
     public class PitchEnvelopeSegment  // DFG ENV
     {
-        private PositiveDepthType _rate; // 0~31
-        public byte Rate
-        {
-            get => _rate.Value;
-            set => _rate.Value = value;
-        }
+        public PositiveDepth Rate; // 0~31
 
-        private DepthType _level; // 0~±31
-        public sbyte Level
-        {
-            get => _level.Value;
-            set => _level.Value = value;
-        }
+        public Depth Level; // 0~±31
 
         public PitchEnvelopeSegment()
         {
-            _rate = new PositiveDepthType();
-            _level = new DepthType();
+            Rate = new PositiveDepth();
+            Level = new Depth();
         }
 
         public override string ToString()
@@ -60,13 +50,13 @@ namespace KSynthLib.K5
             builder.Append("    RATE |");
             for (var i = 0; i < Segments.Length; i++)
             {
-                builder.Append($"{Segments[i].Rate,3}|");
+                builder.Append($"{Segments[i].Rate.Value,3}|");
             }
             builder.Append("\n");
             builder.Append("    LEVEL|");
             for (var i = 0; i < Segments.Length; i++)
             {
-                builder.Append($"{Segments[i].Level,3}|");
+                builder.Append($"{Segments[i].Level.Value,3}|");
             }
             builder.Append("\n\n");
             builder.Append("    LOOP<3-4>=");
@@ -78,64 +68,18 @@ namespace KSynthLib.K5
 
     public class PitchSettings
     {
-        private CoarseType _coarse; // 0~±48
-        public sbyte Coarse
-        {
-            get => _coarse.Value;
-            set => _coarse.Value = value;
-        }
+        public Coarse Coarse; // 0~±48
 
-        private DepthType _fine; // 0~±31
-        public sbyte Fine
-        {
-            get => _fine.Value;
-            set => _fine.Value = value;
-        }
+        public Depth Fine; // 0~±31
 
         public KeyTracking KeyTracking;  // enumeration
         public byte Key;  // the keytracking key, zero if not used
-
-        private EnvelopeDepthType _envelopeDepth; // 0~±24
-        public sbyte EnvelopeDepth
-        {
-            get => _envelopeDepth.Value;
-            set => _envelopeDepth.Value = value;
-        }
-
-        private DepthType _pressureDepth; // 0~±31
-        public sbyte PressureDepth
-        {
-            get => _pressureDepth.Value;
-            set => _pressureDepth.Value = value;
-        }
-
-        private BenderDepthType _benderDepth; // 0~24
-        public byte BenderDepth
-        {
-            get => _benderDepth.Value;
-            set => _benderDepth.Value = value;
-        }
-
-        private DepthType _velocityEnvelopeDepth; // 0~±31
-        public sbyte VelocityEnvelopeDepth
-        {
-            get => _velocityEnvelopeDepth.Value;
-            set => _velocityEnvelopeDepth.Value = value;
-        }
-
-        private PositiveDepthType _lfoDepth; // 0~31
-        public byte LFODepth
-        {
-            get => _lfoDepth.Value;
-            set => _lfoDepth.Value = value;
-        }
-
-        private DepthType _pressureLFODepth; // 0~±31
-        public sbyte PressureLFODepth
-        {
-            get => _pressureLFODepth.Value;
-            set => _pressureLFODepth.Value = value;
-        }
+        public EnvelopeDepth EnvelopeDepth; // 0~±24
+        public Depth PressureDepth; // 0~±31
+        public BenderDepth BenderDepth; // 0~24
+        public Depth VelocityEnvelopeDepth; // 0~±31
+        public PositiveDepth LFODepth; // 0~31
+        public Depth PressureLFODepth; // 0~±31
 
         public PitchEnvelope Envelope;
 
@@ -143,15 +87,14 @@ namespace KSynthLib.K5
 
         public PitchSettings()
         {
-            _coarse = new CoarseType();
-            _fine = new DepthType();
-            _pressureDepth = new DepthType();
-            _velocityEnvelopeDepth = new DepthType();
-            _lfoDepth = new PositiveDepthType();
-            _pressureLFODepth = new DepthType();
-            _envelopeDepth = new EnvelopeDepthType();
-            _benderDepth = new BenderDepthType();
-
+            Coarse = new Coarse();
+            Fine = new Depth();
+            PressureDepth = new Depth();
+            VelocityEnvelopeDepth = new Depth();
+            LFODepth = new PositiveDepth();
+            PressureLFODepth = new Depth();
+            EnvelopeDepth = new EnvelopeDepth();
+            BenderDepth = new BenderDepth();
             Envelope = new PitchEnvelope();
         }
 
@@ -165,9 +108,9 @@ namespace KSynthLib.K5
                 "                  LFO= {5,2}-PRS= {6,3}\n" +
                 "KEY    ={7}     BND= {8}\n" +
                 "FIXNO  ={9}\n\n",
-                Coarse, Fine, EnvelopeDepth, VelocityEnvelopeDepth,
-                PressureDepth, LFODepth, PressureLFODepth,
-                KeyTracking, BenderDepth,
+                Coarse.Value, Fine.Value, EnvelopeDepth, VelocityEnvelopeDepth,
+                PressureDepth.Value, LFODepth.Value, PressureLFODepth.Value,
+                KeyTracking, BenderDepth.Value,
                 Key) +
                 Envelope;
         }
@@ -190,14 +133,14 @@ namespace KSynthLib.K5
             data.Add(b);
             data.Add(EnvelopeDepth.ToByte());
             data.Add(PressureDepth.ToByte());
-            data.Add(BenderDepth);
+            data.Add(BenderDepth.ToByte());
             data.Add(VelocityEnvelopeDepth.ToByte());
-            data.Add(LFODepth);
+            data.Add(LFODepth.ToByte());
             data.Add(PressureLFODepth.ToByte());
 
             for (var i = 0; i < Source.PitchEnvelopeSegmentCount; i++)
             {
-                b = Envelope.Segments[i].Rate;
+                b = Envelope.Segments[i].Rate.ToByte();
 
                 // Set the envelope looping bit for the first rate only:
                 if (i == 0)
@@ -212,8 +155,8 @@ namespace KSynthLib.K5
 
             for (var i = 0; i < Source.PitchEnvelopeSegmentCount; i++)
             {
-                sbyte sb = Envelope.Segments[i].Level;
-                data.Add(sb.ToByte());
+                byte sb = Envelope.Segments[i].Level.ToByte();
+                data.Add(sb);
             }
 
             if (data.Count != DataLength)

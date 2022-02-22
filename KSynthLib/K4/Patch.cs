@@ -3,12 +3,86 @@ using System.Collections.Generic;
 
 namespace KSynthLib.K4
 {
-    /// <summary>
-    /// Abstract base class for patches.
-    /// </summary>
-    public abstract class Patch
+    public class PatchName
     {
-        public const int NameLength = 10;
+        public static readonly int Length = 10;
+
+        private string _name;
+
+        public string Value
+        {
+            get => _name.PadRight(Length, ' ').Substring(0, Length);
+            set => _name = value.PadRight(Length, ' ').Substring(0, Math.Min(value.Length, Length));
+        }
+
+        public PatchName(string s)
+        {
+            this.Value = s;
+        }
+
+        public PatchName(byte[] data, int offset = 0)
+        {
+            var chars = new List<char>();
+
+            for (var i = offset; i < Length; i++)
+            {
+                var b = data[i];
+
+                // If there is a character not found in the allowed list,
+                // replace it with a space and go to the next character
+                if (!Array.Exists(AllowedNameCharacterCodes, element => element.Equals(b)))
+                {
+                    chars.Add(' ');
+                    continue;
+                }
+
+                if (b == 0x7e)  // right arrow
+                {
+                    chars.Add('\u2192');
+                }
+                else if (b == 0x7f) // left arrow
+                {
+                    chars.Add('\u2190');
+                }
+                else if (b == 0x5c) // yen sign
+                {
+                    chars.Add('\u00a5');
+                }
+                else  // straight ASCII
+                {
+                    chars.Add((char)b);
+                }
+            }
+
+            this.Value = new string(chars.ToArray());
+        }
+
+        public byte[] ToBytes()
+        {
+            var bytes = new List<byte>();
+
+            var charArray = this.Value.ToCharArray();
+            for (var i = 0; i < charArray.Length; i++)
+            {
+                char ch = charArray[i];
+                byte b = (byte)ch;
+                if (ch == '\u2192') // right arrow
+                {
+                    b = 0x7e;
+                }
+                else if (ch == '\u2190')  // left arrow
+                {
+                    b = 0x7f;
+                }
+                else if (ch == '\u00a5')  // yen sign
+                {
+                    b = 0x5c;
+                }
+                bytes.Add(b);
+            }
+
+            return bytes.ToArray();
+        }
 
         public static readonly byte[] AllowedNameCharacterCodes = new byte[]
         {
@@ -56,21 +130,13 @@ namespace KSynthLib.K4
             0x7e, // right arrow (U+2192)
             0x7f, // left arrow (U+2190)
         };
+    }
 
-        protected string _name;
-
-        /// <summary>
-        /// The name of the patch.
-        /// </summary>
-        /// <value>
-        /// Has exactly 10 ASCII characters from the set of allowed ones.
-        /// </value>
-        public string Name
-        {
-            get => _name.Substring(0, Math.Min(_name.Length, NameLength));
-            set => _name = value.Substring(0, Math.Min(value.Length, NameLength));
-        }
-
+    /// <summary>
+    /// Abstract base class for patches.
+    /// </summary>
+    public abstract class Patch
+    {
         private byte _checksum;
 
         /// <summary>
@@ -79,7 +145,7 @@ namespace KSynthLib.K4
         /// <value>
         /// Computed from the collected data usign the Kawai checksum algorithm.
         /// </value>
-        public byte Checksum
+        public virtual byte Checksum
         {
             get
             {
@@ -99,77 +165,15 @@ namespace KSynthLib.K4
             }
         }
 
-        protected byte[] GetNameBytes(string name)
-        {
-            var bytes = new List<byte>();
-
-            var charArray = name.ToCharArray();
-            for (var i = 0; i < charArray.Length; i++)
-            {
-                char ch = charArray[i];
-                byte b = (byte)ch;
-                if (ch == '\u2192') // right arrow
-                {
-                    b = 0x7e;
-                }
-                else if (ch == '\u2190')  // left arrow
-                {
-                    b = 0x7f;
-                }
-                else if (ch == '\u00a5')  // yen sign
-                {
-                    b = 0x5c;
-                }
-                bytes.Add(b);
-            }
-
-            return bytes.ToArray();
-        }
-
-        protected string GetName(byte[] data, int offset = 0)
-        {
-            var chars = new List<char>();
-
-            for (var i = offset; i < NameLength; i++)
-            {
-                var b = data[i];
-
-                // If there is a character not found in the allowed list,
-                // replace it with a space and go to the next character
-                if (!Array.Exists(AllowedNameCharacterCodes, element => element.Equals(b)))
-                {
-                    chars.Add(' ');
-                    continue;
-                }
-
-                if (b == 0x7e)  // right arrow
-                {
-                    chars.Add('\u2192');
-                }
-                else if (b == 0x7f) // left arrow
-                {
-                    chars.Add('\u2190');
-                }
-                else if (b == 0x5c) // yen sign
-                {
-                    chars.Add('\u00a5');
-                }
-                else  // straight ASCII
-                {
-                    chars.Add((char)b);
-                }
-            }
-
-            return new string(chars.ToArray());
-        }
-
         protected abstract byte[] CollectData();
 
-        public byte[] ToData()
+        public virtual byte[] ToData()
         {
             var allData = new List<byte>();
+
             allData.AddRange(CollectData());
             allData.Add(this.Checksum);  // calls CollectData again, perf?
+
             return allData.ToArray();
         }
     }

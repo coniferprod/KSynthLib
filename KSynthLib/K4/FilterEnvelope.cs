@@ -4,33 +4,33 @@ namespace KSynthLib.K4
 {
     public class FilterEnvelope
     {
-        public LevelType Attack;
-        public LevelType Decay;
-        public DepthType Sustain;
-        public LevelType Release;
+        public Level Attack;
+        public Level Decay;
+        public Depth Sustain;
+        public Level Release;
 
         public FilterEnvelope()
         {
-            Attack = new LevelType();
-            Decay = new LevelType();
-            Sustain = new DepthType();
-            Release = new LevelType();
+            Attack = new Level();
+            Decay = new Level();
+            Sustain = new Depth();
+            Release = new Level();
         }
 
         public FilterEnvelope(int a, int d, int s, int r)
         {
-            Attack = new LevelType(a);
-            Decay = new LevelType(d);
-            Sustain = new DepthType(s);
-            Release = new LevelType(r);
+            Attack = new Level(a);
+            Decay = new Level(d);
+            Sustain = new Depth(s);
+            Release = new Level(r);
         }
 
         public FilterEnvelope(List<byte> data)
         {
-            Attack = new LevelType(data[0]);
-            Decay = new LevelType(data[1]);
-            Sustain = new DepthType(data[2]);  // constructor adjusts to range
-            Release = new LevelType(data[3]);
+            Attack = new Level(data[0]);
+            Decay = new Level(data[1]);
+            Sustain = new Depth(data[2]);  // constructor adjusts to range
+            Release = new Level(data[3]);
         }
 
         public override string ToString()

@@ -21,61 +21,27 @@ namespace KSynthLib.K5
         public byte SlopeModulation;
         public byte FlatLevel;
 
-        private DepthType _velocityDepth; // 0~±31
-        public sbyte VelocityDepth
-        {
-            get => _velocityDepth.Value;
-            set => _velocityDepth.Value = value;
-        }
-
-        private DepthType _pressureDepth; // 0~±31
-        public sbyte PressureDepth
-        {
-            get => _pressureDepth.Value;
-            set => _pressureDepth.Value = value;
-        }
-
-        private DepthType _keyScalingDepth; // 0~±31
-        public sbyte KeyScalingDepth
-        {
-            get => _keyScalingDepth.Value;
-            set => _keyScalingDepth.Value = value;
-        }
-
-        private DepthType _envelopeDepth; // 0~±31
-        public sbyte EnvelopeDepth
-        {
-            get => _envelopeDepth.Value;
-            set => _envelopeDepth.Value = value;
-        }
-
-        private DepthType _velocityEnvelopeDepth; // 0~±31
-        public sbyte VelocityEnvelopeDepth
-        {
-            get => _velocityEnvelopeDepth.Value;
-            set => _velocityEnvelopeDepth.Value = value;
-        }
+        public Depth VelocityDepth; // 0~±31
+        public Depth PressureDepth; // 0~±31
+        public Depth KeyScalingDepth; // 0~±31
+        public Depth EnvelopeDepth; // 0~±31
+        public Depth VelocityEnvelopeDepth; // 0~±31
 
         public bool IsActive;
         public bool IsModulationActive;
 
-        private PositiveDepthType _lfoDepth;
-        public byte LFODepth
-        {
-            get => _lfoDepth.Value;
-            set => _lfoDepth.Value = value;
-        }
+        public PositiveDepth LFODepth;
 
         public FilterEnvelopeSegment[] EnvelopeSegments;
 
         public Filter()
         {
-            _velocityDepth = new DepthType();
-            _pressureDepth = new DepthType();
-            _keyScalingDepth = new DepthType();
-            _envelopeDepth = new DepthType();
-            _velocityEnvelopeDepth = new DepthType();
-            _lfoDepth = new PositiveDepthType();
+            VelocityDepth = new Depth();
+            PressureDepth = new Depth();
+            KeyScalingDepth = new Depth();
+            EnvelopeDepth = new Depth();
+            VelocityEnvelopeDepth = new Depth();
+            LFODepth = new PositiveDepth();
 
             EnvelopeSegments = new FilterEnvelopeSegment[Source.FilterEnvelopeSegmentCount];
             for (var i = 0; i < Source.FilterEnvelopeSegmentCount; i++)
@@ -90,11 +56,11 @@ namespace KSynthLib.K5
 
             builder.Append(string.Format("*DDF*={0}   MOD={1}\n", IsActive ? "ON" : "--", IsModulationActive ? "ON" : "--"));
             builder.Append("                   <DEPTH>\n");
-            builder.Append(string.Format(" CUTOFF={0,2}-MOD={1,2}  ENV={2,3}-VEL={3,3}\n", Cutoff, CutoffModulation, EnvelopeDepth, VelocityEnvelopeDepth));
-            builder.Append(string.Format(" SLOPE ={0,2}-MOD={1,2}  VEL={2,3}\n", Slope, SlopeModulation, VelocityDepth));
-            builder.Append(string.Format("FLAT.LV={0,2}         PRS={1,3}\n", FlatLevel, PressureDepth));
-            builder.Append($"                    KS={KeyScalingDepth,3}\n");
-            builder.Append($"                   LFO={LFODepth,3}\n");
+            builder.Append(string.Format(" CUTOFF={0,2}-MOD={1,2}  ENV={2,3}-VEL={3,3}\n", Cutoff, CutoffModulation, EnvelopeDepth.Value, VelocityEnvelopeDepth.Value));
+            builder.Append(string.Format(" SLOPE ={0,2}-MOD={1,2}  VEL={2,3}\n", Slope, SlopeModulation, VelocityDepth.Value));
+            builder.Append(string.Format("FLAT.LV={0,2}         PRS={1,3}\n", FlatLevel, PressureDepth.Value));
+            builder.Append($"                    KS={KeyScalingDepth.Value,3}\n");
+            builder.Append($"                   LFO={LFODepth.Value,3}\n");
             builder.Append("\n\n");
 
             builder.Append("*DDF ENV*\n\n    SEG  |");
@@ -136,7 +102,7 @@ namespace KSynthLib.K5
             data.Add(EnvelopeDepth.ToByte());
             data.Add(VelocityEnvelopeDepth.ToByte());
 
-            byte b = LFODepth;
+            byte b = LFODepth.ToByte();
             if (IsModulationActive)
             {
                 b = b.SetBit(6);

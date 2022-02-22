@@ -10,36 +10,26 @@ namespace KSynthLib.K5
     {
         public bool IsRateModulationOn;
 
-        private PositiveDepthType _rate; // 0~31
-        public byte Rate
-        {
-            get => _rate.Value;
-            set => _rate.Value = value;
-        }
+        public PositiveDepth Rate; // 0~31
 
         public bool IsMaxSegment;  // only one segment can be max
 
-        private PositiveDepthType _level; // 0~31
-        public byte Level
-        {
-            get => _level.Value;
-            set => _level.Value = value;
-        }
+        public PositiveDepth Level; // 0~31
 
         public AmplifierEnvelopeSegment()
         {
             IsRateModulationOn = false;
-            _rate = new PositiveDepthType();
+            Rate = new PositiveDepth();
             IsMaxSegment = false;
-            _level = new PositiveDepthType();
+            Level = new PositiveDepth();
         }
 
         public AmplifierEnvelopeSegment(bool isRateMod, byte rate, bool isMaxSeg, byte level) : base()
         {
             IsRateModulationOn = isRateMod;
-            Rate = rate;
+            Rate = new PositiveDepth(rate);
             IsMaxSegment = isMaxSeg;
-            Level = level;
+            Level = new PositiveDepth(level);
         }
 
         public override string ToString()
@@ -102,67 +92,24 @@ namespace KSynthLib.K5
 
         public bool IsActive;
 
-        private DepthType _attackVelocityDepth; // 0~±31
-	    public sbyte AttackVelocityDepth
-        {
-            get => _attackVelocityDepth.Value;
-            set => _attackVelocityDepth.Value = value;
-        }
-
-        private DepthType _pressureDepth; // 0~±31
-	    public sbyte PressureDepth
-        {
-            get => _pressureDepth.Value;
-            set => _pressureDepth.Value = value;
-        }
-
-        private DepthType _keyScalingDepth; // 0~±31
-        public sbyte KeyScalingDepth
-        {
-            get => _keyScalingDepth.Value;
-            set => _keyScalingDepth.Value = value;
-        }
-
-        private PositiveDepthType _lfoDepth; // 0~31
-	    public byte LFODepth
-        {
-            get => _lfoDepth.Value;
-            set => _lfoDepth.Value = value;
-        }
-
-        private RateType _attackVelocityRate; // 0~±15
-	    public sbyte AttackVelocityRate
-        {
-            get => _attackVelocityRate.Value;
-            set => _attackVelocityRate.Value = value;
-        }
-
-        private RateType _releaseVelocityRate; // 0~±15
-	    public sbyte ReleaseVelocityRate
-        {
-            get => _releaseVelocityRate.Value;
-            set => _releaseVelocityRate.Value = value;
-        }
-
-        private RateType _keyScalingRate; // 0~±15
-	    public sbyte KeyScalingRate
-        {
-            get => _keyScalingRate.Value;
-            set => _keyScalingRate.Value = value;
-        }
-
+        public Depth AttackVelocityDepth; // 0~±31
+        public Depth PressureDepth; // 0~±31
+        public Depth KeyScalingDepth; // 0~±31
+        public PositiveDepth LFODepth; // 0~31
+        public Rate AttackVelocityRate; // 0~±15
+        public Rate ReleaseVelocityRate; // 0~±15
+        public Rate KeyScalingRate; // 0~±15
         public AmplifierEnvelope Envelope;
 
         public Amplifier()
         {
-            _attackVelocityDepth = new DepthType();
-            _pressureDepth = new DepthType();
-            _keyScalingDepth = new DepthType();
-            _lfoDepth = new PositiveDepthType();
-            _attackVelocityRate = new RateType();
-            _releaseVelocityRate = new RateType();
-            _keyScalingRate = new RateType();
-
+            AttackVelocityDepth = new Depth();
+            PressureDepth = new Depth();
+            KeyScalingDepth = new Depth();
+            LFODepth = new PositiveDepth();
+            AttackVelocityRate = new Rate();
+            ReleaseVelocityRate = new Rate();
+            KeyScalingRate = new Rate();
             Envelope = new AmplifierEnvelope();
         }
 
@@ -224,7 +171,7 @@ namespace KSynthLib.K5
             data.Add(AttackVelocityDepth.ToByte());
             data.Add(PressureDepth.ToByte());
             data.Add(KeyScalingDepth.ToByte());
-            byte b = LFODepth;
+            byte b = LFODepth.ToByte();
             if (IsActive)
             {
                 b = b.SetBit(7);
@@ -240,7 +187,7 @@ namespace KSynthLib.K5
 
             for (var i = 0; i < AmplifierEnvelope.SegmentCount; i++)
             {
-                b = Envelope.Segments[i].Rate;
+                b = Envelope.Segments[i].Rate.ToByte();
                 //Console.Error.WriteLine(string.Format("seg={0}, rate={1}, mod={2}", i, Envelope.Segments[i].Rate, Envelope.Segments[i].IsRateModulationOn));
                 if (Envelope.Segments[i].IsRateModulationOn)
                 {
@@ -256,7 +203,7 @@ namespace KSynthLib.K5
 
             for (var i = 0; i < AmplifierEnvelope.SegmentCount - 1; i++)
             {
-                b = Envelope.Segments[i].Level;
+                b = Envelope.Segments[i].Level.ToByte();
                 if (Envelope.Segments[i].IsMaxSegment)
                 {
                     b = b.SetBit(6);

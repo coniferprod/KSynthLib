@@ -19,8 +19,8 @@ namespace KSynthLib.Tests.K5
         [Fact]
         public void Level_IsSetCorrectly()
         {
-            segment.Level = 20;
-            Assert.Equal(20, segment.Level);
+            segment.Level = new PositiveDepth(20);
+            Assert.Equal(20, segment.Level.Value);
         }
     }
 
@@ -42,10 +42,9 @@ namespace KSynthLib.Tests.K5
         [Fact]
         public void Effect_IsSetCorrectly()
         {
-            envelope.Effect = 20;
-            Assert.Equal(20, envelope.Effect);
+            envelope.Effect = new PositiveDepth(20);
+            Assert.Equal(20, envelope.Effect.Value);
         }
-
     }
 
     public class HarmonicSettingsTests

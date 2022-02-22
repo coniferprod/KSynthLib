@@ -5,17 +5,17 @@ namespace KSynthLib.K4
 {
     public class AutoBendSettings
     {
-        public LevelType Time;
-        public DepthType Depth;
-        public DepthType KeyScalingTime;
-        public DepthType VelocityDepth;
+        public Level Time;
+        public Depth Depth;
+        public Depth KeyScalingTime;
+        public Depth VelocityDepth;
 
         public AutoBendSettings()
         {
-            Time = new LevelType();
-            Depth = new DepthType();
-            KeyScalingTime = new DepthType();
-            VelocityDepth = new DepthType();
+            Time = new Level();
+            Depth = new Depth();
+            KeyScalingTime = new Depth();
+            VelocityDepth = new Depth();
         }
 
         public AutoBendSettings(byte[] data)
@@ -23,10 +23,10 @@ namespace KSynthLib.K4
             // When initializing the values, the constructors that take a `byte` argument
             // automatically reset the top bit and scale the value correctly, so we only
             // need to pass in the raw byte from SysEx.
-            Time = new LevelType(data[0]);
-            Depth = new DepthType(data[1]);
-            KeyScalingTime = new DepthType(data[2]);
-            VelocityDepth = new DepthType(data[3]);
+            Time = new Level(data[0]);
+            Depth = new Depth(data[1]);
+            KeyScalingTime = new Depth(data[2]);
+            VelocityDepth = new Depth(data[3]);
         }
 
         public override string ToString()

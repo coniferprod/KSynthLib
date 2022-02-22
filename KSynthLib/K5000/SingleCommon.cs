@@ -41,16 +41,10 @@ namespace KSynthLib.K5000
         public GEQSettings GEQ;
         public bool DrumMark;  // dummy, always zero for single patch
 
-        private string _name;  // eight characters
-
         /// <value>
         /// Name of the single patch.
         /// </value>
-        public string Name
-        {
-            get => _name.Substring(0, NameLength);
-            set => _name = value.Substring(0, NameLength);
-        }
+        public PatchName Name;
 
         public PositiveLevel Volume;
         public PolyphonyMode Poly;  // enumeration
@@ -85,7 +79,7 @@ namespace KSynthLib.K5000
             Effect4 = new EffectSettings();
             GEQ = new GEQSettings();
 
-            Name = "NewSound";
+            Name = new PatchName("NewSound");
 
             Volume = new PositiveLevel(79);
 
@@ -161,7 +155,7 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);
             DrumMark = (b == 1);
 
-            Name = CollectName(data, offset);
+            Name = new PatchName(data, offset);
             offset += NameLength;
             //Console.Error.WriteLine($"Name = {Name}");
 
@@ -238,23 +232,6 @@ namespace KSynthLib.K5000
             //Console.Error.WriteLine(string.Format("Common data parsed, offset = {0:X2} ({0})", offset));
         }
 
-        private string CollectName(byte[] data, int offset)
-        {
-            byte[] bytes =
-            {
-                data[offset],
-                data[offset + 1],
-                data[offset + 2],
-                data[offset + 3],
-                data[offset + 4],
-                data[offset + 5],
-                data[offset + 6],
-                data[offset + 7],
-            };
-            string name = Encoding.ASCII.GetString(bytes);
-            return name;
-        }
-
         /// <summary>
         /// Returns a printable string representation of the single common settings.
         /// </string>
@@ -312,8 +289,7 @@ namespace KSynthLib.K5000
             data.AddRange(GEQ.ToData());
             data.Add(0);  // drum_mark
 
-            string paddedName = Name.PadRight(NameLength, ' ');
-            data.AddRange(ASCIIEncoding.ASCII.GetBytes(paddedName));
+            data.AddRange(this.Name.ToBytes());
 
             data.Add(Volume.ToByte());
             data.Add((byte)Poly);

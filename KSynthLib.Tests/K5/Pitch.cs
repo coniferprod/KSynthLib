@@ -20,8 +20,8 @@ namespace KSynthLib.Tests.K5
         [Fact]
         public void Coarse_IsCorrectlySet()
         {
-            settings.Coarse = -24;
-            Assert.Equal(-24, settings.Coarse);
+            settings.Coarse = new Coarse(-24);
+            Assert.Equal(-24, settings.Coarse.Value);
         }
 
         [Fact]
@@ -59,10 +59,9 @@ namespace KSynthLib.Tests.K5
         [Fact]
         public void Rate_IsSetCorrectly()
         {
-            segment.Rate = 20;
-            Assert.Equal(20, segment.Rate);
+            segment.Rate = new PositiveDepth(20);
+            Assert.Equal(20, segment.Rate.Value);
         }
     }
-
 }
 

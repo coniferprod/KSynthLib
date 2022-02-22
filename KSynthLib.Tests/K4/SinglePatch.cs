@@ -76,19 +76,6 @@ namespace KSynthLib.Tests.K4
             0x6E,        // checksum
         };
 
-        // Hex bytes of patch A-1 from A401.SYX, copied with Hex Fiend in macOS:
-        string rawString = "4D 65 6C 6F 20 56 6F 78 20 31 "
-        + "64 20 "
-        + "06 04 0C 02 1C 3F 39 31 32 32 32 3D 00 30 00 32 32 32 "
-        + "00 00 02 03 "
-        + "00 00 50 40 "
-        + "12 12 7E 7F "
-        + "4C 4C 5A 5B "
-        + "00 34 02 03 "
-        + "2C 37 34 35 "
-        + "02 02 15 11 "
-        + "4B 4B 34 35 36 36 34 35 48 48 34 35 5A 5A 34 35 40 40 02 01 41 41 35 36 32 32 35 36 2C 2C 35 36 32 32 35 36 32 32 35 36 32 32 33 34 31 51 02 07 32 34 5B 34 32 34 36 34 32 33 56 01 64 02 32 63 56 01 32 33 32 33 32 33 6E";
-
         byte[] filterData = new byte[]
         {
             // DCF
@@ -182,7 +169,7 @@ name part = 40 5B 5C 5D 5E 5F 60 7B 7C 7D
             SinglePatch singlePatch = new SinglePatch(data);
             //Console.Error.WriteLine($"Single patch name = '{singlePatch.Name}'");
 
-            Assert.Equal("Melo Vox 1", singlePatch.Name);
+            Assert.Equal("Melo Vox 1", singlePatch.Name.Value);
         }
 
         [Fact]
@@ -224,8 +211,8 @@ name part = 40 5B 5C 5D 5E 5F 60 7B 7C 7D
         {
             SinglePatch sp = new SinglePatch();
             string longName = "MyPatch*WithTooLongAName";
-            sp.Name = longName;
-            Assert.Equal(SinglePatch.NameLength, sp.Name.Length);
+            sp.Name = new PatchName(longName);
+            Assert.Equal(PatchName.Length, sp.Name.Value.Length);
         }
     }
 }

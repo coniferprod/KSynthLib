@@ -43,8 +43,10 @@ namespace KSynthLib.K4
         /// <value>System Exclusive data length.</value>
         public const int DataSize = 131;
 
-        public LevelType Volume;
-        public EffectNumberType Effect; // 1~32 (on K4)
+        public PatchName Name;
+
+        public Level Volume;
+        public EffectNumber Effect; // 1~32 (on K4)
         public SubmixType Submix;
         public SourceMode SourceMode;
         public PolyphonyMode PolyphonyMode;
@@ -57,14 +59,14 @@ namespace KSynthLib.K4
         /// </summary>
         public bool[] SourceMutes;
 
-        public PitchBendRangeType PitchBendRange;
+        public PitchBendRange PitchBendRange;
 
         public WheelAssignType WheelAssign; // 0/VIB, 1/LFO, 2/DCF
-        public DepthType WheelDepth;
+        public Depth WheelDepth;
         public AutoBendSettings AutoBend;  // same as portamento?
         public LFOSettings LFO;
         public VibratoSettings Vibrato;
-        public DepthType PressureFreq;
+        public Depth PressureFreq;
 
         /// <value>The number of sources in a single patch.</value>
         public const int SourceCount = 4;
@@ -79,24 +81,24 @@ namespace KSynthLib.K4
         /// </summary>
         public SinglePatch()
         {
-            this.Volume = new LevelType(99);
-            this.Effect = new EffectNumberType(1);
+            this.Volume = new Level(99);
+            this.Effect = new EffectNumber(1);
             this.Submix = SubmixType.A;
 
-            this._name = "NewSound";
+            this.Name = new PatchName("NewSound");
 
             SourceMode = SourceMode.Normal;
             PolyphonyMode = PolyphonyMode.Poly1;
             AM12 = false;
             AM34 = false;
             SourceMutes = new bool[] { false, false, false, false };
-            PitchBendRange = new PitchBendRangeType(2);
+            PitchBendRange = new PitchBendRange(2);
             WheelAssign = WheelAssignType.Vibrato;
-            WheelDepth = new DepthType(0);
+            WheelDepth = new Depth(0);
             Vibrato = new VibratoSettings();
             LFO = new LFOSettings();
             AutoBend = new AutoBendSettings();
-            PressureFreq = new DepthType();
+            PressureFreq = new Depth();
 
             Sources = new Source[SourceCount];
             Amplifiers = new Amplifier[SourceCount];
@@ -125,16 +127,17 @@ namespace KSynthLib.K4
         {
             var offset = 0;
             byte b = 0;  // will be reused when getting the next byte
-            this._name = this.GetName(data, offset);
+
+            this.Name = new PatchName(data, offset);
             offset += 10;  // name is S00 to S09
             //Console.Error.WriteLine(this.Name);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            this.Volume = new LevelType(b & 0x7f);
+            this.Volume = new Level(b & 0x7f);
 
             // effect = s11 bits 0...4
             (b, offset) = Util.GetNextByte(data, offset);
-            this.Effect = new EffectNumberType(b & 0x1f);
+            this.Effect = new EffectNumber(b & 0x1f);
 
             // output select = s12 bits 0...2
             (b, offset) = Util.GetNextByte(data, offset);
@@ -172,7 +175,7 @@ namespace KSynthLib.K4
 
             (b, offset) = Util.GetNextByte(data, offset);
             // Pitch bend = s15 bits 0...3
-            this.PitchBendRange = new PitchBendRangeType(b);
+            this.PitchBendRange = new PitchBendRange(b);
             // Wheel assign = s15 bits 4...5
             this.WheelAssign = (WheelAssignType)((b >> 4) & 0x03);
 
@@ -182,7 +185,7 @@ namespace KSynthLib.K4
 
             // Wheel depth = s17 bits 0...6
             (b, offset) = Util.GetNextByte(data, offset);
-            this.WheelDepth = new DepthType(b);  // constructor adjusts 0~100 to ±50
+            this.WheelDepth = new Depth(b);  // constructor adjusts 0~100 to ±50
 
             // Construct the auto bend settings from collected bytes (s18...s21)
             var autoBendBytes = new List<byte>();
@@ -221,7 +224,7 @@ namespace KSynthLib.K4
             LFO = new LFOSettings(lfoBytes);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            this.PressureFreq = new DepthType(b); // constructor adjusts 0~100 to ±50
+            this.PressureFreq = new Depth(b); // constructor adjusts 0~100 to ±50
 
             int totalSourceDataSize = Source.DataSize * SourceCount;
             byte[] sourceData = new byte[totalSourceDataSize];
@@ -272,135 +275,6 @@ namespace KSynthLib.K4
             (b, offset) = Util.GetNextByte(data, offset);
             // "Check sum value (s130) is the sum of the A5H and s0 ~ s129".
             this.Checksum = b; // store the checksum as we got it from SysEx
-
-/*
-            // Process the SysEx data using a memory stream:
-            using (MemoryStream mem = new MemoryStream(data))
-            {
-                // Read the patch name in s00...s09
-                Console.Error.WriteLine($"{mem.Position}: s00...s09 name");
-                var nameBytes = new byte[Patch.NameLength];
-                mem.Read(nameBytes, 0, Patch.NameLength);
-                this._name = this.GetName(nameBytes);
-
-                Console.Error.WriteLine($"{mem.Position}: s10 volume");
-                this.Volume = new LevelType(mem.ReadByte());
-
-                // effect = s11 bits 0...4
-                Console.Error.WriteLine($"{mem.Position}: s11 effect");
-                this.Effect = new EffectNumberType(mem.ReadByte());
-
-                // output select = s12 bits 0...2
-                Console.Error.WriteLine($"{mem.Position}: s12 output");
-                Submix = (SubmixType)(mem.ReadByte() & 0x07); // 0b00000111
-
-                Console.Error.WriteLine($"{mem.Position}: s13 source mode, polyphony mode, AM 1>2, AM 3>4");
-                int v = mem.ReadByte();
-                // source mode = s13 bits 0...1
-                SourceMode = (SourceMode)(v & 0x03);
-                PolyphonyMode = (PolyphonyMode)((v >> 2) & 0x03);
-                AM12 = ((v >> 4) & 0x01) == 1;
-                AM34 = ((v >> 5) & 0x01) == 1;
-
-                Console.Error.WriteLine($"{mem.Position}: s14 source mutes");
-                b = (byte)mem.ReadByte();
-                // the source mute bits are in s14:
-                // S1 = b0, S2 = b1, S3 = b2, S4 = b3
-                // The K4 MIDI spec says 0/mute, 1/not mute,
-                // so we flip it to make this value actually mean muted.
-                for (var i = 0; i < SourceCount; i++)
-                {
-                    SourceMutes[i] = !(b.IsBitSet(i));
-                }
-
-                // Save the first vibrato byte (the rest will come later)
-                vibratoBytes.Add(b);
-
-                Console.Error.WriteLine($"{mem.Position}: pitch bend, wheel assign");
-                v = mem.ReadByte();
-                // Pitch bend = s15 bits 0...3
-                PitchBendRange = new PitchBendRangeType(v & 0b1111);
-                // Wheel assign = s15 bits 4...5
-                WheelAssign = (WheelAssignType)((v >> 4) & 0x03);
-
-                // Vibrato speed = s16 bits 0...6
-                Console.Error.WriteLine($"{mem.Position}: vibrato speed");
-                vibratoBytes.Add((byte)mem.ReadByte());
-
-                // Wheel depth = s17 bits 0...6
-                Console.Error.WriteLine($"{mem.Position}: wheel depth");
-                WheelDepth = new DepthType((byte)mem.ReadByte());  // constructor adjusts 0~100 to ±50
-
-                // Construct the auto bend settings from collected bytes
-                Console.Error.WriteLine($"{mem.Position}: auto bend");
-                autoBendBytes.Add((byte)mem.ReadByte());
-                autoBendBytes.Add((byte)mem.ReadByte());
-                autoBendBytes.Add((byte)mem.ReadByte());
-                autoBendBytes.Add((byte)mem.ReadByte());
-                AutoBend = new AutoBendSettings(autoBendBytes.ToArray());
-
-                Console.Error.WriteLine($"{mem.Position}: vibrato pressure depth");
-                vibratoBytes.Add((byte)mem.ReadByte());
-
-                Console.Error.WriteLine($"{mem.Position}: vibrato depth");
-                vibratoBytes.Add((byte)mem.ReadByte());
-
-                // Now we have all the bytes for the vibrato settings
-                Vibrato = new VibratoSettings(vibratoBytes);
-
-                Console.Error.WriteLine($"{mem.Position}: LFO shape");
-                lfoBytes.Add((byte)mem.ReadByte());
-
-                Console.Error.WriteLine($"{mem.Position}: LFO speed");
-                lfoBytes.Add((byte)mem.ReadByte());
-
-                Console.Error.WriteLine($"{mem.Position}: LFO delay");
-                lfoBytes.Add((byte)mem.ReadByte());
-
-                Console.Error.WriteLine($"{mem.Position}: LFO depth");
-                lfoBytes.Add((byte)mem.ReadByte());
-
-                Console.Error.WriteLine($"{mem.Position}: LFO pressure depth");
-                lfoBytes.Add((byte)mem.ReadByte());
-
-                this.LFO = new LFOSettings(lfoBytes);
-
-                Console.Error.WriteLine($"{mem.Position}: pressure freq");
-                this.PressureFreq = new DepthType((byte)mem.ReadByte());
-
-                Console.Error.WriteLine($"{mem.Position}: sources");
-                int count = mem.Read(sourceData, 0, totalSourceDataSize);
-                Debug.Assert(count == totalSourceDataSize);
-                List<byte[]> sourceBytes = Util.SeparateBytes(sourceData, 4);
-                Sources = new Source[SourceCount]
-                {
-                    new Source(sourceBytes[0]),
-                    new Source(sourceBytes[1]),
-                    new Source(sourceBytes[2]),
-                    new Source(sourceBytes[3])
-                };
-
-                Console.Error.WriteLine($"{mem.Position}: amplifiers");
-                mem.Read(ampData, 0, totalAmpDataSize);
-                List<byte[]> ampBytes = Util.SeparateBytes(ampData, 4);
-                Amplifiers = new Amplifier[SourceCount]
-                {
-                    new Amplifier(ampBytes[0]),
-                    new Amplifier(ampBytes[1]),
-                    new Amplifier(ampBytes[2]),
-                    new Amplifier(ampBytes[3]),
-                };
-
-                Console.Error.WriteLine($"{mem.Position}: filters");
-                mem.Read(filterData, 0, totalFilterDataSize);
-                List<byte[]> filterBytes = Util.SeparateBytes(filterData, 2);
-                Filter1 = new Filter(filterBytes[0]);
-                Filter2 = new Filter(filterBytes[1]);
-
-                // "Check sum value (s130) is the sum of the A5H and s0 ~ s129".
-                this.Checksum = (byte)mem.ReadByte(); // store the checksum as we got it from SysEx
-            }
-*/
         }
 
         /// <summary>
@@ -413,7 +287,7 @@ namespace KSynthLib.K4
         {
             var builder = new StringBuilder();
 
-            builder.Append($"{Name}\n");
+            builder.Append($"{this.Name.Value}\n");
             builder.Append($"VOLUME     ={Volume:3}\nEFFECT PACH= {Effect:2}\nSUBMIX CH  =  {Submix}\n");
 
             builder.Append(string.Format("SOURCE MODE={0}\n", Enum.GetNames(typeof(SourceMode))[(int)SourceMode]));
@@ -455,9 +329,7 @@ namespace KSynthLib.K4
         {
             var data = new List<byte>();
 
-            //byte[] nameBytes = Encoding.ASCII.GetBytes(this.Name.PadRight(10));
-            byte[] nameBytes = GetNameBytes(this.Name.PadRight(10));
-            data.AddRange(nameBytes);
+            data.AddRange(this.Name.ToBytes());
 
             data.Add(Volume.ToByte());
             data.Add(Effect.ToByte());

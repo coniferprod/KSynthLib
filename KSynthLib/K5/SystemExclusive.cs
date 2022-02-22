@@ -1,6 +1,9 @@
+using System;
+using System.Collections.Generic;
+
 namespace KSynthLib.K5
 {
-    public enum SystemExclusiveFunction
+    public enum SystemExclusiveFunction: byte
     {
         OneBlockDataRequest = 0x00,
         AllBlockDataRequest = 0x01,
@@ -14,5 +17,29 @@ namespace KSynthLib.K5
         WriteErrorNoCard = 0x43,
         MachineIDRequest = 0x60,
         MachineIDAcknowledge = 0x61
+    }
+
+    public static class SystemExclusiveFunctionExtensions
+    {
+        public static string Name(this SystemExclusiveFunction function)
+        {
+            var functionNames = new Dictionary<SystemExclusiveFunction, string>()
+            {
+                { SystemExclusiveFunction.OneBlockDataRequest, "One Block Data Request" },
+                { SystemExclusiveFunction.AllBlockDataRequest, "All Block Data Request" },
+                { SystemExclusiveFunction.ParameterSend, "Parameter Send" },
+                { SystemExclusiveFunction.OneBlockDataDump, "One Block Data Dump" },
+                { SystemExclusiveFunction.AllBlockDataDump, "All Block Data Dump" },
+                { SystemExclusiveFunction.ProgramSend, "Program Send" },
+                { SystemExclusiveFunction.WriteComplete, "Write Complete" },
+                { SystemExclusiveFunction.WriteError, "Write Error" },
+                { SystemExclusiveFunction.WriteErrorProtect, "Write Error (Protect)" },
+                { SystemExclusiveFunction.WriteErrorNoCard, "Write Error (No Card)" },
+                { SystemExclusiveFunction.MachineIDRequest, "Machine ID Request" },
+                { SystemExclusiveFunction.MachineIDAcknowledge, "Machine ID Acknowledge" }
+            };
+
+            return functionNames.GetValueOrDefault(function, "(unknown)");
+        }
     }
 }

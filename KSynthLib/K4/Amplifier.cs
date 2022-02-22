@@ -7,31 +7,31 @@ namespace KSynthLib.K4
 {
     public class LevelModulation
     {
-        public DepthType VelocityDepth;
-        public DepthType PressureDepth;
-        public DepthType KeyScalingDepth;
+        public Depth VelocityDepth;
+        public Depth PressureDepth;
+        public Depth KeyScalingDepth;
 
         public LevelModulation()
         {
-            VelocityDepth = new DepthType();
-            PressureDepth = new DepthType();
-            KeyScalingDepth = new DepthType();
+            VelocityDepth = new Depth();
+            PressureDepth = new Depth();
+            KeyScalingDepth = new Depth();
         }
 
         public LevelModulation(int vel, int prs, int ks)
         {
-            VelocityDepth = new DepthType(vel);
-            PressureDepth = new DepthType(prs);
-            KeyScalingDepth = new DepthType(ks);
+            VelocityDepth = new Depth(vel);
+            PressureDepth = new Depth(prs);
+            KeyScalingDepth = new Depth(ks);
         }
 
         public LevelModulation(List<byte> data)
         {
-            // The bytes passed in must be raw SysEx. The DepthType(byte b) constructor
+            // The bytes passed in must be raw SysEx. The Depth(byte) constructor
             // adjusts them to the correct range, to avoid repetitive code here.
-            VelocityDepth = new DepthType(data[0]);
-            PressureDepth = new DepthType(data[1]);
-            KeyScalingDepth = new DepthType(data[2]);
+            VelocityDepth = new Depth(data[0]);
+            PressureDepth = new Depth(data[1]);
+            KeyScalingDepth = new Depth(data[2]);
         }
 
         public override string ToString()
@@ -53,29 +53,29 @@ namespace KSynthLib.K4
 
     public class TimeModulation
     {
-        public DepthType AttackVelocity;
-        public DepthType ReleaseVelocity;
-        public DepthType KeyScaling;
+        public Depth AttackVelocity;
+        public Depth ReleaseVelocity;
+        public Depth KeyScaling;
 
         public TimeModulation()
         {
-            AttackVelocity = new DepthType();
-            ReleaseVelocity = new DepthType();
-            KeyScaling = new DepthType();
+            AttackVelocity = new Depth();
+            ReleaseVelocity = new Depth();
+            KeyScaling = new Depth();
         }
 
         public TimeModulation(int a, int r, int ks)
         {
-            AttackVelocity = new DepthType(a);
-            ReleaseVelocity = new DepthType(r);
-            KeyScaling = new DepthType(ks);
+            AttackVelocity = new Depth(a);
+            ReleaseVelocity = new Depth(r);
+            KeyScaling = new Depth(ks);
         }
 
         public TimeModulation(List<byte> data)
         {
-            AttackVelocity = new DepthType(data[0]);
-            ReleaseVelocity = new DepthType(data[1]);
-            KeyScaling = new DepthType(data[2]);
+            AttackVelocity = new Depth(data[0]);
+            ReleaseVelocity = new Depth(data[1]);
+            KeyScaling = new Depth(data[2]);
         }
 
         public override string ToString()
@@ -103,14 +103,14 @@ namespace KSynthLib.K4
         public const int DataSize = 11;
 
         public AmplifierEnvelope Env;
-        public LevelType EnvelopeLevel;
+        public Level EnvelopeLevel;
         public LevelModulation LevelMod;
         public TimeModulation TimeMod;
 
         public Amplifier()
         {
             Env = new AmplifierEnvelope(0, 0, 0, 0);
-            EnvelopeLevel = new LevelType();
+            EnvelopeLevel = new Level();
             LevelMod = new LevelModulation();
             TimeMod = new TimeModulation();
         }
@@ -121,7 +121,7 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            EnvelopeLevel = new LevelType(b);
+            EnvelopeLevel = new Level(b);
 
             var envBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);

@@ -15,27 +15,27 @@ namespace KSynthLib.K4
     public class LFOSettings
     {
         public LFOShape Shape;
-        public LevelType Speed;
-        public LevelType Delay;
-        public DepthType Depth;
-        public DepthType PressureDepth;
+        public Level Speed;
+        public Level Delay;
+        public Depth Depth;
+        public Depth PressureDepth;
 
         public LFOSettings()
         {
             Shape = LFOShape.Triangle;
-            Speed = new LevelType();
-            Delay = new LevelType();
-            Depth = new DepthType();
-            PressureDepth = new DepthType();
+            Speed = new Level();
+            Delay = new Level();
+            Depth = new Depth();
+            PressureDepth = new Depth();
         }
 
         public LFOSettings(List<byte> data)
         {
             Shape = (LFOShape)(data[0] & 0x03);
-            Speed = new LevelType(data[1]);
-            Delay = new LevelType(data[2]);
-            Depth = new DepthType(data[3]);
-            PressureDepth = new DepthType(data[4]);
+            Speed = new Level(data[1]);
+            Delay = new Level(data[2]);
+            Depth = new Depth(data[3]);
+            PressureDepth = new Depth(data[4]);
         }
 
         public override string ToString()

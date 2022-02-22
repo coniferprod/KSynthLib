@@ -20,8 +20,8 @@ namespace KSynthLib.Tests.K5
         [Fact]
         public void VelocityDepth_IsSetCorrectly()
         {
-            filter.VelocityDepth = 20;
-            Assert.Equal(20, filter.VelocityDepth);
+            filter.VelocityDepth = new Depth(20);
+            Assert.Equal(20, filter.VelocityDepth.Value);
         }
     }
 }

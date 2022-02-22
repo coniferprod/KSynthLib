@@ -76,10 +76,10 @@ namespace KSynthLib.K5
             //Pitch = new PitchSettings();  // created by no-arg ctor
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Pitch.Coarse = b.ToSignedByte();
+            Pitch.Coarse = new Coarse(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Pitch.Fine = b.ToSignedByte();
+            Pitch.Fine = new Depth(b);
 
 	        (b, offset) = Util.GetNextByte(data, offset);
 	        if (b.IsBitSet(7))
@@ -95,22 +95,22 @@ namespace KSynthLib.K5
             // TODO: Check that the SysEx spec gets the meaning of b7 right
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Pitch.EnvelopeDepth = b.ToSignedByte();
+            Pitch.EnvelopeDepth = new EnvelopeDepth(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Pitch.PressureDepth = b.ToSignedByte();
+            Pitch.PressureDepth = new Depth(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Pitch.BenderDepth = b;
+            Pitch.BenderDepth = new BenderDepth(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Pitch.VelocityEnvelopeDepth = b.ToSignedByte();
+            Pitch.VelocityEnvelopeDepth = new Depth(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Pitch.LFODepth = b;
+            Pitch.LFODepth = new PositiveDepth(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Pitch.PressureLFODepth = b.ToSignedByte();
+            Pitch.PressureLFODepth = new Depth(b);
 
             Pitch.Envelope.Segments = new PitchEnvelopeSegment[PitchEnvelopeSegmentCount];
             for (var i = 0; i < PitchEnvelopeSegmentCount; i++)
@@ -120,11 +120,11 @@ namespace KSynthLib.K5
                 if (i == 0)
                 {
                     Pitch.Envelope.IsLooping = b.IsBitSet(7);
-                    Pitch.Envelope.Segments[i].Rate = (byte)(b & 0x7f);
+                    Pitch.Envelope.Segments[i].Rate = new PositiveDepth((byte)(b & 0x7f));
                 }
                 else
                 {
-                    Pitch.Envelope.Segments[i].Rate = b;
+                    Pitch.Envelope.Segments[i].Rate = new PositiveDepth(b);
                 }
             }
 
@@ -132,7 +132,7 @@ namespace KSynthLib.K5
             {
                 (b, offset) = Util.GetNextByte(data, offset);
                 //buf.Add(b);
-                Pitch.Envelope.Segments[i].Level = b.ToSignedByte();
+                Pitch.Envelope.Segments[i].Level = new Depth(b);
             }
 
             // DHG (S63 ... S380)
@@ -142,7 +142,7 @@ namespace KSynthLib.K5
             {
                 var harm = new Harmonic();
                 (b, offset) = Util.GetNextByte(data, offset);
-                harm.Level = b;
+                harm.Level = new Level(b);
                 Harmonics[i] = harm;
             }
 
@@ -170,8 +170,8 @@ namespace KSynthLib.K5
             harmData.Add(highNybble);
             //Harmonic63bis = new Harmonic(); // created by no-arg ctor
             Harmonic63bis.IsModulationActive = lowNybble.IsBitSet(2);
-            Harmonic63bis.EnvelopeNumber = (byte)(lowNybble + 1);
-            Harmonic63bis.Level = 99;  // don't care really
+            Harmonic63bis.EnvelopeNumber = new EnvelopeNumber(lowNybble);
+            Harmonic63bis.Level = new Level(99);  // don't care really
 
             // OK, here's the thing: there might be an error in the Kawai K5 System Exclusive specification
             // regarding the last harmonic (63) and how it is packed into a byte. Since it is not a very prominent
@@ -182,23 +182,23 @@ namespace KSynthLib.K5
 	        for (var i = 0; i < Harmonics.Length; i++)
             {
 		        Harmonics[i].IsModulationActive = harmData[i].IsBitSet(2);
-		        Harmonics[i].EnvelopeNumber = (byte)(harmData[i] + 1);  // add one to make env number 1...4
+		        Harmonics[i].EnvelopeNumber = new EnvelopeNumber(harmData[i]);
 	        }
 
             // DHG harmonic settings (S253 ... S260)
             var harmSet = new HarmonicSettings();
 
 	        (b, offset) = Util.GetNextByte(data, offset);
-        	harmSet.VelocityDepth = b.ToSignedByte();
+        	harmSet.VelocityDepth = new Depth(b);
 
 	        (b, offset) = Util.GetNextByte(data, offset);
-        	harmSet.PressureDepth = b.ToSignedByte();
+        	harmSet.PressureDepth = new Depth(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-        	harmSet.KeyScalingDepth = b.ToSignedByte();
+        	harmSet.KeyScalingDepth = new Depth(b);
 
 	        (b, offset) = Util.GetNextByte(data, offset);
-        	harmSet.LFODepth = b;
+        	harmSet.LFODepth = new PositiveDepth(b);
 
             // Harmonic envelope 1 - 4 settings (these will be augmented later in the process)
             harmSet.Envelopes = new HarmonicEnvelope[HarmonicEnvelopeCount];
@@ -207,7 +207,7 @@ namespace KSynthLib.K5
                 var he = new HarmonicEnvelope();
     	        (b, offset) = Util.GetNextByte(data, offset);
                 he.IsActive = b.IsBitSet(7);
-			    he.Effect = (byte)(b & 0x1f);
+			    he.Effect = new PositiveDepth((byte)(b & 0x1f));
                 harmSet.Envelopes[i] = he;
 		    }
 
@@ -234,10 +234,10 @@ namespace KSynthLib.K5
 	        harmSet.Selection = selection;
 
     	    (b, offset) = Util.GetNextByte(data, offset);
-        	harmSet.RangeFrom = b;
+        	harmSet.RangeFrom = new HarmonicNumber(b);
 
     	    (b, offset) = Util.GetNextByte(data, offset);
-        	harmSet.RangeTo = b;
+        	harmSet.RangeTo = new HarmonicNumber(b);
 
             // Harmonic envelope selections = 0/1, 1/2, 2/3, 3/4
     	    (b, offset) = Util.GetNextByte(data, offset);
@@ -246,12 +246,12 @@ namespace KSynthLib.K5
             // odd and even are in the same byte
             var odd = new HarmonicModulation();
             odd.IsOn = highNybble.IsBitSet(3);
-            odd.EnvelopeNumber = (byte)((highNybble & 0b00000011) + 1);
+            odd.EnvelopeNumber = new EnvelopeNumber(highNybble & 0b00000011);
         	harmSet.Odd = odd;
 
             var even = new HarmonicModulation();
             even.IsOn = lowNybble.IsBitSet(3);
-            even.EnvelopeNumber = (byte)((lowNybble & 0b00000011) + 1);
+            even.EnvelopeNumber = new EnvelopeNumber(lowNybble & 0b00000011);
             harmSet.Even = even;
 
     	    (b, offset) = Util.GetNextByte(data, offset);
@@ -260,19 +260,19 @@ namespace KSynthLib.K5
             // octave and fifth are in the same byte
             var octave = new HarmonicModulation();
             octave.IsOn = highNybble.IsBitSet(3);
-            octave.EnvelopeNumber = (byte)((highNybble & 0b00000011) + 1);
+            octave.EnvelopeNumber = new EnvelopeNumber(highNybble & 0b00000011);
             harmSet.Octave = octave;
 
             var fifth = new HarmonicModulation();
             fifth.IsOn = lowNybble.IsBitSet(3);
-            fifth.EnvelopeNumber = (byte)((lowNybble & 0b00000011) + 1);
+            fifth.EnvelopeNumber = new EnvelopeNumber(lowNybble & 0b00000011);
             harmSet.Fifth = fifth;
 
     	    (b, offset) = Util.GetNextByte(data, offset);
             (highNybble, lowNybble) = Util.NybblesFromByte(b);
             var all = new HarmonicModulation();
             all.IsOn = highNybble.IsBitSet(3);
-            all.EnvelopeNumber = (byte)((highNybble & 0b00000011) + 1);
+            all.EnvelopeNumber = new EnvelopeNumber(highNybble & 0b00000011);
         	harmSet.All = all;
 
     	    (b, offset) = Util.GetNextByte(data, offset);
@@ -293,7 +293,7 @@ namespace KSynthLib.K5
             }
 
     	    (b, offset) = Util.GetNextByte(data, offset);
-	        harmSet.HarmonicNumber = b;
+	        harmSet.HarmonicNumber = new HarmonicNumber(b);
 
             // Harmonic envelopes (S285 ... S380) - these were created earlier.
             // There are six segments for each of the four envelopes.
@@ -313,7 +313,7 @@ namespace KSynthLib.K5
                         shadow = b.IsBitSet(7);
                     }
                     segment.IsMaxSegment = b.IsBitSet(6);
-                    segment.Level = (byte)(b & 0b00111111);
+                    segment.Level = new PositiveDepth((byte)(b & 0b00111111));
 
                     segments[si] = segment;
                 }
@@ -322,7 +322,7 @@ namespace KSynthLib.K5
                 {
                     (b, offset) = Util.GetNextByte(data, offset);
                     harmonicEnvelopeDataCount++;
-                    segments[si].Rate = (byte)(b & 0b00111111);
+                    segments[si].Rate = new PositiveDepth((byte)(b & 0b00111111));
                 }
 
                 harmSet.Envelopes[ei].Segments = segments;
@@ -347,19 +347,19 @@ namespace KSynthLib.K5
             (b, offset) = Util.GetNextByte(data, offset);
             Filter.FlatLevel = (byte)(b & 0b00011111);
     	    (b, offset) = Util.GetNextByte(data, offset);
-            Filter.VelocityDepth = b.ToSignedByte();
+            Filter.VelocityDepth = new Depth(b);
     	    (b, offset) = Util.GetNextByte(data, offset);
-            Filter.PressureDepth = b.ToSignedByte();
+            Filter.PressureDepth = new Depth(b);
     	    (b, offset) = Util.GetNextByte(data, offset);
-            Filter.KeyScalingDepth = b.ToSignedByte();
+            Filter.KeyScalingDepth = new Depth(b);
     	    (b, offset) = Util.GetNextByte(data, offset);
-            Filter.EnvelopeDepth = b.ToSignedByte();
+            Filter.EnvelopeDepth = new Depth(b);
     	    (b, offset) = Util.GetNextByte(data, offset);
-            Filter.VelocityEnvelopeDepth = b.ToSignedByte();
+            Filter.VelocityEnvelopeDepth = new Depth(b);
     	    (b, offset) = Util.GetNextByte(data, offset);
             Filter.IsActive = b.IsBitSet(7);
             Filter.IsModulationActive = b.IsBitSet(6);
-            Filter.LFODepth = (byte)(b & 0b00011111);
+            Filter.LFODepth = new PositiveDepth((byte)(b & 0b00011111));
 
             Filter.EnvelopeSegments = new FilterEnvelopeSegment[FilterEnvelopeSegmentCount];
             for (var i = 0; i < FilterEnvelopeSegmentCount; i++)
@@ -378,26 +378,26 @@ namespace KSynthLib.K5
 
             // DDA (S427 ... S468)
     	    (b, offset) = Util.GetNextByte(data, offset);
-            Amplifier.AttackVelocityDepth = b.ToSignedByte();
+            Amplifier.AttackVelocityDepth = new Depth(b);
 
     	    (b, offset) = Util.GetNextByte(data, offset);
-            Amplifier.PressureDepth = b.ToSignedByte();
+            Amplifier.PressureDepth = new Depth(b);
 
     	    (b, offset) = Util.GetNextByte(data, offset);
-            Amplifier.KeyScalingDepth = b.ToSignedByte();
+            Amplifier.KeyScalingDepth = new Depth(b);
 
     	    (b, offset) = Util.GetNextByte(data, offset);
             Amplifier.IsActive = b.IsBitSet(7);
-            Amplifier.LFODepth = (byte)(b & 0b01111111);
+            Amplifier.LFODepth = new PositiveDepth((byte)(b & 0b01111111));
 
     	    (b, offset) = Util.GetNextByte(data, offset);
-            Amplifier.AttackVelocityRate = b.ToSignedByte();
+            Amplifier.AttackVelocityRate = new Rate(b);
 
     	    (b, offset) = Util.GetNextByte(data, offset);
-            Amplifier.ReleaseVelocityRate = b.ToSignedByte();
+            Amplifier.ReleaseVelocityRate = new Rate(b);
 
     	    (b, offset) = Util.GetNextByte(data, offset);
-            Amplifier.KeyScalingRate = b.ToSignedByte();
+            Amplifier.KeyScalingRate = new Rate(b);
 
             // Amplifier envelope segments:
             // Bit 7 is always zero, bit 6 is a boolean toggle, and bits 5...0 are the value
@@ -409,7 +409,7 @@ namespace KSynthLib.K5
                 var segment = new AmplifierEnvelopeSegment();
         	    (b, offset) = Util.GetNextByte(data, offset);
                 segment.IsRateModulationOn = b.IsBitSet(6);
-                segment.Rate = (byte)(b & 0b00111111);
+                segment.Rate = new PositiveDepth((byte)(b & 0b00111111));
                 Amplifier.Envelope.Segments[i] = segment;
             }
 
@@ -418,7 +418,7 @@ namespace KSynthLib.K5
             {
         	    (b, offset) = Util.GetNextByte(data, offset);
                 Amplifier.Envelope.Segments[i].IsMaxSegment = b.IsBitSet(6);
-                Amplifier.Envelope.Segments[i].Level = (byte)(b & 0b00111111);
+                Amplifier.Envelope.Segments[i].Level = new PositiveDepth((byte)(b & 0b00111111));
             }
 
             // Actually, S467 and S468 are marked as zero in the SysEx description:
@@ -442,7 +442,7 @@ namespace KSynthLib.K5
 
             for (var i = 0; i < HarmonicCount; i++)
             {
-                buf.Add(Harmonics[i].Level);
+                buf.Add(Harmonics[i].Level.ToByte());
             }
 
             byte b = 0;
@@ -451,7 +451,7 @@ namespace KSynthLib.K5
             // Harmonics 1...62 (0...61)
             while (count < HarmonicCount - 2)
             {
-                lowNybble = (byte)(Harmonics[count].EnvelopeNumber - 1);
+                lowNybble = Harmonics[count].EnvelopeNumber.ToByte();
                 lowNybble = lowNybble.UnsetBit(2);
                 if (Harmonics[count].IsModulationActive)
                 {
@@ -460,7 +460,7 @@ namespace KSynthLib.K5
 
                 count++;
 
-                highNybble = (byte)(Harmonics[count].EnvelopeNumber - 1); // 1~4 to 0~3
+                highNybble = Harmonics[count].EnvelopeNumber.ToByte();
                 highNybble = highNybble.UnsetBit(2);
                 if (Harmonics[count].IsModulationActive)
                 {
@@ -474,7 +474,7 @@ namespace KSynthLib.K5
             }
 
             // harmonic 63 (count = 62)
-            b = (byte)(Harmonics[count].EnvelopeNumber - 1); // 1~4 to 0~3
+            b = Harmonics[count].EnvelopeNumber.ToByte();
             byte originalByte = b;
             b = b.UnsetBit(3);
             if (Harmonics[count].IsModulationActive)
@@ -482,7 +482,7 @@ namespace KSynthLib.K5
                 b = b.SetBit(3);
             }
 
-            byte extraByte = (byte)(Harmonic63bis.EnvelopeNumber - 1); // 1~4 to 0~3
+            byte extraByte = Harmonic63bis.EnvelopeNumber.ToByte();
             if (Harmonic63bis.IsModulationActive)
             {
                 extraByte = extraByte.SetBit(3);

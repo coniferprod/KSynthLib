@@ -30,29 +30,29 @@ namespace KSynthLib.K4
     {
         public const int DataSize = 8;
 
-        public PatchNumberType SinglePatch;
+        public PatchNumber SinglePatch;
         public Zone KeyboardZone;
-        public ChannelType ReceiveChannel;
+        public Channel ReceiveChannel;
         public VelocitySwitchType VelocitySwitch;
         public bool IsMuted;
         public SubmixType Output;
         public PlayModeType PlayMode;
-        public LevelType Level;
-        public CoarseType Transpose;
-        public DepthType Tune;
+        public Level Level;
+        public Coarse Transpose;
+        public Depth Tune;
 
         public Section()
         {
-            SinglePatch = new PatchNumberType(1);
+            SinglePatch = new PatchNumber(1);
             KeyboardZone = new Zone { Low = 0, High = 127 };
-            ReceiveChannel = new ChannelType(1);
+            ReceiveChannel = new Channel(1);
             VelocitySwitch = VelocitySwitchType.All;
             IsMuted = false;
             Output = SubmixType.A;
             PlayMode = PlayModeType.Keyboard;
-            Level = new LevelType(80);
-            Transpose = new CoarseType(0);
-            Tune = new DepthType(0);
+            Level = new Level(80);
+            Transpose = new Coarse(0);
+            Tune = new Depth(0);
         }
 
         public Section(byte[] data) : this()
@@ -61,7 +61,7 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            SinglePatch = new PatchNumberType(b);
+            SinglePatch = new PatchNumber(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
             int zoneLow = b;
@@ -71,7 +71,7 @@ namespace KSynthLib.K4
 
             (b, offset) = Util.GetNextByte(data, offset);
             // rcv ch = M15 bits 0...3
-            ReceiveChannel = new ChannelType((byte)(b & 0x0f));
+            ReceiveChannel = new Channel((byte)(b & 0x0f));
             // velo sw = M15 bits 4..5
             VelocitySwitch = (VelocitySwitchType)((b >> 4) & 0x03);
             // section mute = M15 bit 6
@@ -85,13 +85,13 @@ namespace KSynthLib.K4
             PlayMode = (PlayModeType)((b >> 3) & 0x03);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Level = new LevelType(b);
+            Level = new Level(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Transpose = new CoarseType(b);
+            Transpose = new Coarse(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Tune = new DepthType(b);
+            Tune = new Depth(b);
         }
 
         public override string ToString()

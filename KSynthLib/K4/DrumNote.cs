@@ -11,16 +11,16 @@ namespace KSynthLib.K4
         public const int DataSize = 5;
 
         public Wave Wave;
-        public LevelType Decay;
-        public DepthType Tune; // 0~100 / ±50
-        private LevelType Level;  // manual says 0...100, SysEx spec says 0...99
+        public Level Decay;
+        public Depth Tune; // 0~100 / ±50
+        private Level Level;  // manual says 0...100, SysEx spec says 0...99
 
         public DrumSource()
         {
             Wave = new Wave(97);  // "KICK"
-            Decay = new LevelType(99);
-            Tune = new DepthType();
-            Level = new LevelType(99);
+            Decay = new Level(99);
+            Tune = new Depth();
+            Level = new Level(99);
         }
 
         public DrumSource(byte[] data) : this()
@@ -29,9 +29,9 @@ namespace KSynthLib.K4
             byte waveLow = (byte)(data[1] & 0x7f);
             Wave = new Wave(waveHigh, waveLow);
 
-            Decay = new LevelType(data[2]);
-            Tune = new DepthType(data[3]);
-            Level = new LevelType(data[4]);
+            Decay = new Level(data[2]);
+            Tune = new Depth(data[3]);
+            Level = new Level(data[4]);
         }
 
         public byte[] ToData()
@@ -68,7 +68,7 @@ namespace KSynthLib.K4
         }
     }
 
-    public class DrumNote
+    public class DrumNote : Patch
     {
         public const int DataSize = 11;  // ten bytes plus checksum
 
@@ -77,7 +77,7 @@ namespace KSynthLib.K4
         public DrumSource Source2;
 
         private byte _checksum;
-        public byte Checksum
+        public override byte Checksum
         {
             get
             {
@@ -148,7 +148,7 @@ namespace KSynthLib.K4
             Checksum = b;  // store checksum as we get it from SysEx
         }
 
-        private byte[] CollectData()
+        protected override byte[] CollectData()
         {
             var data = new List<byte>();
 
@@ -168,11 +168,13 @@ namespace KSynthLib.K4
             return data.ToArray();
         }
 
-        public byte[] ToData()
+        public override byte[] ToData()
         {
             var data = new List<byte>();
-            data.AddRange(CollectData());
+
+            data.AddRange(this.CollectData());
             data.Add(Checksum);  // computed by property accessor
+
             return data.ToArray();
         }
 

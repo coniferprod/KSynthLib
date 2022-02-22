@@ -4,33 +4,33 @@ namespace KSynthLib.K4
 {
     public class AmplifierEnvelope
     {
-        public LevelType Attack;
-        public LevelType Decay;
-        public LevelType Sustain;
-        public LevelType Release;
+        public Level Attack;
+        public Level Decay;
+        public Level Sustain;
+        public Level Release;
 
         public AmplifierEnvelope()
         {
-            Attack = new LevelType();
-            Decay = new LevelType();
-            Sustain = new LevelType();
-            Release = new LevelType();
+            Attack = new Level();
+            Decay = new Level();
+            Sustain = new Level();
+            Release = new Level();
         }
 
         public AmplifierEnvelope(byte a, byte d, byte s, byte r)
         {
-            Attack = new LevelType(a);
-            Decay = new LevelType(d);
-            Sustain = new LevelType(s);
-            Release = new LevelType(r);
+            Attack = new Level(a);
+            Decay = new Level(d);
+            Sustain = new Level(s);
+            Release = new Level(r);
         }
 
         public AmplifierEnvelope(List<byte> data)
         {
-            Attack = new LevelType(data[0]);
-            Decay = new LevelType(data[1]);
-            Sustain = new LevelType(data[2]);
-            Release = new LevelType(data[3]);
+            Attack = new Level(data[0]);
+            Decay = new Level(data[1]);
+            Sustain = new Level(data[2]);
+            Release = new Level(data[3]);
         }
 
         public override string ToString()

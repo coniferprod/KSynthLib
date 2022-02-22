@@ -24,72 +24,38 @@ namespace KSynthLib.K5
 
     public class KeyScaling
     {
-        private DepthType _right; // 0~±31
-        public sbyte Right
-        {
-            get => _right.Value;
-            set => _right.Value = value;
-        }
+        public Depth Right; // 0~±31
+        public Depth Left; // 0~±31
 
-        private DepthType _left; // 0~±31
-        public sbyte Left
-        {
-            get => _left.Value;
-            set => _left.Value = value;
-        }
-
-        private KeyNumberType _breakpoint;
-        public byte Breakpoint
-        {
-            get => _breakpoint.Value;
-            set => _breakpoint.Value = value;
-        }
+        public KeyNumber Breakpoint;
 
         public KeyScaling()
         {
-            _right = new DepthType();
-            _left = new DepthType();
-            _breakpoint = new KeyNumberType();
+            Right = new Depth();
+            Left = new Depth();
+            Breakpoint = new KeyNumber();
         }
 
         public override string ToString()
         {
-            return $"*KS CURVE*\nLEFT={Left,3}    B.POINT={Breakpoint,3}    RIGHT={Right,3}";
+            return $"*KS CURVE*\nLEFT={Left.Value,3}    B.POINT={Breakpoint.Value,3}    RIGHT={Right.Value,3}";
         }
     }
 
     public class SourceSettings
     {
-        private PositiveDepthType _delay;  // 0~31
-        public byte Delay
-        {
-            get => _delay.Value;
-            set => _delay.Value = value;
-        }
-
-        private DepthType _pedalDepth; // 0~±31
-        public sbyte PedalDepth
-        {
-            get => _pedalDepth.Value;
-            set => _pedalDepth.Value = value;
-        }
-
-        private DepthType _wheelDepth; // 0~±31
-        public sbyte WheelDepth
-        {
-            get => _wheelDepth.Value;
-            set => _wheelDepth.Value = value;
-        }
-
+        public PositiveDepth Delay;  // 0~31
+        public Depth PedalDepth; // 0~±31
+        public Depth WheelDepth; // 0~±31
         public ModulationAssign PedalAssign;  // enumeration
         public ModulationAssign WheelAssign;  // enumeration
         public KeyScaling KeyScaling;
 
         public SourceSettings()
         {
-            _delay = new PositiveDepthType();
-            _pedalDepth = new DepthType();
-            _wheelDepth = new DepthType();
+            Delay = new PositiveDepth();
+            PedalDepth = new Depth();
+            WheelDepth = new Depth();
             KeyScaling = new KeyScaling();
         }
 
@@ -111,32 +77,12 @@ namespace KSynthLib.K5
             set => _name = value.Substring(0, Math.Min(value.Length, NameLength));
         }
 
-        private VolumeType _volume;   // 0~63
-        public byte Volume
-        {
-            get => _volume.Value;
-            set => _volume.Value = value;
-        }
-
-        private DepthType _balance; // 0~±31
-        public sbyte Balance
-        {
-            get => _balance.Value;
-            set => _balance.Value = value;
-        }
-
+        public Volume Volume;   // 0~63
+        public Depth Balance; // 0~±31
         public SourceSettings Source1Settings;
         public SourceSettings Source2Settings;
-
         public bool Portamento;
-
-        private VolumeType _portamentoSpeed; // 0~63
-        public byte PortamentoSpeed
-        {
-            get => _portamentoSpeed.Value;
-            set => _portamentoSpeed.Value = value;
-        }
-
+        public Volume PortamentoSpeed; // 0~63
         public SourceMode SMode;  // enumeration
         public PicMode PMode;  // enumeration
         public Source Source1;
@@ -152,14 +98,14 @@ namespace KSynthLib.K5
         public SinglePatch()
         {
             _name = "NewSound";
-            _volume = new VolumeType();
-            _balance = new DepthType();
+            Volume = new Volume();
+            Balance = new Depth();
 
             Source1Settings = new SourceSettings();
             Source2Settings = new SourceSettings();
 
             Portamento = false;
-            _portamentoSpeed = new VolumeType();
+            PortamentoSpeed = new Volume();
 
             SMode = SourceMode.Full;
             PMode = PicMode.Both;
@@ -181,35 +127,36 @@ namespace KSynthLib.K5
             Name = CollectName(data);  // name is S1...S8
 
             offset += 8;
-            (Volume, offset) = Util.GetNextByte(data, offset);  // S9
+            (b, offset) = Util.GetNextByte(data, offset);  // S09
+            Volume = new Volume(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Balance = b.ToSignedByte(); // S10
+            Balance = new Depth(b); // S10
 
             // Source 1 and Source 2 settings.
         	// Note that the pedal assign and the wheel assign for one source are in the same byte.
             var s1s = new SourceSettings();
-            s1s.Delay = data[offset];          // S11
-            s1s.PedalDepth = data[offset + 2].ToSignedByte(); // S13
-            s1s.WheelDepth = data[offset + 4].ToSignedByte(); // S15
+            s1s.Delay = new PositiveDepth(data[offset]);          // S11
+            s1s.PedalDepth = new Depth(data[offset + 2]); // S13
+            s1s.WheelDepth = new Depth(data[offset + 4]); // S15
             s1s.PedalAssign = (ModulationAssign)Util.HighNybble(data[offset + 6]); // S17 high nybble
             s1s.WheelAssign = (ModulationAssign)Util.LowNybble(data[offset + 6]); // S17 low nybble
             s1s.KeyScaling = new KeyScaling {  // just a placeholder
-                Left = 0,
-                Right = 0,
-                Breakpoint = 0
+                Left = new Depth(0),
+                Right = new Depth(0),
+                Breakpoint = new KeyNumber(0)
             };
 
             var s2s = new SourceSettings();
-            s2s.Delay = data[offset + 1];                           // S12
-            s2s.PedalDepth = data[offset + 3].ToSignedByte();               // S14
-            s2s.WheelDepth = data[offset + 5].ToSignedByte();               // S16
+            s2s.Delay = new PositiveDepth(data[offset + 1]);                           // S12
+            s2s.PedalDepth = new Depth(data[offset + 3]);               // S14
+            s2s.WheelDepth = new Depth(data[offset + 5]);               // S16
             s2s.PedalAssign = (ModulationAssign)Util.HighNybble(data[offset + 7]); // S18 high nybble
             s2s.WheelAssign = (ModulationAssign)Util.LowNybble(data[offset + 7]); // S18 low nybble
             s2s.KeyScaling = new KeyScaling {  // just a placeholder
-                Left = 0,
-                Right = 0,
-                Breakpoint = 0
+                Left = new Depth(0),
+                Right = new Depth(0),
+                Breakpoint = new KeyNumber(0)
             };
 
             // Assign the source settings later, when the keyscaling has been parsed.
@@ -218,7 +165,7 @@ namespace KSynthLib.K5
 	        // portamento setting and portamento speed - S19
             (b, offset) = Util.GetNextByte(data, offset);
             Portamento = b.IsBitSet(7);  // use the byte extensions defined in Util.cs
-	        PortamentoSpeed = (byte)(b & 0x3f); // 0b00111111
+	        PortamentoSpeed = new Volume((byte)(b & 0x3f)); // 0b00111111
 
             // mode and "pic mode" - S20
 	        (b, offset) = Util.GetNextByte(data, offset);
@@ -269,29 +216,29 @@ namespace KSynthLib.K5
             LFO.Speed = b;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            LFO.Delay = b;
+            LFO.Delay = new PositiveDepth(b);
 
     	    (b, offset) = Util.GetNextByte(data, offset);
-            LFO.Trend = b;
+            LFO.Trend = new PositiveDepth(b);
 
             // Keyscaling (S473 ... S478)
     	    (b, offset) = Util.GetNextByte(data, offset);
-            s1s.KeyScaling.Right = b.ToSignedByte();
+            s1s.KeyScaling.Right = new Depth(b);
 
     	    (b, offset) = Util.GetNextByte(data, offset);
-            s2s.KeyScaling.Right = b.ToSignedByte();
+            s2s.KeyScaling.Right = new Depth(b);
 
     	    (b, offset) = Util.GetNextByte(data, offset);
-            s1s.KeyScaling.Left = b.ToSignedByte();
+            s1s.KeyScaling.Left = new Depth(b);
 
     	    (b, offset) = Util.GetNextByte(data, offset);
-            s2s.KeyScaling.Left = b.ToSignedByte();
+            s2s.KeyScaling.Left = new Depth(b);
 
     	    (b, offset) = Util.GetNextByte(data, offset);
-            s1s.KeyScaling.Breakpoint = b;
+            s1s.KeyScaling.Breakpoint = new KeyNumber(b);
 
     	    (b, offset) = Util.GetNextByte(data, offset);
-            s2s.KeyScaling.Breakpoint = b;
+            s2s.KeyScaling.Breakpoint = new KeyNumber(b);
 
             Source1Settings = s1s;
             Source2Settings = s2s;
@@ -381,11 +328,11 @@ namespace KSynthLib.K5
                 buf.Add(Convert.ToByte(ch));
             }
 
-            buf.Add(Volume);
+            buf.Add(Volume.ToByte());
             buf.Add(Balance.ToByte());
 
-            buf.Add(Source1Settings.Delay);
-            buf.Add(Source2Settings.Delay);
+            buf.Add(Source1Settings.Delay.ToByte());
+            buf.Add(Source2Settings.Delay.ToByte());
 
             buf.Add(Source1Settings.PedalDepth.ToByte());
             buf.Add(Source2Settings.PedalDepth.ToByte());
@@ -404,7 +351,7 @@ namespace KSynthLib.K5
             buf.Add(b);
 
             // portamento and p. speed - S19
-            b = PortamentoSpeed;
+            b = PortamentoSpeed.ToByte();
             if (Portamento)
             {
                 b.SetBit(7);
@@ -435,8 +382,8 @@ namespace KSynthLib.K5
             buf.Add(Source2Settings.KeyScaling.Right.ToByte());
             buf.Add(Source1Settings.KeyScaling.Left.ToByte());
             buf.Add(Source2Settings.KeyScaling.Left.ToByte());
-            buf.Add(Source1Settings.KeyScaling.Breakpoint);
-            buf.Add(Source2Settings.KeyScaling.Breakpoint);
+            buf.Add(Source1Settings.KeyScaling.Breakpoint.ToByte());
+            buf.Add(Source2Settings.KeyScaling.Breakpoint.ToByte());
 
             for (var i = 0; i < FormantLevelCount; i++)
             {

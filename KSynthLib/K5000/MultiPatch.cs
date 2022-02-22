@@ -10,11 +10,14 @@ namespace KSynthLib.K5000
     /// </summary>
     public class MultiPatch : Patch
     {
+        public PatchName Name;
+
         /// <summary>
         /// Constructs a multi patch with default values.
         /// </summary>
         public MultiPatch() : base()
         {
+            Name = new PatchName("NewMulti");
 
         }
 

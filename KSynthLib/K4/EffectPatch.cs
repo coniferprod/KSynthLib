@@ -25,22 +25,22 @@ namespace KSynthLib.K4
 
     public class EffectSubmix
     {
-        public PanValueType Pan;
-        public LevelType Send1;
-        public LevelType Send2;
+        public PanValue Pan;
+        public Level Send1;
+        public Level Send2;
 
         public EffectSubmix()
         {
-            Pan = new PanValueType();
-            Send1 = new LevelType();
-            Send2 = new LevelType();
+            Pan = new PanValue();
+            Send1 = new Level();
+            Send2 = new Level();
         }
 
         public EffectSubmix(int d0, int d1, int d2)
         {
-            Pan = new PanValueType(d0);
-            Send1 = new LevelType(d1);
-            Send2 = new LevelType(d2);
+            Pan = new PanValue(d0);
+            Send1 = new Level(d1);
+            Send2 = new Level(d2);
         }
 
         public byte[] ToData()
@@ -53,19 +53,19 @@ namespace KSynthLib.K4
         }
     }
 
-    public class EffectPatch
+    public class EffectPatch: Patch
     {
         public const int DataSize = 35;
         public const int SubmixCount = 8;
 
         public EffectType Type;
-        public SmallEffectParameterType Param1;
-        public SmallEffectParameterType Param2;
-        public LargeEffectParameterType Param3;
+        public SmallEffectParameter Param1;
+        public SmallEffectParameter Param2;
+        public LargeEffectParameter Param3;
         public EffectSubmix[] Submixes;
 
         private byte _checksum;
-        public byte Checksum
+        public override byte Checksum
         {
             get
             {
@@ -85,9 +85,9 @@ namespace KSynthLib.K4
         public EffectPatch()
         {
             Type = EffectType.Reverb1;
-            Param1 = new SmallEffectParameterType();
-            Param2 = new SmallEffectParameterType();
-            Param3 = new LargeEffectParameterType();
+            Param1 = new SmallEffectParameter();
+            Param2 = new SmallEffectParameter();
+            Param3 = new LargeEffectParameter();
 
             Submixes = new EffectSubmix[SubmixCount];
             for (var i = 0; i < SubmixCount; i++)
@@ -99,9 +99,9 @@ namespace KSynthLib.K4
         public EffectPatch(byte[] data) : this()
         {
             Type = (EffectType)data[0];
-            Param1 = new SmallEffectParameterType(data[1]);
-            Param2 = new SmallEffectParameterType(data[2]);
-            Param3 = new LargeEffectParameterType(data[3]);
+            Param1 = new SmallEffectParameter(data[1]);
+            Param2 = new SmallEffectParameter(data[2]);
+            Param3 = new LargeEffectParameter(data[3]);
 
             var offset = 4;
             Submixes = new EffectSubmix[SubmixCount];
@@ -116,7 +116,7 @@ namespace KSynthLib.K4
             }
         }
 
-        protected byte[] CollectData()
+        protected override byte[] CollectData()
         {
             var data = new List<byte>();
 
@@ -141,7 +141,7 @@ namespace KSynthLib.K4
             return data.ToArray();
         }
 
-        public byte[] ToData()
+        public override byte[] ToData()
         {
             var data = new List<byte>();
             data.AddRange(CollectData());

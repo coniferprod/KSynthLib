@@ -10,24 +10,24 @@ namespace KSynthLib.K4
     {
         public const int DataSize = 14;
 
-        public LevelType Cutoff;
-        public ResonanceType Resonance;
+        public Level Cutoff;
+        public Resonance Resonance;
         public LevelModulation CutoffMod;
         public bool IsLFO;  // 0/off, 1/on
         public FilterEnvelope Env;
-        public DepthType EnvelopeDepth;
-        public DepthType EnvelopeVelocityDepth;
+        public Depth EnvelopeDepth;
+        public Depth EnvelopeVelocityDepth;
         public TimeModulation TimeMod;
 
         public Filter()
         {
-            Cutoff = new LevelType(88);
-            Resonance = new ResonanceType(0);
+            Cutoff = new Level(88);
+            Resonance = new Resonance(0);
             CutoffMod = new LevelModulation();
             IsLFO = false;
             Env = new FilterEnvelope();
-            EnvelopeDepth = new DepthType();
-            EnvelopeVelocityDepth = new DepthType();
+            EnvelopeDepth = new Depth();
+            EnvelopeVelocityDepth = new Depth();
             TimeMod = new TimeModulation();
         }
 
@@ -37,10 +37,10 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Cutoff = new LevelType(b);
+            Cutoff = new Level(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Resonance = new ResonanceType(b & 0b00000111);
+            Resonance = new Resonance(b & 0b00000111);
             IsLFO = b.IsBitSet(3);
 
             var cutoffModBytes = new List<byte>();
@@ -53,10 +53,10 @@ namespace KSynthLib.K4
             CutoffMod = new LevelModulation(cutoffModBytes);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            EnvelopeDepth = new DepthType(b);  // constructor with byte parameter adjusts to range
+            EnvelopeDepth = new Depth(b);  // constructor with byte parameter adjusts to range
 
             (b, offset) = Util.GetNextByte(data, offset);
-            EnvelopeVelocityDepth = new DepthType(b);
+            EnvelopeVelocityDepth = new Depth(b);
 
             var envBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);

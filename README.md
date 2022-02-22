@@ -44,7 +44,7 @@ where "x.y.z" is the version of the library you want to use.
 To automate these steps there is also an installation script for the Bash shell, `install.sh`.
 To use it, first set the environment variables:
 
-    export KSYNTHLIB_VERSION=0.7.0
+    export KSYNTHLIB_VERSION=0.15.0
     export KSYNTHLIB_CONFIGURATION=Debug
     export LOCAL_NUGET_PATH=/Users/yourname/Library/NuGet
 
@@ -71,9 +71,9 @@ There is an associated test project with unit tests created using
     dotnet test
 
 For testing the K4 features you should first download the [original factory
-patches](https://kawaius.com/technical-support-division/software-os/) for the K4 as MIDI System Exclusive dump files from Kawai USA. Then
-unzip them into a folder called "Kawai K4 Sounds" in your Documents
-directory.
+patches](https://kawaius.com/technical-support-division/software-os/) for the K4
+as MIDI System Exclusive dump files from Kawai USA. Then unzip them into a folder
+called "Kawai K4 Sounds" in your Documents directory.
 
 ## Remarks
 
@@ -81,10 +81,25 @@ Most of the synthesizer parameters are represented by domain classes. Many of th
 classes use a custom type for a range of values. This ensures that invalid values are
 rejected as early as possible in development. Typically each synthesizer has somewhat
 different range types, so they are defined separately for each synthesizer in a
-device-specific `RangeTypes.cs` file. All the types use the smallest possible .NET
-data type that will fit the value. For library consumers it is recommended to create
-a view model that translates between UI layers of your application and the model objects
-in this library.
+device-specific `Types.cs` file.
+
+All the ranged types are derived from the abstract base class `RangedValue` and are
+backed by an `int` type. Deriving a new ranged value type could look like this:
+
+    public class Volume: RangedValue
+    {
+        public Volume() : this(0) { }
+        public Volume(int value) : base("Volume", new Range<int>(0, 127), 0, value) { }
+        public Volume(byte value) : this((int)value) { }
+        public byte ToByte() => (byte)(this.Value);
+    }
+
+You should specify the default value (here `0`), the minimum and maximum allowed values
+(here `0` and `127`), and a name to use if an `ArgumentOutOfRangeException` is thrown due to input values that
+do not fit the range.
+
+For library consumers it is recommended to create a view model that translates between UI layers of
+the application and the domain objects in this library.
 
 The range implementation uses the [Range.NET](https://github.com/mnelsonwhite/Range.NET) library.
 

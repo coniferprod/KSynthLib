@@ -36,10 +36,8 @@ namespace KSynthLib.Tests.K5
         [Fact]
         public void Delay_IsSetCorrectly()
         {
-            settings.Delay = 20;
-            Assert.Equal(20, settings.Delay);
+            settings.Delay = new PositiveDepth(20);
+            Assert.Equal(20, settings.Delay.Value);
         }
-
     }
 }
-

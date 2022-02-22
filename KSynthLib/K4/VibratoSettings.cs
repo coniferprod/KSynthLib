@@ -14,24 +14,24 @@ namespace KSynthLib.K4
     public class VibratoSettings
     {
         public LFOShape Shape; // 0/TRI, 1/SAW, 2/SQR, 3/RND
-        public LevelType Speed;
-        public DepthType Pressure;
-        public DepthType Depth;
+        public Level Speed;
+        public Depth Pressure;
+        public Depth Depth;
 
         public VibratoSettings()
         {
             Shape = LFOShape.Triangle;
-            Speed = new LevelType();
-            Pressure = new DepthType();
-            Depth = new DepthType();
+            Speed = new Level();
+            Pressure = new Depth();
+            Depth = new Depth();
         }
 
         public VibratoSettings(List<byte> data)
         {
             Shape = (LFOShape)((data[0] >> 4) & 0x03);
-            Speed = new LevelType(data[1] & 0x7f);
-            Pressure = new DepthType(data[2] & 0x7f);
-            Depth = new DepthType(data[3] & 0x7f);
+            Speed = new Level(data[1] & 0x7f);
+            Pressure = new Depth(data[2] & 0x7f);
+            Depth = new Depth(data[3] & 0x7f);
         }
 
         public override string ToString()

@@ -20,8 +20,8 @@ namespace KSynthLib.Tests.K5
         [Fact]
         public void AttackVelocityDepth_IsSetCorrectly()
         {
-            amplifier.AttackVelocityDepth = 20;
-            Assert.Equal(20, amplifier.AttackVelocityDepth);
+            amplifier.AttackVelocityDepth = new Depth(20);
+            Assert.Equal(20, amplifier.AttackVelocityDepth.Value);
         }
     }
 

@@ -8,18 +8,18 @@ using KSynthLib.Common;
 namespace KSynthLib.K4
 {
 
-    public class DrumPatch
+    public class DrumPatch : Patch
     {
         public const int DataSize = 682;
         public const int NoteCount = 61;  // from C1 to C6
 
-        public ChannelType ReceiveChannel;
-        public LevelType Volume;
-        public LevelType VelocityDepth;
+        public Channel ReceiveChannel;
+        public Level Volume;
+        public Level VelocityDepth;
         public List<DrumNote> Notes;
 
         private byte _checksum;
-        public byte Checksum
+        public override byte Checksum
         {
             get
             {
@@ -44,9 +44,9 @@ namespace KSynthLib.K4
 
         public DrumPatch()
         {
-            ReceiveChannel = new ChannelType(1);
-            Volume = new LevelType(99);
-            VelocityDepth = new LevelType(99);
+            ReceiveChannel = new Channel(1);
+            Volume = new Level(99);
+            VelocityDepth = new Level(99);
 
             Notes = new List<DrumNote>();
             for (var i = 0; i < NoteCount; i++)
@@ -61,13 +61,13 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            ReceiveChannel = new ChannelType(b);
+            ReceiveChannel = new Channel(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Volume = new LevelType(b);  // 0~100
+            Volume = new Level(b);  // 0~100
 
             (b, offset) = Util.GetNextByte(data, offset);
-            VelocityDepth = new LevelType(b);
+            VelocityDepth = new Level(b);
 
             // Eat up the dummy bytes
             offset += 7;
@@ -91,7 +91,7 @@ namespace KSynthLib.K4
             Debug.Assert(Notes.Count == NoteCount);
         }
 
-        public byte[] ToData()
+        protected override byte[] CollectData()
         {
             var data = new List<byte>();
 
@@ -107,6 +107,15 @@ namespace KSynthLib.K4
             data.Add(0);
             data.Add(0);
             data.Add(0);
+
+            return data.ToArray();
+        }
+
+        public override byte[] ToData()
+        {
+            var data = new List<byte>();
+
+            data.AddRange(this.CollectData());
 
             // Add common checksum (gets computed by the property)
             data.Add(Checksum);

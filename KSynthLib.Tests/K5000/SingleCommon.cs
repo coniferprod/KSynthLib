@@ -34,7 +34,7 @@ namespace KSynthLib.Tests.K5000
         [Fact]
         public void Name_IsParsedCorrectly()
         {
-            Assert.Equal("WizooIni", singleCommon.Name);
+            Assert.Equal("WizooIni", singleCommon.Name.Value);
         }
 
         [Fact]

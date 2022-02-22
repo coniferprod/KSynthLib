@@ -12,32 +12,32 @@ namespace KSynthLib.K4
     {
         public const int DataSize = 7;
 
-        public LevelType Delay;
+        public Level Delay;
         public Wave Wave;
-        public VelocityCurveType KeyScalingCurve;
-        public CoarseType Coarse;
+        public VelocityCurve KeyScalingCurve;
+        public Coarse Coarse;
         public bool KeyTrack;
-        public KeyType FixedKey;  // 0 ~ 115 / C-1 ~ G8
-        public DepthType Fine;
+        public Key FixedKey;  // 0 ~ 115 / C-1 ~ G8
+        public Depth Fine;
         public bool PressureFrequency;
         public bool Vibrato;
-        public VelocityCurveType VelocityCurve;
+        public VelocityCurve VelocityCurve;
 
         /// <summary>
         /// Constructs a source from default values.
         /// </summary>
         public Source()
         {
-            Delay = new LevelType();
+            Delay = new Level();
             Wave = new Wave(10);  // "SAW 1"
-            KeyScalingCurve = VelocityCurveType.Curve1;
-            Coarse = new CoarseType(0);
+            KeyScalingCurve = VelocityCurve.Curve1;
+            Coarse = new Coarse(0);
             KeyTrack = true;
-            FixedKey = new KeyType(60);
-            Fine = new DepthType();
+            FixedKey = new Key(60);
+            Fine = new Depth();
             PressureFrequency = true;
             Vibrato = false;
-            VelocityCurve = VelocityCurveType.Curve1;
+            VelocityCurve = VelocityCurve.Curve1;
         }
 
         /// <summary>
@@ -53,13 +53,13 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Delay = new LevelType(b);
+            Delay = new Level(b);
 
             byte waveSelectHigh = 0;
             byte waveSelectLow = 0;
             (b, offset) = Util.GetNextByte(data, offset);
             waveSelectHigh = (byte)(b & 0x01);
-            KeyScalingCurve = (VelocityCurveType)((b >> 4) & 0x07);
+            KeyScalingCurve = (VelocityCurve)((b >> 4) & 0x07);
 
             byte b2 = 0;
             (b2, offset) = Util.GetNextByte(data, offset);
@@ -72,18 +72,18 @@ namespace KSynthLib.K4
             // My interpretation is that the low six bits are the coarse value,
             // and b6 is the key tracking bit (b7 is zero).
             KeyTrack = b.IsBitSet(6);
-            Coarse = new CoarseType((sbyte)((b & 0x3f) - 24));  // 00 ~ 48 to ±24
+            Coarse = new Coarse((sbyte)((b & 0x3f) - 24));  // 00 ~ 48 to ±24
 
             (b, offset) = Util.GetNextByte(data, offset);
-            FixedKey = new KeyType(b);
+            FixedKey = new Key(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Fine = new DepthType(b);
+            Fine = new Depth(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
             PressureFrequency = b.IsBitSet(0);
             Vibrato = b.IsBitSet(1);
-            VelocityCurve = (VelocityCurveType)((b >> 2) & 0x07);
+            VelocityCurve = (VelocityCurve)((b >> 2) & 0x07);
         }
 
         public override string ToString()

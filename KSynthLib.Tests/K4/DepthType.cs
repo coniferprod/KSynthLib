@@ -1,16 +1,17 @@
 using System;
 using Xunit;
+
 using KSynthLib.K4;
 
 namespace KSynthLib.Tests.Common
 {
-    public class DepthTypeTests
+    public class DepthTests
     {
-        DepthType depth;
+        Depth depth;
 
-        public DepthTypeTests()
+        public DepthTests()
         {
-            depth = new DepthType();
+            depth = new Depth();
         }
 
         [Fact]
