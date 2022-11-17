@@ -169,7 +169,7 @@ name part = 40 5B 5C 5D 5E 5F 60 7B 7C 7D
             SinglePatch singlePatch = new SinglePatch(data);
             //Console.Error.WriteLine($"Single patch name = '{singlePatch.Name}'");
 
-            Assert.Equal("Melo Vox 1", singlePatch.Name.Value);
+            Assert.Equal("Melo Vox 1", singlePatch.Name);
         }
 
         [Fact]
@@ -195,8 +195,8 @@ name part = 40 5B 5C 5D 5E 5F 60 7B 7C 7D
         {
             SinglePatch single = new SinglePatch();
 
-            byte[] data = single.ToData();
-            Assert.Equal(SinglePatch.DataSize, data.Length);
+            List<byte> data = single.GetSystemExclusiveData();
+            Assert.Equal(SinglePatch.DataSize, data.Count);
         }
 
         [Fact]
@@ -211,8 +211,8 @@ name part = 40 5B 5C 5D 5E 5F 60 7B 7C 7D
         {
             SinglePatch sp = new SinglePatch();
             string longName = "MyPatch*WithTooLongAName";
-            sp.Name = new PatchName(longName);
-            Assert.Equal(PatchName.Length, sp.Name.Value.Length);
+            sp.Name = longName;
+            Assert.Equal(PatchName.Length, sp.Name.Length);
         }
     }
 }

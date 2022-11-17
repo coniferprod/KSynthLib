@@ -12,7 +12,7 @@ namespace KSynthLib.K5000
     }
 
 
-    public class DCFSettings
+    public class DCFSettings: ISystemExclusiveData
     {
         public bool IsActive;
         public FilterMode Mode;
@@ -120,7 +120,7 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
@@ -144,7 +144,7 @@ namespace KSynthLib.K5000
                 VelocityToEnvelopeDecay1Time.ToByte()
             });
 
-            return data.ToArray();
+            return data;
         }
     }
 }

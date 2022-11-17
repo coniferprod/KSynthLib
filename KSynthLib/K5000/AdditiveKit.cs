@@ -5,7 +5,7 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K5000
 {
-    public class HarmonicCopyParameters
+    public class HarmonicCopyParameters: ISystemExclusiveData
     {
         public PatchNumber PatchNumber;
         public byte SourceNumber; // 0~11 (0~5:soft,6~11:loud)
@@ -16,7 +16,15 @@ namespace KSynthLib.K5000
             SourceNumber = 0;
         }
 
-        public byte[] ToData() => new List<byte>() { PatchNumber.ToByte(), SourceNumber }.ToArray();
+        public List<byte> GetSystemExclusiveData()
+        {
+            var data = new List<byte>();
+
+            data.AddRange(PatchNumber.GetSystemExclusiveData());
+            data.Add(SourceNumber);
+
+            return data;
+        }
     }
 
     public enum MORFHarmonicGroup
@@ -25,7 +33,7 @@ namespace KSynthLib.K5000
         High
     }
 
-    public class HarmonicParameters
+    public class HarmonicParameters: ISystemExclusiveData
     {
         public bool Morf;  // true if morf on
         public byte TotalGain;
@@ -56,7 +64,7 @@ namespace KSynthLib.K5000
             MORFEnvelope = new MORFHarmonicEnvelope();
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
@@ -69,14 +77,14 @@ namespace KSynthLib.K5000
                 BalanceVelocityDepth
             });
 
-            data.AddRange(Copy1.ToData());
-            data.AddRange(Copy2.ToData());
-            data.AddRange(Copy3.ToData());
-            data.AddRange(Copy4.ToData());
+            data.AddRange(Copy1.GetSystemExclusiveData());
+            data.AddRange(Copy2.GetSystemExclusiveData());
+            data.AddRange(Copy3.GetSystemExclusiveData());
+            data.AddRange(Copy4.GetSystemExclusiveData());
 
-            data.AddRange(MORFEnvelope.ToData());
+            data.AddRange(MORFEnvelope.GetSystemExclusiveData());
 
-            return data.ToArray();
+            return data;
         }
     }
 
@@ -142,7 +150,7 @@ namespace KSynthLib.K5000
             LFO = new FormantLFOSettings(data.GetRange(14, 3));
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
@@ -157,12 +165,11 @@ namespace KSynthLib.K5000
 
             data.AddRange(LFO.ToData());
 
-            return data.ToArray();
+            return data;
         }
     }
 
-
-    public class AdditiveKit
+    public class AdditiveKit: ISystemExclusiveData
     {
         public const int WaveNumber = 512;  // if the wave number is 512, the source is ADD
         public const int DataSize = 806;
@@ -380,31 +387,30 @@ namespace KSynthLib.K5000
             return b.ToString();
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
-            data.AddRange(Harmonics.ToData());
-            data.AddRange(Formant.ToData());
+            data.AddRange(Harmonics.GetSystemExclusiveData());
+            data.AddRange(Formant.GetSystemExclusiveData());
             data.AddRange(SoftHarmonics);
             data.AddRange(LoudHarmonics);
             data.AddRange(FormantFilter);
 
             for (var i = 0; i < HarmonicCount; i++)
             {
-                data.AddRange(HarmonicEnvelopes[i].ToData());
+                data.AddRange(HarmonicEnvelopes[i].GetSystemExclusiveData());
             }
 
-            byte[] allData = data.ToArray();
-            byte checkSum = ComputeCheckSum(allData);
-            data.Insert(0, checkSum);
+            byte checksum = ComputeChecksum(data);
+            data.Insert(0, checksum);  // goes to the front of the buffer
 
             data.Add(0);  // 806 dummy
 
-            return data.ToArray();
+            return data;
         }
 
-        private byte ComputeCheckSum(byte[] data)
+        private byte ComputeChecksum(List<byte> data)
         {
             // check sum = [(HCKIT sum) + (HCcode1 sum) + (HCcode2 sum) + (FF sum) + (HCenv sum) + (loud sens select) + 0xA5] & 0x7f
             byte total = 0;
@@ -413,13 +419,13 @@ namespace KSynthLib.K5000
 
             // HCKIT sum = MORF flag, harmonics, formant
             total += (byte)(Harmonics.Morf ? 1 : 0);
-            byte[] harmonicsData = Harmonics.ToData();
+            List<byte> harmonicsData = Harmonics.GetSystemExclusiveData();
             foreach (var b in harmonicsData)
             {
                 total += b;
             }
 
-            byte[] formantParameterData = Formant.ToData();
+            List<byte> formantParameterData = Formant.GetSystemExclusiveData();
             foreach (var b in formantParameterData)
             {
                 total += b;
@@ -445,7 +451,7 @@ namespace KSynthLib.K5000
 
             for (var i = 0; i < HarmonicCount; i++)
             {
-                byte[] harmonicEnvelopeData = HarmonicEnvelopes[i].ToData();
+                List<byte> harmonicEnvelopeData = HarmonicEnvelopes[i].GetSystemExclusiveData();
                 foreach (var b in harmonicEnvelopeData)
                 {
                     total += b;

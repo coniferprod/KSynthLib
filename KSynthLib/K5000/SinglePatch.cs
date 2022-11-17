@@ -10,7 +10,7 @@ namespace KSynthLib.K5000
     /// <summary>
     /// Represents a K5000 single patch.
     /// </summary>
-    public class SinglePatch : Patch
+    public class SinglePatch : IPatch, ISystemExclusiveData
     {
         public SingleCommonSettings SingleCommon;
 
@@ -54,7 +54,7 @@ namespace KSynthLib.K5000
             (b, offset) = Util.GetNextByte(data, offset);
 
             // Ingest the checksum
-            _checksum = b;
+            //_checksum = b;
             Debug.Assert(offset == 1);
 
             // Create single patch common settings from binary data:
@@ -115,25 +115,40 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        protected override byte[] CollectData()
+        private List<byte> CollectData()
         {
             var data = new List<byte>();
 
-            data.AddRange(SingleCommon.ToData());
+            data.AddRange(SingleCommon.GetSystemExclusiveData());
 
             for (var i = 0; i < SingleCommon.SourceCount; i++)
             {
-                byte[] sourceData = Sources[i].ToData();
+                List<byte> sourceData = Sources[i].GetSystemExclusiveData();
                 data.AddRange(sourceData);
             }
 
-            return data.ToArray();
+            return data;
         }
 
-        /// <value>
-        /// Computes the checksum for this single patch.
-        /// </value>
-        public override byte Checksum
+        //
+        // Implementation of ISystemExclusiveData interface
+        //
+
+        public List<byte> GetSystemExclusiveData()
+        {
+            var data = new List<byte>();
+
+            data.AddRange(this.CollectData());
+            data.Add(this.Checksum);
+
+            return data;
+        }
+
+        //
+        // Implementation of the IPatch interface
+        //
+
+        public byte Checksum
         {
             get
             {
@@ -143,7 +158,7 @@ namespace KSynthLib.K5000
                 // For each source, compute the sum of source data and add it to the total:
                 for (var i = 0; i < SingleCommon.SourceCount; i++)
                 {
-                    byte[] sourceData = Sources[i].ToData();
+                    List<byte> sourceData = Sources[i].GetSystemExclusiveData();
                     byte sourceSum = 0;
                     foreach (byte b in sourceData)
                     {
@@ -156,8 +171,19 @@ namespace KSynthLib.K5000
 
                 return (byte)(total & 0x7f);
             }
+        }
 
-            set => _checksum = value;
+        public string Name
+        {
+            get
+            {
+                return this.SingleCommon.Name.Value;
+            }
+
+            set
+            {
+                this.SingleCommon.Name = new PatchName(value);
+            }
         }
     }
 }

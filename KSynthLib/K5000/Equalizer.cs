@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Text;
 
+using KSynthLib.Common;
+
 namespace KSynthLib.K5000
 {
     /// <summary>The graphical EQ settings of a patch.</summary>
@@ -43,14 +45,16 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
+
             foreach (var freq in Frequencies)
             {
                 data.Add(freq.ToByte());
             }
-            return data.ToArray();
+
+            return data;
         }
     }
 }

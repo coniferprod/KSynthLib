@@ -1,10 +1,72 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+
 using KSynthLib.Common;
 
 namespace KSynthLib.K5000
 {
+    public class PatchName: ISystemExclusiveData
+    {
+        public static readonly int Length = 8;
+
+        private string _name;
+
+        public string Value
+        {
+            get => _name.PadRight(Length, ' ');
+            set => _name = value.PadRight(Length, ' ');
+        }
+
+        public PatchName(string s)
+        {
+            this.Value = s;
+        }
+
+        public PatchName(byte[] data, int offset = 0)
+        {
+            byte[] bytes =
+            {
+                data[offset],
+                data[offset + 1],
+                data[offset + 2],
+                data[offset + 3],
+                data[offset + 4],
+                data[offset + 5],
+                data[offset + 6],
+                data[offset + 7],
+            };
+
+            this.Value = Encoding.ASCII.GetString(bytes);
+        }
+
+        public List<byte> GetSystemExclusiveData()
+        {
+            var bytes = new List<byte>();
+
+            var charArray = this.Value.ToCharArray();
+            for (var i = 0; i < charArray.Length; i++)
+            {
+                char ch = charArray[i];
+                byte b = (byte)ch;
+                if (ch == '\u2192') // right arrow
+                {
+                    b = 0x7e;
+                }
+                else if (ch == '\u2190')  // left arrow
+                {
+                    b = 0x7f;
+                }
+                else if (ch == '\u00a5')  // yen sign
+                {
+                    b = 0x5c;
+                }
+                bytes.Add(b);
+            }
+
+            return bytes;
+        }
+    }
 
     public enum VelocityCurve
     {
@@ -78,7 +140,7 @@ namespace KSynthLib.K5000
         HarmonicOddOffset
     }
 
-    public class EffectControl
+    public class EffectControl: ISystemExclusiveData
     {
         public ControlSource Source { get; }
         public EffectDestination Destination { get; }
@@ -104,13 +166,15 @@ namespace KSynthLib.K5000
             return $"source = {Source} destination = {Destination} depth = {Depth.Value}";
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
+
             data.Add((byte)Source);
             data.Add((byte)Destination);
             data.Add(Depth.ToByte());
-            return data.ToArray();
+
+            return data;
         }
     }
 
@@ -223,7 +287,7 @@ namespace KSynthLib.K5000
         FFComb2
     }
 
-    public class CommonSettings
+    public class CommonSettings: ISystemExclusiveData
     {
         public const int DataSize = 48;
         public const int MaxSources = 6;
@@ -319,18 +383,19 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
+
             data.Add(EffectAlgorithm);
 
-            data.AddRange(Reverb.ToData());
-            data.AddRange(Effect1.ToData());
-            data.AddRange(Effect2.ToData());
-            data.AddRange(Effect3.ToData());
-            data.AddRange(Effect4.ToData());
+            data.AddRange(Reverb.GetSystemExclusiveData());
+            data.AddRange(Effect1.GetSystemExclusiveData());
+            data.AddRange(Effect2.GetSystemExclusiveData());
+            data.AddRange(Effect3.GetSystemExclusiveData());
+            data.AddRange(Effect4.GetSystemExclusiveData());
 
-            data.AddRange(GEQ.ToData());
+            data.AddRange(GEQ.GetSystemExclusiveData());
 
             data.Add(0); // drum_mark, 0=normal(not drum)
 
@@ -341,7 +406,7 @@ namespace KSynthLib.K5000
 
             data.Add(Volume.ToByte());
 
-            return data.ToArray();
+            return data;
         }
 
         private ReverbSettings GetReverb(byte[] data, int offset)
@@ -394,7 +459,7 @@ namespace KSynthLib.K5000
         }
     }
 
-    public class Zone
+    public class Zone: ISystemExclusiveData
     {
         public Key Low;
         public Key High;
@@ -405,9 +470,9 @@ namespace KSynthLib.K5000
             High = new Key(high);
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
-            return new byte[] { Low.ToByte(), High.ToByte() };
+            return new List<byte> { Low.ToByte(), High.ToByte() };
         }
     }
 

@@ -13,7 +13,7 @@ namespace KSynthLib.K5000
         Soft  // "only soft notes will sound"
     }
 
-    public class VelocitySwitchSettings
+    public class VelocitySwitchSettings: ISystemExclusiveData
     {
         public VelocitySwitchKind SwitchKind;  // enumeration
         public byte Threshold; // MIDI velocity value
@@ -61,7 +61,7 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
@@ -79,11 +79,11 @@ namespace KSynthLib.K5000
 
             data.Add(outValue);
 
-            return data.ToArray();
+            return data;
         }
     }
 
-    public class ModulationSettings
+    public class ModulationSettings: ISystemExclusiveData
     {
         public ControlDestination Destination;  // enumeration
 
@@ -101,10 +101,13 @@ namespace KSynthLib.K5000
             Depth = new ControlDepth(depth);
         }
 
-        public byte[] ToData() => new List<byte>() { (byte)Destination, Depth.ToByte() }.ToArray();
+        public List<byte> GetSystemExclusiveData()
+        {
+            return new List<byte>() { (byte)Destination, Depth.ToByte() };
+        }
     }
 
-    public class ControllerSettings
+    public class ControllerSettings: ISystemExclusiveData
     {
         public ModulationSettings Destination1;
         public ModulationSettings Destination2;
@@ -121,16 +124,18 @@ namespace KSynthLib.K5000
             Destination2 = new ModulationSettings(data[2], data[3]);
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             List<byte> data = new List<byte>();
-            data.AddRange(Destination1.ToData());
-            data.AddRange(Destination2.ToData());
-            return data.ToArray();
+
+            data.AddRange(Destination1.GetSystemExclusiveData());
+            data.AddRange(Destination2.GetSystemExclusiveData());
+
+            return data;
         }
     }
 
-    public class AssignableController
+    public class AssignableController: ISystemExclusiveData
     {
         public ControlSource Source;
         public ModulationSettings Target;
@@ -141,12 +146,14 @@ namespace KSynthLib.K5000
             Target = new ModulationSettings();
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
+
             data.Add((byte)Source);
-            data.AddRange(Target.ToData());
-            return data.ToArray();
+            data.AddRange(Target.GetSystemExclusiveData());
+
+            return data;
         }
     }
 
@@ -161,7 +168,7 @@ namespace KSynthLib.K5000
     /// <summary>
     /// Represents a source in a single patch.
     /// </summary>
-    public class Source
+    public class Source: ISystemExclusiveData
     {
         public static int DataSize = 86;
 
@@ -308,13 +315,13 @@ namespace KSynthLib.K5000
             PanValue = new SignedLevel(b);  // (63L)1~(63R)127
 
             DCO = new DCOSettings(data, offset);
-            offset += DCO.ToData().Length;
+            offset += DCO.GetSystemExclusiveData().Count;
 
             DCF = new DCFSettings(data, offset);
-            offset += DCF.ToData().Length;
+            offset += DCF.GetSystemExclusiveData().Count;
 
             DCA = new DCASettings(data, offset);
-            offset += DCA.ToData().Length;
+            offset += DCA.GetSystemExclusiveData().Count;
 
             var lfoBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
@@ -375,40 +382,44 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        public byte[] ToData()
+        //
+        // Implementation of ISystemExclusiveData interface
+        //
+
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
-            data.AddRange(Zone.ToData());
+            data.AddRange(Zone.GetSystemExclusiveData());
 
-            data.AddRange(VelocitySwitch.ToData());
+            data.AddRange(VelocitySwitch.GetSystemExclusiveData());
             data.Add((byte)EffectPath);
             data.Add(Volume.ToByte());
             data.Add(BenderPitch.ToByte());
             data.Add(BenderCutoff.ToByte());
 
-            data.AddRange(Press.ToData());
-            data.AddRange(Wheel.ToData());
-            data.AddRange(Express.ToData());
+            data.AddRange(Press.GetSystemExclusiveData());
+            data.AddRange(Wheel.GetSystemExclusiveData());
+            data.AddRange(Express.GetSystemExclusiveData());
 
-            data.AddRange(Assign1.ToData());
-            data.AddRange(Assign2.ToData());
+            data.AddRange(Assign1.GetSystemExclusiveData());
+            data.AddRange(Assign2.GetSystemExclusiveData());
 
             data.Add(KeyOnDelay.ToByte());
             data.Add((byte)Pan);
             data.Add(PanValue.ToByte());
 
-            data.AddRange(DCO.ToData());
-            data.AddRange(DCF.ToData());
-            data.AddRange(DCA.ToData());
-            data.AddRange(LFO.ToData());
+            data.AddRange(DCO.GetSystemExclusiveData());
+            data.AddRange(DCF.GetSystemExclusiveData());
+            data.AddRange(DCA.GetSystemExclusiveData());
+            data.AddRange(LFO.GetSystemExclusiveData());
 
             if (IsAdditive)
             {
-                data.AddRange(ADD.ToData());
+                data.AddRange(ADD.GetSystemExclusiveData());
             }
 
-            return data.ToArray();
+            return data;
         }
     }
 }

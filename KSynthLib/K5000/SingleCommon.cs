@@ -26,7 +26,7 @@ namespace KSynthLib.K5000
     /// <summary>
     /// Common settings for a single patch.
     /// </summary>
-    public class SingleCommonSettings
+    public class SingleCommonSettings: ISystemExclusiveData
     {
         public const int DataSize = 81;
         public const int MaxSources = 6;
@@ -276,20 +276,20 @@ namespace KSynthLib.K5000
         /// <returns>
         /// The SysEx bytes.
         /// </returns>
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
             data.Add((byte)EffectAlgorithm);  // 0...3
-            data.AddRange(Reverb.ToData());
-            data.AddRange(Effect1.ToData());
-            data.AddRange(Effect2.ToData());
-            data.AddRange(Effect3.ToData());
-            data.AddRange(Effect4.ToData());
-            data.AddRange(GEQ.ToData());
+            data.AddRange(Reverb.GetSystemExclusiveData());
+            data.AddRange(Effect1.GetSystemExclusiveData());
+            data.AddRange(Effect2.GetSystemExclusiveData());
+            data.AddRange(Effect3.GetSystemExclusiveData());
+            data.AddRange(Effect4.GetSystemExclusiveData());
+            data.AddRange(GEQ.GetSystemExclusiveData());
             data.Add(0);  // drum_mark
 
-            data.AddRange(this.Name.ToBytes());
+            data.AddRange(this.Name.GetSystemExclusiveData());
 
             data.Add(Volume.ToByte());
             data.Add((byte)Poly);
@@ -308,8 +308,8 @@ namespace KSynthLib.K5000
 
             data.Add((byte)AM);
 
-            data.AddRange(EffectControl1.ToData());
-            data.AddRange(EffectControl2.ToData());
+            data.AddRange(EffectControl1.GetSystemExclusiveData());
+            data.AddRange(EffectControl2.GetSystemExclusiveData());
 
             data.Add((byte)(IsPortamentoEnabled ? 1 : 0));  // only bit 0 is used for this
             data.Add(PortamentoSpeed.ToByte());
@@ -338,7 +338,7 @@ namespace KSynthLib.K5000
                 (byte)FootSwitch1, (byte)FootSwitch2
             });
 
-            return data.ToArray();
+            return data;
         }
     }
 }

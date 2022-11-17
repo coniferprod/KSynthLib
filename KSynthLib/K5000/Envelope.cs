@@ -71,7 +71,7 @@ namespace KSynthLib.K5000
     /// <summary>
     /// Represents the MORF harmonic envelope of an additive source.
     /// </summary>
-    public class MORFHarmonicEnvelope
+    public class MORFHarmonicEnvelope: ISystemExclusiveData
     {
         public PositiveLevel Time1;
         public PositiveLevel Time2;
@@ -88,12 +88,18 @@ namespace KSynthLib.K5000
             LoopKind = EnvelopeLoopKind.Off;
         }
 
-        public byte[] ToData() => new List<byte>() {
-            Time1.ToByte(), Time2.ToByte(), Time3.ToByte(), Time4.ToByte(), (byte)LoopKind
-        }.ToArray();
+        public List<byte> GetSystemExclusiveData()
+        {
+            return new List<byte>() {
+               Time1.ToByte(), Time2.ToByte(),
+               Time3.ToByte(),
+               Time4.ToByte(),
+               (byte)LoopKind
+            };
+        }
     }
 
-    public class HarmonicEnvelope
+    public class HarmonicEnvelope: ISystemExclusiveData
     {
         public EnvelopeSegment Segment0;
         public EnvelopeSegment Segment1;
@@ -112,7 +118,7 @@ namespace KSynthLib.K5000
             Segment3 = new EnvelopeSegment();
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
@@ -138,7 +144,7 @@ namespace KSynthLib.K5000
             data.Add(Segment3.Rate.ToByte());
             data.Add(Segment3.Level.ToByte());
 
-            return data.ToArray();
+            return data;
         }
     }
 

@@ -6,24 +6,24 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K5000
 {
-    public class PatchMap
+    public class ToneMap: ISystemExclusiveData
     {
         public const int Size = 19;  // bytes
 
-        public const int PatchCount = 128;
+        public const int ToneCount = 128;
 
-        private bool[] include;
+        private bool[] _include;
 
-        public PatchMap()
+        public ToneMap()
         {
-            include = new bool[PatchCount];
+            this._include = new bool[ToneCount];
         }
 
-        public PatchMap(byte[] data)
+        public ToneMap(byte[] data)
         {
             // TODO: Check that the data length matches
 
-            include = new bool[PatchCount];
+            this._include = new bool[ToneCount];
 
             var buf = new StringBuilder();
             for (var i = 0; i < data.Length; i++)
@@ -38,34 +38,34 @@ namespace KSynthLib.K5000
             // Of the last byte of the patch map, only the bottom two bits are used.
             // The conversion to bit string will have some extra bits, so truncate
             // the result to exactly 128 "bits".
-            var bitString = buf.ToString().Substring(0, PatchCount);
+            var bitString = buf.ToString().Substring(0, ToneCount);
             for (var i = 0; i < bitString.Length; i++)
             {
-                include[i] = bitString[i] == '1' ? true : false;
+                this._include[i] = bitString[i] == '1' ? true : false;
             }
         }
 
-        public PatchMap(bool[] incl)
+        public ToneMap(bool[] incl)
         {
-            include = new bool[PatchCount];
+            this._include = new bool[ToneCount];
             // TODO: Check that lengths match
             for (var i = 0; i < incl.Length; i++)
             {
-                include[i] = incl[i];
+                this._include[i] = incl[i];
             }
         }
 
         public bool this[int i]
         {
-            get { return include[i]; }
+            get { return this._include[i]; }
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var buf = new StringBuilder();
-            for (var i = 0; i < include.Length; i++)
+            for (var i = 0; i < this._include.Length; i++)
             {
-                buf.Append(include[i] ? "1" : "0");
+                buf.Append(this._include[i] ? "1" : "0");
                 // each byte maps seven patches, and every 8th bit must be a zero
                 if (i % 8 == 0)
                 {
@@ -76,12 +76,13 @@ namespace KSynthLib.K5000
             var bitString = buf.ToString().Reversed();
             // Now we have a long bit string. Slice it into chunks of eight bits to convert to bytes.
             string[] parts = bitString.Split(8);
+
             var data = new List<byte>();
             foreach (var s in parts)
             {
                 data.Add(Convert.ToByte(s, 2));
             }
-            return data.ToArray();
+            return data;
         }
     }
 }

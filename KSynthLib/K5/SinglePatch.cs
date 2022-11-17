@@ -65,7 +65,7 @@ namespace KSynthLib.K5
         }
     }
 
-    public class SinglePatch: Patch
+    public class SinglePatch: Patch, ISystemExclusiveData
     {
         public const int FormantLevelCount = 11;
         public const int NameLength = 8;
@@ -316,7 +316,11 @@ namespace KSynthLib.K5
             return builder.ToString();
         }
 
-        public byte[] ToData()
+        //
+        // Implementation of ISystemExclusiveData interface
+        //
+
+        public List<byte> GetSystemExclusiveData()
         {
             var buf = new List<byte>();
             byte b = 0;
@@ -397,7 +401,7 @@ namespace KSynthLib.K5
             buf.Add((byte)(checksum & 0xff));
             buf.Add((byte)((((uint)checksum) >> 8) & 0xFF));
 
-            return buf.ToArray();
+            return buf;
         }
 
         int ComputeChecksum(byte[] data)

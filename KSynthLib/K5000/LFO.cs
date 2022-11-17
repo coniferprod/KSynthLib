@@ -1,6 +1,8 @@
 using System.Text;
 using System.Collections.Generic;
 
+using KSynthLib.Common;
+
 namespace KSynthLib.K5000
 {
     public enum LFOWaveform
@@ -32,7 +34,7 @@ namespace KSynthLib.K5000
         public byte[] ToData() => new List<byte>() { Depth.ToByte(), KeyScaling.ToByte() }.ToArray();
     }
 
-    public class LFOSettings
+    public class LFOSettings: ISystemExclusiveData
     {
         public LFOWaveform Waveform;
         public PositiveLevel Speed;
@@ -79,7 +81,7 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
@@ -95,7 +97,7 @@ namespace KSynthLib.K5000
             data.AddRange(Growl.ToData());
             data.AddRange(Tremolo.ToData());
 
-            return data.ToArray();
+            return data;
         }
     }
 }

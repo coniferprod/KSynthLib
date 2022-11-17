@@ -40,7 +40,7 @@ namespace KSynthLib.Tests.K5000
         [Fact]
         public void DataLength_IsCorrect()
         {
-            int length = singleCommon.ToData().Length;
+            int length = singleCommon.GetSystemExclusiveData().Count;
             Console.Error.WriteLine($"Length of data generated for SingleCommonSettings = {length}");
             Assert.Equal(SingleCommonSettings.DataSize, length);
         }

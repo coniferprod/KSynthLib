@@ -14,7 +14,7 @@ namespace KSynthLib.K5000
         FiftyCent
     }
 
-    public class DCOSettings
+    public class DCOSettings: ISystemExclusiveData
     {
         public Wave Wave;
         public Coarse Coarse;
@@ -94,7 +94,7 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
@@ -107,7 +107,7 @@ namespace KSynthLib.K5000
 
             data.AddRange(Envelope.ToData());
 
-            return data.ToArray();
+            return data;
         }
     }
 }

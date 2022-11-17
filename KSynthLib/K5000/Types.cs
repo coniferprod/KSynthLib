@@ -1,4 +1,5 @@
-using System;
+using System.Collections.Generic;
+
 using KSynthLib.Common;
 using Range.Net;
 
@@ -100,11 +101,15 @@ namespace KSynthLib.K5000
         public byte ToByte() => (byte)(this.Value);
     }
 
-    public class PatchNumber: RangedValue
+    public class PatchNumber: RangedValue, ISystemExclusiveData
     {
         public PatchNumber() : this(0) { }
         public PatchNumber(int value) : base("PatchNumber", new Range<int>(0, 127), 0, value) { }
         public PatchNumber(byte value) : this((int)value) { }
-        public byte ToByte() => (byte)(this.Value);
+
+        public List<byte> GetSystemExclusiveData()
+        {
+            return new List<byte> { (byte)(this.Value) };
+        }
     }
 }

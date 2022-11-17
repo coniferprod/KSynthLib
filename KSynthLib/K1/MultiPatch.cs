@@ -19,7 +19,6 @@ namespace KSynthLib.K1
 
             (b, offset) = Util.GetNextByte(data, offset);
             Volume = b;
-
         }
 
         public override string ToString()

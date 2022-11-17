@@ -6,7 +6,7 @@ using KSynthLib.Common;
 namespace KSynthLib.K5000
 {
 
-    public class DCASettings
+    public class DCASettings: ISystemExclusiveData
     {
         public VelocityCurve VelocityCurve;
         public AmplifierEnvelope Envelope;
@@ -88,7 +88,7 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
@@ -98,7 +98,7 @@ namespace KSynthLib.K5000
             data.AddRange(KeyScaling.ToData());
             data.AddRange(VelocitySensitivity.ToData());
 
-            return data.ToArray();
+            return data;
         }
     }
 }

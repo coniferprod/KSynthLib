@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Text;
 
+using KSynthLib.Common;
+
 namespace KSynthLib.K5000
 {
     public class ReverbName
@@ -12,7 +14,7 @@ namespace KSynthLib.K5000
     /// <summary>
     /// Reverb settings.
     /// </summary>
-    public class ReverbSettings
+    public class ReverbSettings: ISystemExclusiveData
     {
         public const int DataSize = 6;
 
@@ -91,14 +93,17 @@ namespace KSynthLib.K5000
         /// <returns>
         /// The SysEx bytes.
         /// </returns>
-        public byte[] ToData() => new List<byte>()
+        public List<byte> GetSystemExclusiveData()
         {
-            ReverbType,
-            DryWet1.ToByte(),
-            DryWet2.ToByte(),
-            Param2.ToByte(),
-            Param3.ToByte(),
-            Param4.ToByte()
-        }.ToArray();
+            return new List<byte>()
+            {
+                ReverbType,
+                DryWet1.ToByte(),
+                DryWet2.ToByte(),
+                Param2.ToByte(),
+                Param3.ToByte(),
+                Param4.ToByte()
+            };
+        }
     }
 }

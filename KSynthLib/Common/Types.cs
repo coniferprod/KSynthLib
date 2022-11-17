@@ -3,6 +3,12 @@ using Range.Net;
 
 namespace KSynthLib.Common
 {
+    public interface IPatch
+    {
+        byte Checksum { get; }
+        string Name { get; set; }
+    }
+
     public abstract class RangedValue
     {
         protected string _name;

@@ -1,8 +1,6 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
-using System.IO;
-using System.Diagnostics;
 
 using KSynthLib.Common;
 
@@ -38,12 +36,12 @@ namespace KSynthLib.K4
     /// <summary>
     /// Represents a K4 single patch.
     /// </summary>
-    public class SinglePatch : Patch
+    public class SinglePatch : IPatch, ISystemExclusiveData
     {
         /// <value>System Exclusive data length.</value>
         public const int DataSize = 131;
 
-        public PatchName Name;
+        private PatchName _patchName;
 
         public Level Volume;
         public EffectNumber Effect; // 1~32 (on K4)
@@ -85,7 +83,7 @@ namespace KSynthLib.K4
             this.Effect = new EffectNumber(1);
             this.Submix = SubmixType.A;
 
-            this.Name = new PatchName("NewSound");
+            this._patchName = new PatchName("NewSound");
 
             SourceMode = SourceMode.Normal;
             PolyphonyMode = PolyphonyMode.Poly1;
@@ -113,7 +111,6 @@ namespace KSynthLib.K4
 
             Filter1 = new Filter();
             Filter2 = new Filter();
-            Checksum = 0;
         }
 
         /// <summary>
@@ -128,7 +125,7 @@ namespace KSynthLib.K4
             var offset = 0;
             byte b = 0;  // will be reused when getting the next byte
 
-            this.Name = new PatchName(data, offset);
+            this._patchName = new PatchName(data, offset);
             offset += 10;  // name is S00 to S09
             //Console.Error.WriteLine(this.Name);
 
@@ -274,7 +271,7 @@ namespace KSynthLib.K4
 
             (b, offset) = Util.GetNextByte(data, offset);
             // "Check sum value (s130) is the sum of the A5H and s0 ~ s129".
-            this.Checksum = b; // store the checksum as we got it from SysEx
+            //this.Checksum = b; // store the checksum as we got it from SysEx
         }
 
         /// <summary>
@@ -287,7 +284,7 @@ namespace KSynthLib.K4
         {
             var builder = new StringBuilder();
 
-            builder.Append($"{this.Name.Value}\n");
+            builder.Append($"{this.Name}\n");
             builder.Append($"VOLUME     ={Volume:3}\nEFFECT PACH= {Effect:2}\nSUBMIX CH  =  {Submix}\n");
 
             builder.Append(string.Format("SOURCE MODE={0}\n", Enum.GetNames(typeof(SourceMode))[(int)SourceMode]));
@@ -320,16 +317,16 @@ namespace KSynthLib.K4
         /// Collects the patch data for use in a System Exclusive message.
         /// </summary>
         /// <returns>
-        /// Byte array with patch data.
+        /// A list of bytes containing the patch data.
         /// </returns>
         /// <remarks>
         /// The data does not include the checksum.
         /// </remarks>
-        protected override byte[] CollectData()
+        private List<byte> CollectData()
         {
             var data = new List<byte>();
 
-            data.AddRange(this.Name.ToBytes());
+            data.AddRange(this._patchName.ToBytes());
 
             data.Add(Volume.ToByte());
             data.Add(Effect.ToByte());
@@ -398,7 +395,7 @@ namespace KSynthLib.K4
                 )
             );
 
-            return data.ToArray();
+            return data;
         }
 
         private string SourceMuteString
@@ -411,6 +408,52 @@ namespace KSynthLib.K4
                 builder.Append(SourceMutes[2] ? "3" : "-");
                 builder.Append(SourceMutes[3] ? "4" : "-");
                 return builder.ToString();
+            }
+        }
+
+        //
+        // Implementation of ISystemExclusiveData interface
+        //
+
+        public List<byte> GetSystemExclusiveData()
+        {
+            var data = new List<byte>();
+
+            data.AddRange(this.CollectData());
+            data.Add(this.Checksum);
+
+            return data;
+        }
+
+        //
+        // Implementation of the IPatch interface
+        //
+
+        public string Name
+        {
+            get
+            {
+                return this._patchName.Value;
+            }
+
+            set
+            {
+                this._patchName = new PatchName(value);
+            }
+        }
+
+        public byte Checksum
+        {
+            get
+            {
+                List<byte> data = this.CollectData();
+                int sum = 0;
+                foreach (byte b in data)
+                {
+                    sum = (sum + b) & 0xff;
+                }
+                sum += 0xA5;
+                return (byte)(sum & 0x7f);
             }
         }
     }
