@@ -6,7 +6,7 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K4
 {
-    public class Filter
+    public class Filter: ISystemExclusiveData
     {
         public const int DataSize = 14;
 
@@ -90,7 +90,7 @@ namespace KSynthLib.K4
             return builder.ToString();
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
@@ -104,15 +104,15 @@ namespace KSynthLib.K4
             b104.Append(resonanceString.PadLeft(3, '0'));
             data.Add(Convert.ToByte(b104.ToString(), 2));
 
-            data.AddRange(CutoffMod.ToData());
+            data.AddRange(CutoffMod.GetSystemExclusiveData());
 
             data.Add(EnvelopeDepth.ToByte());
             data.Add(EnvelopeVelocityDepth.ToByte());
 
-            data.AddRange(Env.ToData());
-            data.AddRange(TimeMod.ToData());
+            data.AddRange(Env.GetSystemExclusiveData());
+            data.AddRange(TimeMod.GetSystemExclusiveData());
 
-            return data.ToArray();
+            return data;
         }
     }
 }

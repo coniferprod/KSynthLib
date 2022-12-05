@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 
+using KSynthLib.Common;
+
+
 namespace KSynthLib.K4
 {
-    public class PatchName
+    public class PatchName: ISystemExclusiveData
     {
         public static readonly int Length = 10;
 
@@ -57,7 +60,7 @@ namespace KSynthLib.K4
             this.Value = new string(chars.ToArray());
         }
 
-        public byte[] ToBytes()
+        public List<byte> GetSystemExclusiveData()
         {
             var bytes = new List<byte>();
 
@@ -81,7 +84,7 @@ namespace KSynthLib.K4
                 bytes.Add(b);
             }
 
-            return bytes.ToArray();
+            return bytes;
         }
 
         public static readonly byte[] AllowedNameCharacterCodes = new byte[]

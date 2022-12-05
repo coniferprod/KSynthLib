@@ -14,7 +14,7 @@ namespace KSynthLib.K5000
         Random
     }
 
-    public class LFOControl
+    public class LFOControl: ISystemExclusiveData
     {
         public UnsignedLevel Depth;
         public SignedLevel KeyScaling;
@@ -31,7 +31,10 @@ namespace KSynthLib.K5000
             KeyScaling = new SignedLevel(k);
         }
 
-        public byte[] ToData() => new List<byte>() { Depth.ToByte(), KeyScaling.ToByte() }.ToArray();
+        public List<byte> GetSystemExclusiveData()
+        {
+            return new List<byte>() { Depth.ToByte(), KeyScaling.ToByte() };
+        }
     }
 
     public class LFOSettings: ISystemExclusiveData
@@ -93,9 +96,9 @@ namespace KSynthLib.K5000
                 FadeInToSpeed.ToByte()
             });
 
-            data.AddRange(Vibrato.ToData());
-            data.AddRange(Growl.ToData());
-            data.AddRange(Tremolo.ToData());
+            data.AddRange(Vibrato.GetSystemExclusiveData());
+            data.AddRange(Growl.GetSystemExclusiveData());
+            data.AddRange(Tremolo.GetSystemExclusiveData());
 
             return data;
         }

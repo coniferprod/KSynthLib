@@ -326,7 +326,7 @@ namespace KSynthLib.K4
         {
             var data = new List<byte>();
 
-            data.AddRange(this._patchName.ToBytes());
+            data.AddRange(this._patchName.GetSystemExclusiveData());
 
             data.Add(Volume.ToByte());
             data.Add(Effect.ToByte());
@@ -362,12 +362,12 @@ namespace KSynthLib.K4
             data.Add(Vibrato.Speed.ToByte());
             data.Add(WheelDepth.ToByte());
 
-            data.AddRange(AutoBend.ToData());
+            data.AddRange(AutoBend.GetSystemExclusiveData());
 
             data.Add(Vibrato.Pressure.ToByte());
             data.Add(Vibrato.Depth.ToByte());
 
-            data.AddRange(LFO.ToData());
+            data.AddRange(LFO.GetSystemExclusiveData());
 
             data.Add(PressureFreq.ToByte());
 
@@ -375,7 +375,7 @@ namespace KSynthLib.K4
             var allSourceData = new List<List<byte>>();
             foreach (var source in Sources)
             {
-                allSourceData.Add(new List<byte>(source.ToData()));
+                allSourceData.Add(new List<byte>(source.GetSystemExclusiveData()));
             }
             data.AddRange(Util.InterleaveBytes(allSourceData));
 
@@ -383,15 +383,15 @@ namespace KSynthLib.K4
             var allAmplifierData = new List<List<byte>>();
             foreach (var amplifier in Amplifiers)
             {
-                allAmplifierData.Add(new List<byte>(amplifier.ToData()));
+                allAmplifierData.Add(amplifier.GetSystemExclusiveData());
             }
             data.AddRange(Util.InterleaveBytes(allAmplifierData));
 
             // And finally for filters:
             data.AddRange(
                 Util.InterleaveBytes(
-                    new List<byte>(Filter1.ToData()),
-                    new List<byte>(Filter2.ToData())
+                    new List<byte>(Filter1.GetSystemExclusiveData()),
+                    new List<byte>(Filter2.GetSystemExclusiveData())
                 )
             );
 

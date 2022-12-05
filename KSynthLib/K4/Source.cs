@@ -1,14 +1,15 @@
-using System;
 using System.Text;
 using System.Collections.Generic;
+
 using KSynthLib.Common;
+
 
 namespace KSynthLib.K4
 {
     /// <summary>
     /// One source of a single patch.
     /// </summary>
-    public class Source
+    public class Source: ISystemExclusiveData
     {
         public const int DataSize = 7;
 
@@ -108,7 +109,7 @@ namespace KSynthLib.K4
         /// <returns>
         /// A byte array with SysEx data.
         /// </returns>
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
             data.Add(Delay.ToByte());
@@ -148,7 +149,7 @@ namespace KSynthLib.K4
             }
             data.Add(s54);
 
-            return data.ToArray();
+            return data;
         }
     }
 }

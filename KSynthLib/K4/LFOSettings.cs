@@ -2,6 +2,9 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
+using KSynthLib.Common;
+
+
 namespace KSynthLib.K4
 {
     public enum LFOShape // 0/TRI, 1/SAW, 2/SQR, 3/RND
@@ -12,7 +15,7 @@ namespace KSynthLib.K4
         Random
     };
 
-    public class LFOSettings
+    public class LFOSettings: ISystemExclusiveData
     {
         public LFOShape Shape;
         public Level Speed;
@@ -47,15 +50,17 @@ namespace KSynthLib.K4
             return builder.ToString();
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
+
             data.Add((byte)Shape);
             data.Add(Speed.ToByte());
             data.Add(Delay.ToByte());
             data.Add(Depth.ToByte());
             data.Add(PressureDepth.ToByte());
-            return data.ToArray();
+
+            return data;
         }
     }
 }

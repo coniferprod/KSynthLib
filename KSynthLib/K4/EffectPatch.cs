@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using System.Text;
 
+using KSynthLib.Common;
+
+
 namespace KSynthLib.K4
 {
     public enum EffectType
@@ -53,7 +56,7 @@ namespace KSynthLib.K4
         }
     }
 
-    public class EffectPatch: Patch
+    public class EffectPatch: Patch, ISystemExclusiveData
     {
         public const int DataSize = 35;
         public const int SubmixCount = 8;
@@ -150,6 +153,18 @@ namespace KSynthLib.K4
             data.Add(Checksum);
 
             return data.ToArray();
+        }
+
+        public List<byte> GetSystemExclusiveData()
+        {
+            var data = new List<byte>();
+
+            data.AddRange(CollectData());
+
+            // Add checksum (gets computed by the property)
+            data.Add(Checksum);
+
+            return data;
         }
 
         public override string ToString()

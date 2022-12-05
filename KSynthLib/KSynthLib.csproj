@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <LangVersion>8.0</LangVersion>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
 
     <PackageId>KSynthLib</PackageId>
-    <Version>0.15.0</Version>
+    <Version>0.16.0</Version>
     <Authors>Conifer Productions Oy</Authors>
     <Company>Conifer Productions Oy</Company>
 

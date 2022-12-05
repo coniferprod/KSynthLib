@@ -98,7 +98,7 @@ namespace KSynthLib.K5000
         {
             var data = new List<byte>();
 
-            data.AddRange(Wave.ToData());
+            data.AddRange(Wave.GetSystemExclusiveData());
 
             data.Add(Coarse.ToByte());
             data.Add(Fine.ToByte());

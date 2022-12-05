@@ -95,7 +95,7 @@ namespace KSynthLib.K5000
         Random
     }
 
-    public class FormantLFOSettings
+    public class FormantLFOSettings: ISystemExclusiveData
     {
         public PositiveLevel Speed; // 0~127
         public FormantLFOShape Shape;  // enumeration
@@ -115,7 +115,15 @@ namespace KSynthLib.K5000
             Depth = new UnsignedLevel(data[2]);
         }
 
-        public byte[] ToData() => new List<byte>() { Speed.ToByte(), (byte)Shape, Depth.ToByte() }.ToArray();
+        public List<byte> GetSystemExclusiveData()
+        {
+            return new List<byte>()
+            {
+                Speed.ToByte(),
+                (byte)Shape,
+                Depth.ToByte()
+            };
+        }
     }
 
     public class FormantParameters
@@ -158,12 +166,12 @@ namespace KSynthLib.K5000
             data.Add(EnvLFOSel);
             data.Add(EnvelopeDepth.ToByte());
 
-            data.AddRange(Envelope.ToData());
+            data.AddRange(Envelope.GetSystemExclusiveData());
 
             data.Add(VelocitySensitivityEnvelopeDepth.ToByte());
             data.Add(KeyScalingEnvelopeDepth.ToByte());
 
-            data.AddRange(LFO.ToData());
+            data.AddRange(LFO.GetSystemExclusiveData());
 
             return data;
         }

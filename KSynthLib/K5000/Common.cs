@@ -206,7 +206,7 @@ namespace KSynthLib.K5000
     // to make some classes immutable.
     // See https://docs.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-6
 
-    public class MacroControllerParameter
+    public class MacroControllerParameter: ISystemExclusiveData
     {
         public MacroControllerKind Kind { get; }
         public ControlDepth Depth;
@@ -229,12 +229,15 @@ namespace KSynthLib.K5000
             this.Depth = new ControlDepth();
         }
 
-        public byte[] ToData() => new List<byte>() { (byte)Kind, Depth.ToByte() }.ToArray();
+        public List<byte> GetSystemExclusiveData()
+        {
+            return new List<byte>() { (byte)Kind, Depth.ToByte() };
+        }
 
         public (byte Kind, byte Depth) Bytes => ((byte)Kind, Depth.ToByte());
     }
 
-    public class MacroController
+    public class MacroController: ISystemExclusiveData
     {
         public MacroControllerParameter Param1 { get; }
         public MacroControllerParameter Param2 { get; }
@@ -258,12 +261,12 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
-            data.AddRange(this.Param1.ToData());
-            data.AddRange(this.Param2.ToData());
-            return data.ToArray();
+            data.AddRange(this.Param1.GetSystemExclusiveData());
+            data.AddRange(this.Param2.GetSystemExclusiveData());
+            return data;
         }
     }
 

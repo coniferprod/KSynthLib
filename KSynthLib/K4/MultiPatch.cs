@@ -75,13 +75,13 @@ namespace KSynthLib.K4
         {
             var data = new List<byte>();
 
-            data.AddRange(this.Name.ToBytes());
+            data.AddRange(this.Name.GetSystemExclusiveData());
             data.Add(Volume.ToByte());
             data.Add(EffectPatch.ToByte());
 
             for (var i = 0; i < SectionCount; i++)
             {
-                data.AddRange(this.Sections[i].ToData());
+                data.AddRange(this.Sections[i].GetSystemExclusiveData());
             }
 
             return data.ToArray();

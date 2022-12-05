@@ -16,7 +16,7 @@ namespace KSynthLib.Tests.K4
         [Fact]
         public void DataLength_IsCorrect()
         {
-            int length = _filter.ToData().Length;
+            int length = _filter.GetSystemExclusiveData().Count;
             Assert.Equal(Filter.DataSize, length);
         }
     }

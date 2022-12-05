@@ -1,8 +1,11 @@
 using System.Collections.Generic;
 
+using KSynthLib.Common;
+
+
 namespace KSynthLib.K4
 {
-    public class AmplifierEnvelope
+    public class AmplifierEnvelope: ISystemExclusiveData
     {
         public Level Attack;
         public Level Decay;
@@ -38,7 +41,7 @@ namespace KSynthLib.K4
             return $"A:{Attack} D:{Decay} S:{Sustain} R:{Release}";
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
@@ -47,7 +50,7 @@ namespace KSynthLib.K4
             data.Add(Sustain.ToByte());
             data.Add(Release.ToByte());
 
-            return data.ToArray();
+            return data;
         }
     }
 }

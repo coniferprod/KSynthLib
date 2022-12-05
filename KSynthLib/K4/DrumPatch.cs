@@ -8,7 +8,7 @@ using KSynthLib.Common;
 namespace KSynthLib.K4
 {
 
-    public class DrumPatch : Patch
+    public class DrumPatch : Patch, ISystemExclusiveData
     {
         public const int DataSize = 682;
         public const int NoteCount = 61;  // from C1 to C6
@@ -127,6 +127,24 @@ namespace KSynthLib.K4
             }
 
             return data.ToArray();
+        }
+
+        public List<byte> GetSystemExclusiveData()
+        {
+            var data = new List<byte>();
+
+            data.AddRange(this.CollectData());
+
+            // Add common checksum (gets computed by the property)
+            data.Add(Checksum);
+
+            // Add all the drum notes. Each one computes and adds its own checksum.
+            foreach (var note in Notes)
+            {
+                data.AddRange(note.ToData());
+            }
+
+            return data;
         }
 
         /// <summary>

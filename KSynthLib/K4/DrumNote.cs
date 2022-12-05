@@ -6,7 +6,7 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K4
 {
-    public class DrumSource
+    public class DrumSource: ISystemExclusiveData
     {
         public const int DataSize = 5;
 
@@ -34,7 +34,7 @@ namespace KSynthLib.K4
             Level = new Level(data[4]);
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
@@ -48,7 +48,7 @@ namespace KSynthLib.K4
             data.Add(Tune.ToByte());
             data.Add(Level.ToByte());
 
-            return data.ToArray();
+            return data;
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace KSynthLib.K4
         }
     }
 
-    public class DrumNote : Patch
+    public class DrumNote : Patch, ISystemExclusiveData
     {
         public const int DataSize = 11;  // ten bytes plus checksum
 
@@ -152,14 +152,14 @@ namespace KSynthLib.K4
         {
             var data = new List<byte>();
 
-            byte[] source1Bytes = this.Source1.ToData();
+            List<byte> source1Bytes = this.Source1.GetSystemExclusiveData();
             byte outputSelect = (byte)OutputSelect;
             byte d11 = (byte)((outputSelect << 4) | source1Bytes[0]);
             source1Bytes[0] = d11;
 
-            byte[] source2Bytes = this.Source2.ToData();
+            List<byte> source2Bytes = this.Source2.GetSystemExclusiveData();
 
-            for (var i = 0; i < source1Bytes.Length; i++)
+            for (var i = 0; i < source1Bytes.Count; i++)
             {
                 data.Add(source1Bytes[i]);
                 data.Add(source2Bytes[i]);
@@ -176,6 +176,16 @@ namespace KSynthLib.K4
             data.Add(Checksum);  // computed by property accessor
 
             return data.ToArray();
+        }
+
+        public List<byte> GetSystemExclusiveData()
+        {
+            var data = new List<byte>();
+
+            data.AddRange(this.CollectData());
+            data.Add(Checksum);  // computed by property accessor
+
+            return data;
         }
 
         /// <summary>

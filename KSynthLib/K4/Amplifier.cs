@@ -3,9 +3,10 @@ using System.Collections.Generic;
 
 using KSynthLib.Common;
 
+
 namespace KSynthLib.K4
 {
-    public class LevelModulation
+    public class LevelModulation: ISystemExclusiveData
     {
         public Depth VelocityDepth;
         public Depth PressureDepth;
@@ -39,7 +40,7 @@ namespace KSynthLib.K4
             return $"VEL DEP = {VelocityDepth}, PRS = {PressureDepth}, KS = {KeyScalingDepth}";
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
@@ -47,11 +48,11 @@ namespace KSynthLib.K4
             data.Add(PressureDepth.ToByte());
             data.Add(KeyScalingDepth.ToByte());
 
-            return data.ToArray();
+            return data;
         }
     }
 
-    public class TimeModulation
+    public class TimeModulation: ISystemExclusiveData
     {
         public Depth AttackVelocity;
         public Depth ReleaseVelocity;
@@ -83,7 +84,7 @@ namespace KSynthLib.K4
             return $"ATK VEL = {AttackVelocity}, RLS VEL = {ReleaseVelocity}, KS = {KeyScaling}";
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
@@ -91,14 +92,14 @@ namespace KSynthLib.K4
             data.Add(ReleaseVelocity.ToByte());
             data.Add(KeyScaling.ToByte());
 
-            return data.ToArray();
+            return data;
         }
     }
 
     /// <summary>
     /// Source-specific amplifier settings
     /// <summary>
-    public class Amplifier
+    public class Amplifier: ISystemExclusiveData
     {
         public const int DataSize = 11;
 
@@ -164,16 +165,16 @@ namespace KSynthLib.K4
             return builder.ToString();
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
             data.Add(EnvelopeLevel.ToByte());
-            data.AddRange(Env.ToData());
-            data.AddRange(LevelMod.ToData());
-            data.AddRange(TimeMod.ToData());
+            data.AddRange(Env.GetSystemExclusiveData());
+            data.AddRange(LevelMod.GetSystemExclusiveData());
+            data.AddRange(TimeMod.GetSystemExclusiveData());
 
-            return data.ToArray();
+            return data;
         }
     }
 }

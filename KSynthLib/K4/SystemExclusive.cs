@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+using KSynthLib.Common;
+
+
 namespace KSynthLib.K4
 {
     public enum SystemExclusiveFunction: byte
@@ -46,7 +49,7 @@ namespace KSynthLib.K4
         }
     }
 
-    public class SystemExclusiveHeader
+    public class SystemExclusiveHeader: ISystemExclusiveData
     {
         public const int DataSize = 6;
 
@@ -106,7 +109,7 @@ namespace KSynthLib.K4
 
         public override int GetHashCode() => (this.Channel, this.Function, this.Group, this.MachineID, this.Substatus1, this.Substatus2).GetHashCode();
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
@@ -117,7 +120,7 @@ namespace KSynthLib.K4
             data.Add((byte)this.Substatus1);
             data.Add((byte)this.Substatus2);
 
-            return data.ToArray();
+            return data;
         }
 
         public override string ToString()

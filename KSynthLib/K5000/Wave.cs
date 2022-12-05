@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 using KSynthLib.Common;
 
 namespace KSynthLib.K5000
 {
-    public class Wave
+    public class Wave: ISystemExclusiveData
     {
         public const int WaveCount = 464;
 
@@ -81,13 +80,13 @@ namespace KSynthLib.K5000
             return this.Number == 512;
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
             var (msb, lsb) = this.WaveSelect;
             data.Add(msb);
             data.Add(lsb);
-            return data.ToArray();
+            return data;
         }
 
         public static string[] Names = new string[]

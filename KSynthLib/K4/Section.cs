@@ -26,7 +26,7 @@ namespace KSynthLib.K4
 
     }
 
-    public class Section
+    public class Section: ISystemExclusiveData
     {
         public const int DataSize = 8;
 
@@ -104,7 +104,7 @@ namespace KSynthLib.K4
             return builder.ToString();
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
@@ -133,7 +133,7 @@ namespace KSynthLib.K4
             data.Add(Transpose.ToByte());
             data.Add(Tune.ToByte());
 
-            return data.ToArray();
+            return data;
         }
     }
 }

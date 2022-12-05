@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 
+using KSynthLib.Common;
+
+
 namespace KSynthLib.K5000
 {
     // System exclusive commands corresponding to Table 5.2 in the MIDI format spec.
@@ -79,7 +82,7 @@ namespace KSynthLib.K5000
         DrumInstrument = 0x11
     }
 
-    public class DumpHeader: IEquatable<DumpHeader>
+    public class DumpHeader: IEquatable<DumpHeader>, ISystemExclusiveData
     {
         private Cardinality cardinality;
         public Cardinality Card => this.cardinality;
@@ -133,7 +136,7 @@ namespace KSynthLib.K5000
 
         public override int GetHashCode() => (Card, Kind, Bank).GetHashCode();
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
@@ -173,7 +176,7 @@ namespace KSynthLib.K5000
                     break;
             }
 
-            return data.ToArray();
+            return data;
         }
     }
 }

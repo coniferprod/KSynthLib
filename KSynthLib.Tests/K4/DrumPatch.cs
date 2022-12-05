@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using Xunit;
 using KSynthLib.K4;
 
@@ -22,8 +22,8 @@ namespace KSynthLib.Tests.K4
         [Fact]
         public void Data_IsCorrectSize()
         {
-            byte[] data = patch.ToData();
-            Assert.Equal(DrumPatch.DataSize, data.Length);
+            List<byte> data = patch.GetSystemExclusiveData();
+            Assert.Equal(DrumPatch.DataSize, data.Count);
         }
     }
 }

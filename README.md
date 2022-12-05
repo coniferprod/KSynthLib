@@ -5,7 +5,7 @@ Patch management utilities for Kawai K series digital synthesizers: K4, K5, K500
 This project creates a .NET library as a NuGet package
 that can be installed in .NET application projects.
 
-The library is written in C# 8.0 and targets .NET Core 3.1.
+The library is written in C# 9.0 and targets .NET 6.
 
 ## Installation from NuGet
 
@@ -17,7 +17,7 @@ You can also use the library locally. Add the local directory
 containing your NuGet packages to your NuGet configuration file.
 
 Your NuGet configuration file is most likely `~/.nuget/NuGet/NuGet.Config`,
-and your local directory could be something like `/Users/yourname/Library/NuGet`
+and your local directory could be something like `/Users/me/Library/NuGet`
 (you may need to create this directory).
 
 Add the following to the configuration file.
@@ -37,16 +37,16 @@ Then package it up:
 
 Then add it to your local NuGet repository you configured earlier:
 
-    nuget add KSynthLib/bin/Debug/KSynthLib.x.y.z.nupkg -source /Users/yourname/Library/NuGet
+    nuget add KSynthLib/bin/Debug/KSynthLib.x.y.z.nupkg -source /Users/me/Library/NuGet
 
 where "x.y.z" is the version of the library you want to use.
 
 To automate these steps there is also an installation script for the Bash shell, `install.sh`.
 To use it, first set the environment variables:
 
-    export KSYNTHLIB_VERSION=0.15.0
+    export KSYNTHLIB_VERSION=0.16.0
     export KSYNTHLIB_CONFIGURATION=Debug
-    export LOCAL_NUGET_PATH=/Users/yourname/Library/NuGet
+    export LOCAL_NUGET_PATH=/Users/me/Library/NuGet
 
 Then run the script:
 

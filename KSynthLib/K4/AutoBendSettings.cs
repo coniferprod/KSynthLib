@@ -1,9 +1,12 @@
 using System.Text;
 using System.Collections.Generic;
 
+using KSynthLib.Common;
+
+
 namespace KSynthLib.K4
 {
-    public class AutoBendSettings
+    public class AutoBendSettings: ISystemExclusiveData
     {
         public Level Time;
         public Depth Depth;
@@ -37,7 +40,7 @@ namespace KSynthLib.K4
             return builder.ToString();
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
@@ -48,7 +51,7 @@ namespace KSynthLib.K4
             data.Add(KeyScalingTime.ToByte());
             data.Add(VelocityDepth.ToByte());
 
-            return data.ToArray();
+            return data;
         }
     }
 }

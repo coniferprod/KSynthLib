@@ -12,7 +12,7 @@ namespace KSynthLib.K5000
         Loop2
     }
 
-    public class EnvelopeSegment
+    public class EnvelopeSegment: ISystemExclusiveData
     {
         public PositiveLevel Rate; // 0 ~ 127
         public SignedLevel Level; // (-63)1 ... (+63)127
@@ -29,10 +29,14 @@ namespace KSynthLib.K5000
             Level = new SignedLevel(level);
         }
 
-        public byte[] ToData() => new List<byte>() { Rate.ToByte(), Level.ToByte() }.ToArray();
+        public List<byte> GetSystemExclusiveData()
+        {
+            return new List<byte>() { Rate.ToByte(), Level.ToByte() };
+        }
     }
 
-    public class LoopingEnvelope {
+    public class LoopingEnvelope: ISystemExclusiveData
+    {
         public EnvelopeSegment Attack;
         public EnvelopeSegment Decay1;
         public EnvelopeSegment Decay2;
@@ -57,14 +61,14 @@ namespace KSynthLib.K5000
             LoopKind = (EnvelopeLoopKind)data[8];
         }
 
-        public byte[] ToData()
+        public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
-            data.AddRange(Attack.ToData());
-            data.AddRange(Decay1.ToData());
-            data.AddRange(Decay2.ToData());
-            data.AddRange(Release.ToData());
-            return data.ToArray();
+            data.AddRange(Attack.GetSystemExclusiveData());
+            data.AddRange(Decay1.GetSystemExclusiveData());
+            data.AddRange(Decay2.GetSystemExclusiveData());
+            data.AddRange(Release.GetSystemExclusiveData());
+            return data;
         }
     }
 
