@@ -17,14 +17,14 @@ You can also use the library locally. Add the local directory
 containing your NuGet packages to your NuGet configuration file.
 
 Your NuGet configuration file is most likely `~/.nuget/NuGet/NuGet.Config`,
-and your local directory could be something like `/Users/me/Library/NuGet`
+and your local directory could be something like `/Users/Shared/Library/NuGet`
 (you may need to create this directory).
 
 Add the following to the configuration file.
 
     <packageSources>
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
-        <add key="Local" value="/Users/yourname/Library/NuGet" />
+        <add key="Local" value="/Users/Shared/Library/NuGet" />
     </packageSources>
 
 Build the library:
@@ -37,7 +37,7 @@ Then package it up:
 
 Then add it to your local NuGet repository you configured earlier:
 
-    nuget add KSynthLib/bin/Debug/KSynthLib.x.y.z.nupkg -source /Users/me/Library/NuGet
+    nuget add KSynthLib/bin/Debug/KSynthLib.x.y.z.nupkg -source /Users/Shared/Library/NuGet
 
 where "x.y.z" is the version of the library you want to use.
 
@@ -46,7 +46,7 @@ To use it, first set the environment variables:
 
     export KSYNTHLIB_VERSION=0.16.0
     export KSYNTHLIB_CONFIGURATION=Debug
-    export LOCAL_NUGET_PATH=/Users/me/Library/NuGet
+    export LOCAL_NUGET_PATH=/Users/Shared/Library/NuGet
 
 Then run the script:
 
