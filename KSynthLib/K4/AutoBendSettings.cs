@@ -1,5 +1,6 @@
 using System.Text;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 using KSynthLib.Common;
 
@@ -8,17 +9,24 @@ namespace KSynthLib.K4
 {
     public class AutoBendSettings: ISystemExclusiveData
     {
-        public Level Time;
-        public Depth Depth;
-        public Depth KeyScalingTime;
-        public Depth VelocityDepth;
+        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Time;
+
+        [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Depth;
+
+        [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int KeyScalingTime;
+
+        [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int VelocityDepth;
 
         public AutoBendSettings()
         {
-            Time = new Level();
-            Depth = new Depth();
-            KeyScalingTime = new Depth();
-            VelocityDepth = new Depth();
+            Time = 0;
+            Depth = 0;
+            KeyScalingTime = 0;
+            VelocityDepth = 0;
         }
 
         public AutoBendSettings(byte[] data)
@@ -26,10 +34,10 @@ namespace KSynthLib.K4
             // When initializing the values, the constructors that take a `byte` argument
             // automatically reset the top bit and scale the value correctly, so we only
             // need to pass in the raw byte from SysEx.
-            Time = new Level(data[0]);
-            Depth = new Depth(data[1]);
-            KeyScalingTime = new Depth(data[2]);
-            VelocityDepth = new Depth(data[3]);
+            Time = data[0];
+            Depth = data[1];
+            KeyScalingTime = data[2];
+            VelocityDepth = data[3];
         }
 
         public override string ToString()
@@ -44,12 +52,12 @@ namespace KSynthLib.K4
         {
             var data = new List<byte>();
 
-            data.Add(Time.ToByte());
+            data.Add((byte)Time);
 
             // The `ToByte` method returns the value as the raw SysEx byte.
-            data.Add(Depth.ToByte());
-            data.Add(KeyScalingTime.ToByte());
-            data.Add(VelocityDepth.ToByte());
+            data.Add(ByteConverter.ByteFromDepth(Depth));
+            data.Add(ByteConverter.ByteFromDepth(KeyScalingTime));
+            data.Add(ByteConverter.ByteFromDepth(VelocityDepth));
 
             return data;
         }

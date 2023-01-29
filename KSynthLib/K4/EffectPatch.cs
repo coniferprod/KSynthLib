@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using System.Text;
+using System.ComponentModel.DataAnnotations;
 
 using KSynthLib.Common;
 
 
 namespace KSynthLib.K4
 {
-    public enum EffectType
+    public enum EffectKind
     {
         Reverb1,
         Reverb2,
@@ -28,30 +29,37 @@ namespace KSynthLib.K4
 
     public class EffectSubmix
     {
-        public PanValue Pan;
-        public Level Send1;
-        public Level Send2;
+        [Range(-7, 7, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Pan;
+
+        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Send1;
+
+        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Send2;
 
         public EffectSubmix()
         {
-            Pan = new PanValue();
-            Send1 = new Level();
-            Send2 = new Level();
+            Pan = 0;
+            Send1 = 0;
+            Send2 = 0;
         }
 
         public EffectSubmix(int d0, int d1, int d2)
         {
-            Pan = new PanValue(d0);
-            Send1 = new Level(d1);
-            Send2 = new Level(d2);
+            Pan = d0;
+            Send1 = d1;
+            Send2 = d2;
         }
 
         public byte[] ToData()
         {
             var data = new List<byte>();
-            data.Add(Pan.ToByte());
-            data.Add(Send1.ToByte());
-            data.Add(Send2.ToByte());
+
+            data.Add(ByteConverter.ByteFromPan(Pan));
+            data.Add((byte)Send1);
+            data.Add((byte)Send2);
+
             return data.ToArray();
         }
     }
@@ -61,10 +69,17 @@ namespace KSynthLib.K4
         public const int DataSize = 35;
         public const int SubmixCount = 8;
 
-        public EffectType Type;
-        public SmallEffectParameter Param1;
-        public SmallEffectParameter Param2;
-        public LargeEffectParameter Param3;
+        public EffectKind Kind;
+
+        [Range(0, 7, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Param1;
+
+        [Range(0, 7, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Param2;
+
+        [Range(0, 31, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Param3;
+
         public EffectSubmix[] Submixes;
 
         private byte _checksum;
@@ -87,10 +102,10 @@ namespace KSynthLib.K4
 
         public EffectPatch()
         {
-            Type = EffectType.Reverb1;
-            Param1 = new SmallEffectParameter();
-            Param2 = new SmallEffectParameter();
-            Param3 = new LargeEffectParameter();
+            Kind = EffectKind.Reverb1;
+            Param1 = 0;
+            Param2 = 0;
+            Param3 = 0;
 
             Submixes = new EffectSubmix[SubmixCount];
             for (var i = 0; i < SubmixCount; i++)
@@ -101,10 +116,10 @@ namespace KSynthLib.K4
 
         public EffectPatch(byte[] data) : this()
         {
-            Type = (EffectType)data[0];
-            Param1 = new SmallEffectParameter(data[1]);
-            Param2 = new SmallEffectParameter(data[2]);
-            Param3 = new LargeEffectParameter(data[3]);
+            Kind = (EffectKind)data[0];
+            Param1 = data[1];
+            Param2 = data[2];
+            Param3 = data[3];
 
             var offset = 4;
             Submixes = new EffectSubmix[SubmixCount];
@@ -123,10 +138,10 @@ namespace KSynthLib.K4
         {
             var data = new List<byte>();
 
-            data.Add((byte)this.Type);
-            data.Add(Param1.ToByte());
-            data.Add(Param2.ToByte());
-            data.Add(Param3.ToByte());
+            data.Add((byte)Kind);
+            data.Add((byte)Param1);
+            data.Add((byte)Param2);
+            data.Add((byte)Param3);
 
             // Add six dummy bytes
             data.Add(0);
@@ -170,13 +185,13 @@ namespace KSynthLib.K4
         public override string ToString()
         {
             var builder = new StringBuilder();
-            string name = EffectNames[(int)Type];
-            builder.Append($"{name} P1 = {Param1.Value} P2 = {Param2.Value} P3 = {Param3.Value}\n");
+            string name = EffectNames[(int)Kind];
+            builder.Append($"{name} P1 = {Param1} P2 = {Param2} P3 = {Param3}\n");
 
             for (var i = 0; i < SubmixCount; i++)
             {
                 var submix = Submixes[i];
-                builder.Append($"{i}: pan = {submix.Pan.Value} send1 = {submix.Send1.Value} send2 = {submix.Send2.Value}\n");
+                builder.Append($"{i}: pan = {submix.Pan} send1 = {submix.Send1} send2 = {submix.Send2}\n");
             }
 
             return builder.ToString();

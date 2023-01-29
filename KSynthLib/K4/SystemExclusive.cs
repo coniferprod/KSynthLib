@@ -271,4 +271,18 @@ namespace KSynthLib.K4
             return sb.ToString();
         }
     }
+
+    // Converts SysEx bytes to and from int values.
+    public class ByteConverter {
+
+        // Depth: -50 ... +50
+        public static int DepthFromByte(byte b) => b - 50;
+        public static byte ByteFromDepth(int d) => (byte)(d + 50);
+
+        public static int ChannelFromByte(byte b) => b + 1;  // 0...15 to 1...16
+        public static byte ByteFromChannel(int c) => (byte)(c - 1);  // 1...16 to 0...15
+
+        public static int PanFromByte(byte b) => b - 7;  // to -7~+7
+        public static byte ByteFromPan(int p) => (byte)(p + 7);  // to 0~14
+    }
 }

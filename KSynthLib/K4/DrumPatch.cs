@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
+using System.ComponentModel.DataAnnotations;
 
 using KSynthLib.Common;
 
@@ -13,9 +14,15 @@ namespace KSynthLib.K4
         public const int DataSize = 682;
         public const int NoteCount = 61;  // from C1 to C6
 
-        public Channel ReceiveChannel;
-        public Level Volume;
-        public Level VelocityDepth;
+        [Range(1, 16, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int ReceiveChannel;
+
+        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Volume;
+
+        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int VelocityDepth;
+
         public List<DrumNote> Notes;
 
         private byte _checksum;
@@ -25,9 +32,9 @@ namespace KSynthLib.K4
             {
                 var data = new List<byte>();
 
-                data.Add(ReceiveChannel.ToByte());
-                data.Add(Volume.ToByte());
-                data.Add(VelocityDepth.ToByte());
+                data.Add(ByteConverter.ByteFromChannel(ReceiveChannel));
+                data.Add((byte)Volume);
+                data.Add((byte)VelocityDepth);
 
                 byte[] bs = data.ToArray();
                 byte sum = 0;
@@ -44,9 +51,9 @@ namespace KSynthLib.K4
 
         public DrumPatch()
         {
-            ReceiveChannel = new Channel(1);
-            Volume = new Level(99);
-            VelocityDepth = new Level(99);
+            ReceiveChannel = 1;
+            Volume = 99;
+            VelocityDepth = 99;
 
             Notes = new List<DrumNote>();
             for (var i = 0; i < NoteCount; i++)
@@ -61,13 +68,13 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            ReceiveChannel = new Channel(b);
+            ReceiveChannel = ByteConverter.ChannelFromByte(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Volume = new Level(b);  // 0~100
+            Volume = b;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            VelocityDepth = new Level(b);
+            VelocityDepth = b;
 
             // Eat up the dummy bytes
             offset += 7;
@@ -95,9 +102,9 @@ namespace KSynthLib.K4
         {
             var data = new List<byte>();
 
-            data.Add(ReceiveChannel.ToByte());
-            data.Add(Volume.ToByte());
-            data.Add(VelocityDepth.ToByte());
+            data.Add(ByteConverter.ByteFromChannel(ReceiveChannel));
+            data.Add((byte)Volume);
+            data.Add((byte)VelocityDepth);
 
             // Add seven dummy bytes
             data.Add(0);

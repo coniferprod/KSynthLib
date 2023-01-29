@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.ComponentModel.DataAnnotations;
 
 using KSynthLib.Common;
 
@@ -11,16 +12,22 @@ namespace KSynthLib.K4
         public const int DataSize = 5;
 
         public Wave Wave;
-        public Level Decay;
-        public Depth Tune; // 0~100 / ±50
-        private Level Level;  // manual says 0...100, SysEx spec says 0...99
+
+        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Decay;
+
+        [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Tune;
+
+        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
+        private int Level;  // manual says 0...100, SysEx spec says 0...99
 
         public DrumSource()
         {
             Wave = new Wave(97);  // "KICK"
-            Decay = new Level(99);
-            Tune = new Depth();
-            Level = new Level(99);
+            Decay = 99;
+            Tune = 0;
+            Level = 99;
         }
 
         public DrumSource(byte[] data) : this()
@@ -29,9 +36,9 @@ namespace KSynthLib.K4
             byte waveLow = (byte)(data[1] & 0x7f);
             Wave = new Wave(waveHigh, waveLow);
 
-            Decay = new Level(data[2]);
-            Tune = new Depth(data[3]);
-            Level = new Level(data[4]);
+            Decay = data[2];
+            Tune = ByteConverter.DepthFromByte(data[3]);
+            Level = data[4];
         }
 
         public List<byte> GetSystemExclusiveData()
@@ -44,9 +51,9 @@ namespace KSynthLib.K4
             data.Add(high);
             data.Add(low);
 
-            data.Add(Decay.ToByte());
-            data.Add(Tune.ToByte());
-            data.Add(Level.ToByte());
+            data.Add((byte)Decay);
+            data.Add(ByteConverter.ByteFromDepth(Tune));
+            data.Add((byte)Level);
 
             return data;
         }
