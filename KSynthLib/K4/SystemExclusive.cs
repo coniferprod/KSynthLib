@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.ComponentModel.DataAnnotations;
 
 using KSynthLib.Common;
 
@@ -53,12 +54,15 @@ namespace KSynthLib.K4
     {
         public const int DataSize = 6;
 
-	    public int Channel;
+        [Range(1, 16, ErrorMessage = "{0} must be between {1} and {2}")]
+	    public int Channel;  // MIDI channel 1...16
+
 	    public SystemExclusiveFunction Function;
-	    public sbyte Group;
-	    public sbyte MachineID;
-	    public sbyte Substatus1;
-	    public sbyte Substatus2;
+
+        public byte Group;
+        public byte MachineID;
+	    public byte Substatus1;
+	    public byte Substatus2;
 
         public SystemExclusiveHeader(byte channel)
         {
@@ -67,12 +71,12 @@ namespace KSynthLib.K4
 
         public SystemExclusiveHeader(byte[] data)
         {
-            this.Channel = (sbyte)(data[0] + 1);
+            this.Channel = SystemExclusiveDataConverter.ChannelFromByte(data[0]);
             this.Function = (SystemExclusiveFunction)data[1];
-            this.Group = (sbyte)data[2];
-            this.MachineID = (sbyte)data[3];
-            this.Substatus1 = (sbyte)data[4];
-            this.Substatus2 = (sbyte)data[5];
+            this.Group = data[2];
+            this.MachineID = data[3];
+            this.Substatus1 = data[4];
+            this.Substatus2 = data[5];
         }
 
         public override bool Equals(object obj) => this.Equals(obj as SystemExclusiveHeader);
@@ -113,12 +117,12 @@ namespace KSynthLib.K4
         {
             var data = new List<byte>();
 
-            data.Add((byte)(this.Channel - 1));
+            data.Add(SystemExclusiveDataConverter.ByteFromChannel(this.Channel));
             data.Add((byte)this.Function);
-            data.Add((byte)this.Group);
-            data.Add((byte)this.MachineID);
-            data.Add((byte)this.Substatus1);
-            data.Add((byte)this.Substatus2);
+            data.Add(this.Group);
+            data.Add(this.MachineID);
+            data.Add(this.Substatus1);
+            data.Add(this.Substatus2);
 
             return data;
         }
@@ -405,6 +409,5 @@ namespace KSynthLib.K4
             0x7e, // right arrow (U+2192)
             0x7f, // left arrow (U+2190)
         };
-
     }
 }
