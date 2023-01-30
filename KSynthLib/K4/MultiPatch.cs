@@ -34,6 +34,8 @@ namespace KSynthLib.K4
         [Range(1, 32, ErrorMessage = "{0} must be between {1} and {2}")]
         public int EffectPatch; // 1~32 (on K4)
 
+        public byte[] OriginalData;
+
         public MultiPatch()
         {
             this.Name = "InitMulti";
@@ -45,6 +47,8 @@ namespace KSynthLib.K4
             {
                 this.Sections[i] = new Section();
             }
+
+            OriginalData = null;
         }
 
         public MultiPatch(byte[] data) : this()
@@ -74,6 +78,9 @@ namespace KSynthLib.K4
 
             (b, offset) = Util.GetNextByte(data, offset);
             this.Checksum = b;
+
+            OriginalData = new byte[DataSize];
+            Array.Copy(data, OriginalData, DataSize);
         }
 
         public override string ToString()

@@ -83,6 +83,9 @@ namespace KSynthLib.K4
         public Filter Filter1;
         public Filter Filter2;
 
+        // Holds the original patch data, if available
+        private byte[] OriginalData;
+
         /// <summary>
         /// Constructs a single patch from default values.
         /// </summary>
@@ -120,6 +123,8 @@ namespace KSynthLib.K4
 
             Filter1 = new Filter();
             Filter2 = new Filter();
+
+            OriginalData = null;
         }
 
         /// <summary>
@@ -281,6 +286,9 @@ namespace KSynthLib.K4
             (b, offset) = Util.GetNextByte(data, offset);
             // "Check sum value (s130) is the sum of the A5H and s0 ~ s129".
             //this.Checksum = b; // store the checksum as we got it from SysEx
+
+            OriginalData = new byte[DataSize];
+            Array.Copy(data, OriginalData, DataSize);
         }
 
         /// <summary>

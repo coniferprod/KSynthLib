@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.ComponentModel.DataAnnotations;
@@ -100,6 +101,8 @@ namespace KSynthLib.K4
             set => _checksum = value;
         }
 
+        public byte[] OriginalData;
+
         public EffectPatch()
         {
             Kind = EffectKind.Reverb1;
@@ -112,6 +115,8 @@ namespace KSynthLib.K4
             {
                 Submixes[i] = new EffectSubmix();
             }
+
+            OriginalData = null;
         }
 
         public EffectPatch(byte[] data) : this()
@@ -132,6 +137,9 @@ namespace KSynthLib.K4
                 );
                 offset += 3;
             }
+
+            OriginalData = new byte[DataSize];
+            Array.Copy(data, OriginalData, DataSize);
         }
 
         protected override byte[] CollectData()

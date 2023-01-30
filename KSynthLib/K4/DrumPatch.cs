@@ -49,6 +49,8 @@ namespace KSynthLib.K4
             set => _checksum = value;
         }
 
+        public byte[] OriginalData;
+
         public DrumPatch()
         {
             ReceiveChannel = 1;
@@ -60,6 +62,8 @@ namespace KSynthLib.K4
             {
                 Notes.Add(new DrumNote());
             }
+
+            OriginalData = null;
         }
 
         public DrumPatch(byte[] data)
@@ -96,6 +100,9 @@ namespace KSynthLib.K4
             }
 
             Debug.Assert(Notes.Count == NoteCount);
+
+            OriginalData = new byte[DataSize];
+            Array.Copy(data, OriginalData, DataSize);
         }
 
         protected override byte[] CollectData()
