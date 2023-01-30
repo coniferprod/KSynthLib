@@ -339,7 +339,7 @@ namespace KSynthLib.K4
         /// </returns>
         public override string ToString()
         {
-            return string.Format($"{this.Number} {this.Name}");
+            return $"{this.Number} {this.Name}";
         }
     }
 }

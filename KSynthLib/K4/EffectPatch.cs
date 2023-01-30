@@ -186,12 +186,12 @@ namespace KSynthLib.K4
         {
             var builder = new StringBuilder();
             string name = EffectNames[(int)Kind];
-            builder.Append($"{name} P1 = {Param1} P2 = {Param2} P3 = {Param3}\n");
+            builder.AppendLine($"{name} P1 = {Param1} P2 = {Param2} P3 = {Param3}");
 
             for (var i = 0; i < SubmixCount; i++)
             {
                 var submix = Submixes[i];
-                builder.Append($"{i}: pan = {submix.Pan} send1 = {submix.Send1} send2 = {submix.Send2}\n");
+                builder.AppendLine($"{i}: pan = {submix.Pan} send1 = {submix.Send1} send2 = {submix.Send2}");
             }
 
             return builder.ToString();

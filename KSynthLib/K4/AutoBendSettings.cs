@@ -43,8 +43,14 @@ namespace KSynthLib.K4
         public override string ToString()
         {
             var builder = new StringBuilder();
-            builder.Append(string.Format("TIME       ={0,3}\nDEPTH      ={1,2}\nKS>TIME    ={2,2}\nVEL>DEPTH  ={3,2}",
-                Time, Depth, KeyScalingTime, VelocityDepth));
+
+            builder.Append(
+                string.Format(
+                    "TIME       ={0,3}\nDEPTH      ={1,2}\nKS>TIME    ={2,2}\nVEL>DEPTH  ={3,2}",
+                    Time, Depth, KeyScalingTime, VelocityDepth
+                )
+            );
+
             return builder.ToString();
         }
 

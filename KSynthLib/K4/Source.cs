@@ -92,16 +92,24 @@ namespace KSynthLib.K4
         public override string ToString()
         {
             var builder = new StringBuilder();
-            builder.Append("S.COMMON\n");
-            builder.Append($"DELAY      ={Delay,3}\n");
-            builder.Append($"VEL CURVE  ={VelocityCurve,3}\n");
-            builder.Append($"KS CURVE   ={KeyScalingCurve,3}\n");
-            builder.Append("DCO\n");
-            builder.Append(string.Format("WAVE       ={0,3} ({1})\n", Wave.Number, Wave.Name));
-            builder.Append(string.Format("KEY TRACK  ={0}\n", KeyTrack ? "ON" : "OFF"));
-            builder.Append($"COARSE     ={Coarse,3}\nFINE       ={Fine,3}\n");
-            builder.Append($"FIXED KEY  ={FixedKey.NoteName} ({FixedKey})\n");
-            builder.Append(string.Format("PRESS      ={0}\nVIB/A.BEND ={1}\n", PressureFrequency ? "ON" : "OFF", Vibrato ? "ON" : "OFF"));
+
+            builder.AppendLine("S.COMMON");
+            builder.AppendLine($"DELAY      ={Delay,3}");
+            builder.AppendLine($"VEL CURVE  ={VelocityCurve,3}");
+            builder.AppendLine($"KS CURVE   ={KeyScalingCurve,3}");
+            builder.AppendLine("DCO");
+            builder.AppendLine(string.Format("WAVE       ={0,3} ({1})", Wave.Number, Wave.Name));
+            builder.AppendLine(string.Format("KEY TRACK  ={0}", KeyTrack ? "ON" : "OFF"));
+            builder.AppendLine($"COARSE     ={Coarse,3}\nFINE       ={Fine,3}");
+            builder.AppendLine($"FIXED KEY  ={FixedKey.NoteName} ({FixedKey})");
+            builder.AppendLine(
+                string.Format(
+                    "PRESS      ={0}\nVIB/A.BEND ={1}",
+                    PressureFrequency ? "ON" : "OFF",
+                    Vibrato ? "ON" : "OFF"
+                )
+            );
+
             return builder.ToString();
         }
 

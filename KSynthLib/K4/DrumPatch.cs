@@ -164,7 +164,7 @@ namespace KSynthLib.K4
         {
             var builder = new StringBuilder();
 
-            builder.Append($"DRUM rcv ch = {this.ReceiveChannel}, volume = {this.Volume}, vel.depth = {this.VelocityDepth}\n");
+            builder.AppendLine($"DRUM rcv ch = {this.ReceiveChannel}, volume = {this.Volume}, vel.depth = {this.VelocityDepth}");
 
             var noteNumber = 36;
             foreach (var note in this.Notes)

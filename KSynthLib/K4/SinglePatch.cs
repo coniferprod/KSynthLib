@@ -293,19 +293,18 @@ namespace KSynthLib.K4
         {
             var builder = new StringBuilder();
 
-            builder.Append($"{this.Name}\n");
-            builder.Append($"VOLUME     ={Volume:3}\nEFFECT PACH= {Effect:2}\nSUBMIX CH  =  {Submix}\n");
-
-            builder.Append(string.Format("SOURCE MODE={0}\n", Enum.GetNames(typeof(SourceMode))[(int)SourceMode]));
-            builder.Append(string.Format("AM 1>2     ={0}\nAM 3>4     ={1}\n", AM12 ? "ON" : "OFF", AM34 ? "ON" : "OFF"));
-            builder.Append(string.Format("POLY MODE  ={0}\n", Enum.GetNames(typeof(PolyphonyMode))[(int)PolyphonyMode]));
-            builder.Append(string.Format("BNDR RANGE = {0,2}\n", PitchBendRange));
-            builder.Append(string.Format("PRESS>FREQ = {0,2}\n", PressureFreq));
-            builder.Append(string.Format("WHEEL\nASSIGN     ={0}\nDEPTH      ={1,2}\n", Enum.GetNames(typeof(WheelAssignType))[(int)WheelAssign], WheelDepth));
-            builder.Append($"AUTO BEND\n{AutoBend}\n");
-            builder.Append($"Sources: {SourceMuteString}\n");
-            builder.Append($"VIBRATO\n{Vibrato}\n");
-            builder.Append($"LFO\n{LFO}\n");
+            builder.AppendLine($"{this.Name}");
+            builder.AppendLine($"VOLUME     ={Volume:3}\nEFFECT PACH= {Effect:2}\nSUBMIX CH  =  {Submix}");
+            builder.AppendLine(string.Format("SOURCE MODE={0}", Enum.GetNames(typeof(SourceMode))[(int)SourceMode]));
+            builder.AppendLine(string.Format("AM 1>2     ={0}\nAM 3>4     ={1}", AM12 ? "ON" : "OFF", AM34 ? "ON" : "OFF"));
+            builder.AppendLine(string.Format("POLY MODE  ={0}", Enum.GetNames(typeof(PolyphonyMode))[(int)PolyphonyMode]));
+            builder.AppendLine(string.Format("BNDR RANGE = {0,2}", PitchBendRange));
+            builder.AppendLine(string.Format("PRESS>FREQ = {0,2}", PressureFreq));
+            builder.AppendLine(string.Format("WHEEL\nASSIGN     ={0}\nDEPTH      ={1,2}", Enum.GetNames(typeof(WheelAssignType))[(int)WheelAssign], WheelDepth));
+            builder.AppendLine($"AUTO BEND\n{AutoBend}");
+            builder.AppendLine($"Sources: {SourceMuteString}");
+            builder.AppendLine($"VIBRATO\n{Vibrato}");
+            builder.AppendLine($"LFO\n{LFO}");
 
             var sourceString = new StringBuilder();
             var ampString = new StringBuilder();
@@ -317,8 +316,9 @@ namespace KSynthLib.K4
             builder.Append(sourceString.ToString());
             builder.Append(ampString.ToString());
 
-            builder.Append($"Filter 1: {Filter1}\n");
-            builder.Append($"Filter 2: {Filter2}\n");
+            builder.AppendLine($"Filter 1: {Filter1}");
+            builder.AppendLine($"Filter 2: {Filter2}");
+
             return builder.ToString();
         }
 

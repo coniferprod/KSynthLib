@@ -110,10 +110,17 @@ namespace KSynthLib.K4
         {
             var builder = new StringBuilder();
 
-            builder.Append(string.Format("single = {0}, recv ch = {1}, play mode = {2}\n", PatchUtil.GetPatchName(SinglePatch), ReceiveChannel, PlayMode));
-            builder.Append(string.Format("zone = {0} to {1}, vel sw = {2}\n", PatchUtil.GetNoteName(KeyboardZone.Low), PatchUtil.GetNoteName(KeyboardZone.High), VelocitySwitch));
-            builder.Append($"level = {Level}, transpose = {Transpose}, tune = {Tune}\n");
-            builder.Append($"submix ch = {Output}\n");
+            builder.AppendLine(string.Format("single = {0}, recv ch = {1}, play mode = {2}", PatchUtil.GetPatchName(SinglePatch), ReceiveChannel, PlayMode));
+            builder.AppendLine(
+                string.Format(
+                    "zone = {0} to {1}, vel sw = {2}",
+                    PatchUtil.GetNoteName(KeyboardZone.Low),
+                    PatchUtil.GetNoteName(KeyboardZone.High),
+                    VelocitySwitch
+                )
+            );
+            builder.AppendLine($"level = {Level}, transpose = {Transpose}, tune = {Tune}");
+            builder.AppendLine($"submix ch = {Output}");
 
             return builder.ToString();
         }

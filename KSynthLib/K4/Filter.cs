@@ -93,11 +93,11 @@ namespace KSynthLib.K4
         {
             var builder = new StringBuilder();
 
-            builder.Append($"cutoff = {Cutoff}, resonance = {Resonance}\n");
-            builder.Append(string.Format("LFO = {0}\n", IsLFO ? "ON" : "OFF"));
-            builder.Append($"envelope: {Env}\n");
-            builder.Append($"cutoff modulation: {CutoffMod}\n");
-            builder.Append($"time modulation: {TimeMod}\n");
+            builder.AppendLine($"cutoff = {Cutoff}, resonance = {Resonance}");
+            builder.AppendLine(string.Format("LFO = {0}", IsLFO ? "ON" : "OFF"));
+            builder.AppendLine($"envelope: {Env}");
+            builder.AppendLine($"cutoff modulation: {CutoffMod}");
+            builder.AppendLine($"time modulation: {TimeMod}");
 
             return builder.ToString();
         }

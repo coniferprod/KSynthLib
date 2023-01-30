@@ -68,8 +68,8 @@ namespace KSynthLib.K4
         {
             var builder = new StringBuilder();
 
-            builder.Append($"WAVE = {this.Wave.ToString()}" + "\n");
-            builder.Append($"Decay = {this.Decay}, Tune = {this.Tune}, Level = {this.Level}\n");
+            builder.AppendLine($"WAVE = {this.Wave.ToString()}");
+            builder.AppendLine($"Decay = {this.Decay}, Tune = {this.Tune}, Level = {this.Level}");
 
             return builder.ToString();
         }
@@ -205,9 +205,9 @@ namespace KSynthLib.K4
         {
             var builder = new StringBuilder();
 
-            builder.Append(OutputSelect.ToString() + "\n");
-            builder.Append($"SOURCE 1 = {this.Source1}\n");
-            builder.Append($"SOURCE 2 = {this.Source2}\n");
+            builder.AppendLine(OutputSelect.ToString());
+            builder.AppendLine($"SOURCE 1 = {this.Source1}");
+            builder.AppendLine($"SOURCE 2 = {this.Source2}");
 
             return builder.ToString();
         }

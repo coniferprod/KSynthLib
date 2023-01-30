@@ -174,9 +174,11 @@ namespace KSynthLib.K4
         public override string ToString()
         {
             var builder = new StringBuilder();
-            builder.Append($"envelope = {Env}, level = {EnvelopeLevel}\n");
-            builder.Append($"level modulation: {LevelMod}\n");
-            builder.Append($"time modulation: {TimeMod}\n");
+
+            builder.AppendLine($"envelope = {Env}, level = {EnvelopeLevel}");
+            builder.AppendLine($"level modulation: {LevelMod}");
+            builder.AppendLine($"time modulation: {TimeMod}");
+
             return builder.ToString();
         }
 

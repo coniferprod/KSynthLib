@@ -53,9 +53,15 @@ namespace KSynthLib.K4
         public override string ToString()
         {
             var builder = new StringBuilder();
-            builder.Append(string.Format("SHAPE      ={0}\nSPEED     ={1,3}\nDELAY     ={2,3}\nDEPTH     ={3,3}, PRESS DEPTH={4,3}",
-                Enum.GetNames(typeof(LFOShape))[(int)Shape],
-                Speed, Delay, Depth, PressureDepth));
+
+            builder.Append(
+                string.Format(
+                    "SHAPE      ={0}\nSPEED     ={1,3}\nDELAY     ={2,3}\nDEPTH     ={3,3}, PRESS DEPTH={4,3}",
+                    Enum.GetNames(typeof(LFOShape))[(int)Shape],
+                    Speed, Delay, Depth, PressureDepth
+                )
+            );
+
             return builder.ToString();
         }
 

@@ -127,12 +127,12 @@ namespace KSynthLib.K4
         {
             var sb = new StringBuilder();
 
-            sb.AppendFormat("Channel: {0}\n", this.Channel);
-            sb.AppendFormat("Function: {0}\n", SystemExclusiveFunctionExtensions.Name(this.Function));
-            sb.AppendFormat("Group: {0:X2}h\n", this.Group);
-            sb.AppendFormat("MachineID: {0:X2}h\n", this.MachineID);
-            sb.AppendFormat("Sub status 1: {0:X2}h\n", this.Substatus1);
-            sb.AppendFormat("Sub status 2: {0:X2}h\n", this.Substatus2);
+            sb.AppendLine($"Channel: {Channel}");
+            sb.AppendLine($"Function: {SystemExclusiveFunctionExtensions.Name(this.Function)}");
+            sb.AppendLine(string.Format("Group: {0:X2}h", this.Group));
+            sb.AppendLine(string.Format("MachineID: {0:X2}h", this.MachineID));
+            sb.AppendLine(string.Format("Sub status 1: {0:X2}h", this.Substatus1));
+            sb.AppendLine(string.Format("Sub status 2: {0:X2}h", this.Substatus2));
 
             return sb.ToString();
         }
@@ -200,7 +200,7 @@ namespace KSynthLib.K4
                 Locality.External => "EXT",
                 _ => "???"
             };
-            sb.AppendFormat("Locality: {0}\n", locality);
+            sb.AppendLine($"Locality: {locality}");
 
             var cardinality = this.Cardinality switch
             {
@@ -209,7 +209,7 @@ namespace KSynthLib.K4
                 Cardinality.All => "All",
                 _ => "???"
             };
-            sb.AppendFormat("Cardinality: {0}\n", cardinality);
+            sb.AppendLine($"Cardinality: {cardinality}");
 
             var kind = this.Kind switch
             {
@@ -220,52 +220,52 @@ namespace KSynthLib.K4
                 Kind.All => "All",
                 _ => "unknown"
             };
-            sb.AppendFormat("Kind: {0}\n", kind);
+            sb.AppendLine($"Kind: {kind}");
 
             if (this.Kind == Kind.SinglePatch)
             {
                 if (this.Cardinality == Cardinality.Block)
                 {
-                    sb.Append("Number: -\n");
+                    sb.AppendLine("Number: -");
                 }
                 else
                 {
-                    sb.AppendFormat("Number: {0}\n", this.Number + 1);
+                    sb.AppendLine($"Number: {this.Number + 1}");
                 }
             }
             else if (this.Kind == Kind.MultiPatch)
             {
                 if (this.Cardinality == Cardinality.Block)
                 {
-                    sb.Append("Number: -\n");
+                    sb.AppendLine("Number: -");
                 }
                 else
                 {
-                    sb.AppendFormat("Number: {0}\n", this.Number - 64 + 1);
+                    sb.AppendLine($"Number: {this.Number - 64 + 1}");
                 }
             }
             else if (this.Kind == Kind.DrumPatch)
             {
-                sb.AppendFormat("Number: -\n");
+                sb.AppendLine("Number: -");
             }
             else if (this.Kind == Kind.EffectPatch)
             {
                 if (this.Cardinality == Cardinality.Block)
                 {
-                    sb.Append("Number: -\n");
+                    sb.AppendLine("Number: -");
                 }
                 else
                 {
-                    sb.AppendFormat("Number: {0}\n", this.Number + 1);
+                    sb.AppendLine($"Number: {this.Number + 1}");
                 }
             }
             else if (this.Kind == Kind.All)
             {
-                sb.Append("Number: -\n");
+                sb.AppendLine("Number: -");
             }
             else
             {
-                sb.Append("Number: ???\n");
+                sb.AppendLine("Number: ???");
             }
 
             return sb.ToString();

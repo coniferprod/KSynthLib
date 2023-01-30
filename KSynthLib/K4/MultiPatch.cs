@@ -79,12 +79,13 @@ namespace KSynthLib.K4
         public override string ToString()
         {
             var builder = new StringBuilder();
-            builder.Append($"name = {Name}, volume = {Volume}, effect = {EffectPatch}\n");
+
+            builder.AppendLine($"name = {Name}, volume = {Volume}, effect = {EffectPatch}");
             for (var i = 0; i < SectionCount; i++)
             {
-                builder.Append($"Section {i + 1}:\n");
+                builder.AppendLine($"Section {i + 1}:");
                 builder.Append(this.Sections[i].ToString());
-                builder.Append("\n");
+                builder.AppendLine();
             }
 
             return builder.ToString();
