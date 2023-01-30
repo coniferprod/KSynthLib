@@ -55,9 +55,9 @@ namespace KSynthLib.K4
             data.Add((byte)Time);
 
             // The `ToByte` method returns the value as the raw SysEx byte.
-            data.Add(ByteConverter.ByteFromDepth(Depth));
-            data.Add(ByteConverter.ByteFromDepth(KeyScalingTime));
-            data.Add(ByteConverter.ByteFromDepth(VelocityDepth));
+            data.Add(SystemExclusiveDataConverter.ByteFromDepth(Depth));
+            data.Add(SystemExclusiveDataConverter.ByteFromDepth(KeyScalingTime));
+            data.Add(SystemExclusiveDataConverter.ByteFromDepth(VelocityDepth));
 
             return data;
         }

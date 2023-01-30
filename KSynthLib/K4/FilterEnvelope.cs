@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 using KSynthLib.Common;
 
@@ -7,33 +8,40 @@ namespace KSynthLib.K4
 {
     public class FilterEnvelope: ISystemExclusiveData
     {
-        public Level Attack;
-        public Level Decay;
-        public Depth Sustain;
-        public Level Release;
+        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Attack;
+
+        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Decay;
+
+        [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Sustain;
+
+        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Release;
 
         public FilterEnvelope()
         {
-            Attack = new Level();
-            Decay = new Level();
-            Sustain = new Depth();
-            Release = new Level();
+            Attack = 0;
+            Decay = 0;
+            Sustain = 0;
+            Release = 0;
         }
 
         public FilterEnvelope(int a, int d, int s, int r)
         {
-            Attack = new Level(a);
-            Decay = new Level(d);
-            Sustain = new Depth(s);
-            Release = new Level(r);
+            Attack = a;
+            Decay = d;
+            Sustain = s;
+            Release = r;
         }
 
         public FilterEnvelope(List<byte> data)
         {
-            Attack = new Level(data[0]);
-            Decay = new Level(data[1]);
-            Sustain = new Depth(data[2]);  // constructor adjusts to range
-            Release = new Level(data[3]);
+            Attack = data[0];
+            Decay = data[1];
+            Sustain = SystemExclusiveDataConverter.DepthFromByte(data[2]);
+            Release = data[3];
         }
 
         public override string ToString()
@@ -45,10 +53,10 @@ namespace KSynthLib.K4
         {
             var data = new List<byte>();
 
-            data.Add(Attack.ToByte());
-            data.Add(Decay.ToByte());
-            data.Add(Sustain.ToByte());
-            data.Add(Release.ToByte());
+            data.Add((byte)Attack);
+            data.Add((byte)Decay);
+            data.Add(SystemExclusiveDataConverter.ByteFromDepth(Sustain));
+            data.Add((byte)Release);
 
             return data;
         }

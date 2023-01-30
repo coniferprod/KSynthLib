@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 using KSynthLib.Common;
 
@@ -18,27 +19,35 @@ namespace KSynthLib.K4
     public class LFOSettings: ISystemExclusiveData
     {
         public LFOShape Shape;
-        public Level Speed;
-        public Level Delay;
-        public Depth Depth;
-        public Depth PressureDepth;
+
+        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Speed;
+
+        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Delay;
+
+        [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Depth;
+
+        [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int PressureDepth;
 
         public LFOSettings()
         {
             Shape = LFOShape.Triangle;
-            Speed = new Level();
-            Delay = new Level();
-            Depth = new Depth();
-            PressureDepth = new Depth();
+            Speed = 0;
+            Delay = 0;
+            Depth = 0;
+            PressureDepth = 0;
         }
 
         public LFOSettings(List<byte> data)
         {
             Shape = (LFOShape)(data[0] & 0x03);
-            Speed = new Level(data[1]);
-            Delay = new Level(data[2]);
-            Depth = new Depth(data[3]);
-            PressureDepth = new Depth(data[4]);
+            Speed = data[1];
+            Delay = data[2];
+            Depth = SystemExclusiveDataConverter.DepthFromByte(data[3]);
+            PressureDepth = SystemExclusiveDataConverter.DepthFromByte(data[4]);
         }
 
         public override string ToString()
@@ -55,10 +64,10 @@ namespace KSynthLib.K4
             var data = new List<byte>();
 
             data.Add((byte)Shape);
-            data.Add(Speed.ToByte());
-            data.Add(Delay.ToByte());
-            data.Add(Depth.ToByte());
-            data.Add(PressureDepth.ToByte());
+            data.Add((byte)Speed);
+            data.Add((byte)Delay);
+            data.Add(SystemExclusiveDataConverter.ByteFromDepth(Depth));
+            data.Add(SystemExclusiveDataConverter.ByteFromDepth(PressureDepth));
 
             return data;
         }

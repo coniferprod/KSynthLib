@@ -1,5 +1,6 @@
 using System.Text;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 using KSynthLib.Common;
 
@@ -30,29 +31,40 @@ namespace KSynthLib.K4
     {
         public const int DataSize = 8;
 
-        public PatchNumber SinglePatch;
+        [Range(1, 64, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int SinglePatch;
+
         public Zone KeyboardZone;
-        public Channel ReceiveChannel;
+
+        [Range(1, 16, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int ReceiveChannel;
+
         public VelocitySwitchType VelocitySwitch;
         public bool IsMuted;
         public SubmixType Output;
         public PlayModeType PlayMode;
-        public Level Level;
-        public Coarse Transpose;
-        public Depth Tune;
+
+        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Level;
+
+        [Range(-24, 24, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Transpose;
+
+        [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Tune;
 
         public Section()
         {
-            SinglePatch = new PatchNumber(1);
+            SinglePatch = 1;
             KeyboardZone = new Zone { Low = 0, High = 127 };
-            ReceiveChannel = new Channel(1);
+            ReceiveChannel = 1;
             VelocitySwitch = VelocitySwitchType.All;
             IsMuted = false;
             Output = SubmixType.A;
             PlayMode = PlayModeType.Keyboard;
-            Level = new Level(80);
-            Transpose = new Coarse(0);
-            Tune = new Depth(0);
+            Level = 80;
+            Transpose = 0;
+            Tune = 0;
         }
 
         public Section(byte[] data) : this()
@@ -61,7 +73,7 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            SinglePatch = new PatchNumber(b);
+            SinglePatch = b;
 
             (b, offset) = Util.GetNextByte(data, offset);
             int zoneLow = b;
@@ -71,7 +83,7 @@ namespace KSynthLib.K4
 
             (b, offset) = Util.GetNextByte(data, offset);
             // rcv ch = M15 bits 0...3
-            ReceiveChannel = new Channel((byte)(b & 0x0f));
+            ReceiveChannel = SystemExclusiveDataConverter.ChannelFromByte((byte)(b & 0x0f));
             // velo sw = M15 bits 4..5
             VelocitySwitch = (VelocitySwitchType)((b >> 4) & 0x03);
             // section mute = M15 bit 6
@@ -85,22 +97,24 @@ namespace KSynthLib.K4
             PlayMode = (PlayModeType)((b >> 3) & 0x03);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Level = new Level(b);
+            Level = b;
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Transpose = new Coarse(b);
+            Transpose = SystemExclusiveDataConverter.TransposeFromByte(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Tune = new Depth(b);
+            Tune = SystemExclusiveDataConverter.DepthFromByte(b);
         }
 
         public override string ToString()
         {
             var builder = new StringBuilder();
-            builder.Append(string.Format("single = {0}, recv ch = {1}, play mode = {2}\n", PatchUtil.GetPatchName(SinglePatch.Value), ReceiveChannel.Value, PlayMode));
+
+            builder.Append(string.Format("single = {0}, recv ch = {1}, play mode = {2}\n", PatchUtil.GetPatchName(SinglePatch), ReceiveChannel, PlayMode));
             builder.Append(string.Format("zone = {0} to {1}, vel sw = {2}\n", PatchUtil.GetNoteName(KeyboardZone.Low), PatchUtil.GetNoteName(KeyboardZone.High), VelocitySwitch));
             builder.Append($"level = {Level}, transpose = {Transpose}, tune = {Tune}\n");
             builder.Append($"submix ch = {Output}\n");
+
             return builder.ToString();
         }
 
@@ -108,13 +122,13 @@ namespace KSynthLib.K4
         {
             var data = new List<byte>();
 
-            data.Add(SinglePatch.ToByte());
+            data.Add(SystemExclusiveDataConverter.ByteFromPatchNumber(SinglePatch));
             data.Add((byte)KeyboardZone.Low);
             data.Add((byte)KeyboardZone.High);
 
             // Combine rcv ch, velo sw and section mute into one byte for M15/M23 etc.
             byte vb = (byte)VelocitySwitch;
-            byte rb = ReceiveChannel.ToByte();
+            byte rb = SystemExclusiveDataConverter.ByteFromChannel(ReceiveChannel);
             byte vbp = (byte)(vb << 4);
             byte m15 = (byte)(rb | vbp);
             if (IsMuted)
@@ -129,9 +143,9 @@ namespace KSynthLib.K4
             byte m16 = (byte)(os | m);
             data.Add(m16);
 
-            data.Add(Level.ToByte());
-            data.Add(Transpose.ToByte());
-            data.Add(Tune.ToByte());
+            data.Add((byte)Level);
+            data.Add(SystemExclusiveDataConverter.ByteFromTranspose(Transpose));
+            data.Add(SystemExclusiveDataConverter.ByteFromDepth(Tune));
 
             return data;
         }

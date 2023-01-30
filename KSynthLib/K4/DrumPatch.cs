@@ -32,7 +32,7 @@ namespace KSynthLib.K4
             {
                 var data = new List<byte>();
 
-                data.Add(ByteConverter.ByteFromChannel(ReceiveChannel));
+                data.Add(SystemExclusiveDataConverter.ByteFromChannel(ReceiveChannel));
                 data.Add((byte)Volume);
                 data.Add((byte)VelocityDepth);
 
@@ -68,7 +68,7 @@ namespace KSynthLib.K4
             byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            ReceiveChannel = ByteConverter.ChannelFromByte(b);
+            ReceiveChannel = SystemExclusiveDataConverter.ChannelFromByte(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
             Volume = b;
@@ -102,7 +102,7 @@ namespace KSynthLib.K4
         {
             var data = new List<byte>();
 
-            data.Add(ByteConverter.ByteFromChannel(ReceiveChannel));
+            data.Add(SystemExclusiveDataConverter.ByteFromChannel(ReceiveChannel));
             data.Add((byte)Volume);
             data.Add((byte)VelocityDepth);
 

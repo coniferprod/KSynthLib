@@ -37,7 +37,7 @@ namespace KSynthLib.K4
             Wave = new Wave(waveHigh, waveLow);
 
             Decay = data[2];
-            Tune = ByteConverter.DepthFromByte(data[3]);
+            Tune = SystemExclusiveDataConverter.DepthFromByte(data[3]);
             Level = data[4];
         }
 
@@ -52,7 +52,7 @@ namespace KSynthLib.K4
             data.Add(low);
 
             data.Add((byte)Decay);
-            data.Add(ByteConverter.ByteFromDepth(Tune));
+            data.Add(SystemExclusiveDataConverter.ByteFromDepth(Tune));
             data.Add((byte)Level);
 
             return data;

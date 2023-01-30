@@ -56,7 +56,7 @@ namespace KSynthLib.K4
         {
             var data = new List<byte>();
 
-            data.Add(ByteConverter.ByteFromPan(Pan));
+            data.Add(SystemExclusiveDataConverter.ByteFromPan(Pan));
             data.Add((byte)Send1);
             data.Add((byte)Send2);
 

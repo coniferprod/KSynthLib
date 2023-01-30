@@ -1,5 +1,6 @@
 using System.Text;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 using KSynthLib.Common;
 
@@ -13,6 +14,7 @@ namespace KSynthLib.K4
     {
         public const int DataSize = 7;
 
+        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
         public Level Delay;
         public Wave Wave;
         public VelocityCurve KeyScalingCurve;

@@ -35,11 +35,11 @@ namespace KSynthLib.K4
         public LevelModulation(List<byte> data)
         {
             // The bytes passed in must be raw SysEx.
-            // Use the appropriate ByteConverter method
+            // Use the appropriate SystemExclusiveDataConverter method
             // to adjust them to the correct range.
-            VelocityDepth = ByteConverter.DepthFromByte(data[0]);
-            PressureDepth = ByteConverter.DepthFromByte(data[1]);
-            KeyScalingDepth = ByteConverter.DepthFromByte(data[2]);
+            VelocityDepth = SystemExclusiveDataConverter.DepthFromByte(data[0]);
+            PressureDepth = SystemExclusiveDataConverter.DepthFromByte(data[1]);
+            KeyScalingDepth = SystemExclusiveDataConverter.DepthFromByte(data[2]);
         }
 
         public override string ToString()
@@ -51,9 +51,9 @@ namespace KSynthLib.K4
         {
             var data = new List<byte>();
 
-            data.Add(ByteConverter.ByteFromDepth(VelocityDepth));
-            data.Add(ByteConverter.ByteFromDepth(PressureDepth));
-            data.Add(ByteConverter.ByteFromDepth(KeyScalingDepth));
+            data.Add(SystemExclusiveDataConverter.ByteFromDepth(VelocityDepth));
+            data.Add(SystemExclusiveDataConverter.ByteFromDepth(PressureDepth));
+            data.Add(SystemExclusiveDataConverter.ByteFromDepth(KeyScalingDepth));
 
             return data;
         }
@@ -86,9 +86,9 @@ namespace KSynthLib.K4
 
         public TimeModulation(List<byte> data)
         {
-            AttackVelocity = ByteConverter.DepthFromByte(data[0]);
-            ReleaseVelocity = ByteConverter.DepthFromByte(data[1]);
-            KeyScaling = ByteConverter.DepthFromByte(data[2]);
+            AttackVelocity = SystemExclusiveDataConverter.DepthFromByte(data[0]);
+            ReleaseVelocity = SystemExclusiveDataConverter.DepthFromByte(data[1]);
+            KeyScaling = SystemExclusiveDataConverter.DepthFromByte(data[2]);
         }
 
         public override string ToString()
@@ -100,9 +100,9 @@ namespace KSynthLib.K4
         {
             var data = new List<byte>();
 
-            data.Add(ByteConverter.ByteFromDepth(AttackVelocity));
-            data.Add(ByteConverter.ByteFromDepth(ReleaseVelocity));
-            data.Add(ByteConverter.ByteFromDepth(KeyScaling));
+            data.Add(SystemExclusiveDataConverter.ByteFromDepth(AttackVelocity));
+            data.Add(SystemExclusiveDataConverter.ByteFromDepth(ReleaseVelocity));
+            data.Add(SystemExclusiveDataConverter.ByteFromDepth(KeyScaling));
 
             return data;
         }

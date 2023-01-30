@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 using KSynthLib.Common;
 
@@ -41,10 +42,12 @@ namespace KSynthLib.K4
         /// <value>System Exclusive data length.</value>
         public const int DataSize = 131;
 
-        private PatchName _patchName;
+        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Volume;
 
-        public Level Volume;
-        public EffectNumber Effect; // 1~32 (on K4)
+        [Range(1, 32, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int Effect; // 1~32 (on K4)
+
         public SubmixType Submix;
         public SourceMode SourceMode;
         public PolyphonyMode PolyphonyMode;
@@ -57,14 +60,20 @@ namespace KSynthLib.K4
         /// </summary>
         public bool[] SourceMutes;
 
-        public PitchBendRange PitchBendRange;
+        [Range(0, 12, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int PitchBendRange;
 
         public WheelAssignType WheelAssign; // 0/VIB, 1/LFO, 2/DCF
-        public Depth WheelDepth;
+
+        [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int WheelDepth;
+
         public AutoBendSettings AutoBend;  // same as portamento?
         public LFOSettings LFO;
         public VibratoSettings Vibrato;
-        public Depth PressureFreq;
+
+        [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
+        public int PressureFreq;
 
         /// <value>The number of sources in a single patch.</value>
         public const int SourceCount = 4;
@@ -79,24 +88,24 @@ namespace KSynthLib.K4
         /// </summary>
         public SinglePatch()
         {
-            this.Volume = new Level(99);
-            this.Effect = new EffectNumber(1);
+            this.Volume = 99;
+            this.Effect = 1;
             this.Submix = SubmixType.A;
 
-            this._patchName = new PatchName("NewSound");
+            this.Name = "InitSingle";
 
             SourceMode = SourceMode.Normal;
             PolyphonyMode = PolyphonyMode.Poly1;
             AM12 = false;
             AM34 = false;
             SourceMutes = new bool[] { false, false, false, false };
-            PitchBendRange = new PitchBendRange(2);
+            PitchBendRange = 2;
             WheelAssign = WheelAssignType.Vibrato;
-            WheelDepth = new Depth(0);
+            WheelDepth = 0;
             Vibrato = new VibratoSettings();
             LFO = new LFOSettings();
             AutoBend = new AutoBendSettings();
-            PressureFreq = new Depth();
+            PressureFreq = 0;
 
             Sources = new Source[SourceCount];
             Amplifiers = new Amplifier[SourceCount];
@@ -125,16 +134,16 @@ namespace KSynthLib.K4
             var offset = 0;
             byte b = 0;  // will be reused when getting the next byte
 
-            this._patchName = new PatchName(data, offset);
+            this.Name = SystemExclusiveDataConverter.PatchNameFromBytes(new List<byte>(data));
             offset += 10;  // name is S00 to S09
             //Console.Error.WriteLine(this.Name);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            this.Volume = new Level(b & 0x7f);
+            this.Volume = b & 0x7f;
 
             // effect = s11 bits 0...4
             (b, offset) = Util.GetNextByte(data, offset);
-            this.Effect = new EffectNumber(b & 0x1f);
+            this.Effect = b & 0x1f;
 
             // output select = s12 bits 0...2
             (b, offset) = Util.GetNextByte(data, offset);
@@ -172,7 +181,7 @@ namespace KSynthLib.K4
 
             (b, offset) = Util.GetNextByte(data, offset);
             // Pitch bend = s15 bits 0...3
-            this.PitchBendRange = new PitchBendRange(b);
+            this.PitchBendRange = b;  // TODO: need to mask off other bits
             // Wheel assign = s15 bits 4...5
             this.WheelAssign = (WheelAssignType)((b >> 4) & 0x03);
 
@@ -182,7 +191,7 @@ namespace KSynthLib.K4
 
             // Wheel depth = s17 bits 0...6
             (b, offset) = Util.GetNextByte(data, offset);
-            this.WheelDepth = new Depth(b);  // constructor adjusts 0~100 to ±50
+            this.WheelDepth = b;
 
             // Construct the auto bend settings from collected bytes (s18...s21)
             var autoBendBytes = new List<byte>();
@@ -221,7 +230,7 @@ namespace KSynthLib.K4
             LFO = new LFOSettings(lfoBytes);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            this.PressureFreq = new Depth(b); // constructor adjusts 0~100 to ±50
+            this.PressureFreq = b;
 
             int totalSourceDataSize = Source.DataSize * SourceCount;
             byte[] sourceData = new byte[totalSourceDataSize];
@@ -326,10 +335,10 @@ namespace KSynthLib.K4
         {
             var data = new List<byte>();
 
-            data.AddRange(this._patchName.GetSystemExclusiveData());
+            data.AddRange(SystemExclusiveDataConverter.BytesFromPatchName(Name));
 
-            data.Add(Volume.ToByte());
-            data.Add(Effect.ToByte());
+            data.Add((byte)Volume);
+            data.Add(SystemExclusiveDataConverter.ByteFromEffect(Effect));
             data.Add((byte)(Submix));  // A...H = 0...7
 
             // s13 combines source mode, poly mode, and source AM into one byte.
@@ -356,20 +365,20 @@ namespace KSynthLib.K4
             // s15 combines pitch bend and wheel assign into one byte.
             var b15 = new StringBuilder("");
             b15.Append(Convert.ToString((byte)WheelAssign, 2).PadLeft(4, '0'));
-            b15.Append(Convert.ToString(PitchBendRange.ToByte(), 2).PadLeft(4, '0'));
+            b15.Append(Convert.ToString((byte)PitchBendRange, 2).PadLeft(4, '0'));
             data.Add(Convert.ToByte(b15.ToString(), 2));
 
-            data.Add(Vibrato.Speed.ToByte());
-            data.Add(WheelDepth.ToByte());
+            data.Add((byte)Vibrato.Speed);
+            data.Add(SystemExclusiveDataConverter.ByteFromDepth(WheelDepth));
 
             data.AddRange(AutoBend.GetSystemExclusiveData());
 
-            data.Add(Vibrato.Pressure.ToByte());
-            data.Add(Vibrato.Depth.ToByte());
+            data.Add(SystemExclusiveDataConverter.ByteFromDepth(Vibrato.Pressure));
+            data.Add(SystemExclusiveDataConverter.ByteFromDepth(Vibrato.Depth));
 
             data.AddRange(LFO.GetSystemExclusiveData());
 
-            data.Add(PressureFreq.ToByte());
+            data.Add(SystemExclusiveDataConverter.ByteFromDepth(PressureFreq));
 
             // Collect the source data lists into one list, then interleave.
             var allSourceData = new List<List<byte>>();
@@ -429,17 +438,15 @@ namespace KSynthLib.K4
         // Implementation of the IPatch interface
         //
 
+        private string _name;
+
+        [Display(Name = "Patch Name")]
+        [Required(ErrorMessage = "{0} must be present.")]
+        [StringLength(10, ErrorMessage = "{0} must be exactly {1} characters")]
         public string Name
         {
-            get
-            {
-                return this._patchName.Value;
-            }
-
-            set
-            {
-                this._patchName = new PatchName(value);
-            }
+            get => _name.PadRight(10, ' ').Substring(0, 10);
+            set => _name = value.PadRight(10, ' ').Substring(0, Math.Min(value.Length, 10));
         }
 
         public byte Checksum
