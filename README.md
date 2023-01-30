@@ -5,7 +5,7 @@ Patch management utilities for Kawai K series digital synthesizers: K4, K5, K500
 This project creates a .NET library as a NuGet package
 that can be installed in .NET application projects.
 
-The library is written in C# 10.0 and targets .NET 7.
+The library is written in C# 10.0 and targets .NET 6.
 
 ## Installation from NuGet
 
@@ -44,7 +44,7 @@ where "x.y.z" is the version of the library you want to use.
 To automate these steps there is also an installation script for the Bash shell, `install.sh`.
 To use it, first set the environment variables:
 
-    export KSYNTHLIB_VERSION=0.17.0
+    export KSYNTHLIB_VERSION=0.17.2
     export KSYNTHLIB_CONFIGURATION=Debug
     export LOCAL_NUGET_PATH=/Users/Shared/Library/NuGet
 
