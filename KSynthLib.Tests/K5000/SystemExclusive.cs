@@ -25,9 +25,9 @@ namespace KSynthLib.Tests.K5000
         [Fact]
         public void DumpHeader_IsCorrectlyParsed()
         {
-            var headerData = new byte[] { 0xf0, 0x40, 0x00, 0x21, 0x00, 0x0a, 0x00, 0x00};
+            var headerData = new byte[] { 0x00, 0x21, 0x00, 0x0a, 0x00, 0x00};
             var header = new DumpHeader(headerData);
-            Assert.Equal(new DumpHeader(Cardinality.Block, BankIdentifier.A, PatchKind.Single), header);
+            Assert.Equal(new DumpHeader(1, Cardinality.Block, BankIdentifier.A, PatchKind.Single), header);
         }
     }
 }
