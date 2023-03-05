@@ -6,7 +6,7 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K5000
 {
-    // System exclusive commands corresponding to Table 5.2 in the MIDI format spec.
+    // System exclusive commands corresponding to Table 5.2 in the K5000 MIDI format spec.
     public enum SystemExclusiveFunction: byte
     {
         OneBlockDumpRequest = 0x00,
@@ -84,27 +84,36 @@ namespace KSynthLib.K5000
 
     public class DumpHeader: IEquatable<DumpHeader>, ISystemExclusiveData
     {
-        private Cardinality cardinality;
-        public Cardinality Card => this.cardinality;
+        private int _channel;
+        public int Channel => this._channel;
 
-        private BankIdentifier bankIdentifier;
-        public BankIdentifier Bank => this.bankIdentifier;
+        private Cardinality _cardinality;
+        public Cardinality Cardinality => this._cardinality;
 
-        private PatchKind patchKind;
-        public PatchKind Kind => this.patchKind;
+        private BankIdentifier _bankIdentifier;
+        public BankIdentifier Bank => this._bankIdentifier;
 
+        private PatchKind _patchKind;
+        public PatchKind Kind => this._patchKind;
+
+        // Constructs a dump header from System Exclusive data.
+        // Note that the data must be the message payload (starting
+        // after the SysEx initiator and the manufacturer ID).
+        // The offsets are relative to that (unlike the K5000 MIDI spec).
         public DumpHeader(byte[] data)
         {
-            this.cardinality = (Cardinality)data[3];
-            this.bankIdentifier = (BankIdentifier)data[7];
-            this.patchKind = (PatchKind)data[6];
+            this._channel = data[0] + 1;  // adjust channel to 1~16
+            this._cardinality = (Cardinality)data[1];
+            this._bankIdentifier = (BankIdentifier)data[5];
+            this._patchKind = (PatchKind)data[4];
         }
 
-        public DumpHeader(Cardinality cardinality, BankIdentifier bankIdentifier, PatchKind patchKind)
+        public DumpHeader(int channel, Cardinality cardinality, BankIdentifier bankIdentifier, PatchKind patchKind)
         {
-            this.cardinality = cardinality;
-            this.bankIdentifier = bankIdentifier;
-            this.patchKind = patchKind;
+            this._channel = channel;
+            this._cardinality = cardinality;
+            this._bankIdentifier = bankIdentifier;
+            this._patchKind = patchKind;
         }
 
         public override bool Equals(object obj) => this.Equals(obj as DumpHeader);
@@ -131,19 +140,19 @@ namespace KSynthLib.K5000
             // Return true if the fields match.
             // Note that the base class is not invoked because it is
             // System.Object, which defines Equals as reference equality.
-            return (Card == p.Card) && (Kind == p.Kind) && (Bank == p.Bank);
+            return (Channel == p.Channel) && (Cardinality == p.Cardinality) && (Kind == p.Kind) && (Bank == p.Bank);
         }
 
-        public override int GetHashCode() => (Card, Kind, Bank).GetHashCode();
+        public override int GetHashCode() => (Channel, Cardinality, Kind, Bank).GetHashCode();
 
         public List<byte> GetSystemExclusiveData()
         {
             var data = new List<byte>();
 
-            switch (cardinality)
+            switch (this._cardinality)
             {
                 case Cardinality.Block:
-                    switch (bankIdentifier)
+                    switch (this._bankIdentifier)
                     {
                         case BankIdentifier.A:
                             data.Add((byte)SystemExclusiveFunction.AllBlockDump);
@@ -159,7 +168,7 @@ namespace KSynthLib.K5000
                     break;
 
                 case Cardinality.One:
-                    switch (bankIdentifier)
+                    switch (this._bankIdentifier)
                     {
                         case BankIdentifier.A:
                             data.Add((byte)SystemExclusiveFunction.OneBlockDump);

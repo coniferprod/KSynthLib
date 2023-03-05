@@ -7,9 +7,11 @@ using System.Linq;
 using Newtonsoft.Json;
 
 using KSynthLib.Common;
-using KSynthLib.SystemExclusive;
+//using KSynthLib.SystemExclusive;
 using KSynthLib.K4;
 using KSynthLib.K5000;
+
+using SyxPack;
 
 namespace Driver
 {
@@ -17,7 +19,9 @@ namespace Driver
     {
         static void Main(string[] args)
         {
-            DoK4();
+            //DoK4();
+
+            DoK5000(args[0]);
 
         }
 
@@ -73,7 +77,7 @@ namespace Driver
 */
         }
 
-        static void DoK5000()
+        static void DoK5000(string fileName)
         {
             /*
             byte[] fileData = File.ReadAllBytes(pathName);
@@ -83,27 +87,40 @@ namespace Driver
             Console.WriteLine(singlePatch.SingleCommon.Name);
             */
 
-            var path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            var pathName = Path.Combine(path, $"tmp/K5000/ASL-SYX/Disk1/DBankINT.syx");
-            byte[] fileData = File.ReadAllBytes(pathName);
-            var dumpHeader = new DumpHeader(fileData);
-            Console.WriteLine($"Card = {dumpHeader.Card}, Bank = {dumpHeader.Bank}, Kind = {dumpHeader.Kind}");
+            //var path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            //var pathName = Path.Combine(path, $"tmp/K5000/ASL-SYX/Disk1/DBankINT.syx");
+            byte[] fileData = File.ReadAllBytes(fileName);
 
-            var offset = 8;  // skip the SysEx header
+            Message msg = Message.Create(fileData);
+            ManufacturerSpecificMessage message;
+            if (msg is ManufacturerSpecificMessage)
+            {
+                message = (ManufacturerSpecificMessage) msg;
+            }
+            else
+            {
+                Console.WriteLine("Unable to construct a message from file data");
+                return;
+            }
+
+            var dumpHeader = new DumpHeader(fileData);
+            Console.WriteLine($"Channel = {dumpHeader.Channel} Cardinality = {dumpHeader.Cardinality}, Bank = {dumpHeader.Bank}, Kind = {dumpHeader.Kind}");
+
+            var offset = 8;  // skip the dump header
 
             // For a block data dump, need to parse the tone map
             byte[] buffer;
-            (buffer, offset) = Util.GetNextBytes(fileData, offset, PatchMap.Size);
+            (buffer, offset) = Util.GetNextBytes(fileData, offset, ToneMap.Size);
             // now the offset has been updated to past the tone map
-            var patchMap = new PatchMap(buffer);
+            var toneMap = new ToneMap(buffer);
 
             List<int> patchNumbers = new List<int>();
 
             Console.WriteLine("Patches included:");
             var patchCount = 0;
-            for (var i = 0; i < PatchMap.PatchCount; i++)
+            for (var i = 0; i < ToneMap.ToneCount; i++)
             {
-                if (patchMap[i])
+                if (toneMap[i])
                 {
                     patchCount += 1;
                     Console.Write(i + 1);
@@ -128,7 +145,7 @@ namespace Driver
                 var startOffset = offset;  // save the current offset because we need to copy more bytes later
 
                 var sizeToRead = Math.Max(minimumPatchSize, fileData.Length - offset);
-                Console.WriteLine($"About to read {sizeToRead} bytes starting from offset {offset:X4}h");
+                Console.WriteLine($"About to read {sizeToRead} bytes starting from offset {offset:X4}h");
 
                 // We don't know yet how many bytes the patch is, but it is at least the minimum size
                 (buffer, offset) = Util.GetNextBytes(fileData, offset, sizeToRead);
