@@ -22,7 +22,7 @@ namespace KSynthLib.Tests.K4
         [Fact]
         public void Data_IsCorrectSize()
         {
-            List<byte> data = patch.GetSystemExclusiveData();
+            List<byte> data = patch.Data;
             Assert.Equal(DrumPatch.DataSize, data.Count);
         }
     }

@@ -16,7 +16,7 @@ namespace KSynthLib.K4
         Random
     };
 
-    public class LFOSettings: ISystemExclusiveData
+    public class LFOSettings : ISystemExclusiveData
     {
         public LFOShape Shape;
 
@@ -65,17 +65,26 @@ namespace KSynthLib.K4
             return builder.ToString();
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.Add((byte)Shape);
-            data.Add((byte)Speed);
-            data.Add((byte)Delay);
-            data.Add(SystemExclusiveDataConverter.ByteFromDepth(Depth));
-            data.Add(SystemExclusiveDataConverter.ByteFromDepth(PressureDepth));
+                data.Add((byte)Shape);
+                data.Add((byte)Speed);
+                data.Add((byte)Delay);
+                data.Add(SystemExclusiveDataConverter.ByteFromDepth(Depth));
+                data.Add(SystemExclusiveDataConverter.ByteFromDepth(PressureDepth));
 
-            return data;
+                return data;
+            }
         }
+
+        public int DataLength => 5;
     }
 }

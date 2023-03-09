@@ -195,7 +195,7 @@ name part = 40 5B 5C 5D 5E 5F 60 7B 7C 7D
         {
             SinglePatch single = new SinglePatch();
 
-            List<byte> data = single.GetSystemExclusiveData();
+            List<byte> data = single.Data;
             Assert.Equal(SinglePatch.DataSize, data.Count);
         }
 

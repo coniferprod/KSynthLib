@@ -10,7 +10,7 @@ namespace KSynthLib.K4
     /// <summary>
     /// One source of a single patch.
     /// </summary>
-    public class Source: ISystemExclusiveData
+    public class Source : ISystemExclusiveData
     {
         public const int DataSize = 7;
 
@@ -113,53 +113,62 @@ namespace KSynthLib.K4
             return builder.ToString();
         }
 
+        //
+        // Implementation of ISystemExclusiveData interface
+        //
+
         /// <summary>
         /// Generates a binary System Exclusive representation of the data.
         /// </summary>
         /// <returns>
         /// A byte array with SysEx data.
         /// </returns>
-        public List<byte> GetSystemExclusiveData()
+        public List<byte> Data
         {
-            var data = new List<byte>();
-            data.Add(Delay.ToByte());
-
-            // s34/s35/s36/s37 wave select h and ks
-
-            byte s34 = (byte)(((byte)KeyScalingCurve) << 4);  // shift it to the top four bits
-            var (waveSelectHigh, waveSelectLow) = Wave.WaveSelect;
-            if (waveSelectHigh == 0x01)
+            get
             {
-                s34.SetBit(0);
+                var data = new List<byte>();
+                data.Add(Delay.ToByte());
+
+                // s34/s35/s36/s37 wave select h and ks
+
+                byte s34 = (byte)(((byte)KeyScalingCurve) << 4);  // shift it to the top four bits
+                var (waveSelectHigh, waveSelectLow) = Wave.WaveSelect;
+                if (waveSelectHigh == 0x01)
+                {
+                    s34.SetBit(0);
+                }
+                data.Add(s34);
+
+                // s38/s39/s40/s41 wave select l
+                data.Add(waveSelectLow);
+
+                // s42/s43/s44/s45 key track and coarse
+                byte s42 = Coarse.ToByte();
+                if (KeyTrack) {
+                    s42.SetBit(6);
+                }
+                data.Add(s42);
+
+                data.Add(FixedKey.ToByte());
+                data.Add(Fine.ToByte());
+
+                // s54/s55/s56/s57 vel curve, vib/a.bend, prs/freq
+                byte s54 = (byte)(((byte)VelocityCurve) << 2);
+                if (Vibrato)
+                {
+                    s54.SetBit(1);
+                }
+                if (PressureFrequency)
+                {
+                    s54.SetBit(0);
+                }
+                data.Add(s54);
+
+                return data;
             }
-            data.Add(s34);
-
-            // s38/s39/s40/s41 wave select l
-            data.Add(waveSelectLow);
-
-            // s42/s43/s44/s45 key track and coarse
-            byte s42 = Coarse.ToByte();
-            if (KeyTrack) {
-                s42.SetBit(6);
-            }
-            data.Add(s42);
-
-            data.Add(FixedKey.ToByte());
-            data.Add(Fine.ToByte());
-
-            // s54/s55/s56/s57 vel curve, vib/a.bend, prs/freq
-            byte s54 = (byte)(((byte)VelocityCurve) << 2);
-            if (Vibrato)
-            {
-                s54.SetBit(1);
-            }
-            if (PressureFrequency)
-            {
-                s54.SetBit(0);
-            }
-            data.Add(s54);
-
-            return data;
         }
+
+        public int DataLength => DataSize;
     }
 }

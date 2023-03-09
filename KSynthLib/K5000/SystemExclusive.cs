@@ -145,47 +145,56 @@ namespace KSynthLib.K5000
 
         public override int GetHashCode() => (Channel, Cardinality, Kind, Bank).GetHashCode();
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
-
-            switch (this._cardinality)
+            get
             {
-                case Cardinality.Block:
-                    switch (this._bankIdentifier)
-                    {
-                        case BankIdentifier.A:
-                            data.Add((byte)SystemExclusiveFunction.AllBlockDump);
-                            data.Add(0x00);
-                            data.Add(0x0a);
-                            data.Add(0x00);
-                            data.Add(0x00);
-                            break;
+                var data = new List<byte>();
 
-                        default:
-                            break;
-                    }
-                    break;
+                switch (this._cardinality)
+                {
+                    case Cardinality.Block:
+                        switch (this._bankIdentifier)
+                        {
+                            case BankIdentifier.A:
+                                data.Add((byte)SystemExclusiveFunction.AllBlockDump);
+                                data.Add(0x00);
+                                data.Add(0x0a);
+                                data.Add(0x00);
+                                data.Add(0x00);
+                                break;
 
-                case Cardinality.One:
-                    switch (this._bankIdentifier)
-                    {
-                        case BankIdentifier.A:
-                            data.Add((byte)SystemExclusiveFunction.OneBlockDump);
-                            data.Add(0x00);
-                            data.Add(0x0a);
-                            data.Add(0x00);
-                            data.Add(0x00);
-                            break;
+                            default:
+                                break;
+                        }
+                        break;
 
-                        default:
-                            break;
-                    }
+                    case Cardinality.One:
+                        switch (this._bankIdentifier)
+                        {
+                            case BankIdentifier.A:
+                                data.Add((byte)SystemExclusiveFunction.OneBlockDump);
+                                data.Add(0x00);
+                                data.Add(0x0a);
+                                data.Add(0x00);
+                                data.Add(0x00);
+                                break;
 
-                    break;
+                            default:
+                                break;
+                        }
+
+                        break;
+                }
+
+                return data;
             }
-
-            return data;
         }
+
+        public int DataLength => 5;
     }
 }

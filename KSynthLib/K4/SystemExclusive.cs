@@ -50,7 +50,7 @@ namespace KSynthLib.K4
         }
     }
 
-    public class SystemExclusiveHeader: ISystemExclusiveData
+    public class SystemExclusiveHeader//: ISystemExclusiveData
     {
         public const int DataSize = 6;
 
@@ -113,19 +113,34 @@ namespace KSynthLib.K4
 
         public override int GetHashCode() => (this.Channel, this.Function, this.Group, this.MachineID, this.Substatus1, this.Substatus2).GetHashCode();
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // Implementation of ISystemExclusiveData interface
+        //
+
+        /// <summary>
+        /// Generates a binary System Exclusive representation of the data.
+        /// </summary>
+        /// <returns>
+        /// A byte array with SysEx data.
+        /// </returns>
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.Add(SystemExclusiveDataConverter.ByteFromChannel(this.Channel));
-            data.Add((byte)this.Function);
-            data.Add(this.Group);
-            data.Add(this.MachineID);
-            data.Add(this.Substatus1);
-            data.Add(this.Substatus2);
+                data.Add(SystemExclusiveDataConverter.ByteFromChannel(this.Channel));
+                data.Add((byte)this.Function);
+                data.Add(this.Group);
+                data.Add(this.MachineID);
+                data.Add(this.Substatus1);
+                data.Add(this.Substatus2);
 
-            return data;
+                return data;
+            }
         }
+
+        public int DataLength => 6;
 
         public override string ToString()
         {

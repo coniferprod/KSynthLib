@@ -87,23 +87,32 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
+        //
+        // ISystemExclusiveData implementation
+        //
+
         /// <summary>
         /// Returns the reverb settings as System Exclusive data.
         /// </summary>
         /// <returns>
         /// The SysEx bytes.
         /// </returns>
-        public List<byte> GetSystemExclusiveData()
+        public List<byte> Data
         {
-            return new List<byte>()
+            get
             {
-                ReverbType,
-                DryWet1.ToByte(),
-                DryWet2.ToByte(),
-                Param2.ToByte(),
-                Param3.ToByte(),
-                Param4.ToByte()
-            };
+                return new List<byte>()
+                {
+                    ReverbType,
+                    DryWet1.ToByte(),
+                    DryWet2.ToByte(),
+                    Param2.ToByte(),
+                    Param3.ToByte(),
+                    Param4.ToByte()
+                };
+            }
         }
+
+        public int DataLength => 6;
     }
 }

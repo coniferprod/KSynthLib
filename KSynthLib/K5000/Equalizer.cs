@@ -6,7 +6,7 @@ using KSynthLib.Common;
 namespace KSynthLib.K5000
 {
     /// <summary>The graphical EQ settings of a patch.</summary>
-    public class GEQSettings
+    public class GEQSettings: ISystemExclusiveData
     {
         public const int DataSize = 7;
 
@@ -45,16 +45,24 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+        public List<byte> Data
         {
-            var data = new List<byte>();
-
-            foreach (var freq in Frequencies)
+            get
             {
-                data.Add(freq.ToByte());
-            }
+                var data = new List<byte>();
 
-            return data;
+                foreach (var freq in Frequencies)
+                {
+                    data.Add(freq.ToByte());
+                }
+
+                return data;
+            }
         }
+
+        public int DataLength => 7;
     }
 }

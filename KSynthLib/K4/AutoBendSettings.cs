@@ -7,7 +7,7 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K4
 {
-    public class AutoBendSettings: ISystemExclusiveData
+    public class AutoBendSettings : ISystemExclusiveData
     {
         [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
         public int Time;
@@ -54,18 +54,27 @@ namespace KSynthLib.K4
             return builder.ToString();
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.Add((byte)Time);
+                data.Add((byte)Time);
 
-            // The `ToByte` method returns the value as the raw SysEx byte.
-            data.Add(SystemExclusiveDataConverter.ByteFromDepth(Depth));
-            data.Add(SystemExclusiveDataConverter.ByteFromDepth(KeyScalingTime));
-            data.Add(SystemExclusiveDataConverter.ByteFromDepth(VelocityDepth));
+                // The `ToByte` method returns the value as the raw SysEx byte.
+                data.Add(SystemExclusiveDataConverter.ByteFromDepth(Depth));
+                data.Add(SystemExclusiveDataConverter.ByteFromDepth(KeyScalingTime));
+                data.Add(SystemExclusiveDataConverter.ByteFromDepth(VelocityDepth));
 
-            return data;
+                return data;
+            }
         }
+
+        public int DataLength => 4;
     }
 }

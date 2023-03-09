@@ -119,11 +119,11 @@ namespace KSynthLib.K5000
         {
             var data = new List<byte>();
 
-            data.AddRange(SingleCommon.GetSystemExclusiveData());
+            data.AddRange(SingleCommon.Data);
 
             for (var i = 0; i < SingleCommon.SourceCount; i++)
             {
-                List<byte> sourceData = Sources[i].GetSystemExclusiveData();
+                List<byte> sourceData = Sources[i].Data;
                 data.AddRange(sourceData);
             }
 
@@ -134,15 +134,20 @@ namespace KSynthLib.K5000
         // Implementation of ISystemExclusiveData interface
         //
 
-        public List<byte> GetSystemExclusiveData()
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.AddRange(this.CollectData());
-            data.Add(this.Checksum);
+                data.AddRange(this.CollectData());
+                data.Add(this.Checksum);
 
-            return data;
+                return data;
+            }
         }
+
+        public int DataLength => DataSize;
 
         //
         // Implementation of the IPatch interface
@@ -158,7 +163,7 @@ namespace KSynthLib.K5000
                 // For each source, compute the sum of source data and add it to the total:
                 for (var i = 0; i < SingleCommon.SourceCount; i++)
                 {
-                    List<byte> sourceData = Sources[i].GetSystemExclusiveData();
+                    List<byte> sourceData = Sources[i].Data;
                     byte sourceSum = 0;
                     foreach (byte b in sourceData)
                     {

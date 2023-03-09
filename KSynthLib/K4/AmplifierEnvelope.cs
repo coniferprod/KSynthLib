@@ -6,7 +6,7 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K4
 {
-    public class AmplifierEnvelope: ISystemExclusiveData
+    public class AmplifierEnvelope : ISystemExclusiveData
     {
         [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
         public int Attack;
@@ -49,16 +49,25 @@ namespace KSynthLib.K4
             return $"A:{Attack} D:{Decay} S:{Sustain} R:{Release}";
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.Add((byte)Attack);
-            data.Add((byte)Decay);
-            data.Add((byte)Sustain);
-            data.Add((byte)Release);
+                data.Add((byte)Attack);
+                data.Add((byte)Decay);
+                data.Add((byte)Sustain);
+                data.Add((byte)Release);
 
-            return data;
+                return data;
+            }
         }
+
+        public int DataLength => 4;
     }
 }

@@ -125,41 +125,32 @@ namespace KSynthLib.K4
             return data.ToArray();
         }
 
-        public override byte[] ToData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
-
-            data.AddRange(this.CollectData());
-
-            // Add common checksum (gets computed by the property)
-            data.Add(Checksum);
-
-            // Add all the drum notes. Each one computes and adds its own checksum.
-            foreach (var note in Notes)
+            get
             {
-                data.AddRange(note.ToData());
-            }
+                var data = new List<byte>();
 
-            return data.ToArray();
+                data.AddRange(this.CollectData());
+
+                // Add common checksum (gets computed by the property)
+                data.Add(Checksum);
+
+                // Add all the drum notes. Each one computes and adds its own checksum.
+                foreach (var note in Notes)
+                {
+                    data.AddRange(note.ToData());
+                }
+
+                return data;
+            }
         }
 
-        public List<byte> GetSystemExclusiveData()
-        {
-            var data = new List<byte>();
-
-            data.AddRange(this.CollectData());
-
-            // Add common checksum (gets computed by the property)
-            data.Add(Checksum);
-
-            // Add all the drum notes. Each one computes and adds its own checksum.
-            foreach (var note in Notes)
-            {
-                data.AddRange(note.ToData());
-            }
-
-            return data;
-        }
+        public int DataLength => DataSize;
 
         /// <summary>
         /// Generates a printable representation of this patch.

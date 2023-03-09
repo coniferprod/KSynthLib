@@ -379,12 +379,12 @@ namespace KSynthLib.K4
             data.Add((byte)Vibrato.Speed);
             data.Add(SystemExclusiveDataConverter.ByteFromDepth(WheelDepth));
 
-            data.AddRange(AutoBend.GetSystemExclusiveData());
+            data.AddRange(AutoBend.Data);
 
             data.Add(SystemExclusiveDataConverter.ByteFromDepth(Vibrato.Pressure));
             data.Add(SystemExclusiveDataConverter.ByteFromDepth(Vibrato.Depth));
 
-            data.AddRange(LFO.GetSystemExclusiveData());
+            data.AddRange(LFO.Data);
 
             data.Add(SystemExclusiveDataConverter.ByteFromDepth(PressureFreq));
 
@@ -392,7 +392,7 @@ namespace KSynthLib.K4
             var allSourceData = new List<List<byte>>();
             foreach (var source in Sources)
             {
-                allSourceData.Add(new List<byte>(source.GetSystemExclusiveData()));
+                allSourceData.Add(new List<byte>(source.Data));
             }
             data.AddRange(Util.InterleaveBytes(allSourceData));
 
@@ -400,15 +400,15 @@ namespace KSynthLib.K4
             var allAmplifierData = new List<List<byte>>();
             foreach (var amplifier in Amplifiers)
             {
-                allAmplifierData.Add(amplifier.GetSystemExclusiveData());
+                allAmplifierData.Add(amplifier.Data);
             }
             data.AddRange(Util.InterleaveBytes(allAmplifierData));
 
             // And finally for filters:
             data.AddRange(
                 Util.InterleaveBytes(
-                    new List<byte>(Filter1.GetSystemExclusiveData()),
-                    new List<byte>(Filter2.GetSystemExclusiveData())
+                    new List<byte>(Filter1.Data),
+                    new List<byte>(Filter2.Data)
                 )
             );
 
@@ -432,15 +432,20 @@ namespace KSynthLib.K4
         // Implementation of ISystemExclusiveData interface
         //
 
-        public List<byte> GetSystemExclusiveData()
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.AddRange(this.CollectData());
-            data.Add(this.Checksum);
+                data.AddRange(this.CollectData());
+                data.Add(this.Checksum);
 
-            return data;
+                return data;
+            }
         }
+
+        public int DataLength => DataSize;
 
         //
         // Implementation of the IPatch interface

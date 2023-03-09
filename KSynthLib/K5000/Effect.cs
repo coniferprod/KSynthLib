@@ -169,20 +169,29 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            // Adjust the effect type back to 11~47:
-            data.Add((byte)((int)Kind + 11));
+                // Adjust the effect type back to 11~47:
+                data.Add((byte)((int)Kind + 11));
 
-            data.Add(Depth.ToByte());
-            data.Add(Param1.ToByte());
-            data.Add(Param2.ToByte());
-            data.Add(Param3.ToByte());
-            data.Add(Param4.ToByte());
+                data.Add(Depth.ToByte());
+                data.Add(Param1.ToByte());
+                data.Add(Param2.ToByte());
+                data.Add(Param3.ToByte());
+                data.Add(Param4.ToByte());
 
-            return data;
+                return data;
+            }
         }
+
+        public int DataLength => 6;
     }
 }

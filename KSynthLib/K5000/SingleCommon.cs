@@ -266,79 +266,84 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
+        //
+        // ISystemExclusiveData implementation
+        //
+
         /// <summary>
         /// Returns the settings as System Exclusive data.
         /// </summary>
-        /// <remarks>
-        /// Calls the <c>ToData</c> method of all its aggregate data members,
-        /// or the <c>ToByte</c> method of its ranged value data members.
-        /// </remarks>
         /// <returns>
         /// The SysEx bytes.
         /// </returns>
-        public List<byte> GetSystemExclusiveData()
+        public List<byte> Data
         {
-            var data = new List<byte>();
-
-            data.Add((byte)EffectAlgorithm);  // 0...3
-            data.AddRange(Reverb.GetSystemExclusiveData());
-            data.AddRange(Effect1.GetSystemExclusiveData());
-            data.AddRange(Effect2.GetSystemExclusiveData());
-            data.AddRange(Effect3.GetSystemExclusiveData());
-            data.AddRange(Effect4.GetSystemExclusiveData());
-            data.AddRange(GEQ.GetSystemExclusiveData());
-            data.Add(0);  // drum_mark
-
-            data.AddRange(this.Name.GetSystemExclusiveData());
-
-            data.Add(Volume.ToByte());
-            data.Add((byte)Poly);
-            data.Add(0); // "no use"
-
-            data.Add((byte)SourceCount);
-            byte sourceMute = 0;
-            for (var i = 0; i < MaxSources; i++)
+            get
             {
-                if (IsSourceMuted[i])
+                var data = new List<byte>();
+
+                data.Add((byte)EffectAlgorithm);  // 0...3
+                data.AddRange(Reverb.Data);
+                data.AddRange(Effect1.Data);
+                data.AddRange(Effect2.Data);
+                data.AddRange(Effect3.Data);
+                data.AddRange(Effect4.Data);
+                data.AddRange(GEQ.Data);
+                data.Add(0);  // drum_mark
+
+                data.AddRange(this.Name.Data);
+
+                data.Add(Volume.ToByte());
+                data.Add((byte)Poly);
+                data.Add(0); // "no use"
+
+                data.Add((byte)SourceCount);
+                byte sourceMute = 0;
+                for (var i = 0; i < MaxSources; i++)
                 {
-                    sourceMute.SetBit(i);
+                    if (IsSourceMuted[i])
+                    {
+                        sourceMute.SetBit(i);
+                    }
                 }
+                data.Add(sourceMute);
+
+                data.Add((byte)AM);
+
+                data.AddRange(EffectControl1.Data);
+                data.AddRange(EffectControl2.Data);
+
+                data.Add((byte)(IsPortamentoEnabled ? 1 : 0));  // only bit 0 is used for this
+                data.Add(PortamentoSpeed.ToByte());
+
+                var m1p1 = Macro1.Param1.Bytes;
+                var m1p2 = Macro1.Param2.Bytes;
+                var m2p1 = Macro2.Param1.Bytes;
+                var m2p2 = Macro2.Param2.Bytes;
+                var m3p1 = Macro3.Param1.Bytes;
+                var m3p2 = Macro3.Param2.Bytes;
+                var m4p1 = Macro4.Param1.Bytes;
+                var m4p2 = Macro4.Param2.Bytes;
+
+                data.AddRange(new List<byte>() {
+                    m1p1.Kind, m1p2.Kind, m2p1.Kind, m2p2.Kind,
+                    m3p1.Kind, m3p2.Kind, m4p1.Kind, m4p2.Kind
+                });
+
+                data.AddRange(new List<byte>() {
+                    m1p1.Depth, m1p2.Depth, m2p1.Depth, m2p2.Depth,
+                    m3p1.Depth, m3p2.Depth, m4p1.Depth, m4p2.Depth
+                });
+
+                data.AddRange(new List<byte>() {
+                    (byte)Switch1, (byte)Switch2,
+                    (byte)FootSwitch1, (byte)FootSwitch2
+                });
+
+                return data;
             }
-            data.Add(sourceMute);
-
-            data.Add((byte)AM);
-
-            data.AddRange(EffectControl1.GetSystemExclusiveData());
-            data.AddRange(EffectControl2.GetSystemExclusiveData());
-
-            data.Add((byte)(IsPortamentoEnabled ? 1 : 0));  // only bit 0 is used for this
-            data.Add(PortamentoSpeed.ToByte());
-
-            var m1p1 = Macro1.Param1.Bytes;
-            var m1p2 = Macro1.Param2.Bytes;
-            var m2p1 = Macro2.Param1.Bytes;
-            var m2p2 = Macro2.Param2.Bytes;
-            var m3p1 = Macro3.Param1.Bytes;
-            var m3p2 = Macro3.Param2.Bytes;
-            var m4p1 = Macro4.Param1.Bytes;
-            var m4p2 = Macro4.Param2.Bytes;
-
-            data.AddRange(new List<byte>() {
-                m1p1.Kind, m1p2.Kind, m2p1.Kind, m2p2.Kind,
-                m3p1.Kind, m3p2.Kind, m4p1.Kind, m4p2.Kind
-            });
-
-            data.AddRange(new List<byte>() {
-                m1p1.Depth, m1p2.Depth, m2p1.Depth, m2p2.Depth,
-                m3p1.Depth, m3p2.Depth, m4p1.Depth, m4p2.Depth
-            });
-
-            data.AddRange(new List<byte>() {
-                (byte)Switch1, (byte)Switch2,
-                (byte)FootSwitch1, (byte)FootSwitch2
-            });
-
-            return data;
         }
+
+        public int DataLength => DataSize;
     }
 }

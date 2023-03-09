@@ -7,7 +7,7 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K4
 {
-    public class DrumSource: ISystemExclusiveData
+    public class DrumSource : ISystemExclusiveData
     {
         public const int DataSize = 5;
 
@@ -41,22 +41,31 @@ namespace KSynthLib.K4
             Level = data[4];
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            byte high = 0x00;
-            byte low = 0x00;
-            (high, low) = Wave.WaveSelect;
-            data.Add(high);
-            data.Add(low);
+                byte high = 0x00;
+                byte low = 0x00;
+                (high, low) = Wave.WaveSelect;
+                data.Add(high);
+                data.Add(low);
 
-            data.Add((byte)Decay);
-            data.Add(SystemExclusiveDataConverter.ByteFromDepth(Tune));
-            data.Add((byte)Level);
+                data.Add((byte)Decay);
+                data.Add(SystemExclusiveDataConverter.ByteFromDepth(Tune));
+                data.Add((byte)Level);
 
-            return data;
+                return data;
+            }
         }
+
+        public int DataLength => 5;
 
         /// <summary>
         /// Generates a printable representation of this drum source.
@@ -159,12 +168,12 @@ namespace KSynthLib.K4
         {
             var data = new List<byte>();
 
-            List<byte> source1Bytes = this.Source1.GetSystemExclusiveData();
+            List<byte> source1Bytes = this.Source1.Data;
             byte outputSelect = (byte)OutputSelect;
             byte d11 = (byte)((outputSelect << 4) | source1Bytes[0]);
             source1Bytes[0] = d11;
 
-            List<byte> source2Bytes = this.Source2.GetSystemExclusiveData();
+            List<byte> source2Bytes = this.Source2.Data;
 
             for (var i = 0; i < source1Bytes.Count; i++)
             {
@@ -175,25 +184,24 @@ namespace KSynthLib.K4
             return data.ToArray();
         }
 
-        public override byte[] ToData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.AddRange(this.CollectData());
-            data.Add(Checksum);  // computed by property accessor
+                data.AddRange(this.CollectData());
+                data.Add(Checksum);  // computed by property accessor
 
-            return data.ToArray();
+                return data;
+            }
         }
 
-        public List<byte> GetSystemExclusiveData()
-        {
-            var data = new List<byte>();
-
-            data.AddRange(this.CollectData());
-            data.Add(Checksum);  // computed by property accessor
-
-            return data;
-        }
+        public int DataLength => DataSize;
 
         /// <summary>
         /// Generates a printable representation of this drum note.

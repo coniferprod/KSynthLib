@@ -7,7 +7,7 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K4
 {
-    public class LevelModulation: ISystemExclusiveData
+    public class LevelModulation : ISystemExclusiveData
     {
         [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
         public int VelocityDepth;
@@ -47,19 +47,28 @@ namespace KSynthLib.K4
             return $"VEL DEP = {VelocityDepth}, PRS = {PressureDepth}, KS = {KeyScalingDepth}";
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.Add(SystemExclusiveDataConverter.ByteFromDepth(VelocityDepth));
-            data.Add(SystemExclusiveDataConverter.ByteFromDepth(PressureDepth));
-            data.Add(SystemExclusiveDataConverter.ByteFromDepth(KeyScalingDepth));
+                data.Add(SystemExclusiveDataConverter.ByteFromDepth(VelocityDepth));
+                data.Add(SystemExclusiveDataConverter.ByteFromDepth(PressureDepth));
+                data.Add(SystemExclusiveDataConverter.ByteFromDepth(KeyScalingDepth));
 
-            return data;
+                return data;
+            }
         }
+
+        public int DataLength => 3;
     }
 
-    public class TimeModulation: ISystemExclusiveData
+    public class TimeModulation : ISystemExclusiveData
     {
         [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
         public int AttackVelocity;
@@ -96,16 +105,25 @@ namespace KSynthLib.K4
             return $"ATK VEL = {AttackVelocity}, RLS VEL = {ReleaseVelocity}, KS = {KeyScaling}";
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.Add(SystemExclusiveDataConverter.ByteFromDepth(AttackVelocity));
-            data.Add(SystemExclusiveDataConverter.ByteFromDepth(ReleaseVelocity));
-            data.Add(SystemExclusiveDataConverter.ByteFromDepth(KeyScaling));
+                data.Add(SystemExclusiveDataConverter.ByteFromDepth(AttackVelocity));
+                data.Add(SystemExclusiveDataConverter.ByteFromDepth(ReleaseVelocity));
+                data.Add(SystemExclusiveDataConverter.ByteFromDepth(KeyScaling));
 
-            return data;
+                return data;
+            }
         }
+
+        public int DataLength => 3;
     }
 
     /// <summary>
@@ -182,16 +200,25 @@ namespace KSynthLib.K4
             return builder.ToString();
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.Add((byte)EnvelopeLevel);
-            data.AddRange(Env.GetSystemExclusiveData());
-            data.AddRange(LevelMod.GetSystemExclusiveData());
-            data.AddRange(TimeMod.GetSystemExclusiveData());
+                data.Add((byte)EnvelopeLevel);
+                data.AddRange(Env.Data);
+                data.AddRange(LevelMod.Data);
+                data.AddRange(TimeMod.Data);
 
-            return data;
+                return data;
+            }
         }
+
+        public int DataLength => 1 + Env.DataLength + LevelMod.DataLength + TimeMod.DataLength;
     }
 }

@@ -16,15 +16,23 @@ namespace KSynthLib.K5000
             SourceNumber = 0;
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
-
-            data.AddRange(PatchNumber.GetSystemExclusiveData());
-            data.Add(SourceNumber);
-
-            return data;
+            get
+            {
+                return new List<byte>()
+                {
+                    PatchNumber.ToByte(),
+                    SourceNumber
+                };
+            }
         }
+
+        public int DataLength => 2;
     }
 
     public enum MORFHarmonicGroup
@@ -64,27 +72,46 @@ namespace KSynthLib.K5000
             MORFEnvelope = new MORFHarmonicEnvelope();
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.AddRange(new List<byte>() {
-                (byte)(Morf ? 1 : 0),
-                TotalGain,
-                (byte)Group,
-                KeyScalingToGain.ToByte(),
-                BalanceVelocityCurve,
-                BalanceVelocityDepth
-            });
+                data.AddRange(new List<byte>() {
+                    (byte)(Morf ? 1 : 0),
+                    TotalGain,
+                    (byte)Group,
+                    KeyScalingToGain.ToByte(),
+                    BalanceVelocityCurve,
+                    BalanceVelocityDepth
+                });
 
-            data.AddRange(Copy1.GetSystemExclusiveData());
-            data.AddRange(Copy2.GetSystemExclusiveData());
-            data.AddRange(Copy3.GetSystemExclusiveData());
-            data.AddRange(Copy4.GetSystemExclusiveData());
+                data.AddRange(Copy1.Data);
+                data.AddRange(Copy2.Data);
+                data.AddRange(Copy3.Data);
+                data.AddRange(Copy4.Data);
 
-            data.AddRange(MORFEnvelope.GetSystemExclusiveData());
+                data.AddRange(MORFEnvelope.Data);
 
-            return data;
+                return data;
+            }
+        }
+
+        public int DataLength
+        {
+            get
+            {
+                return
+                    6 +
+                    Copy1.DataLength + Copy2.DataLength +
+                    Copy3.DataLength + Copy4.DataLength +
+                    MORFEnvelope.DataLength;
+            }
         }
     }
 
@@ -115,15 +142,24 @@ namespace KSynthLib.K5000
             Depth = new UnsignedLevel(data[2]);
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            return new List<byte>()
+            get
             {
-                Speed.ToByte(),
-                (byte)Shape,
-                Depth.ToByte()
-            };
+                return new List<byte>()
+                {
+                    Speed.ToByte(),
+                    (byte)Shape,
+                    Depth.ToByte()
+                };
+            }
         }
+
+        public int DataLength => 3;
     }
 
     public class FormantParameters
@@ -158,23 +194,32 @@ namespace KSynthLib.K5000
             LFO = new FormantLFOSettings(data.GetRange(14, 3));
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.Add(Bias.ToByte());
-            data.Add(EnvLFOSel);
-            data.Add(EnvelopeDepth.ToByte());
+                data.Add(Bias.ToByte());
+                data.Add(EnvLFOSel);
+                data.Add(EnvelopeDepth.ToByte());
 
-            data.AddRange(Envelope.GetSystemExclusiveData());
+                data.AddRange(Envelope.Data);
 
-            data.Add(VelocitySensitivityEnvelopeDepth.ToByte());
-            data.Add(KeyScalingEnvelopeDepth.ToByte());
+                data.Add(VelocitySensitivityEnvelopeDepth.ToByte());
+                data.Add(KeyScalingEnvelopeDepth.ToByte());
 
-            data.AddRange(LFO.GetSystemExclusiveData());
+                data.AddRange(LFO.Data);
 
-            return data;
+                return data;
+            }
         }
+
+        public int DataLength => 3;
     }
 
     public class AdditiveKit: ISystemExclusiveData
@@ -395,28 +440,37 @@ namespace KSynthLib.K5000
             return b.ToString();
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
-
-            data.AddRange(Harmonics.GetSystemExclusiveData());
-            data.AddRange(Formant.GetSystemExclusiveData());
-            data.AddRange(SoftHarmonics);
-            data.AddRange(LoudHarmonics);
-            data.AddRange(FormantFilter);
-
-            for (var i = 0; i < HarmonicCount; i++)
+            get
             {
-                data.AddRange(HarmonicEnvelopes[i].GetSystemExclusiveData());
+                var data = new List<byte>();
+
+                data.AddRange(Harmonics.Data);
+                data.AddRange(Formant.Data);
+                data.AddRange(SoftHarmonics);
+                data.AddRange(LoudHarmonics);
+                data.AddRange(FormantFilter);
+
+                for (var i = 0; i < HarmonicCount; i++)
+                {
+                    data.AddRange(HarmonicEnvelopes[i].Data);
+                }
+
+                byte checksum = ComputeChecksum(data);
+                data.Insert(0, checksum);  // goes to the front of the buffer
+
+                data.Add(0);  // 806 dummy
+
+                return data;
             }
-
-            byte checksum = ComputeChecksum(data);
-            data.Insert(0, checksum);  // goes to the front of the buffer
-
-            data.Add(0);  // 806 dummy
-
-            return data;
         }
+
+        public int DataLength => DataSize;
 
         private byte ComputeChecksum(List<byte> data)
         {
@@ -427,13 +481,13 @@ namespace KSynthLib.K5000
 
             // HCKIT sum = MORF flag, harmonics, formant
             total += (byte)(Harmonics.Morf ? 1 : 0);
-            List<byte> harmonicsData = Harmonics.GetSystemExclusiveData();
+            List<byte> harmonicsData = Harmonics.Data;
             foreach (var b in harmonicsData)
             {
                 total += b;
             }
 
-            List<byte> formantParameterData = Formant.GetSystemExclusiveData();
+            List<byte> formantParameterData = Formant.Data;
             foreach (var b in formantParameterData)
             {
                 total += b;
@@ -459,7 +513,7 @@ namespace KSynthLib.K5000
 
             for (var i = 0; i < HarmonicCount; i++)
             {
-                List<byte> harmonicEnvelopeData = HarmonicEnvelopes[i].GetSystemExclusiveData();
+                List<byte> harmonicEnvelopeData = HarmonicEnvelopes[i].Data;
                 foreach (var b in harmonicEnvelopeData)
                 {
                     total += b;

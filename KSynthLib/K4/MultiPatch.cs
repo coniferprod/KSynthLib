@@ -108,7 +108,7 @@ namespace KSynthLib.K4
 
             for (var i = 0; i < SectionCount; i++)
             {
-                data.AddRange(this.Sections[i].GetSystemExclusiveData());
+                data.AddRange(this.Sections[i].Data);
             }
 
             return data.ToArray();

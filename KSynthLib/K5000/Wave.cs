@@ -80,14 +80,23 @@ namespace KSynthLib.K5000
             return this.Number == 512;
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
-            var (msb, lsb) = this.WaveSelect;
-            data.Add(msb);
-            data.Add(lsb);
-            return data;
+            get
+            {
+                var data = new List<byte>();
+                var (msb, lsb) = this.WaveSelect;
+                data.Add(msb);
+                data.Add(lsb);
+                return data;
+            }
         }
+
+        public int DataLength => 2;
 
         public static string[] Names = new string[]
         {

@@ -94,20 +94,35 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.AddRange(Wave.GetSystemExclusiveData());
+                data.AddRange(Wave.Data);
 
-            data.Add(Coarse.ToByte());
-            data.Add(Fine.ToByte());
-            data.Add(FixedKey.Key.ToByte());
-            data.Add((byte)KSPitch);
+                data.Add(Coarse.ToByte());
+                data.Add(Fine.ToByte());
+                data.Add(FixedKey.Key.ToByte());
+                data.Add((byte)KSPitch);
 
-            data.AddRange(Envelope.ToData());
+                data.AddRange(Envelope.Data);
 
-            return data;
+                return data;
+            }
+        }
+
+        public int DataLength
+        {
+            get
+            {
+                return Wave.DataLength + 4 + Envelope.DataLength;
+            }
         }
     }
 }

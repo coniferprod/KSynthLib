@@ -167,28 +167,26 @@ namespace KSynthLib.K4
             return data.ToArray();
         }
 
-        public override byte[] ToData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
-            data.AddRange(CollectData());
+            get
+            {
+                var data = new List<byte>();
 
-            // Add checksum (gets computed by the property)
-            data.Add(Checksum);
+                data.AddRange(CollectData());
 
-            return data.ToArray();
+                // Add checksum (gets computed by the property)
+                data.Add(Checksum);
+
+                return data;
+            }
         }
 
-        public List<byte> GetSystemExclusiveData()
-        {
-            var data = new List<byte>();
-
-            data.AddRange(CollectData());
-
-            // Add checksum (gets computed by the property)
-            data.Add(Checksum);
-
-            return data;
-        }
+        public int DataLength => DataSize;
 
         public override string ToString()
         {
