@@ -88,17 +88,26 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.Add((byte)(VelocityCurve - 1));  // adjust from 1~12 to 0~11
+                data.Add((byte)(VelocityCurve - 1));  // adjust from 1~12 to 0~11
 
-            data.AddRange(Envelope.ToData());
-            data.AddRange(KeyScaling.ToData());
-            data.AddRange(VelocitySensitivity.ToData());
+                data.AddRange(Envelope.Data);
+                data.AddRange(KeyScaling.Data);
+                data.AddRange(VelocitySensitivity.Data);
 
-            return data;
+                return data;
+            }
         }
+
+        public int DataLength => 1 + Envelope.DataLength + KeyScaling.DataLength + VelocitySensitivity.DataLength;
     }
 }

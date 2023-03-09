@@ -1,5 +1,6 @@
 using System.Text;
 using System.Collections.Generic;
+using System.IO;
 
 using KSynthLib.Common;
 
@@ -10,14 +11,18 @@ namespace KSynthLib.K5000
     /// </summary>
     public class MultiPatch : IPatch, ISystemExclusiveData
     {
-        public PatchName PatchName;
+        public const int SectionCount = 4;
+
+        public MultiCommon Common;
+        public MultiSection[] Sections;
 
         /// <summary>
         /// Constructs a multi patch with default values.
         /// </summary>
         public MultiPatch() : base()
         {
-            this.PatchName = new PatchName("NewMulti");
+            this.Common = new MultiCommon();
+            this.Sections = new MultiSection[SectionCount];
 
         }
 
@@ -26,14 +31,21 @@ namespace KSynthLib.K5000
         /// </summary>
         public MultiPatch(byte[] data) : base()
         {
-            int offset = 0;
-            byte b;
-            (b, offset) = Util.GetNextByte(data, offset);
+            using (MemoryStream ms = new MemoryStream(data, false))
+	        {
+                var checksum = (byte) ms.ReadByte();
 
-            // Ingest the checksum
-            //_checksum = b;
+                byte[] commonData = new byte[54];
+                int status = ms.Read(commonData);
+                this.Common = new MultiCommon(commonData);
 
-            // TODO: Parse the multi from SysEx
+                for (int i = 0; i < SectionCount; i++)
+                {
+                    byte[] sectionData = new byte[MultiSection.DataSize];
+                    status = ms.Read(sectionData);
+                    this.Sections[i] = new MultiSection(sectionData);
+                }
+            }
         }
 
         /// <summary>
@@ -55,23 +67,39 @@ namespace KSynthLib.K5000
         {
             var data = new List<byte>();
 
-            // TODO: Collect the data
+            data.AddRange(this.Common.Data);
+
+            for (int i = 0; i < SectionCount; i++)
+            {
+                data.AddRange(this.Sections[i].Data);
+            }
 
             return data;
         }
 
         //
-        // Implementation of the IPatch interface
+        // Implementation of the ISystemExclusiveData interface
         //
 
-        public List<byte> GetSystemExclusiveData()
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.AddRange(this.CollectData());
-            data.Add(this.Checksum);
+                data.Add(this.Checksum);
+                data.AddRange(this.CollectData());
 
-            return data;
+                return data;
+            }
+        }
+
+        public int DataLength
+        {
+            get
+            {
+                return 1 + this.Common.DataLength + SectionCount * MultiSection.DataSize;
+            }
         }
 
         //
@@ -97,12 +125,12 @@ namespace KSynthLib.K5000
         {
             get
             {
-                return this.PatchName.Value;
+                return this.Common.Name.Value;
             }
 
             set
             {
-                this.PatchName = new PatchName(value);
+                this.Common.Name = new PatchName(value);
             }
         }
     }

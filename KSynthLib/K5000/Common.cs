@@ -40,32 +40,41 @@ namespace KSynthLib.K5000
             this.Value = Encoding.ASCII.GetString(bytes);
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var bytes = new List<byte>();
-
-            var charArray = this.Value.ToCharArray();
-            for (var i = 0; i < charArray.Length; i++)
+            get
             {
-                char ch = charArray[i];
-                byte b = (byte)ch;
-                if (ch == '\u2192') // right arrow
-                {
-                    b = 0x7e;
-                }
-                else if (ch == '\u2190')  // left arrow
-                {
-                    b = 0x7f;
-                }
-                else if (ch == '\u00a5')  // yen sign
-                {
-                    b = 0x5c;
-                }
-                bytes.Add(b);
-            }
+                var bytes = new List<byte>();
 
-            return bytes;
+                var charArray = this.Value.ToCharArray();
+                for (var i = 0; i < charArray.Length; i++)
+                {
+                    char ch = charArray[i];
+                    byte b = (byte)ch;
+                    if (ch == '\u2192') // right arrow
+                    {
+                        b = 0x7e;
+                    }
+                    else if (ch == '\u2190')  // left arrow
+                    {
+                        b = 0x7f;
+                    }
+                    else if (ch == '\u00a5')  // yen sign
+                    {
+                        b = 0x5c;
+                    }
+                    bytes.Add(b);
+                }
+
+                return bytes;
+            }
         }
+
+        public int DataLength => Length;
     }
 
     public enum VelocityCurve
@@ -143,7 +152,7 @@ namespace KSynthLib.K5000
     public class EffectControl: ISystemExclusiveData
     {
         public ControlSource Source { get; }
-        public EffectDestination Destination { get; }
+        public EffectDestination Destination { get; }
 
         public ControlDepth Depth; // (-31)33 ~ (+31)95
 
@@ -166,16 +175,25 @@ namespace KSynthLib.K5000
             return $"source = {Source} destination = {Destination} depth = {Depth.Value}";
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.Add((byte)Source);
-            data.Add((byte)Destination);
-            data.Add(Depth.ToByte());
+                data.Add((byte)Source);
+                data.Add((byte)Destination);
+                data.Add(Depth.ToByte());
 
-            return data;
+                return data;
+            }
         }
+
+        public int DataLength => 3;
     }
 
     public enum MacroControllerKind
@@ -229,10 +247,19 @@ namespace KSynthLib.K5000
             this.Depth = new ControlDepth();
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            return new List<byte>() { (byte)Kind, Depth.ToByte() };
+            get
+            {
+                return new List<byte>() { (byte)Kind, Depth.ToByte() };
+            }
         }
+
+        public int DataLength => 2;
 
         public (byte Kind, byte Depth) Bytes => ((byte)Kind, Depth.ToByte());
     }
@@ -261,13 +288,22 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
-            data.AddRange(this.Param1.GetSystemExclusiveData());
-            data.AddRange(this.Param2.GetSystemExclusiveData());
-            return data;
+            get
+            {
+                var data = new List<byte>();
+                data.AddRange(this.Param1.Data);
+                data.AddRange(this.Param2.Data);
+                return data;
+            }
         }
+
+        public int DataLength => Param1.DataLength * 2;
     }
 
     public enum Switch {
@@ -386,31 +422,40 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
-
-            data.Add(EffectAlgorithm);
-
-            data.AddRange(Reverb.GetSystemExclusiveData());
-            data.AddRange(Effect1.GetSystemExclusiveData());
-            data.AddRange(Effect2.GetSystemExclusiveData());
-            data.AddRange(Effect3.GetSystemExclusiveData());
-            data.AddRange(Effect4.GetSystemExclusiveData());
-
-            data.AddRange(GEQ.GetSystemExclusiveData());
-
-            data.Add(0); // drum_mark, 0=normal(not drum)
-
-            foreach (var ch in Name)
+            get
             {
-                data.Add(Convert.ToByte(ch));
+                var data = new List<byte>();
+
+                data.Add(EffectAlgorithm);
+
+                data.AddRange(Reverb.Data);
+                data.AddRange(Effect1.Data);
+                data.AddRange(Effect2.Data);
+                data.AddRange(Effect3.Data);
+                data.AddRange(Effect4.Data);
+
+                data.AddRange(GEQ.Data);
+
+                data.Add(0); // drum_mark, 0=normal(not drum)
+
+                foreach (var ch in Name)
+                {
+                    data.Add(Convert.ToByte(ch));
+                }
+
+                data.Add(Volume.ToByte());
+
+                return data;
             }
-
-            data.Add(Volume.ToByte());
-
-            return data;
         }
+
+        public int DataLength => DataSize;
 
         private ReverbSettings GetReverb(byte[] data, int offset)
         {
@@ -473,10 +518,19 @@ namespace KSynthLib.K5000
             High = new Key(high);
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            return new List<byte> { Low.ToByte(), High.ToByte() };
+            get
+            {
+                return new List<byte> { Low.ToByte(), High.ToByte() };
+            }
         }
+
+        public int DataLength => 2;
     }
 
     public class FixedKey

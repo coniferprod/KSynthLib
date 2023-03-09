@@ -101,15 +101,27 @@ namespace KSynthLib.K5000
         public byte ToByte() => (byte)(this.Value);
     }
 
-    public class PatchNumber: RangedValue, ISystemExclusiveData
+    public class PatchNumber: RangedValue
     {
         public PatchNumber() : this(0) { }
         public PatchNumber(int value) : base("PatchNumber", new Range<int>(0, 127), 0, value) { }
         public PatchNumber(byte value) : this((int)value) { }
+        public byte ToByte() => (byte) this.Value;
+    }
 
-        public List<byte> GetSystemExclusiveData()
-        {
-            return new List<byte> { (byte)(this.Value) };
-        }
+    public class Transpose: RangedValue
+    {
+        public Transpose() : this(0) { }
+        public Transpose(int value) : base("Transpose", new Range<int>(-24, 24), 0, value) { }
+        public Transpose(byte value) : this(value - 64) { }
+        public byte ToByte() => (byte)(this.Value + 64);  // 40(-24)~88(+24)
+    }
+
+    public class Channel: RangedValue
+    {
+        public Channel() : this(0) { }
+        public Channel(int value) : base("Channel", new Range<int>(1, 16), 0, value) { }
+        public Channel(byte value) : this(value + 1) { }
+        public byte ToByte() => (byte)(this.Value - 1);  // 1~16 to 0~15
     }
 }

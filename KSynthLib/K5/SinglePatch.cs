@@ -320,89 +320,94 @@ namespace KSynthLib.K5
         // Implementation of ISystemExclusiveData interface
         //
 
-        public List<byte> GetSystemExclusiveData()
+        public List<byte> Data
         {
-            var buf = new List<byte>();
-            byte b = 0;
-            byte lowNybble = 0;
-            byte highNybble = 0;
-
-            foreach (var ch in Name)
+            get
             {
-                buf.Add(Convert.ToByte(ch));
+                var buf = new List<byte>();
+                byte b = 0;
+                byte lowNybble = 0;
+                byte highNybble = 0;
+
+                foreach (var ch in Name)
+                {
+                    buf.Add(Convert.ToByte(ch));
+                }
+
+                buf.Add(Volume.ToByte());
+                buf.Add(Balance.ToByte());
+
+                buf.Add(Source1Settings.Delay.ToByte());
+                buf.Add(Source2Settings.Delay.ToByte());
+
+                buf.Add(Source1Settings.PedalDepth.ToByte());
+                buf.Add(Source2Settings.PedalDepth.ToByte());
+
+                buf.Add(Source1Settings.WheelDepth.ToByte());
+                buf.Add(Source2Settings.WheelDepth.ToByte());
+
+                highNybble = (byte)Source1Settings.PedalAssign;
+                lowNybble = (byte)Source1Settings.WheelAssign;
+                b = Util.ByteFromNybbles(highNybble, lowNybble);
+                buf.Add(b);
+
+                highNybble = (byte)Source2Settings.PedalAssign;
+                lowNybble = (byte)Source2Settings.WheelAssign;
+                b = Util.ByteFromNybbles(highNybble, lowNybble);
+                buf.Add(b);
+
+                // portamento and p. speed - S19
+                b = PortamentoSpeed.ToByte();
+                if (Portamento)
+                {
+                    b.SetBit(7);
+                }
+                buf.Add(b);
+
+                // mode and "pic mode" - S20
+                b = (byte)PMode;
+                if (SMode == SourceMode.Full)
+                {
+                    b.SetBit(2);
+                }
+                else
+                {
+                    b.UnsetBit(2);
+                }
+                buf.Add(b);
+
+                byte[] s1d = Source1.ToData();
+                byte[] s2d = Source2.ToData();
+                Console.Error.WriteLine($"S1 data = {s1d.Length} bytes, S2 data = {s2d.Length} bytes");
+
+                buf.AddRange(Util.InterleaveBytes(new List<byte>(s1d), new List<byte>(s2d)));
+
+                buf.AddRange(LFO.ToData());
+
+                buf.Add(Source1Settings.KeyScaling.Right.ToByte());
+                buf.Add(Source2Settings.KeyScaling.Right.ToByte());
+                buf.Add(Source1Settings.KeyScaling.Left.ToByte());
+                buf.Add(Source2Settings.KeyScaling.Left.ToByte());
+                buf.Add(Source1Settings.KeyScaling.Breakpoint.ToByte());
+                buf.Add(Source2Settings.KeyScaling.Breakpoint.ToByte());
+
+                for (var i = 0; i < FormantLevelCount; i++)
+                {
+                    buf.Add((byte)FormantLevels[i]);
+                }
+
+                buf.Add(Filler);
+
+                var count = buf.Count;
+                int checksum = ComputeChecksum(buf.GetRange(0, count).ToArray());
+                buf.Add((byte)(checksum & 0xff));
+                buf.Add((byte)((((uint)checksum) >> 8) & 0xFF));
+
+                return buf;
             }
-
-            buf.Add(Volume.ToByte());
-            buf.Add(Balance.ToByte());
-
-            buf.Add(Source1Settings.Delay.ToByte());
-            buf.Add(Source2Settings.Delay.ToByte());
-
-            buf.Add(Source1Settings.PedalDepth.ToByte());
-            buf.Add(Source2Settings.PedalDepth.ToByte());
-
-            buf.Add(Source1Settings.WheelDepth.ToByte());
-            buf.Add(Source2Settings.WheelDepth.ToByte());
-
-            highNybble = (byte)Source1Settings.PedalAssign;
-            lowNybble = (byte)Source1Settings.WheelAssign;
-            b = Util.ByteFromNybbles(highNybble, lowNybble);
-            buf.Add(b);
-
-            highNybble = (byte)Source2Settings.PedalAssign;
-            lowNybble = (byte)Source2Settings.WheelAssign;
-            b = Util.ByteFromNybbles(highNybble, lowNybble);
-            buf.Add(b);
-
-            // portamento and p. speed - S19
-            b = PortamentoSpeed.ToByte();
-            if (Portamento)
-            {
-                b.SetBit(7);
-            }
-            buf.Add(b);
-
-            // mode and "pic mode" - S20
-	        b = (byte)PMode;
-            if (SMode == SourceMode.Full)
-            {
-                b.SetBit(2);
-            }
-            else
-            {
-                b.UnsetBit(2);
-            }
-            buf.Add(b);
-
-            byte[] s1d = Source1.ToData();
-            byte[] s2d = Source2.ToData();
-            Console.Error.WriteLine($"S1 data = {s1d.Length} bytes, S2 data = {s2d.Length} bytes");
-
-            buf.AddRange(Util.InterleaveBytes(new List<byte>(s1d), new List<byte>(s2d)));
-
-            buf.AddRange(LFO.ToData());
-
-            buf.Add(Source1Settings.KeyScaling.Right.ToByte());
-            buf.Add(Source2Settings.KeyScaling.Right.ToByte());
-            buf.Add(Source1Settings.KeyScaling.Left.ToByte());
-            buf.Add(Source2Settings.KeyScaling.Left.ToByte());
-            buf.Add(Source1Settings.KeyScaling.Breakpoint.ToByte());
-            buf.Add(Source2Settings.KeyScaling.Breakpoint.ToByte());
-
-            for (var i = 0; i < FormantLevelCount; i++)
-            {
-                buf.Add((byte)FormantLevels[i]);
-            }
-
-            buf.Add(Filler);
-
-            var count = buf.Count;
-            int checksum = ComputeChecksum(buf.GetRange(0, count).ToArray());
-            buf.Add((byte)(checksum & 0xff));
-            buf.Add((byte)((((uint)checksum) >> 8) & 0xFF));
-
-            return buf;
         }
+
+        public int DataLength => 492;
 
         int ComputeChecksum(byte[] data)
         {

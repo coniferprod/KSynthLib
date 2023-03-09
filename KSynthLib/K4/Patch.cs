@@ -6,7 +6,7 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K4
 {
-    public class PatchName: ISystemExclusiveData
+    public class PatchName : ISystemExclusiveData
     {
         public static readonly int Length = 10;
 
@@ -60,32 +60,41 @@ namespace KSynthLib.K4
             this.Value = new string(chars.ToArray());
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var bytes = new List<byte>();
-
-            var charArray = this.Value.ToCharArray();
-            for (var i = 0; i < charArray.Length; i++)
+            get
             {
-                char ch = charArray[i];
-                byte b = (byte)ch;
-                if (ch == '\u2192') // right arrow
-                {
-                    b = 0x7e;
-                }
-                else if (ch == '\u2190')  // left arrow
-                {
-                    b = 0x7f;
-                }
-                else if (ch == '\u00a5')  // yen sign
-                {
-                    b = 0x5c;
-                }
-                bytes.Add(b);
-            }
+                var bytes = new List<byte>();
 
-            return bytes;
+                var charArray = this.Value.ToCharArray();
+                for (var i = 0; i < charArray.Length; i++)
+                {
+                    char ch = charArray[i];
+                    byte b = (byte)ch;
+                    if (ch == '\u2192') // right arrow
+                    {
+                        b = 0x7e;
+                    }
+                    else if (ch == '\u2190')  // left arrow
+                    {
+                        b = 0x7f;
+                    }
+                    else if (ch == '\u00a5')  // yen sign
+                    {
+                        b = 0x5c;
+                    }
+                    bytes.Add(b);
+                }
+
+                return bytes;
+            }
         }
+
+        public int DataLength => Length;
 
         public static readonly byte[] AllowedNameCharacterCodes = new byte[]
         {

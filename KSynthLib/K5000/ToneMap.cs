@@ -8,7 +8,7 @@ namespace KSynthLib.K5000
 {
     public class ToneMap: ISystemExclusiveData
     {
-        public const int Size = 19;  // bytes
+        public const int DataSize = 19;  // bytes
 
         public const int ToneCount = 128;
 
@@ -60,29 +60,38 @@ namespace KSynthLib.K5000
             get { return this._include[i]; }
         }
 
-        public List<byte> GetSystemExclusiveData()
-        {
-            var buf = new StringBuilder();
-            for (var i = 0; i < this._include.Length; i++)
-            {
-                buf.Append(this._include[i] ? "1" : "0");
-                // each byte maps seven patches, and every 8th bit must be a zero
-                if (i % 8 == 0)
-                {
-                    buf.Append("0");
-                }
-            }
-            // The patches are enumerated starting from the low bits, so reverse the string.
-            var bitString = buf.ToString().Reversed();
-            // Now we have a long bit string. Slice it into chunks of eight bits to convert to bytes.
-            string[] parts = bitString.Split(8);
+        //
+        // ISystemExclusiveData implementation
+        //
 
-            var data = new List<byte>();
-            foreach (var s in parts)
+        public List<byte> Data
+        {
+            get
             {
-                data.Add(Convert.ToByte(s, 2));
+                var buf = new StringBuilder();
+                for (var i = 0; i < this._include.Length; i++)
+                {
+                    buf.Append(this._include[i] ? "1" : "0");
+                    // each byte maps seven patches, and every 8th bit must be a zero
+                    if (i % 8 == 0)
+                    {
+                        buf.Append("0");
+                    }
+                }
+                // The patches are enumerated starting from the low bits, so reverse the string.
+                var bitString = buf.ToString().Reversed();
+                // Now we have a long bit string. Slice it into chunks of eight bits to convert to bytes.
+                string[] parts = bitString.Split(8);
+
+                var data = new List<byte>();
+                foreach (var s in parts)
+                {
+                    data.Add(Convert.ToByte(s, 2));
+                }
+                return data;
             }
-            return data;
         }
+
+        public int DataLength => DataSize;
     }
 }

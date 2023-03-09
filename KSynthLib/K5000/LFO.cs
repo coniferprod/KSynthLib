@@ -31,10 +31,23 @@ namespace KSynthLib.K5000
             KeyScaling = new SignedLevel(k);
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            return new List<byte>() { Depth.ToByte(), KeyScaling.ToByte() };
+            get
+            {
+                return new List<byte>()
+                {
+                    Depth.ToByte(),
+                    KeyScaling.ToByte()
+                };
+            }
         }
+
+        public int DataLength => 2;
     }
 
     public class LFOSettings: ISystemExclusiveData
@@ -84,23 +97,32 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.AddRange(new List<byte>() {
-                (byte)Waveform,
-                Speed.ToByte(),
-                DelayOnset.ToByte(),
-                FadeInTime.ToByte(),
-                FadeInToSpeed.ToByte()
-            });
+                data.AddRange(new List<byte>() {
+                    (byte)Waveform,
+                    Speed.ToByte(),
+                    DelayOnset.ToByte(),
+                    FadeInTime.ToByte(),
+                    FadeInToSpeed.ToByte()
+                });
 
-            data.AddRange(Vibrato.GetSystemExclusiveData());
-            data.AddRange(Growl.GetSystemExclusiveData());
-            data.AddRange(Tremolo.GetSystemExclusiveData());
+                data.AddRange(Vibrato.Data);
+                data.AddRange(Growl.Data);
+                data.AddRange(Tremolo.Data);
 
-            return data;
+                return data;
+            }
         }
+
+        public int DataLength => 5 + Vibrato.DataLength + Growl.DataLength + Tremolo.DataLength;
     }
 }

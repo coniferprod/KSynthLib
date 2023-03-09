@@ -120,31 +120,42 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.AddRange(new List<byte>() {
-                (byte)(IsActive ? 1 : 0),
-                (byte)Mode,
-                (byte)VelocityCurve,
-                Resonance.ToByte(), Level.ToByte(), Cutoff.ToByte(),
-                CutoffKeyScalingDepth.ToByte(),
-                CutoffVelocityDepth.ToByte(),
-                EnvelopeDepth.ToByte()
-            });
+                data.AddRange(new List<byte>() {
+                    (byte)(IsActive ? 1 : 0),
+                    (byte)Mode,
+                    (byte)VelocityCurve,
+                    Resonance.ToByte(),
+                    Level.ToByte(),
+                    Cutoff.ToByte(),
+                    CutoffKeyScalingDepth.ToByte(),
+                    CutoffVelocityDepth.ToByte(),
+                    EnvelopeDepth.ToByte()
+                });
 
-            data.AddRange(Envelope.ToData());
+                data.AddRange(Envelope.Data);
 
-            data.AddRange(new List<byte>() {
-                KeyScalingToEnvelopeAttackTime.ToByte(),
-                KeyScalingToEnvelopeDecay1Time.ToByte(),
-                VelocityToEnvelopeDepth.ToByte(),
-                VelocityToEnvelopeAttackTime.ToByte(),
-                VelocityToEnvelopeDecay1Time.ToByte()
-            });
+                data.AddRange(new List<byte>() {
+                    KeyScalingToEnvelopeAttackTime.ToByte(),
+                    KeyScalingToEnvelopeDecay1Time.ToByte(),
+                    VelocityToEnvelopeDepth.ToByte(),
+                    VelocityToEnvelopeAttackTime.ToByte(),
+                    VelocityToEnvelopeDecay1Time.ToByte()
+                });
 
-            return data;
+                return data;
+            }
         }
+
+        public int DataLength => 9 + Envelope.DataLength + 5;
     }
 }

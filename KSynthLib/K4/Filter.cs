@@ -7,7 +7,7 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K4
 {
-    public class Filter: ISystemExclusiveData
+    public class Filter : ISystemExclusiveData
     {
         public const int DataSize = 14;
 
@@ -102,28 +102,37 @@ namespace KSynthLib.K4
             return builder.ToString();
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.Add((byte)Cutoff);
+                data.Add((byte)Cutoff);
 
-            var b104 = new StringBuilder("0000");
-            b104.Append(IsLFO ? "1" : "0");
-            string resonanceString = Convert.ToString(Resonance, 2);
-            //Console.Error.WriteLine(string.Format("Filter resonance = {0}, as bit string = '{1}'", resonance, resonanceString));
-            b104.Append(resonanceString.PadLeft(3, '0'));
-            data.Add(Convert.ToByte(b104.ToString(), 2));
+                var b104 = new StringBuilder("0000");
+                b104.Append(IsLFO ? "1" : "0");
+                string resonanceString = Convert.ToString(Resonance, 2);
+                //Console.Error.WriteLine(string.Format("Filter resonance = {0}, as bit string = '{1}'", resonance, resonanceString));
+                b104.Append(resonanceString.PadLeft(3, '0'));
+                data.Add(Convert.ToByte(b104.ToString(), 2));
 
-            data.AddRange(CutoffMod.GetSystemExclusiveData());
+                data.AddRange(CutoffMod.Data);
 
-            data.Add((byte)EnvelopeDepth);
-            data.Add((byte)EnvelopeVelocityDepth);
+                data.Add((byte)EnvelopeDepth);
+                data.Add((byte)EnvelopeVelocityDepth);
 
-            data.AddRange(Env.GetSystemExclusiveData());
-            data.AddRange(TimeMod.GetSystemExclusiveData());
+                data.AddRange(Env.Data);
+                data.AddRange(TimeMod.Data);
 
-            return data;
+                return data;
+            }
         }
+
+        public int DataLength => DataSize;
     }
 }

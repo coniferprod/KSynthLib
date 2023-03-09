@@ -5,11 +5,12 @@
     <LangVersion>10.0</LangVersion>
 
     <PackageId>KSynthLib</PackageId>
-    <Version>0.18.1</Version>
+    <Version>0.19.0</Version>
     <Authors>Conifer Productions Oy</Authors>
     <Company>Conifer Productions Oy</Company>
 
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <!-- <PackageReadmeFile>README.md</PackageReadmeFile> -->
 
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
@@ -18,7 +19,13 @@
 
   <ItemGroup>
     <PackageReference Include="Range.Net" Version="3.0.0" />
-    <PackageReference Include="SyxPack" Version="0.4.0" />
+    <PackageReference Include="SyxPack" Version="0.6.0" />
   </ItemGroup>
+
+  <!--
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+</ItemGroup>
+-->
 
 </Project>

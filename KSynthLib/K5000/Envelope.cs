@@ -29,10 +29,13 @@ namespace KSynthLib.K5000
             Level = new SignedLevel(level);
         }
 
-        public List<byte> GetSystemExclusiveData()
-        {
-            return new List<byte>() { Rate.ToByte(), Level.ToByte() };
-        }
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data => new List<byte>() { Rate.ToByte(), Level.ToByte() };
+
+        public int DataLength => 2;
     }
 
     public class LoopingEnvelope: ISystemExclusiveData
@@ -61,15 +64,27 @@ namespace KSynthLib.K5000
             LoopKind = (EnvelopeLoopKind)data[8];
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
-            data.AddRange(Attack.GetSystemExclusiveData());
-            data.AddRange(Decay1.GetSystemExclusiveData());
-            data.AddRange(Decay2.GetSystemExclusiveData());
-            data.AddRange(Release.GetSystemExclusiveData());
-            return data;
+            get
+            {
+                var data = new List<byte>();
+
+                data.AddRange(Attack.Data);
+                data.AddRange(Decay1.Data);
+                data.AddRange(Decay2.Data);
+                data.AddRange(Release.Data);
+                data.Add((byte) LoopKind);
+
+                return data;
+            }
         }
+
+        public int DataLength => 9;
     }
 
     /// <summary>
@@ -92,15 +107,25 @@ namespace KSynthLib.K5000
             LoopKind = EnvelopeLoopKind.Off;
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            return new List<byte>() {
-               Time1.ToByte(), Time2.ToByte(),
-               Time3.ToByte(),
-               Time4.ToByte(),
-               (byte)LoopKind
-            };
+            get
+            {
+                return new List<byte>() {
+                    Time1.ToByte(),
+                    Time2.ToByte(),
+                    Time3.ToByte(),
+                    Time4.ToByte(),
+                    (byte)LoopKind
+                };
+            }
         }
+
+        public int DataLength => 5;
     }
 
     public class HarmonicEnvelope: ISystemExclusiveData
@@ -122,40 +147,49 @@ namespace KSynthLib.K5000
             Segment3 = new EnvelopeSegment();
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
-
-            data.Add(Segment0.Rate.ToByte());
-            data.Add(Segment0.Level.ToByte());
-
-            data.Add(Segment1.Rate.ToByte());
-            byte s1Level = Segment1.Level.ToByte();
-            if (Segment1Loop)
+            get
             {
-                s1Level.SetBit(6);
+                var data = new List<byte>();
+
+                data.Add(Segment0.Rate.ToByte());
+                data.Add(Segment0.Level.ToByte());
+
+                data.Add(Segment1.Rate.ToByte());
+                byte s1Level = Segment1.Level.ToByte();
+                if (Segment1Loop)
+                {
+                    s1Level.SetBit(6);
+                }
+                data.Add(s1Level);
+
+                data.Add(Segment2.Rate.ToByte());
+                byte s2Level = Segment2.Level.ToByte();
+                if (Segment2Loop)
+                {
+                    s2Level.SetBit(6);
+                }
+                data.Add(s2Level);
+
+                data.Add(Segment3.Rate.ToByte());
+                data.Add(Segment3.Level.ToByte());
+
+                return data;
             }
-            data.Add(s1Level);
-
-            data.Add(Segment2.Rate.ToByte());
-            byte s2Level = Segment2.Level.ToByte();
-            if (Segment2Loop)
-            {
-                s2Level.SetBit(6);
-            }
-            data.Add(s2Level);
-
-            data.Add(Segment3.Rate.ToByte());
-            data.Add(Segment3.Level.ToByte());
-
-            return data;
         }
+
+        public int DataLength => 4 * 2;
     }
 
     /// <summary>
     /// Represents a DCA envelope.
     /// </summary>
-    public class AmplifierEnvelope
+    public class AmplifierEnvelope: ISystemExclusiveData
     {
         public PositiveLevel AttackTime; // 0~127
         public PositiveLevel Decay1Time; // 0~127
@@ -193,20 +227,33 @@ namespace KSynthLib.K5000
             return $"A={AttackTime.Value}, D1={Decay1Time.Value}/{Decay1Level.Value}, D2={Decay2Time.Value}/{Decay2Level.Value}, R={ReleaseTime.Value}";
         }
 
-        public byte[] ToData() => new List<byte>() {
-            AttackTime.ToByte(),
-            Decay1Time.ToByte(),
-            Decay1Level.ToByte(),
-            Decay2Time.ToByte(),
-            Decay2Level.ToByte(),
-            ReleaseTime.ToByte()
-        }.ToArray();
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
+        {
+            get
+            {
+                return new List<byte>()
+                {
+                    AttackTime.ToByte(),
+                    Decay1Time.ToByte(),
+                    Decay1Level.ToByte(),
+                    Decay2Time.ToByte(),
+                    Decay2Level.ToByte(),
+                    ReleaseTime.ToByte()
+                };
+            }
+        }
+
+        public int DataLength => 6;
     }
 
     /// <summary>
     /// Represents a key scaling control envelope.
     /// </summary>
-    public class KeyScalingControlEnvelope
+    public class KeyScalingControlEnvelope: ISystemExclusiveData
     {
         public SignedLevel Level;  // (-63)1 ~ (+63)127
         public SignedLevel AttackTime;  // (-63)1 ~ (+63)127
@@ -234,15 +281,28 @@ namespace KSynthLib.K5000
             return $"Level={Level.Value} Attack={AttackTime.Value} Decay1={Decay1Time.Value} Release={ReleaseTime.Value}";
         }
 
-        public byte[] ToData() => new List<byte>() {
-            Level.ToByte(),
-            AttackTime.ToByte(),
-            Decay1Time.ToByte(),
-            ReleaseTime.ToByte()
-        }.ToArray();
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
+        {
+            get
+            {
+                return new List<byte>()
+                {
+                    Level.ToByte(),
+                    AttackTime.ToByte(),
+                    Decay1Time.ToByte(),
+                    ReleaseTime.ToByte()
+                };
+            }
+        }
+
+        public int DataLength => 4;
     }
 
-    public class VelocityControlEnvelope
+    public class VelocityControlEnvelope: ISystemExclusiveData
     {
         public UnsignedLevel Level;   // 0 ~ 63
         public SignedLevel AttackTime; // (-63)1 ~ (+63)127
@@ -270,16 +330,29 @@ namespace KSynthLib.K5000
             return $"Level={Level.Value} Attack={AttackTime.Value} Decay1={Decay1Time.Value} Release={ReleaseTime.Value}";
         }
 
-        public byte[] ToData() => new List<byte>() {
-            Level.ToByte(),
-            AttackTime.ToByte(),
-            Decay1Time.ToByte(),
-            ReleaseTime.ToByte()
-        }.ToArray();
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
+        {
+            get
+            {
+                return new List<byte>()
+                {
+                    Level.ToByte(),
+                    AttackTime.ToByte(),
+                    Decay1Time.ToByte(),
+                    ReleaseTime.ToByte()
+                };
+            }
+        }
+
+        public int DataLength => 4;
     }
 
     // Same as amp envelope, but decay levels 1...127 are interpreted as -63 ... 63
-    public class FilterEnvelope
+    public class FilterEnvelope: ISystemExclusiveData
     {
         public const int DataSize = 6;
 
@@ -328,17 +401,30 @@ namespace KSynthLib.K5000
             return $"A={AttackTime.Value}, D1=T{Decay1Time.Value} L{Decay1Level.Value}, D2=T{Decay2Time.Value} L{Decay2Level.Value}, R={ReleaseTime.Value}";
         }
 
-        public byte[] ToData() => new List<byte>() {
-            AttackTime.ToByte(),
-            Decay1Time.ToByte(),
-            Decay1Level.ToByte(),
-            Decay2Time.ToByte(),
-            Decay2Level.ToByte(),
-            ReleaseTime.ToByte()
-        }.ToArray();
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
+        {
+            get
+            {
+                return new List<byte>()
+                {
+                    AttackTime.ToByte(),
+                    Decay1Time.ToByte(),
+                    Decay1Level.ToByte(),
+                    Decay2Time.ToByte(),
+                    Decay2Level.ToByte(),
+                    ReleaseTime.ToByte()
+                };
+            }
+        }
+
+        public int DataLength => 6;
     }
 
-    public class PitchEnvelope
+    public class PitchEnvelope: ISystemExclusiveData
     {
         public const int DataSize = 6;
 
@@ -393,9 +479,26 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        public byte[] ToData() => new List<byte>() {
-            StartLevel.ToByte(), AttackTime.ToByte(), AttackLevel.ToByte(), DecayTime.ToByte(),
-            TimeVelocitySensitivity.ToByte(), LevelVelocitySensitivity.ToByte()
-        }.ToArray();
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
+        {
+            get
+            {
+                return new List<byte>()
+                {
+                    StartLevel.ToByte(),
+                    AttackTime.ToByte(),
+                    AttackLevel.ToByte(),
+                    DecayTime.ToByte(),
+                    TimeVelocitySensitivity.ToByte(),
+                    LevelVelocitySensitivity.ToByte()
+                };
+            }
+        }
+
+        public int DataLength => 6;
     }
 }

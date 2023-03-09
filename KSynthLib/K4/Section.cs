@@ -27,7 +27,7 @@ namespace KSynthLib.K4
 
     }
 
-    public class Section: ISystemExclusiveData
+    public class Section : ISystemExclusiveData
     {
         public const int DataSize = 8;
 
@@ -125,36 +125,45 @@ namespace KSynthLib.K4
             return builder.ToString();
         }
 
-        public List<byte> GetSystemExclusiveData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var data = new List<byte>();
-
-            data.Add(SystemExclusiveDataConverter.ByteFromPatchNumber(SinglePatch));
-            data.Add((byte)KeyboardZone.Low);
-            data.Add((byte)KeyboardZone.High);
-
-            // Combine rcv ch, velo sw and section mute into one byte for M15/M23 etc.
-            byte vb = (byte)VelocitySwitch;
-            byte rb = SystemExclusiveDataConverter.ByteFromChannel(ReceiveChannel);
-            byte vbp = (byte)(vb << 4);
-            byte m15 = (byte)(rb | vbp);
-            if (IsMuted)
+            get
             {
-                m15.SetBit(6);
+                var data = new List<byte>();
+
+                data.Add(SystemExclusiveDataConverter.ByteFromPatchNumber(SinglePatch));
+                data.Add((byte)KeyboardZone.Low);
+                data.Add((byte)KeyboardZone.High);
+
+                // Combine rcv ch, velo sw and section mute into one byte for M15/M23 etc.
+                byte vb = (byte)VelocitySwitch;
+                byte rb = SystemExclusiveDataConverter.ByteFromChannel(ReceiveChannel);
+                byte vbp = (byte)(vb << 4);
+                byte m15 = (byte)(rb | vbp);
+                if (IsMuted)
+                {
+                    m15.SetBit(6);
+                }
+                data.Add(m15);
+
+                // Combine "out select" and "mode" into one byte for M16/M24 etc.
+                byte os = (byte)Output;
+                byte m = (byte)PlayMode;
+                byte m16 = (byte)(os | m);
+                data.Add(m16);
+
+                data.Add((byte)Level);
+                data.Add(SystemExclusiveDataConverter.ByteFromTranspose(Transpose));
+                data.Add(SystemExclusiveDataConverter.ByteFromDepth(Tune));
+
+                return data;
             }
-            data.Add(m15);
-
-            // Combine "out select" and "mode" into one byte for M16/M24 etc.
-            byte os = (byte)Output;
-            byte m = (byte)PlayMode;
-            byte m16 = (byte)(os | m);
-            data.Add(m16);
-
-            data.Add((byte)Level);
-            data.Add(SystemExclusiveDataConverter.ByteFromTranspose(Transpose));
-            data.Add(SystemExclusiveDataConverter.ByteFromDepth(Tune));
-
-            return data;
         }
+
+        public int DataLength => 8;
     }
 }
