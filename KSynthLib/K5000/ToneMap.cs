@@ -6,6 +6,7 @@ using KSynthLib.Common;
 
 namespace KSynthLib.K5000
 {
+    // Represents a tone map found in the block dumps.
     public class ToneMap: ISystemExclusiveData
     {
         public const int DataSize = 19;  // bytes
@@ -21,7 +22,10 @@ namespace KSynthLib.K5000
 
         public ToneMap(byte[] data)
         {
-            // TODO: Check that the data length matches
+            if (data.Length < ToneMap.DataSize)
+            {
+                throw new ArgumentException("Not enough data for tone map");
+            }
 
             this._include = new bool[ToneCount];
 
@@ -47,23 +51,60 @@ namespace KSynthLib.K5000
 
         public ToneMap(bool[] incl)
         {
+            if (incl.Length < ToneMap.DataSize)
+            {
+                throw new ArgumentException("Not enough data for tone map");
+            }
+
             this._include = new bool[ToneCount];
-            // TODO: Check that lengths match
             for (var i = 0; i < incl.Length; i++)
             {
                 this._include[i] = incl[i];
             }
         }
 
+        // Indexer to return the status of the given patch number (0~127).
         public bool this[int i]
         {
             get { return this._include[i]; }
+        }
+
+        // Returns a string representation of this tone map.
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+
+            for (var i = 0; i < ToneMap.ToneCount; i++)
+            {
+                if (this[i])
+                {
+                    sb.Append($"{i + 1} ");
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        // Returns the count of patches included in this tone map.
+        public int Count {
+            get {
+                var count = 0;
+                for (var i = 0; i < ToneMap.ToneCount; i++)
+                {
+                    if (this[i])
+                    {
+                        count += 1;
+                    }
+                }
+                return count;
+            }
         }
 
         //
         // ISystemExclusiveData implementation
         //
 
+        // Returns the System Exclusive data of this tone map (19 bytes).
         public List<byte> Data
         {
             get

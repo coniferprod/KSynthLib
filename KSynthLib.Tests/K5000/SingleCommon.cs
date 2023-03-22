@@ -19,7 +19,7 @@ namespace KSynthLib.Tests.K5000
         {
             byte[] data = Util.HexStringToByteArray(testData);
             Console.Error.WriteLine($"Single Common data from hex string: {data.Length} bytes");
-            Console.Error.WriteLine(Util.HexDump(data));
+            Console.Error.WriteLine(new HexDump(data));
             singleCommon = new SingleCommonSettings(data);
             Console.Error.WriteLine(singleCommon);
         }

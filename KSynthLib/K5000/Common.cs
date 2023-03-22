@@ -40,6 +40,11 @@ namespace KSynthLib.K5000
             this.Value = Encoding.ASCII.GetString(bytes);
         }
 
+        public override string ToString()
+        {
+            return this.Value;
+        }
+
         //
         // ISystemExclusiveData implementation
         //
@@ -365,7 +370,7 @@ namespace KSynthLib.K5000
             Effect4 = new EffectSettings();
             GEQ = new GEQSettings();
 
-            Console.Error.WriteLine(string.Format("Common data:\n{0}", Util.HexDump(data)));
+            Console.Error.WriteLine(string.Format("Common data:\n{0}", new HexDump(data)));
 
             int offset = 0;
             byte b = 0;  // will be reused when getting the next byte

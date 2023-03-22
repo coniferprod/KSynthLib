@@ -145,7 +145,7 @@ namespace KSynthLib.K5
                 Console.Error.WriteLine($"WARNING: DDF length, expected = {DataLength}, actual = {data.Count}", DataLength);
             }
 
-            Console.Error.WriteLine(string.Format("DDF data:\n{0}", Util.HexDump(data.ToArray())));
+            Console.Error.WriteLine(string.Format("DDF data:\n{0}", new HexDump(data)));
 
             return data.ToArray();
         }
