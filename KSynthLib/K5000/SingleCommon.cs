@@ -118,7 +118,7 @@ namespace KSynthLib.K5000
         /// <param name="data">
         /// The SysEx bytes.
         /// </param>
-        public SingleCommonSettings(byte[] data) : this()
+        public SingleCommonSettings(byte[] data)
         {
             int offset = 0;
             byte b = 0;
@@ -172,6 +172,8 @@ namespace KSynthLib.K5000
 
             (b, offset) = Util.GetNextByte(data, offset);
             SourceCount = b;  // No. 51
+
+            this.IsSourceMuted = new bool[MaxSources] { false, false, false, false, false, false }; // No. 52
 
             (b, offset) = Util.GetNextByte(data, offset);
             for (var i = 0; i < MaxSources; i++)

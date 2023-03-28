@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
+
+using SyxPack;
 
 using KSynthLib.Common;
 
@@ -35,6 +38,23 @@ namespace KSynthLib.K5000
                 data[offset + 5],
                 data[offset + 6],
                 data[offset + 7],
+            };
+
+            this.Value = Encoding.ASCII.GetString(bytes);
+        }
+
+        public PatchName(byte[] data)
+        {
+            byte[] bytes =
+            {
+                data[0],
+                data[1],
+                data[2],
+                data[3],
+                data[4],
+                data[5],
+                data[6],
+                data[7],
             };
 
             this.Value = Encoding.ASCII.GetString(bytes);
@@ -329,187 +349,6 @@ namespace KSynthLib.K5000
         FFComb,
         FFHiCut,
         FFComb2
-    }
-
-    public class CommonSettings: ISystemExclusiveData
-    {
-        public const int DataSize = 48;
-        public const int MaxSources = 6;
-
-        public byte EffectAlgorithm;  // 0 ~ 3
-        public ReverbSettings Reverb;
-        public EffectSettings Effect1;
-        public EffectSettings Effect2;
-        public EffectSettings Effect3;
-        public EffectSettings Effect4;
-        public GEQSettings GEQ;
-        public bool DrumMark;
-        public string Name;
-
-        public PositiveLevel Volume;
-
-        public CommonSettings()
-        {
-            Reverb = new ReverbSettings();
-            Effect1 = new EffectSettings();
-            Effect2 = new EffectSettings();
-            Effect3 = new EffectSettings();
-            Effect4 = new EffectSettings();
-            DrumMark = false;
-            GEQ = new GEQSettings();
-            Name = "Init    ";
-            Volume = new PositiveLevel(80);
-        }
-
-        public CommonSettings(byte[] data) : this()
-        {
-            Reverb = new ReverbSettings();
-            Effect1 = new EffectSettings();
-            Effect2 = new EffectSettings();
-            Effect3 = new EffectSettings();
-            Effect4 = new EffectSettings();
-            GEQ = new GEQSettings();
-
-            Console.Error.WriteLine(string.Format("Common data:\n{0}", new HexDump(data)));
-
-            int offset = 0;
-            byte b = 0;  // will be reused when getting the next byte
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            EffectAlgorithm = b; // 0 ~ 3
-            Console.Error.WriteLine($"Effect Algorithm = {EffectAlgorithm}");
-
-            Reverb = GetReverb(data, offset);
-            offset += 6;
-            Console.Error.WriteLine($"Reverb = {Reverb}");
-
-            Effect1 = GetEffect(data, offset);
-            offset += 6;
-            Console.Error.WriteLine($"E1 = {Effect1}");
-
-            Effect2 = GetEffect(data, offset);
-            offset += 6;
-            Console.Error.WriteLine($"E2 = {Effect2}");
-
-            Effect3 = GetEffect(data, offset);
-            offset += 6;
-            Console.Error.WriteLine($"E3 = {Effect3}");
-
-            Effect4 = GetEffect(data, offset);
-            offset += 6;
-            Console.Error.WriteLine($"E4 = {Effect4}");
-
-            GEQ = GetGEQ(data, offset);
-            offset += 7;
-            Console.Error.WriteLine($"GEQ = {GEQ}");
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            DrumMark = (b == 1);
-
-            Name = GetName(data, offset);
-            offset += 8;
-
-            (b, offset) = Util.GetNextByte(data, offset);
-            Volume = new PositiveLevel(b);
-        }
-
-        public override string ToString()
-        {
-            var builder = new StringBuilder();
-            builder.Append($"Name = '{Name}' Volume = {Volume.Value}\n");
-
-            builder.Append($"REVERB:\n{Reverb}\n");
-            builder.Append($"Effect algorithm = {EffectAlgorithm + 1}\n");
-            builder.Append($"EFFECT 1:\n{Effect1}");
-            builder.Append($"EFFECT 2:\n{Effect2}");
-            builder.Append($"EFFECT 3:\n{Effect3}");
-            builder.Append($"EFFECT 4:\n{Effect4}");
-            return builder.ToString();
-        }
-
-        //
-        // ISystemExclusiveData implementation
-        //
-
-        public List<byte> Data
-        {
-            get
-            {
-                var data = new List<byte>();
-
-                data.Add(EffectAlgorithm);
-
-                data.AddRange(Reverb.Data);
-                data.AddRange(Effect1.Data);
-                data.AddRange(Effect2.Data);
-                data.AddRange(Effect3.Data);
-                data.AddRange(Effect4.Data);
-
-                data.AddRange(GEQ.Data);
-
-                data.Add(0); // drum_mark, 0=normal(not drum)
-
-                foreach (var ch in Name)
-                {
-                    data.Add(Convert.ToByte(ch));
-                }
-
-                data.Add(Volume.ToByte());
-
-                return data;
-            }
-        }
-
-        public int DataLength => DataSize;
-
-        private ReverbSettings GetReverb(byte[] data, int offset)
-        {
-            return new ReverbSettings()
-            {
-                ReverbType = data[offset],
-                DryWet1 = new EffectDepth(data[offset + 1]),
-                DryWet2 = new EffectDepth(data[offset + 2]),
-                Param2 = new PositiveLevel(data[offset + 3]),
-                Param3 = new PositiveLevel(data[offset + 4]),
-                Param4 = new PositiveLevel(data[offset + 5])
-            };
-        }
-
-        private EffectSettings GetEffect(byte[] data, int offset)
-        {
-            return new EffectSettings()
-            {
-                Kind = (EffectKind)(data[offset] - 11),
-                Depth = new EffectDepth(data[offset + 1]),
-                Param1 = new PositiveLevel(data[offset + 2]),
-                Param2 = new PositiveLevel(data[offset + 3]),
-                Param3 = new PositiveLevel(data[offset + 4]),
-                Param4 = new PositiveLevel(data[offset + 5])
-            };
-        }
-
-        private GEQSettings GetGEQ(byte[] data, int offset)
-        {
-            return new GEQSettings(data, offset);
-        }
-
-        private string GetName(byte[] data, int offset)
-        {
-            // Brute-forcing the name in from params 40 ... 47
-            byte[] bytes =
-            {
-                data[offset],
-                data[offset + 1],
-                data[offset + 2],
-                data[offset + 3],
-                data[offset + 4],
-                data[offset + 5],
-                data[offset + 6],
-                data[offset + 7]
-            };
-            string name = Encoding.ASCII.GetString(bytes);
-            return name;
-        }
     }
 
     public class Zone: ISystemExclusiveData

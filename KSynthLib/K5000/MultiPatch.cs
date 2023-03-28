@@ -19,11 +19,10 @@ namespace KSynthLib.K5000
         /// <summary>
         /// Constructs a multi patch with default values.
         /// </summary>
-        public MultiPatch() : base()
+        public MultiPatch()
         {
             this.Common = new MultiCommon();
             this.Sections = new MultiSection[SectionCount];
-
         }
 
         /// <summary>
@@ -31,19 +30,20 @@ namespace KSynthLib.K5000
         /// </summary>
         public MultiPatch(byte[] data) : base()
         {
-            using (MemoryStream ms = new MemoryStream(data, false))
+            using (MemoryStream memory = new MemoryStream(data, false))
 	        {
-                var checksum = (byte) ms.ReadByte();
-
-                byte[] commonData = new byte[54];
-                int status = ms.Read(commonData);
-                this.Common = new MultiCommon(commonData);
-
-                for (int i = 0; i < SectionCount; i++)
+                using (BinaryReader reader = new BinaryReader(memory))
                 {
-                    byte[] sectionData = new byte[MultiSection.DataSize];
-                    status = ms.Read(sectionData);
-                    this.Sections[i] = new MultiSection(sectionData);
+                    var checksum = reader.ReadByte();
+
+                    byte[] commonData = reader.ReadBytes(MultiCommon.DataSize);
+                    this.Common = new MultiCommon(commonData);
+
+                    for (int i = 0; i < SectionCount; i++)
+                    {
+                        byte[] sectionData = reader.ReadBytes(MultiSection.DataSize);
+                        this.Sections[i] = new MultiSection(sectionData);
+                    }
                 }
             }
         }
@@ -77,9 +77,7 @@ namespace KSynthLib.K5000
             return data;
         }
 
-        //
-        // Implementation of the ISystemExclusiveData interface
-        //
+#region Implementation of the ISystemExclusiveData interface for MultiPatch
 
         public List<byte> Data
         {
@@ -101,10 +99,9 @@ namespace KSynthLib.K5000
                 return 1 + this.Common.DataLength + SectionCount * MultiSection.DataSize;
             }
         }
+#endregion
 
-        //
-        // Implementation of the IPatch interface
-        //
+#region Implementation of the IPatch interface for MultiPatch
 
         public byte Checksum
         {
@@ -134,4 +131,6 @@ namespace KSynthLib.K5000
             }
         }
     }
+#endregion
+
 }

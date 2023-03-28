@@ -25,20 +25,41 @@ namespace KSynthLib.Tests.K5000
         }
 
         [Fact]
-        public void DumpHeader_IsCorrectlyParsed()
+        public void DumpHeader_OneA_IsCorrectlyParsed()
         {
-            var headerData = new byte[] { 0x00, 0x21, 0x00, 0x0a, 0x00, 0x00};
+            var headerData = new byte[]
+            {
+                0x00,  // channel
+                0x20,  // 20h
+                0x00,  // 00h
+                0x0a,  // 0Ah
+                0x00,  // 00h
+                0x00,  // 00h
+                0x00,  // sub1 = 00h
+            };
             var header = new DumpHeader(headerData);
-            Assert.Equal(
-                new DumpHeader(
-                    1,
-                    Cardinality.Block,
-                    BankIdentifier.A,
-                    PatchKind.Single,
-                    new byte[] { 0x00, 0x00 }
-                ),
-                header
-            );
+            Assert.Equal(headerData, header.Data);
+        }
+
+        [Fact]
+        public void DumpHeader_BlockA_IsCorrectlyParsed()
+        {
+            var headerData = new byte[]
+            {
+                0x00,  // channel
+                0x21,  // 21h
+                0x00,  // 00h
+                0x0a,  // 0Ah
+                0x00,  // 00h
+                0x00,  // 00h
+                0x00, 0x00, 0x00, 0x00,  // tone map 19 bytes
+                0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00,
+            };
+            var header = new DumpHeader(headerData);
+            Assert.Equal(headerData, header.Data);
         }
     }
 }

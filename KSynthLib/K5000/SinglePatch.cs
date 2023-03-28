@@ -2,6 +2,9 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+
+using SyxPack;
 
 using KSynthLib.Common;
 
@@ -23,15 +26,15 @@ namespace KSynthLib.K5000
         {
             get
             {
-                int sourcesSize = Sources.Length * Source.DataSize;
-                return CommonSettings.DataSize + SingleCommonSettings.DataSize + sourcesSize;
+                int sourcesSize = this.Sources.Length * Source.DataSize;
+                return SingleCommonSettings.DataSize + sourcesSize;
             }
         }
 
         /// <summary>
         /// Constructs a single patch with default settings.
         /// </summary>
-        public SinglePatch() : base()
+        public SinglePatch()
         {
             SingleCommon = new SingleCommonSettings();
             SingleCommon.SourceCount = 1;
@@ -47,51 +50,36 @@ namespace KSynthLib.K5000
         /// Constructs a single patch from System Exclusive data.
         /// </summary>
         /// <param name="data">The SysEx data bytes.</param>
-        public SinglePatch(byte[] data) : base()
+        public SinglePatch(byte[] data)
         {
-            int offset = 0;
-            byte b;
-            (b, offset) = Util.GetNextByte(data, offset);
-
-            // Ingest the checksum
-            //_checksum = b;
-            Debug.Assert(offset == 1);
-
-            // Create single patch common settings from binary data:
-            var singleCommonData = new byte[SingleCommonSettings.DataSize];
-            Buffer.BlockCopy(data, offset, singleCommonData, 0, SingleCommonSettings.DataSize);
-            SingleCommon = new SingleCommonSettings(singleCommonData);
-
-            offset += SingleCommonSettings.DataSize;
-
-            // Create each of the sources, as many as indicated by the common data:
-            Sources = new Source[SingleCommon.SourceCount];
-            for (var i = 0; i < SingleCommon.SourceCount; i++)
-            {
-                var sourceData = new byte[Source.DataSize];
-
-                // BlockCopy argument list: Array src, int srcOffset, Array dst, int dstOffset, int count
-                Buffer.BlockCopy(data, offset, sourceData, 0, Source.DataSize);
-                string hex = new HexDump(sourceData).ToString();
-                //Console.Error.WriteLine($"Source {i + 1} data:\n{hex}");
-                Sources[i] = new Source(sourceData);
-                offset += Source.DataSize;
-                //Console.Error.WriteLine($"{offset:X6} parsed {Source.DataSize} bytes of source data");
-            }
-
-            for (var i = 0; i < SingleCommon.SourceCount; i++)
-            {
-                var source = Sources[i];
-                if (source.IsAdditive)  // ADD source, so include wave kit size in calculation
+            using (MemoryStream memory = new MemoryStream(data, false))
+	        {
+                using (BinaryReader reader = new BinaryReader(memory))
                 {
-                    var additiveData = new byte[AdditiveKit.DataSize];
-                    //Console.Error.WriteLine(string.Format("About to copy from data at offset {0:X4} to start of new buffer", offset));
-                    Buffer.BlockCopy(data, offset, additiveData, 0, AdditiveKit.DataSize);
-                    string hex = new HexDump(additiveData).ToString();
-                    //Console.Error.WriteLine($"{offset:X6} Source {i + 1} ADD data:\n{hex}");
-                    source.ADD = new AdditiveKit(additiveData);
-                    offset += AdditiveKit.DataSize;
-                    //Console.Error.WriteLine($"{offset:X6} parsed {AdditiveKit.DataSize} bytes of ADD data");
+                    // Ingest the checksum
+                    var checksum = reader.ReadByte();
+
+                    // Create single patch common settings from binary data:
+                    var singleCommonData = reader.ReadBytes(SingleCommonSettings.DataSize);
+                    this.SingleCommon = new SingleCommonSettings(singleCommonData);
+
+                    // Create each of the sources, as many as indicated by the common data:
+                    Sources = new Source[SingleCommon.SourceCount];
+                    for (var i = 0; i < SingleCommon.SourceCount; i++)
+                    {
+                        var sourceData = reader.ReadBytes(Source.DataSize);
+                        Sources[i] = new Source(sourceData);
+                    }
+
+                    for (var i = 0; i < SingleCommon.SourceCount; i++)
+                    {
+                        var source = Sources[i];
+                        if (source.IsAdditive)  // ADD source, so include wave kit size in calculation
+                        {
+                            var additiveData = reader.ReadBytes(AdditiveKit.DataSize);
+                            source.ADD = new AdditiveKit(additiveData);
+                        }
+                    }
                 }
             }
         }
@@ -130,9 +118,7 @@ namespace KSynthLib.K5000
             return data;
         }
 
-        //
-        // Implementation of ISystemExclusiveData interface
-        //
+#region Implementation of ISystemExclusiveData interface for SinglePatch
 
         public List<byte> Data
         {
@@ -149,9 +135,9 @@ namespace KSynthLib.K5000
 
         public int DataLength => DataSize;
 
-        //
-        // Implementation of the IPatch interface
-        //
+#endregion
+
+#region Implementation of the IPatch interface
 
         public byte Checksum
         {
@@ -191,4 +177,7 @@ namespace KSynthLib.K5000
             }
         }
     }
+
+#endregion
+
 }

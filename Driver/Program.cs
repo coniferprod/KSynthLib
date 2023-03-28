@@ -7,7 +7,6 @@ using System.Linq;
 using Newtonsoft.Json;
 
 using KSynthLib.Common;
-//using KSynthLib.SystemExclusive;
 using KSynthLib.K4;
 using KSynthLib.K5000;
 
@@ -111,7 +110,7 @@ namespace Driver
 
             var dumpHeaderBytes = message.Payload.GetRange(0, 32).ToArray(); // should be enough to get the dump header
             Console.Error.WriteLine("Dump header:");
-            hexDump.Data = dumpHeaderBytes;
+            hexDump.Data = dumpHeaderBytes.ToList();
             Console.Error.WriteLine(hexDump);
 
             var dumpHeader = new DumpHeader(dumpHeaderBytes);
@@ -125,9 +124,9 @@ namespace Driver
                     var patchNumber = dumpHeader.SubBytes[0];
 
                     // The message payload is the single patch data
-                    KSynthLib.K5000.SinglePatch patch = new KSynthLib.K5000.SinglePatch(message.Payload);
+                    KSynthLib.K5000.SinglePatch patch = new KSynthLib.K5000.SinglePatch(message.Payload.ToArray());
 
-                    Console.WriteLine($"Patch: {patchNumber}  Name: {patch.Common.Name}");
+                    Console.WriteLine($"Patch: {patchNumber}  Name: {patch.SingleCommon.Name}");
 
                 }
                 else  // one combi/multi
@@ -175,12 +174,12 @@ namespace Driver
                         //Console.Error.WriteLine(Util.HexDump(buffer));
                         //Console.Error.WriteLine($"single patch checksum = {singleData[0]:X2}H");
 
-                        var common = new KSynthLib.K5000.SingleCommonSettings(commonData);
+                        var common = new KSynthLib.K5000.SingleCommonSettings(commonData.ToArray());
                         var count = common.SourceCount;
 
                         offset += SingleCommonSettings.DataSize;  // skip past common settings, to the sources
 
-
+/*
                         // Find out how many PCM and ADD sources
                         var pcmCount = 0;
                         var addCount = 0;
@@ -213,6 +212,7 @@ namespace Driver
                         Console.WriteLine(patch);
                         Console.WriteLine($"{patch.SingleCommon.Name}");
                         Console.WriteLine("------------");
+*/
 
 /*
                         string jsonString = JsonConvert.SerializeObject(
@@ -232,10 +232,6 @@ namespace Driver
 
             }
 
-
-            return;
-
-
 /*
             Console.WriteLine($"Total patch size = {totalPatchSize} bytes");
 
@@ -246,6 +242,17 @@ namespace Driver
             }
 */
 
+            // Test the hex dump
+            hexDump.Data = fileData.ToList();
+            hexDump.Configuration = new HexDumpConfiguration
+            {
+                BytesPerLine = 16,
+                Uppercase = true,
+                Included = IncludeOptions.Offset | IncludeOptions.PrintableCharacters | IncludeOptions.MiddleGap
+            };
+            var dumpOutput = hexDump.ToString();
+            Console.WriteLine(dumpOutput);
+            Console.WriteLine($"hex dump length = {dumpOutput.Length} characters");
         }
     }
 }

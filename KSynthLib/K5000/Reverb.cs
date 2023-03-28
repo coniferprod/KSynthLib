@@ -59,7 +59,7 @@ namespace KSynthLib.K5000
         /// </summary>
         /// <param name="data">The SysEx bytes</param>
         /// <param name="offset">The start offset in the bytes.</param>
-        public ReverbSettings(byte[] data, int offset) : this()
+        public ReverbSettings(byte[] data, int offset)
         {
             ReverbType = data[offset];
             DryWet1 = new EffectDepth(data[offset + 1]);
@@ -67,6 +67,16 @@ namespace KSynthLib.K5000
             Param2 = new PositiveLevel(data[offset + 3]);
             Param3 = new PositiveLevel(data[offset + 4]);
             Param4 = new PositiveLevel(data[offset + 5]);
+        }
+
+        public ReverbSettings(byte[] data)
+        {
+            ReverbType = data[0];
+            DryWet1 = new EffectDepth(data[1]);
+            DryWet2 = new EffectDepth(data[2]);
+            Param2 = new PositiveLevel(data[3]);
+            Param3 = new PositiveLevel(data[4]);
+            Param4 = new PositiveLevel(data[5]);
         }
 
         /// <summary>
@@ -87,10 +97,7 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        //
-        // ISystemExclusiveData implementation
-        //
-
+#region ISystemExclusiveData implementation for ReverbSettings
         /// <summary>
         /// Returns the reverb settings as System Exclusive data.
         /// </summary>
@@ -115,4 +122,5 @@ namespace KSynthLib.K5000
 
         public int DataLength => 6;
     }
+#endregion
 }

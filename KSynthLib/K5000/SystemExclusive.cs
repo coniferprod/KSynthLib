@@ -273,6 +273,8 @@ namespace KSynthLib.K5000
             {
                 var data = new List<byte>();
 
+                data.Add((byte)(this.Channel - 1));
+
                 switch (this._cardinality)
                 {
                     case Cardinality.Block:
@@ -308,6 +310,8 @@ namespace KSynthLib.K5000
 
                         break;
                 }
+
+                data.AddRange(this.SubBytes);
 
                 return data;
             }

@@ -35,27 +35,28 @@ namespace KSynthLib.K5000
 
         public MultiSection(byte[] data)
         {
-            using (MemoryStream ms = new MemoryStream(data, false))
+            using (MemoryStream memory = new MemoryStream(data, false))
 	        {
-                byte msb = (byte) ms.ReadByte();
-                byte lsb = (byte) ms.ReadByte();
-                var (msbString, lsbString) = (Convert.ToString(msb, 2).PadLeft(2, '0'), Convert.ToString(lsb, 2).PadLeft(7, '0'));
-                var instrumentNumberString = msbString + lsbString;
-                this.InstrumentNumber = (ushort)(Convert.ToUInt16(instrumentNumberString, 2));
+                using (BinaryReader reader = new BinaryReader(memory))
+                {
+                    byte msb = reader.ReadByte();
+                    byte lsb = reader.ReadByte();
+                    var (msbString, lsbString) = (Convert.ToString(msb, 2).PadLeft(2, '0'), Convert.ToString(lsb, 2).PadLeft(7, '0'));
+                    var instrumentNumberString = msbString + lsbString;
+                    this.InstrumentNumber = (ushort)(Convert.ToUInt16(instrumentNumberString, 2));
 
-                Volume = new PositiveLevel(ms.ReadByte()); // using the int returned by ReadByte as such, no cast to byte needed
-                Pan = new PositiveLevel(ms.ReadByte());
-                EffectPath = (EffectPath) ms.ReadByte();  // straight from int to enum
-                Transpose = new Transpose((byte) ms.ReadByte());  // use byte so that the value can be adjusted from SysEx
-                Tune = new SignedLevel((byte) ms.ReadByte());     // ditto ^
-                Zone = new Zone((byte) ms.ReadByte(), (byte) ms.ReadByte());
-                ReceiveChannel = new Channel((byte) ms.ReadByte());
+                    Volume = new PositiveLevel(reader.ReadByte());
+                    Pan = new PositiveLevel(reader.ReadByte());
+                    EffectPath = (EffectPath) (reader.ReadByte());  // straight from byte to enum
+                    Transpose = new Transpose(reader.ReadByte());  // use byte so that the value can be adjusted from SysEx
+                    Tune = new SignedLevel(reader.ReadByte());     // ditto ^
+                    Zone = new Zone(reader.ReadByte(), reader.ReadByte());
+                    ReceiveChannel = new Channel(reader.ReadByte());
+                }
             }
         }
 
-        //
-        // ISystemExclusiveData implementation
-        //
+#region ISystemExclusiveData implementation for MultiSection
 
         public List<byte> Data
         {
@@ -67,6 +68,8 @@ namespace KSynthLib.K5000
 
         public int DataLength => DataSize; // See "3.1.6.2 Section data"
     }
+
+#endregion
 
     public class MultiVelocitySwitchSettings: ISystemExclusiveData
     {
@@ -109,9 +112,7 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        //
-        // ISystemExclusiveData implementation
-        //
+#region ISystemExclusiveData implementation for MultiVelocitySwitchSettings
 
         public List<byte> Data
         {
@@ -129,4 +130,7 @@ namespace KSynthLib.K5000
 
         public int DataLength => 2; // See "3.1.6.2 Section data"
     }
+
+#endregion
+
 }

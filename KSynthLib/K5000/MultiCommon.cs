@@ -42,59 +42,50 @@ namespace KSynthLib.K5000
 
         public MultiCommon(byte[] data)
         {
-            using (MemoryStream ms = new MemoryStream(data, false))
+            using (MemoryStream memory = new MemoryStream(data, false))
 	        {
-                byte effectAlgorithm = (byte) ms.ReadByte();
-                // Seems like the K5000 might set the top bits of this, so mask them off
-                this.EffectAlgorithm = (EffectAlgorithm)(effectAlgorithm & 0x03);
+                using (BinaryReader reader = new BinaryReader(memory))
+                {
+                    byte effectAlgorithm = reader.ReadByte();
+                    // Seems like the K5000 might set the top bits of this, so mask them off
+                    this.EffectAlgorithm = (EffectAlgorithm)(effectAlgorithm & 0x03);
 
-                int status = 0;  // holds the status of MemoryStream.ReadByte
+                    byte[] reverbData = reader.ReadBytes(ReverbSettings.DataSize);
+                    this.Reverb = new ReverbSettings(reverbData);
 
-                byte[] reverbData = new byte[ReverbSettings.DataSize];
-                status = ms.Read(reverbData);
-                this.Reverb = new ReverbSettings(reverbData, 0);
+                    byte[] effect1Data = reader.ReadBytes(EffectSettings.DataSize);
+                    this.Effect1 = new EffectSettings(effect1Data);
 
-                byte[] effect1Data = new byte[EffectSettings.DataSize];
-                status = ms.Read(effect1Data);
-                this.Effect1 = new EffectSettings(effect1Data, 0);
+                    byte[] effect2Data = reader.ReadBytes(EffectSettings.DataSize);
+                    this.Effect2 = new EffectSettings(effect2Data);
 
-                byte[] effect2Data = new byte[EffectSettings.DataSize];
-                status = ms.Read(effect2Data);
-                this.Effect2 = new EffectSettings(effect2Data, 0);
+                    byte[] effect3Data = reader.ReadBytes(EffectSettings.DataSize);
+                    this.Effect3 = new EffectSettings(effect3Data);
 
-                byte[] effect3Data = new byte[EffectSettings.DataSize];
-                status = ms.Read(effect3Data);
-                this.Effect3 = new EffectSettings(effect3Data, 0);
+                    byte[] effect4Data = reader.ReadBytes(EffectSettings.DataSize);
+                    this.Effect4 = new EffectSettings(effect4Data);
 
-                byte[] effect4Data = new byte[EffectSettings.DataSize];
-                status = ms.Read(effect4Data);
-                this.Effect4 = new EffectSettings(effect4Data, 0);
+                    byte[] geqData = reader.ReadBytes(GEQSettings.DataSize);
+                    this.GEQ = new GEQSettings(geqData);
 
-                byte[] geqData = new byte[GEQSettings.DataSize];
-                status = ms.Read(geqData);
-                this.GEQ = new GEQSettings(geqData, 0);
+                    byte[] nameData = new byte[PatchName.Length];
+                    this.Name = new PatchName(nameData);
 
-                byte[] nameData = new byte[PatchName.Length];
-                this.Name = new PatchName(nameData, 0);
+                    this.Volume = new PositiveLevel(reader.ReadByte());
 
-                this.Volume = new PositiveLevel((byte) ms.ReadByte());
+                    // TODO: Parse the mute byte
+                    var muteByte = reader.ReadByte();
 
-                // TODO: Parse the mute byte
-                var muteByte = (byte) ms.ReadByte();
+                    byte[] ec1Data = reader.ReadBytes(3);
+                    this.EffectControl1 = new EffectControl(ec1Data);
 
-                byte[] ec1Data = new byte[3];
-                status = ms.Read(ec1Data);
-                this.EffectControl1 = new EffectControl(ec1Data);
-
-                byte[] ec2Data =new byte[3];
-                status = ms.Read(ec2Data);
-                this.EffectControl2 = new EffectControl(ec2Data);
+                    byte[] ec2Data = reader.ReadBytes(3);
+                    this.EffectControl2 = new EffectControl(ec2Data);
+                }
             }
         }
 
-        //
-        // ISystemExclusiveData implementation
-        //
+#region ISystemExclusiveData implementation for MultiCommon
 
         public List<byte> Data
         {
@@ -124,4 +115,6 @@ namespace KSynthLib.K5000
 
         public int DataLength => DataSize;
     }
+
+#endregion
 }

@@ -2,20 +2,22 @@ using System;
 
 using Xunit;
 
+using SyxPack;
+
 using KSynthLib.K5000;
 using KSynthLib.Common;
 
 
 namespace KSynthLib.Tests.K5000
 {
-    public class SingleCommon
+    public class SingleCommonTests
     {
         private readonly SingleCommonSettings singleCommon;
 
         // Common data from WizooIni.syx:
         private string testData = "000002020D410A1000583369221D004A0000002400043A04382A000C0C6300424140403F3E410057697A6F6F496E697300000201000201400103400000000000000000000040404040404040400000000000";
 
-        public SingleCommon()
+        public SingleCommonTests()
         {
             byte[] data = Util.HexStringToByteArray(testData);
             Console.Error.WriteLine($"Single Common data from hex string: {data.Length} bytes");

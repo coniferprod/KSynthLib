@@ -156,6 +156,17 @@ namespace KSynthLib.K5000
             Param4 = new PositiveLevel(data[offset + 5]);
         }
 
+        public EffectSettings(byte[] data)
+        {
+            Kind = (EffectKind)(data[0] - 11);
+
+            Depth = new EffectDepth(data[1]);
+            Param1 = new PositiveLevel(data[2]);
+            Param2 = new PositiveLevel(data[3]);
+            Param3 = new PositiveLevel(data[4]);
+            Param4 = new PositiveLevel(data[5]);
+        }
+
         public override string ToString()
         {
             //Console.Error.WriteLine(string.Format("Effect type = {0}", _type));
@@ -169,9 +180,7 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        //
-        // ISystemExclusiveData implementation
-        //
+#region ISystemExclusiveData implementation for EffectSettings
 
         public List<byte> Data
         {
@@ -194,4 +203,7 @@ namespace KSynthLib.K5000
 
         public int DataLength => 6;
     }
+
+#endregion
+
 }

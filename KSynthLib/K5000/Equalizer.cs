@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
 
-using KSynthLib.Common;
-
 namespace KSynthLib.K5000
 {
     /// <summary>The graphical EQ settings of a patch.</summary>
@@ -29,7 +27,17 @@ namespace KSynthLib.K5000
             Frequencies = new List<Frequency>();
             for (var i = 0; i < FrequencyCount; i++)
             {
-                Frequencies.Add(new Frequency(data[offset] + i));
+                Frequencies.Add(new Frequency(data[offset + i]));
+            }
+        }
+
+        public GEQSettings(byte[] data)
+        {
+            // 58(-6) ~ 70(+6), so 64 is zero
+            Frequencies = new List<Frequency>();
+            for (var i = 0; i < FrequencyCount; i++)
+            {
+                Frequencies.Add(new Frequency(data[i]));
             }
         }
 
@@ -45,9 +53,8 @@ namespace KSynthLib.K5000
             return builder.ToString();
         }
 
-        //
-        // ISystemExclusiveData implementation
-        //
+#region ISystemExclusiveData implementation for GEQSettings
+
         public List<byte> Data
         {
             get
@@ -65,4 +72,7 @@ namespace KSynthLib.K5000
 
         public int DataLength => 7;
     }
+
+#endregion
+
 }
