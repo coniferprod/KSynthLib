@@ -1,48 +1,32 @@
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-
-using KSynthLib.Common;
 
 
 namespace KSynthLib.K4
 {
     public class AmplifierEnvelope : ISystemExclusiveData
     {
-        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int Attack;
-
-        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int Decay;
-
-        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int Sustain;
-
-        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int Release;
+        public Level Attack;
+        public Level Decay;
+        public Level Sustain;
+        public Level Release;
 
         public AmplifierEnvelope()
         {
-            Attack = 0;
-            Decay = 0;
-            Sustain = 0;
-            Release = 0;
+            Attack = new Level();
+            Decay = new Level();
+            Sustain = new Level();
+            Release = new Level();
         }
 
         public AmplifierEnvelope(byte a, byte d, byte s, byte r)
         {
-            Attack = a;
-            Decay = d;
-            Sustain = s;
-            Release = r;
+            Attack = new Level(a);
+            Decay = new Level(d);
+            Sustain = new Level(s);
+            Release = new Level(r);
         }
 
-        public AmplifierEnvelope(List<byte> data)
-        {
-            Attack = data[0];
-            Decay = data[1];
-            Sustain = data[2];
-            Release = data[3];
-        }
+        public AmplifierEnvelope(List<byte> data) : this(data[0], data[1], data[2], data[3]) { }
 
         public override string ToString()
         {
@@ -59,10 +43,10 @@ namespace KSynthLib.K4
             {
                 var data = new List<byte>();
 
-                data.Add((byte)Attack);
-                data.Add((byte)Decay);
-                data.Add((byte)Sustain);
-                data.Add((byte)Release);
+                data.Add(Attack.ToByte());
+                data.Add(Decay.ToByte());
+                data.Add(Sustain.ToByte());
+                data.Add(Release.ToByte());
 
                 return data;
             }

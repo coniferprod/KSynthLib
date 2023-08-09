@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Text;
-using System.ComponentModel.DataAnnotations;
 
 using KSynthLib.Common;
 
@@ -12,22 +10,16 @@ namespace KSynthLib.K4
         public const int DataSize = 5;
 
         public Wave Wave;
-
-        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int Decay;
-
-        [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int Tune;
-
-        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
-        private int Level;  // manual says 0...100, SysEx spec says 0...99
+        public Level Decay;
+        public Depth Tune;
+        public Level Level;  // manual says 0...100, SysEx spec says 0...99
 
         public DrumSource()
         {
             Wave = new Wave(97);  // "KICK"
-            Decay = 99;
-            Tune = 0;
-            Level = 99;
+            Decay = new Level(99);
+            Tune = new Depth(0);
+            Level = new Level(99);
         }
 
         public DrumSource(byte[] data) : this()
@@ -36,9 +28,9 @@ namespace KSynthLib.K4
             byte waveLow = (byte)(data[1] & 0x7f);
             Wave = new Wave(waveHigh, waveLow);
 
-            Decay = data[2];
-            Tune = SystemExclusiveDataConverter.DepthFromByte(data[3]);
-            Level = data[4];
+            Decay = new Level(data[2]);
+            Tune = new Depth(data[3]);
+            Level = new Level(data[4]);
         }
 
         //
@@ -57,9 +49,9 @@ namespace KSynthLib.K4
                 data.Add(high);
                 data.Add(low);
 
-                data.Add((byte)Decay);
-                data.Add(SystemExclusiveDataConverter.ByteFromDepth(Tune));
-                data.Add((byte)Level);
+                data.Add(Decay.ToByte());
+                data.Add(Tune.ToByte());
+                data.Add(Level.ToByte());
 
                 return data;
             }
@@ -92,12 +84,11 @@ namespace KSynthLib.K4
         public DrumSource Source1;
         public DrumSource Source2;
 
-        private byte _checksum;
         public override byte Checksum
         {
             get
             {
-                byte[] bs = CollectData();
+                byte[] bs = CollectData().ToArray();
                 byte sum = 0;
                 foreach (byte b in bs)
                 {
@@ -164,7 +155,7 @@ namespace KSynthLib.K4
             Checksum = b;  // store checksum as we get it from SysEx
         }
 
-        protected override byte[] CollectData()
+        protected override List<byte> CollectData()
         {
             var data = new List<byte>();
 
@@ -181,7 +172,7 @@ namespace KSynthLib.K4
                 data.Add(source2Bytes[i]);
             }
 
-            return data.ToArray();
+            return data;
         }
 
         //

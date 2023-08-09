@@ -22,7 +22,7 @@ namespace KSynthLib.Tests.K4
         [Fact]
         public void Data_IsCorrectSize()
         {
-            byte[] data = patch.ToData();
+            byte[] data = patch.ToData().ToArray();
             Assert.Equal(EffectPatch.DataSize, data.Length);
         }
     }

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
-using System.ComponentModel.DataAnnotations;
 
 using KSynthLib.Common;
 
@@ -14,27 +13,21 @@ namespace KSynthLib.K4
         public const int DataSize = 682;
         public const int NoteCount = 61;  // from C1 to C6
 
-        [Range(1, 16, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int ReceiveChannel;
-
-        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int Volume;
-
-        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int VelocityDepth;
+        public Channel ReceiveChannel;
+        public Level Volume;
+        public Level VelocityDepth;
 
         public List<DrumNote> Notes;
 
-        private byte _checksum;
         public override byte Checksum
         {
             get
             {
                 var data = new List<byte>();
 
-                data.Add(SystemExclusiveDataConverter.ByteFromChannel(ReceiveChannel));
-                data.Add((byte)Volume);
-                data.Add((byte)VelocityDepth);
+                data.Add(ReceiveChannel.ToByte());
+                data.Add(Volume.ToByte());
+                data.Add(VelocityDepth.ToByte());
 
                 byte[] bs = data.ToArray();
                 byte sum = 0;
@@ -45,17 +38,15 @@ namespace KSynthLib.K4
                 sum += 0xA5;
                 return sum;
             }
-
-            set => _checksum = value;
         }
 
         public byte[] OriginalData;
 
         public DrumPatch()
         {
-            ReceiveChannel = 1;
-            Volume = 99;
-            VelocityDepth = 99;
+            ReceiveChannel = new Channel(1);
+            Volume = new Level(99);
+            VelocityDepth = new Level(99);
 
             Notes = new List<DrumNote>();
             for (var i = 0; i < NoteCount; i++)
@@ -68,17 +59,17 @@ namespace KSynthLib.K4
 
         public DrumPatch(byte[] data)
         {
+            byte b;  // will be reused when getting the next byte
             int offset = 0;
-            byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            ReceiveChannel = SystemExclusiveDataConverter.ChannelFromByte(b);
+            ReceiveChannel = new Channel(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Volume = b;
+            Volume = new Level(b);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            VelocityDepth = b;
+            VelocityDepth = new Level(b);
 
             // Eat up the dummy bytes
             offset += 7;
@@ -105,13 +96,13 @@ namespace KSynthLib.K4
             Array.Copy(data, OriginalData, DataSize);
         }
 
-        protected override byte[] CollectData()
+        protected override List<byte> CollectData()
         {
             var data = new List<byte>();
 
-            data.Add(SystemExclusiveDataConverter.ByteFromChannel(ReceiveChannel));
-            data.Add((byte)Volume);
-            data.Add((byte)VelocityDepth);
+            data.Add(ReceiveChannel.ToByte());
+            data.Add(Volume.ToByte());
+            data.Add(VelocityDepth.ToByte());
 
             // Add seven dummy bytes
             data.Add(0);
@@ -122,7 +113,7 @@ namespace KSynthLib.K4
             data.Add(0);
             data.Add(0);
 
-            return data.ToArray();
+            return data;
         }
 
         //
@@ -167,7 +158,7 @@ namespace KSynthLib.K4
             var noteNumber = 36;
             foreach (var note in this.Notes)
             {
-                builder.Append(string.Format($"{noteNumber} {note.ToString()}"));
+                builder.Append(string.Format($"{noteNumber} {note}"));
                 noteNumber++;
             }
 

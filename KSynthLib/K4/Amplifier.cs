@@ -1,6 +1,5 @@
 using System.Text;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 using KSynthLib.Common;
 
@@ -9,38 +8,25 @@ namespace KSynthLib.K4
 {
     public class LevelModulation : ISystemExclusiveData
     {
-        [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int VelocityDepth;
-
-        [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int PressureDepth;
-
-        [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int KeyScalingDepth;
+        public Depth VelocityDepth;
+        public Depth PressureDepth;
+        public Depth KeyScalingDepth;
 
         public LevelModulation()
         {
-            VelocityDepth = 0;
-            PressureDepth = 0;
-            KeyScalingDepth = 0;
+            VelocityDepth = new Depth();
+            PressureDepth = new Depth();
+            KeyScalingDepth = new Depth();
         }
 
         public LevelModulation(int velocity, int pressure, int keyScaling)
         {
-            VelocityDepth = velocity;
-            PressureDepth = pressure;
-            KeyScalingDepth = keyScaling;
+            VelocityDepth = new Depth(velocity);
+            PressureDepth = new Depth(pressure);
+            KeyScalingDepth = new Depth(keyScaling);
         }
 
-        public LevelModulation(List<byte> data)
-        {
-            // The bytes passed in must be raw SysEx.
-            // Use the appropriate SystemExclusiveDataConverter method
-            // to adjust them to the correct range.
-            VelocityDepth = SystemExclusiveDataConverter.DepthFromByte(data[0]);
-            PressureDepth = SystemExclusiveDataConverter.DepthFromByte(data[1]);
-            KeyScalingDepth = SystemExclusiveDataConverter.DepthFromByte(data[2]);
-        }
+        public LevelModulation(List<byte> data) : this(data[0], data[1], data[2]) { }
 
         public override string ToString()
         {
@@ -57,9 +43,9 @@ namespace KSynthLib.K4
             {
                 var data = new List<byte>();
 
-                data.Add(SystemExclusiveDataConverter.ByteFromDepth(VelocityDepth));
-                data.Add(SystemExclusiveDataConverter.ByteFromDepth(PressureDepth));
-                data.Add(SystemExclusiveDataConverter.ByteFromDepth(KeyScalingDepth));
+                data.Add(this.VelocityDepth.ToByte());
+                data.Add(this.PressureDepth.ToByte());
+                data.Add(this.KeyScalingDepth.ToByte());
 
                 return data;
             }
@@ -70,35 +56,25 @@ namespace KSynthLib.K4
 
     public class TimeModulation : ISystemExclusiveData
     {
-        [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int AttackVelocity;
-
-        [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int ReleaseVelocity;
-
-        [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int KeyScaling;
+        public Depth AttackVelocity;
+        public Depth ReleaseVelocity;
+        public Depth KeyScaling;
 
         public TimeModulation()
         {
-            AttackVelocity = 0;
-            ReleaseVelocity = 0;
-            KeyScaling = 0;
+            AttackVelocity = new Depth();
+            ReleaseVelocity = new Depth();
+            KeyScaling = new Depth();
         }
 
         public TimeModulation(int a, int r, int ks)
         {
-            AttackVelocity = a;
-            ReleaseVelocity = r;
-            KeyScaling = ks;
+            AttackVelocity = new Depth(a);
+            ReleaseVelocity = new Depth(r);
+            KeyScaling = new Depth(ks);
         }
 
-        public TimeModulation(List<byte> data)
-        {
-            AttackVelocity = SystemExclusiveDataConverter.DepthFromByte(data[0]);
-            ReleaseVelocity = SystemExclusiveDataConverter.DepthFromByte(data[1]);
-            KeyScaling = SystemExclusiveDataConverter.DepthFromByte(data[2]);
-        }
+        public TimeModulation(List<byte> data) : this(data[0], data[1], data[2]) { }
 
         public override string ToString()
         {
@@ -115,9 +91,9 @@ namespace KSynthLib.K4
             {
                 var data = new List<byte>();
 
-                data.Add(SystemExclusiveDataConverter.ByteFromDepth(AttackVelocity));
-                data.Add(SystemExclusiveDataConverter.ByteFromDepth(ReleaseVelocity));
-                data.Add(SystemExclusiveDataConverter.ByteFromDepth(KeyScaling));
+                data.Add(this.AttackVelocity.ToByte());
+                data.Add(this.ReleaseVelocity.ToByte());
+                data.Add(this.KeyScaling.ToByte());
 
                 return data;
             }
@@ -134,28 +110,25 @@ namespace KSynthLib.K4
         public const int DataSize = 11;
 
         public AmplifierEnvelope Env;
-
-        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int EnvelopeLevel;
-
+        public Level EnvelopeLevel;
         public LevelModulation LevelMod;
         public TimeModulation TimeMod;
 
         public Amplifier()
         {
             Env = new AmplifierEnvelope(0, 0, 0, 0);
-            EnvelopeLevel = 0;
+            EnvelopeLevel = new Level();
             LevelMod = new LevelModulation();
             TimeMod = new TimeModulation();
         }
 
         public Amplifier(byte[] data)
         {
+            byte b;  // will be reused when getting the next byte
             int offset = 0;
-            byte b = 0;  // will be reused when getting the next byte
 
             (b, offset) = Util.GetNextByte(data, offset);
-            EnvelopeLevel = b;
+            EnvelopeLevel = new Level(b);
 
             var envBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
@@ -176,8 +149,6 @@ namespace KSynthLib.K4
             (b, offset) = Util.GetNextByte(data, offset);
             levelModBytes.Add(b);
             LevelMod = new LevelModulation(levelModBytes);
-
-            // Same goes for the time modulation values:
 
             var timeModBytes = new List<byte>();
             (b, offset) = Util.GetNextByte(data, offset);
@@ -210,7 +181,7 @@ namespace KSynthLib.K4
             {
                 var data = new List<byte>();
 
-                data.Add((byte)EnvelopeLevel);
+                data.Add(EnvelopeLevel.ToByte());
                 data.AddRange(Env.Data);
                 data.AddRange(LevelMod.Data);
                 data.AddRange(TimeMod.Data);

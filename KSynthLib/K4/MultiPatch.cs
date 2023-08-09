@@ -12,35 +12,18 @@ namespace KSynthLib.K4
         public const int DataSize = 77;
         public const int SectionCount = 8;
 
-        // TODO: Custom validator for characters in the patch name?
-        // Or just a setter that enforces it?
-
-        private string _name;
-
-        [Display(Name = "Patch Name")]
-        [Required(ErrorMessage = "{0} must be present.")]
-        [StringLength(10, ErrorMessage = "{0} must be exactly {1} characters")]
-        public string Name
-        {
-            get => _name.PadRight(10, ' ').Substring(0, 10);
-            set => _name = value.PadRight(10, ' ').Substring(0, Math.Min(value.Length, 10));
-        }
-
-        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int Volume;
-
+        public PatchName Name;
+        public Level Volume;
         public Section[] Sections;
-
-        [Range(1, 32, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int EffectPatch; // 1~32 (on K4)
+        public EffectNumber EffectPatch; // 1~32 (on K4)
 
         public byte[] OriginalData;
 
         public MultiPatch()
         {
-            this.Name = "InitMulti";
-            this.Volume = 80;
-            this.EffectPatch = 1;
+            this.Name = new PatchName("InitMulti");
+            this.Volume = new Level();
+            this.EffectPatch = new EffectNumber(1);
 
             this.Sections = new Section[SectionCount];
             for (var i = 0; i < SectionCount; i++)
@@ -55,18 +38,17 @@ namespace KSynthLib.K4
         {
             this.Sections = new Section[SectionCount];
 
+            byte b;  // will be reused when getting the next byte
             var offset = 0;
-            byte b = 0;  // will be reused when getting the next byte
 
-            this.Name = SystemExclusiveDataConverter.PatchNameFromBytes(
-                new List<byte>(data));
+            this.Name = new PatchName(data);
             offset += 10;  // name is M0 to M9
 
             (b, offset) = Util.GetNextByte(data, offset);
-            Volume = b & 0x7f;
+            Volume = new Level(b & 0x7f);
 
             (b, offset) = Util.GetNextByte(data, offset);
-            this.EffectPatch = b & 0x1f;
+            this.EffectPatch = new EffectNumber(b & 0x1f);
 
             for (var i = 0; i < SectionCount; i++)
             {
@@ -98,20 +80,21 @@ namespace KSynthLib.K4
             return builder.ToString();
         }
 
-        protected override byte[] CollectData()
+        protected override List<byte> CollectData()
         {
             var data = new List<byte>();
 
-            data.AddRange(SystemExclusiveDataConverter.BytesFromPatchName(Name));
-            data.Add((byte)Volume);
-            data.Add(SystemExclusiveDataConverter.ByteFromEffect(EffectPatch));
+            data.AddRange(Name.Data);
+
+            data.Add(Volume.ToByte());
+            data.Add(EffectPatch.ToByte());
 
             for (var i = 0; i < SectionCount; i++)
             {
                 data.AddRange(this.Sections[i].Data);
             }
 
-            return data.ToArray();
+            return data;
         }
     }
 }

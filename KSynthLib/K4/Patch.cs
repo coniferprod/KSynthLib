@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 
-using KSynthLib.Common;
-
-
 namespace KSynthLib.K4
 {
     public class PatchName : ISystemExclusiveData
@@ -149,7 +146,7 @@ namespace KSynthLib.K4
     /// </summary>
     public abstract class Patch
     {
-        private byte _checksum;
+        protected byte _checksum;
 
         /// <summary>
         /// The checksum for this patch.
@@ -161,7 +158,7 @@ namespace KSynthLib.K4
         {
             get
             {
-                byte[] data = CollectData();
+                byte[] data = CollectData().ToArray();
                 int sum = 0;
                 foreach (byte b in data)
                 {
@@ -177,16 +174,16 @@ namespace KSynthLib.K4
             }
         }
 
-        protected abstract byte[] CollectData();
+        protected abstract List<byte> CollectData();
 
-        public virtual byte[] ToData()
+        public virtual List<byte> ToData()
         {
             var allData = new List<byte>();
 
             allData.AddRange(CollectData());
             allData.Add(this.Checksum);  // calls CollectData again, perf?
 
-            return allData.ToArray();
+            return allData;
         }
     }
 }

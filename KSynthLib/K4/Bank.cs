@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-using KSynthLib.Common;
-
 namespace KSynthLib.K4
 {
     public class Bank

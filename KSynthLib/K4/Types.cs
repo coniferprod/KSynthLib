@@ -1,4 +1,3 @@
-using System;
 using Range.Net;
 using KSynthLib.Common;
 
@@ -20,7 +19,7 @@ namespace KSynthLib.K4
     public class Level: RangedValue
     {
         public Level() : this(0) { }
-        public Level(int value) : base("Level", new Range<int>(0, 100), 100, value) { }
+        public Level(int value) : base("Level", new Range<int>(0, 100), 0, value) { }
         public Level(byte value) : this((int)value) { }
         public byte ToByte() => (byte)(this.Value);
     }
@@ -51,7 +50,7 @@ namespace KSynthLib.K4
 
     public class SmallEffectParameter: RangedValue
     {
-        public SmallEffectParameter() : this(1) { }
+        public SmallEffectParameter() : this(0) { }
         public SmallEffectParameter(int value) : base("SmallEffectParameter", new Range<int>(0, 7), 0, value) { }
         public SmallEffectParameter(byte value) : this(value & 0x07) { }
         public byte ToByte() => (byte)(this.Value);
@@ -59,8 +58,8 @@ namespace KSynthLib.K4
 
     public class LargeEffectParameter: RangedValue
     {
-        public LargeEffectParameter() : this(1) { }
-        public LargeEffectParameter(int value) : base("SmallEffectParameter", new Range<int>(0, 31), 0, value) { }
+        public LargeEffectParameter() : this(0) { }
+        public LargeEffectParameter(int value) : base("LargeEffectParameter", new Range<int>(0, 31), 0, value) { }
         public LargeEffectParameter(byte value) : this(value & 0x1f) { }
         public byte ToByte() => (byte)(this.Value);
     }
@@ -91,20 +90,21 @@ namespace KSynthLib.K4
         public byte ToByte() => (byte)(this.Value + 7); // stored in SysEx as 0...14
     }
 
-    public class Channel: RangedValue
-    {
-        public Channel() : this(1) { }
-        public Channel(int value) : base("Channel", new Range<int>(1, 16), 1, value) { }
-        public Channel(byte value) : this((int)(value + 1)) { }
-        public byte ToByte() => (byte)(this.Value - 1);
-    }
-
     public class PatchNumber: RangedValue
     {
         public PatchNumber() : this(1) { }
         public PatchNumber(int value) : base("PatchNumber", new Range<int>(1, 64), 1, value) { }
         public PatchNumber(byte value) : this((value & 0x3f) + 1) { } // adjust from 0...63 to 1...64
         public byte ToByte() => (byte)(this.Value - 1);  // adjust from 1...64 to 0...63 for SysEx
+    }
+
+    public class Transpose: RangedValue
+    {
+        public Transpose() : this(0) { }
+        public Transpose(int value) : base("Transpose", new Range<int>(-24, 24), 0, value) { }
+        public Transpose(byte value) : this(value - 24) { } // to -24...+24
+
+        public byte ToByte() => (byte)(this.Value + 24);  // adjust from -24...+24 to 0...48
     }
 
     public enum VelocityCurve

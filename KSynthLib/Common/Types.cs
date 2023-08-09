@@ -57,4 +57,13 @@ namespace KSynthLib.Common
             this._value = initialValue;
         }
     }
+
+    /// <summary>/// MIDI channel 1 ... 16</summary>
+    public class Channel: RangedValue
+    {
+        public Channel() : this(1) { }
+        public Channel(int value) : base("Channel", new Range<int>(1, 16), 1, value) { }
+        public Channel(byte value) : this(value + 1) { }  // adjust from 0...15 to 1...16
+        public byte ToByte() => (byte)(this.Value - 1);  // 1~16 to 0~15
+    }
 }

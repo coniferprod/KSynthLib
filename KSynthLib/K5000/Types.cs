@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 using KSynthLib.Common;
 using Range.Net;
 
@@ -115,13 +113,5 @@ namespace KSynthLib.K5000
         public Transpose(int value) : base("Transpose", new Range<int>(-24, 24), 0, value) { }
         public Transpose(byte value) : this(value - 64) { }
         public byte ToByte() => (byte)(this.Value + 64);  // 40(-24)~88(+24)
-    }
-
-    public class Channel: RangedValue
-    {
-        public Channel() : this(0) { }
-        public Channel(int value) : base("Channel", new Range<int>(1, 16), 0, value) { }
-        public Channel(byte value) : this(value + 1) { }
-        public byte ToByte() => (byte)(this.Value - 1);  // 1~16 to 0~15
     }
 }

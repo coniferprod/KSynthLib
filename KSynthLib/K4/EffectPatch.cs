@@ -1,10 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.ComponentModel.DataAnnotations;
-
-using KSynthLib.Common;
-
 
 namespace KSynthLib.K4
 {
@@ -30,36 +26,31 @@ namespace KSynthLib.K4
 
     public class EffectSubmix
     {
-        [Range(-7, 7, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int Pan;
-
-        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int Send1;
-
-        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int Send2;
+        public PanValue Pan;
+        public Level Send1;
+        public Level Send2;
 
         public EffectSubmix()
         {
-            Pan = 0;
-            Send1 = 0;
-            Send2 = 0;
+            Pan = new PanValue();
+            Send1 = new Level();
+            Send2 = new Level();
         }
 
         public EffectSubmix(int d0, int d1, int d2)
         {
-            Pan = d0;
-            Send1 = d1;
-            Send2 = d2;
+            Pan = new PanValue(d0);
+            Send1 = new Level(d1);
+            Send2 = new Level(d2);
         }
 
         public byte[] ToData()
         {
             var data = new List<byte>();
 
-            data.Add(SystemExclusiveDataConverter.ByteFromPan(Pan));
-            data.Add((byte)Send1);
-            data.Add((byte)Send2);
+            data.Add(Pan.ToByte());
+            data.Add(Send1.ToByte());
+            data.Add(Send2.ToByte());
 
             return data.ToArray();
         }
@@ -71,24 +62,16 @@ namespace KSynthLib.K4
         public const int SubmixCount = 8;
 
         public EffectKind Kind;
-
-        [Range(0, 7, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int Param1;
-
-        [Range(0, 7, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int Param2;
-
-        [Range(0, 31, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int Param3;
-
+        public SmallEffectParameter Param1;
+        public SmallEffectParameter Param2;
+        public LargeEffectParameter Param3;
         public EffectSubmix[] Submixes;
 
-        private byte _checksum;
         public override byte Checksum
         {
             get
             {
-                byte[] bs = CollectData();
+                byte[] bs = CollectData().ToArray();
                 byte sum = 0;
                 foreach (var b in bs)
                 {
@@ -106,9 +89,9 @@ namespace KSynthLib.K4
         public EffectPatch()
         {
             Kind = EffectKind.Reverb1;
-            Param1 = 0;
-            Param2 = 0;
-            Param3 = 0;
+            Param1 = new SmallEffectParameter();
+            Param2 = new SmallEffectParameter();
+            Param3 = new LargeEffectParameter();
 
             Submixes = new EffectSubmix[SubmixCount];
             for (var i = 0; i < SubmixCount; i++)
@@ -122,9 +105,9 @@ namespace KSynthLib.K4
         public EffectPatch(byte[] data) : this()
         {
             Kind = (EffectKind)data[0];
-            Param1 = data[1];
-            Param2 = data[2];
-            Param3 = data[3];
+            Param1 = new SmallEffectParameter(data[1]);
+            Param2 = new SmallEffectParameter(data[2]);
+            Param3 = new LargeEffectParameter(data[3]);
 
             var offset = 4;
             Submixes = new EffectSubmix[SubmixCount];
@@ -142,14 +125,14 @@ namespace KSynthLib.K4
             Array.Copy(data, OriginalData, DataSize);
         }
 
-        protected override byte[] CollectData()
+        protected override List<byte> CollectData()
         {
             var data = new List<byte>();
 
             data.Add((byte)Kind);
-            data.Add((byte)Param1);
-            data.Add((byte)Param2);
-            data.Add((byte)Param3);
+            data.Add(Param1.ToByte());
+            data.Add(Param2.ToByte());
+            data.Add(Param3.ToByte());
 
             // Add six dummy bytes
             data.Add(0);
@@ -164,7 +147,7 @@ namespace KSynthLib.K4
                 data.AddRange(this.Submixes[i].ToData());
             }
 
-            return data.ToArray();
+            return data;
         }
 
         //

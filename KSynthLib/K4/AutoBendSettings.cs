@@ -1,43 +1,29 @@
 using System.Text;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-
-using KSynthLib.Common;
-
 
 namespace KSynthLib.K4
 {
     public class AutoBendSettings : ISystemExclusiveData
     {
-        [Range(0, 100, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int Time;
-
-        [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int Depth;
-
-        [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int KeyScalingTime;
-
-        [Range(-50, 50, ErrorMessage = "{0} must be between {1} and {2}")]
-        public int VelocityDepth;
+        public Level Time;
+        public Depth Depth;
+        public Depth KeyScalingTime;
+        public Depth VelocityDepth;
 
         public AutoBendSettings()
         {
-            Time = 0;
-            Depth = 0;
-            KeyScalingTime = 0;
-            VelocityDepth = 0;
+            Time = new Level();
+            Depth = new Depth();
+            KeyScalingTime = new Depth();
+            VelocityDepth = new Depth();
         }
 
         public AutoBendSettings(byte[] data)
         {
-            // When initializing the values, the constructors that take a `byte` argument
-            // automatically reset the top bit and scale the value correctly, so we only
-            // need to pass in the raw byte from SysEx.
-            Time = data[0];
-            Depth = data[1];
-            KeyScalingTime = data[2];
-            VelocityDepth = data[3];
+            Time = new Level(data[0]);
+            Depth = new Depth(data[1]);
+            KeyScalingTime = new Depth(data[2]);
+            VelocityDepth = new Depth(data[3]);
         }
 
         public override string ToString()
@@ -64,12 +50,12 @@ namespace KSynthLib.K4
             {
                 var data = new List<byte>();
 
-                data.Add((byte)Time);
+                data.Add(Time.ToByte());
 
                 // The `ToByte` method returns the value as the raw SysEx byte.
-                data.Add(SystemExclusiveDataConverter.ByteFromDepth(Depth));
-                data.Add(SystemExclusiveDataConverter.ByteFromDepth(KeyScalingTime));
-                data.Add(SystemExclusiveDataConverter.ByteFromDepth(VelocityDepth));
+                data.Add(Depth.ToByte());
+                data.Add(KeyScalingTime.ToByte());
+                data.Add(VelocityDepth.ToByte());
 
                 return data;
             }

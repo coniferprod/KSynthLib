@@ -54,8 +54,7 @@ namespace KSynthLib.K4
     {
         public const int DataSize = 6;
 
-        [Range(1, 16, ErrorMessage = "{0} must be between {1} and {2}")]
-	    public int Channel;  // MIDI channel 1...16
+	    public Channel Channel;  // MIDI channel 1...16
 
 	    public SystemExclusiveFunction Function;
 
@@ -66,12 +65,12 @@ namespace KSynthLib.K4
 
         public SystemExclusiveHeader(byte channel)
         {
-            this.Channel = channel;
+            this.Channel = new Channel(channel);
         }
 
         public SystemExclusiveHeader(byte[] data)
         {
-            this.Channel = SystemExclusiveDataConverter.ChannelFromByte(data[0]);
+            this.Channel = new Channel(data[0]);
             this.Function = (SystemExclusiveFunction)data[1];
             this.Group = data[2];
             this.MachineID = data[3];
@@ -129,7 +128,7 @@ namespace KSynthLib.K4
             {
                 var data = new List<byte>();
 
-                data.Add(SystemExclusiveDataConverter.ByteFromChannel(this.Channel));
+                data.Add(this.Channel.ToByte());
                 data.Add((byte)this.Function);
                 data.Add(this.Group);
                 data.Add(this.MachineID);
@@ -298,8 +297,8 @@ namespace KSynthLib.K4
         public static int DepthFromByte(byte b) => b - 50;
         public static byte ByteFromDepth(int d) => (byte)(d + 50);
 
-        public static int ChannelFromByte(byte b) => b + 1;  // 0...15 to 1...16
-        public static byte ByteFromChannel(int c) => (byte)(c - 1);  // 1...16 to 0...15
+        public static Channel ChannelFromByte(byte b) => new Channel(b);
+        public static byte ByteFromChannel(Channel channel) => channel.ToByte();
 
         public static int PanFromByte(byte b) => b - 7;  // to -7~+7
         public static byte ByteFromPan(int p) => (byte)(p + 7);  // to 0~14
