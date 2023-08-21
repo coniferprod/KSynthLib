@@ -2,6 +2,8 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
+using SyxPack;
+
 namespace KSynthLib.K4
 {
     public enum LFOShape // 0/TRI, 1/SAW, 2/SQR, 3/RND

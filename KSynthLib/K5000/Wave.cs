@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-using KSynthLib.Common;
+using SyxPack;
 
 namespace KSynthLib.K5000
 {

@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
+using SyxPack;
 using KSynthLib.Common;
 
 namespace KSynthLib.K5
@@ -194,115 +195,117 @@ namespace KSynthLib.K5
             return builder.ToString();
         }
 
-        const int DataLength = 16 + 4 * 12; // without the 63 harmonic levels
+        //
+        // Implementation of ISystemExclusiveData interface
+        //
 
-        public byte[] ToData()
+        public List<byte> Data
         {
-            var data = new List<byte>();
-
-            data.Add(VelocityDepth.ToByte());
-            data.Add(PressureDepth.ToByte());
-            data.Add(KeyScalingDepth.ToByte());
-            data.Add(LFODepth.ToByte());
-
-            byte b = 0;
-            for (var i = 0; i < HarmonicSettings.HarmonicEnvelopeCount; i++)
+            get
             {
-                b = Envelopes[i].Effect.ToByte();
-                if (Envelopes[i].IsActive)
+                var data = new List<byte>();
+
+                data.Add(VelocityDepth.ToByte());
+                data.Add(PressureDepth.ToByte());
+                data.Add(KeyScalingDepth.ToByte());
+                data.Add(LFODepth.ToByte());
+
+                byte b = 0;
+                for (var i = 0; i < HarmonicSettings.HarmonicEnvelopeCount; i++)
+                {
+                    b = Envelopes[i].Effect.ToByte();
+                    if (Envelopes[i].IsActive)
+                    {
+                        b = b.SetBit(7);
+                    }
+                    data.Add(b);
+                }
+
+                b = (byte)Selection;
+                if (IsModulationActive)
                 {
                     b = b.SetBit(7);
                 }
                 data.Add(b);
-            }
 
-            b = (byte)Selection;
-            if (IsModulationActive)
-            {
-                b = b.SetBit(7);
-            }
-            data.Add(b);
+                data.Add(RangeFrom.ToByte());
+                data.Add(RangeTo.ToByte());
 
-            data.Add(RangeFrom.ToByte());
-            data.Add(RangeTo.ToByte());
-
-            byte lowNybble = Even.EnvelopeNumber.ToByte();
-            if (Even.IsOn)
-            {
-                lowNybble = lowNybble.SetBit(3);
-            }
-            byte highNybble = Odd.EnvelopeNumber.ToByte();
-            if (Odd.IsOn)
-            {
-                highNybble = highNybble.SetBit(3);
-            }
-            b = Util.ByteFromNybbles(highNybble, lowNybble);
-            data.Add(b);
-
-            lowNybble = Fifth.EnvelopeNumber.ToByte();
-            if (Fifth.IsOn)
-            {
-                lowNybble = lowNybble.SetBit(3);
-            }
-            highNybble = Octave.EnvelopeNumber.ToByte();
-            if (Octave.IsOn)
-            {
-                highNybble = highNybble.SetBit(3);
-            }
-            b = Util.ByteFromNybbles(highNybble, lowNybble);
-            data.Add(b);
-
-            lowNybble = 0;
-            highNybble = All.EnvelopeNumber.ToByte();
-            if (All.IsOn)
-            {
-                highNybble = highNybble.SetBit(3);
-            }
-            b = Util.ByteFromNybbles(highNybble, lowNybble);
-            data.Add(b);
-
-            data.Add((byte)Angle);
-            data.Add(HarmonicNumber.ToByte());
-
-            for (var ei = 0; ei < HarmonicSettings.HarmonicEnvelopeCount; ei++)
-            {
-                for (var si = 0; si < HarmonicEnvelope.SegmentCount; si++)
+                byte lowNybble = Even.EnvelopeNumber.ToByte();
+                if (Even.IsOn)
                 {
-                    b = Envelopes[ei].Segments[si].Level.ToByte();
-                    if (Envelopes[ei].Segments[si].IsMaxSegment)
+                    lowNybble = lowNybble.SetBit(3);
+                }
+                byte highNybble = Odd.EnvelopeNumber.ToByte();
+                if (Odd.IsOn)
+                {
+                    highNybble = highNybble.SetBit(3);
+                }
+                b = Util.ByteFromNybbles(highNybble, lowNybble);
+                data.Add(b);
+
+                lowNybble = Fifth.EnvelopeNumber.ToByte();
+                if (Fifth.IsOn)
+                {
+                    lowNybble = lowNybble.SetBit(3);
+                }
+                highNybble = Octave.EnvelopeNumber.ToByte();
+                if (Octave.IsOn)
+                {
+                    highNybble = highNybble.SetBit(3);
+                }
+                b = Util.ByteFromNybbles(highNybble, lowNybble);
+                data.Add(b);
+
+                lowNybble = 0;
+                highNybble = All.EnvelopeNumber.ToByte();
+                if (All.IsOn)
+                {
+                    highNybble = highNybble.SetBit(3);
+                }
+                b = Util.ByteFromNybbles(highNybble, lowNybble);
+                data.Add(b);
+
+                data.Add((byte)Angle);
+                data.Add(HarmonicNumber.ToByte());
+
+                for (var ei = 0; ei < HarmonicSettings.HarmonicEnvelopeCount; ei++)
+                {
+                    for (var si = 0; si < HarmonicEnvelope.SegmentCount; si++)
                     {
-                        b = b.SetBit(6);
-                    }
-                    else
-                    {
-                        b = b.UnsetBit(6);
-                    }
-                    if (ei == 0)
-                    {
-                        if (IsShadowOn)
+                        b = Envelopes[ei].Segments[si].Level.ToByte();
+                        if (Envelopes[ei].Segments[si].IsMaxSegment)
                         {
-                            b = b.SetBit(7);
+                            b = b.SetBit(6);
                         }
                         else
                         {
-                            b = b.UnsetBit(7);
+                            b = b.UnsetBit(6);
                         }
+                        if (ei == 0)
+                        {
+                            if (IsShadowOn)
+                            {
+                                b = b.SetBit(7);
+                            }
+                            else
+                            {
+                                b = b.UnsetBit(7);
+                            }
+                        }
+                        data.Add(b);
                     }
-                    data.Add(b);
+                    for (var si = 0; si < HarmonicEnvelope.SegmentCount; si++)
+                    {
+                        b = Envelopes[ei].Segments[si].Rate.ToByte();
+                        data.Add(b);
+                    }
                 }
-                for (var si = 0; si < HarmonicEnvelope.SegmentCount; si++)
-                {
-                    b = Envelopes[ei].Segments[si].Rate.ToByte();
-                    data.Add(b);
-                }
-            }
 
-            if (data.Count != DataLength)
-            {
-                Console.Error.WriteLine($"WARNING: DHG length, expected = {DataLength}, actual = {data.Count} bytes");
+                return data;
             }
-
-            return data.ToArray();
         }
+
+        public int DataLength = 16 + 4 * 12; // without the 63 harmonic levels
     }
 }

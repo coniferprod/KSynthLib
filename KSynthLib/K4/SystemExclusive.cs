@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.ComponentModel.DataAnnotations;
 
+using SyxPack;
 using KSynthLib.Common;
 
 
@@ -50,7 +50,7 @@ namespace KSynthLib.K4
         }
     }
 
-    public class SystemExclusiveHeader//: ISystemExclusiveData
+    public class SystemExclusiveHeader: ISystemExclusiveData
     {
         public const int DataSize = 6;
 
@@ -291,6 +291,7 @@ namespace KSynthLib.K4
     }
 
     // Converts SysEx bytes to and from int values.
+    /*
     public class SystemExclusiveDataConverter {
 
         // Depth: -50 ... +50
@@ -424,4 +425,5 @@ namespace KSynthLib.K4
             0x7f, // left arrow (U+2190)
         };
     }
+    */
 }

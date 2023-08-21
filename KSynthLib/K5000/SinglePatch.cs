@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 
 using SyxPack;
-
 using KSynthLib.Common;
 
 namespace KSynthLib.K5000

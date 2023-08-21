@@ -87,51 +87,29 @@ namespace KSynthLib.K5
             return builder.ToString();
         }
 
-        const int DataLength = 23;
+        //
+        // ISystemExclusiveData implementation
+        //
 
-        public byte[] ToData()
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.Add(Cutoff);
-            data.Add(CutoffModulation);
-            data.Add(Slope);
-            data.Add(SlopeModulation);
-            data.Add(FlatLevel);
-            data.Add(VelocityDepth.ToByte());
-            data.Add(PressureDepth.ToByte());
-            data.Add(KeyScalingDepth.ToByte());
-            data.Add(EnvelopeDepth.ToByte());
-            data.Add(VelocityEnvelopeDepth.ToByte());
+                data.Add(Cutoff);
+                data.Add(CutoffModulation);
+                data.Add(Slope);
+                data.Add(SlopeModulation);
+                data.Add(FlatLevel);
+                data.Add(VelocityDepth.ToByte());
+                data.Add(PressureDepth.ToByte());
+                data.Add(KeyScalingDepth.ToByte());
+                data.Add(EnvelopeDepth.ToByte());
+                data.Add(VelocityEnvelopeDepth.ToByte());
 
-            byte b = LFODepth.ToByte();
-            if (IsModulationActive)
-            {
-                b = b.SetBit(6);
-            }
-            else
-            {
-                b = b.UnsetBit(6);
-            }
-            if (IsActive)
-            {
-                b = b.SetBit(7);
-            }
-            else
-            {
-                b = b.UnsetBit(7);
-            }
-            data.Add(b);
-
-            for (var i = 0; i < Source.FilterEnvelopeSegmentCount; i++)
-            {
-                data.Add(EnvelopeSegments[i].Rate);
-            }
-
-            for (var i = 0; i < Source.FilterEnvelopeSegmentCount; i++)
-            {
-                b = EnvelopeSegments[i].Level;
-                if (EnvelopeSegments[i].IsMaxSegment)
+                byte b = LFODepth.ToByte();
+                if (IsModulationActive)
                 {
                     b = b.SetBit(6);
                 }
@@ -139,17 +117,38 @@ namespace KSynthLib.K5
                 {
                     b = b.UnsetBit(6);
                 }
+                if (IsActive)
+                {
+                    b = b.SetBit(7);
+                }
+                else
+                {
+                    b = b.UnsetBit(7);
+                }
                 data.Add(b);
+
+                for (var i = 0; i < Source.FilterEnvelopeSegmentCount; i++)
+                {
+                    data.Add(EnvelopeSegments[i].Rate);
+                }
+
+                for (var i = 0; i < Source.FilterEnvelopeSegmentCount; i++)
+                {
+                    b = EnvelopeSegments[i].Level;
+                    if (EnvelopeSegments[i].IsMaxSegment)
+                    {
+                        b = b.SetBit(6);
+                    }
+                    else
+                    {
+                        b = b.UnsetBit(6);
+                    }
+                    data.Add(b);
+                }
+                return data;
             }
-
-            if (data.Count != DataLength)
-            {
-                Console.Error.WriteLine($"WARNING: DDF length, expected = {DataLength}, actual = {data.Count}", DataLength);
-            }
-
-            Console.Error.WriteLine(string.Format("DDF data:\n{0}", new HexDump(data)));
-
-            return data.ToArray();
         }
+
+        public int DataLength = 23;
     }
 }

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+using SyxPack;
+
 namespace KSynthLib.K4
 {
     public enum EffectKind

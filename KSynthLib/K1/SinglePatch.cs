@@ -219,7 +219,7 @@ namespace KSynthLib.K1
         {
             var buf = new List<byte>();
 
-            byte[] nameBytes = ASCIIEncoding.ASCII.GetBytes(Name);
+            byte[] nameBytes = Encoding.ASCII.GetBytes(Name);
             foreach (var b in nameBytes)
             {
                 buf.Add(b);

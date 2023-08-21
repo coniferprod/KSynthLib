@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Text;
 
+using SyxPack;
+
 namespace KSynthLib.K5000
 {
     /// <summary>The graphical EQ settings of a patch.</summary>

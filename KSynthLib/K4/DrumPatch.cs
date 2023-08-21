@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 
+using SyxPack;
 using KSynthLib.Common;
 
 namespace KSynthLib.K4

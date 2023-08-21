@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
+using SyxPack;
+
 namespace KSynthLib.K4
 {
-    public class Bank
+    public class Bank : ISystemExclusiveData
     {
         public const int SinglePatchCount = 64;
         public const int MultiPatchCount = 64;
@@ -68,5 +70,54 @@ namespace KSynthLib.K4
                 offset += EffectPatch.DataSize;
             }
         }
+
+        //
+        // Implementation of ISystemExclusiveData interface
+        //
+
+        public List<byte> Data
+        {
+            get
+            {
+                var data = new List<byte>();
+
+                // Single and multi patches have their own checksums.
+
+                foreach (SinglePatch sp in this.Singles)
+                {
+                    data.AddRange(sp.Data);
+                }
+
+                foreach (MultiPatch mp in this.Multis)
+                {
+                    data.AddRange(mp.Data);
+                }
+
+                // Drum data has a common checksum.
+                // Each drum note has its own checksum.
+
+                data.AddRange(this.Drum.Data);
+
+                // Each effect patch has its own checksum.
+
+                foreach (EffectPatch ep in this.Effects)
+                {
+                    data.AddRange(ep.Data);
+                }
+
+                // There is no overall checksum for the bank.
+
+                return data;
+            }
+        }
+
+        public int DataLength => DataSize;
+
+        /// <value>System Exclusive data length.</value>
+        public const int DataSize =                    // Total:    15114
+            SinglePatchCount * SinglePatch.DataSize +  // 64 * 131 = 8384
+            MultiPatchCount * MultiPatch.DataSize +    // 64 * 77  = 4928
+            DrumPatch.DataSize +                       //             682
+            EffectPatchCount * EffectPatch.DataSize;   // 32 * 35  = 1120
     }
 }

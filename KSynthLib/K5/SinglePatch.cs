@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
+using SyxPack;
 using KSynthLib.Common;
 
 namespace KSynthLib.K5
@@ -376,13 +377,13 @@ namespace KSynthLib.K5
                 }
                 buf.Add(b);
 
-                byte[] s1d = Source1.ToData();
-                byte[] s2d = Source2.ToData();
+                byte[] s1d = Source1.Data.ToArray();
+                byte[] s2d = Source2.Data.ToArray();
                 Console.Error.WriteLine($"S1 data = {s1d.Length} bytes, S2 data = {s2d.Length} bytes");
 
                 buf.AddRange(Util.InterleaveBytes(new List<byte>(s1d), new List<byte>(s2d)));
 
-                buf.AddRange(LFO.ToData());
+                buf.AddRange(LFO.Data);
 
                 buf.Add(Source1Settings.KeyScaling.Right.ToByte());
                 buf.Add(Source2Settings.KeyScaling.Right.ToByte());

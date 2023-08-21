@@ -1,13 +1,13 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
+using SyxPack;
 using KSynthLib.Common;
 
 namespace KSynthLib.K4
 {
-    public class MultiPatch : Patch
+    public class MultiPatch : Patch, ISystemExclusiveData
     {
         public const int DataSize = 77;
         public const int SectionCount = 8;
@@ -95,6 +95,45 @@ namespace KSynthLib.K4
             }
 
             return data;
+        }
+
+        //
+        // Implementation of ISystemExclusiveData interface
+        //
+
+        public List<byte> Data
+        {
+            get
+            {
+                var data = new List<byte>();
+
+                data.AddRange(this.CollectData());
+                data.Add(this.Checksum);
+
+                return data;
+            }
+        }
+
+        public int DataLength => DataSize;
+
+        public override byte Checksum
+        {
+            get
+            {
+                List<byte> data = this.CollectData();
+                int sum = 0;
+                foreach (byte b in data)
+                {
+                    sum = (sum + b) & 0xff;
+                }
+                sum += 0xA5;
+                return (byte)(sum & 0x7f);
+            }
+
+            set
+            {
+                _checksum = value;
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 
+using SyxPack;
 using KSynthLib.Common;
 
 namespace KSynthLib.K5
@@ -10,7 +11,6 @@ namespace KSynthLib.K5
         Track,
         Fixed
     }
-
 
     public struct EnvelopeSegment
     {
@@ -434,67 +434,74 @@ namespace KSynthLib.K5
             return $"{Pitch}{HarmonicSettings}{Filter}{Amplifier}";
         }
 
-        public byte[] ToData()
+        //
+        // ISystemExclusiveData implementation
+        //
+
+        public List<byte> Data
         {
-            var buf = new List<byte>();
-
-            buf.AddRange(Pitch.ToData());
-
-            for (var i = 0; i < HarmonicCount; i++)
+            get
             {
-                buf.Add(Harmonics[i].Level.ToByte());
-            }
+                var buf = new List<byte>();
 
-            byte b = 0;
-            byte lowNybble = 0, highNybble = 0;
-            var count = 0;
-            // Harmonics 1...62 (0...61)
-            while (count < HarmonicCount - 2)
-            {
-                lowNybble = Harmonics[count].EnvelopeNumber.ToByte();
-                lowNybble = lowNybble.UnsetBit(2);
-                if (Harmonics[count].IsModulationActive)
+                buf.AddRange(Pitch.Data);
+
+                for (var i = 0; i < HarmonicCount; i++)
                 {
-                    lowNybble = lowNybble.SetBit(3);
+                    buf.Add(Harmonics[i].Level.ToByte());
                 }
 
-                count++;
-
-                highNybble = Harmonics[count].EnvelopeNumber.ToByte();
-                highNybble = highNybble.UnsetBit(2);
-                if (Harmonics[count].IsModulationActive)
+                byte b = 0;
+                byte lowNybble = 0, highNybble = 0;
+                var count = 0;
+                // Harmonics 1...62 (0...61)
+                while (count < HarmonicCount - 2)
                 {
-                    highNybble = highNybble.SetBit(3);
+                    lowNybble = Harmonics[count].EnvelopeNumber.ToByte();
+                    lowNybble = lowNybble.UnsetBit(2);
+                    if (Harmonics[count].IsModulationActive)
+                    {
+                        lowNybble = lowNybble.SetBit(3);
+                    }
+
+                    count++;
+
+                    highNybble = Harmonics[count].EnvelopeNumber.ToByte();
+                    highNybble = highNybble.UnsetBit(2);
+                    if (Harmonics[count].IsModulationActive)
+                    {
+                        highNybble = highNybble.SetBit(3);
+                    }
+
+                    count++;
+
+                    b = Util.ByteFromNybbles(highNybble, lowNybble);
+                    buf.Add(b);
                 }
 
-                count++;
+                // harmonic 63 (count = 62)
+                b = Harmonics[count].EnvelopeNumber.ToByte();
+                byte originalByte = b;
+                b = b.UnsetBit(3);
+                if (Harmonics[count].IsModulationActive)
+                {
+                    b = b.SetBit(3);
+                }
 
-                b = Util.ByteFromNybbles(highNybble, lowNybble);
-                buf.Add(b);
+                byte extraByte = Harmonic63bis.EnvelopeNumber.ToByte();
+                if (Harmonic63bis.IsModulationActive)
+                {
+                    extraByte = extraByte.SetBit(3);
+                }
+                var finalByte = Util.ByteFromNybbles(b, extraByte);
+                buf.Add(finalByte);
+
+                buf.AddRange(HarmonicSettings.Data);
+                buf.AddRange(Filter.Data);
+                buf.AddRange(Amplifier.Data);
+
+                return buf;
             }
-
-            // harmonic 63 (count = 62)
-            b = Harmonics[count].EnvelopeNumber.ToByte();
-            byte originalByte = b;
-            b = b.UnsetBit(3);
-            if (Harmonics[count].IsModulationActive)
-            {
-                b = b.SetBit(3);
-            }
-
-            byte extraByte = Harmonic63bis.EnvelopeNumber.ToByte();
-            if (Harmonic63bis.IsModulationActive)
-            {
-                extraByte = extraByte.SetBit(3);
-            }
-            var finalByte = Util.ByteFromNybbles(b, extraByte);
-            buf.Add(finalByte);
-
-            buf.AddRange(HarmonicSettings.ToData());
-            buf.AddRange(Filter.ToData());
-            buf.AddRange(Amplifier.ToData());
-
-            return buf.ToArray();
         }
     }
 }

@@ -1,9 +1,8 @@
-using System;
 using System.Text;
 using System.Collections.Generic;
 
+using SyxPack;
 using KSynthLib.Common;
-
 
 namespace KSynthLib.K5
 {
@@ -66,7 +65,7 @@ namespace KSynthLib.K5
         }
     }
 
-    public class PitchSettings
+    public class PitchSettings : ISystemExclusiveData
     {
         public Coarse Coarse; // 0~±48
 
@@ -82,8 +81,6 @@ namespace KSynthLib.K5
         public Depth PressureLFODepth; // 0~±31
 
         public PitchEnvelope Envelope;
-
-        const int DataLength = 21;
 
         public PitchSettings()
         {
@@ -115,56 +112,56 @@ namespace KSynthLib.K5
                 Envelope;
         }
 
-        public byte[] ToData()
+        public List<byte> Data
         {
-            var data = new List<byte>();
-            byte b = 0;
-            data.Add(Coarse.ToByte());
-            data.Add(Fine.ToByte());
-            b = Key;  // the tracking key if fixed, 0 if track
-            if (KeyTracking == KeyTracking.Fixed)
+            get
             {
-                b = b.SetBit(7);
-            }
-            else
-            {
-                b = b.UnsetBit(7);
-            }
-            data.Add(b);
-            data.Add(EnvelopeDepth.ToByte());
-            data.Add(PressureDepth.ToByte());
-            data.Add(BenderDepth.ToByte());
-            data.Add(VelocityEnvelopeDepth.ToByte());
-            data.Add(LFODepth.ToByte());
-            data.Add(PressureLFODepth.ToByte());
-
-            for (var i = 0; i < Source.PitchEnvelopeSegmentCount; i++)
-            {
-                b = Envelope.Segments[i].Rate.ToByte();
-
-                // Set the envelope looping bit for the first rate only:
-                if (i == 0)
+                var data = new List<byte>();
+                byte b = 0;
+                data.Add(Coarse.ToByte());
+                data.Add(Fine.ToByte());
+                b = Key;  // the tracking key if fixed, 0 if track
+                if (KeyTracking == KeyTracking.Fixed)
                 {
-                    if (Envelope.IsLooping)
-                    {
-                        b = b.SetBit(7);
-                    }
+                    b = b.SetBit(7);
+                }
+                else
+                {
+                    b = b.UnsetBit(7);
                 }
                 data.Add(b);
-            }
+                data.Add(EnvelopeDepth.ToByte());
+                data.Add(PressureDepth.ToByte());
+                data.Add(BenderDepth.ToByte());
+                data.Add(VelocityEnvelopeDepth.ToByte());
+                data.Add(LFODepth.ToByte());
+                data.Add(PressureLFODepth.ToByte());
 
-            for (var i = 0; i < Source.PitchEnvelopeSegmentCount; i++)
-            {
-                byte sb = Envelope.Segments[i].Level.ToByte();
-                data.Add(sb);
-            }
+                for (var i = 0; i < Source.PitchEnvelopeSegmentCount; i++)
+                {
+                    b = Envelope.Segments[i].Rate.ToByte();
 
-            if (data.Count != DataLength)
-            {
-                Console.Error.WriteLine(string.Format("WARNING: DFG length, expected = {0}, actual = {1}", DataLength, data.Count));
-            }
+                    // Set the envelope looping bit for the first rate only:
+                    if (i == 0)
+                    {
+                        if (Envelope.IsLooping)
+                        {
+                            b = b.SetBit(7);
+                        }
+                    }
+                    data.Add(b);
+                }
 
-            return data.ToArray();
+                for (var i = 0; i < Source.PitchEnvelopeSegmentCount; i++)
+                {
+                    byte sb = Envelope.Segments[i].Level.ToByte();
+                    data.Add(sb);
+                }
+
+                return data;
+            }
         }
+
+        public int DataLength => 21;
     }
 }

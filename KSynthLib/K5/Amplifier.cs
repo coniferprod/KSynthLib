@@ -162,67 +162,68 @@ namespace KSynthLib.K5
             return builder.ToString();
         }
 
-        const int DataLength = 21;
+        //
+        // Implementation of ISystemExclusiveData interface
+        //
 
-        public byte[] ToData()
+        public List<byte> Data
         {
-            var data = new List<byte>();
-
-            data.Add(AttackVelocityDepth.ToByte());
-            data.Add(PressureDepth.ToByte());
-            data.Add(KeyScalingDepth.ToByte());
-            byte b = LFODepth.ToByte();
-            if (IsActive)
+            get
             {
-                b = b.SetBit(7);
-            }
-            else
-            {
-                b = b.UnsetBit(7);
-            }
-            data.Add(b);
-            data.Add(AttackVelocityRate.ToByte());
-            data.Add(ReleaseVelocityRate.ToByte());
-            data.Add(KeyScalingRate.ToByte());
-
-            for (var i = 0; i < AmplifierEnvelope.SegmentCount; i++)
-            {
-                b = Envelope.Segments[i].Rate.ToByte();
-                //Console.Error.WriteLine(string.Format("seg={0}, rate={1}, mod={2}", i, Envelope.Segments[i].Rate, Envelope.Segments[i].IsRateModulationOn));
-                if (Envelope.Segments[i].IsRateModulationOn)
+                var data = new List<byte>();
+                data.Add(AttackVelocityDepth.ToByte());
+                data.Add(PressureDepth.ToByte());
+                data.Add(KeyScalingDepth.ToByte());
+                byte b = LFODepth.ToByte();
+                if (IsActive)
                 {
-                    b = b.SetBit(6);
+                    b = b.SetBit(7);
                 }
                 else
                 {
-                    b = b.UnsetBit(6);
+                    b = b.UnsetBit(7);
                 }
                 data.Add(b);
-                //Console.Error.WriteLine(string.Format("{0:X2}H", b));
-            }
+                data.Add(AttackVelocityRate.ToByte());
+                data.Add(ReleaseVelocityRate.ToByte());
+                data.Add(KeyScalingRate.ToByte());
 
-            for (var i = 0; i < AmplifierEnvelope.SegmentCount - 1; i++)
-            {
-                b = Envelope.Segments[i].Level.ToByte();
-                if (Envelope.Segments[i].IsMaxSegment)
+                for (var i = 0; i < AmplifierEnvelope.SegmentCount; i++)
                 {
-                    b = b.SetBit(6);
+                    b = Envelope.Segments[i].Rate.ToByte();
+                    //Console.Error.WriteLine(string.Format("seg={0}, rate={1}, mod={2}", i, Envelope.Segments[i].Rate, Envelope.Segments[i].IsRateModulationOn));
+                    if (Envelope.Segments[i].IsRateModulationOn)
+                    {
+                        b = b.SetBit(6);
+                    }
+                    else
+                    {
+                        b = b.UnsetBit(6);
+                    }
+                    data.Add(b);
+                    //Console.Error.WriteLine(string.Format("{0:X2}H", b));
                 }
-                else
+
+                for (var i = 0; i < AmplifierEnvelope.SegmentCount - 1; i++)
                 {
-                    b = b.UnsetBit(6);
+                    b = Envelope.Segments[i].Level.ToByte();
+                    if (Envelope.Segments[i].IsMaxSegment)
+                    {
+                        b = b.SetBit(6);
+                    }
+                    else
+                    {
+                        b = b.UnsetBit(6);
+                    }
+                    data.Add(b);
                 }
-                data.Add(b);
+
+                data.Add(0);
+
+                return data;
             }
-
-            data.Add(0);
-
-            if (data.Count != DataLength)
-            {
-                Console.Error.WriteLine($"WARNING: DDA length, expected = {DataLength}, actual = {data.Count}");
-            }
-
-            return data.ToArray();
         }
+
+        public int DataLength => 21;
     }
 }

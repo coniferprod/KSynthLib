@@ -1,6 +1,8 @@
 using System.Text;
 using System.Collections.Generic;
 
+using SyxPack;
+
 namespace KSynthLib.K4
 {
     public class AutoBendSettings : ISystemExclusiveData

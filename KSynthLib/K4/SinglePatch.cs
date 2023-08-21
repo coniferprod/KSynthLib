@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
+using SyxPack;
 using KSynthLib.Common;
 
 namespace KSynthLib.K4

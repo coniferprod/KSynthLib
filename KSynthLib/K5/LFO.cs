@@ -2,6 +2,8 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
+using SyxPack;
+
 namespace KSynthLib.K5
 {
     public enum LFOShape  // 1 ~ 6
@@ -14,7 +16,7 @@ namespace KSynthLib.K5
         InverseSawtooth
     }
 
-    public class LFO
+    public class LFO : ISystemExclusiveData
     {
         public LFOShape Shape;
         public byte Speed;  // 0~99
@@ -38,16 +40,21 @@ namespace KSynthLib.K5
             return builder.ToString();
         }
 
-        public byte[] ToData()
+        public List<byte> Data
         {
-            var data = new List<byte>();
+            get
+            {
+                var data = new List<byte>();
 
-            data.Add(Convert.ToByte(Shape));
-            data.Add(Speed);
-            data.Add(Delay.ToByte());
-            data.Add(Trend.ToByte());
+                data.Add(Convert.ToByte(Shape));
+                data.Add(Speed);
+                data.Add(Delay.ToByte());
+                data.Add(Trend.ToByte());
 
-            return data.ToArray();
+                return data;
+            }
         }
+
+        public int DataLength => 4;  // TODO: Check length
     }
 }
