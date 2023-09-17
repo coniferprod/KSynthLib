@@ -189,6 +189,7 @@ namespace KSynthLib.K5000
                 // All dumps of one single have a tone number...
                 if (this.Kind == PatchKind.Single)
                 {
+                    System.Console.WriteLine("One single, getting tone number");
                     this._tone = new PatchNumber(data[6]);  // note the index
                 }
                 // ...while the dumps of one drum instrument or combi have an instrument number...
@@ -202,17 +203,24 @@ namespace KSynthLib.K5000
             {
                 if (this.Kind == PatchKind.Single)
                 {
+                    System.Console.WriteLine("Block single");
                     if (this.Bank != BankIdentifier.B)  // PCM bank has no tone map
                     {
+                        System.Console.WriteLine("Constructing a tone map");
                         // Get the tone map
                         var tempBytes = new List<byte>(data);
                         var toneMapBytes = tempBytes.GetRange(6, ToneMap.DataSize);
                         this._toneMap = new ToneMap(toneMapBytes.ToArray());
                     }
+                    else
+                    {
+                        System.Console.WriteLine("PCM Bank B, no tone map");
+                    }
                 }
-                // No sub-bytes for block combi/multi or drum instrument
+                // No other bytes for block combi/multi or drum instrument
                 else
                 {
+                    System.Console.WriteLine("Not block single");
                     this._bankIdentifier = BankIdentifier.None;
                 }
             }
@@ -249,6 +257,8 @@ namespace KSynthLib.K5000
 
         public bool Equals(DumpHeader p)
         {
+            System.Console.WriteLine("Hello from DumpHeader.Equals");
+
             if (p is null)
             {
                 return false;
@@ -270,13 +280,13 @@ namespace KSynthLib.K5000
             // Note that the base class is not invoked because it is
             // System.Object, which defines Equals as reference equality.
             return
-                (Channel == p.Channel) &&
+                Channel.Equals(p.Channel) &&
                 (Cardinality == p.Cardinality) &&
                 (Kind == p.Kind) &&
                 (Bank == p.Bank) &&
-                (ToneMap == p.ToneMap) &&
-                (Tone == p.Tone) &&
-                (Instrument == p.Instrument);
+                ToneMap.Equals(p.ToneMap) &&
+                Tone.Equals(p.Tone) &&
+                Instrument.Equals(p.Instrument);
         }
 
         public override int GetHashCode() => (Channel, Cardinality, Kind, Bank).GetHashCode();

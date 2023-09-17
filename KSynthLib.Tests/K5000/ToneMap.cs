@@ -70,5 +70,22 @@ namespace KSynthLib.Tests.K5000
             var map = new ToneMap(include);
             Assert.Equal(101, map.Count);
         }
+
+        [Fact]
+        public void Some_Bytes()
+        {
+            var data = new byte[]
+            {
+                // tone map 19 bytes
+                0b0111_1111, 0b0111_1111, 0b0111_1111, 0b0111_1111,
+                0b0111_1111, 0b0111_1111, 0b0111_1111, 0b0111_1111,
+                0b0111_1111, 0b0111_1111, 0b0111_1111, 0b0111_1111,
+                0b0111_1111, 0b0111_1111, 0b0000_0111, 0x00,
+                0x00, 0x00, 0x00
+            };
+
+            var map = new ToneMap(data);
+            Assert.Equal(101, map.Count);
+        }
     }
 }
