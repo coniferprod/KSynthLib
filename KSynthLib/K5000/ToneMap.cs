@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
+using System.Linq;
 
 using SyxPack;
 using KSynthLib.Common;
@@ -100,6 +101,35 @@ namespace KSynthLib.K5000
                 return count;
             }
         }
+
+        public override bool Equals(object obj) => this.Equals(obj as ToneMap);
+
+        public bool Equals(ToneMap p)
+        {
+            if (p is null)
+            {
+                return false;
+            }
+
+            // Optimization for a common success case.
+            if (Object.ReferenceEquals(this, p))
+            {
+                return true;
+            }
+
+            // If run-time types are not exactly the same, return false.
+            if (this.GetType() != p.GetType())
+            {
+                return false;
+            }
+
+            // Return true if the fields match.
+            // Note that the base class is not invoked because it is
+            // System.Object, which defines Equals as reference equality.
+            return this._include.SequenceEqual(p._include);
+        }
+
+        public override int GetHashCode() => this._include.GetHashCode();
 
         //
         // ISystemExclusiveData implementation

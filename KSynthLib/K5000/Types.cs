@@ -114,4 +114,20 @@ namespace KSynthLib.K5000
         public Transpose(byte value) : this(value - 64) { }
         public byte ToByte() => (byte)(this.Value + 64);  // 40(-24)~88(+24)
     }
+
+    public class MIDIChannel: RangedValue
+    {
+        public MIDIChannel() : this(1) { }
+        public MIDIChannel(int value) : base("MIDIChannel", new Range<int>(1, 16), 1, value) { }
+        public MIDIChannel(byte value) : this(value + 1) { }  // channel from SysEx is 0...15
+        public byte ToByte() => (byte)(this.Value - 1);  // convert to 0...15 for SysEx
+    }
+
+    public class InstrumentNumber: RangedValue
+    {
+        public InstrumentNumber() : this(0) { }
+        public InstrumentNumber(int value) : base("InstrumentNumber", new Range<int>(0, 0x1f), 0, value) { }
+        public InstrumentNumber(byte value) : this((int)value) { }
+        public byte ToByte() => (byte) this.Value;
+    }
 }

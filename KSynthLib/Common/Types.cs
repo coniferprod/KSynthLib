@@ -56,6 +56,11 @@ namespace KSynthLib.Common
             this._defaultValue = defaultValue;
             this._value = initialValue;
         }
+
+        public override string ToString()
+        {
+            return $"{this.Value}";
+        }
     }
 
     /// <summary>/// MIDI channel 1 ... 16</summary>

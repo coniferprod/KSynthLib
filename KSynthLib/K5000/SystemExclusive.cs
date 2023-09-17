@@ -4,6 +4,7 @@ using System.Text;
 
 using SyxPack;
 using KSynthLib.Common;
+using System.Diagnostics.Metrics;
 
 namespace KSynthLib.K5000
 {
@@ -85,8 +86,8 @@ namespace KSynthLib.K5000
 
     public class DumpHeader: IEquatable<DumpHeader>, ISystemExclusiveData
     {
-        private int _channel;
-        public int Channel => this._channel;
+        private MIDIChannel _channel;
+        public MIDIChannel Channel => this._channel;
 
         private Cardinality _cardinality;
         public Cardinality Cardinality => this._cardinality;
@@ -97,7 +98,17 @@ namespace KSynthLib.K5000
         private PatchKind _patchKind;
         public PatchKind Kind => this._patchKind;
 
-        public List<byte> SubBytes;
+        // NOTE: Not all dump headers have a valid tone number.
+        private PatchNumber _tone;
+        public PatchNumber Tone => this._tone;
+
+        // NOTE: Not all dump headers have a valid tone map.
+        private ToneMap _toneMap;
+        public ToneMap ToneMap => this._toneMap;
+
+        // NOTE: Not all dump headers have a valid instrument number.
+        private InstrumentNumber _instrument;
+        public InstrumentNumber Instrument => this._instrument;
 
         // Constructs a dump header from System Exclusive data.
         // Note that the data must be the message payload (starting
@@ -105,90 +116,98 @@ namespace KSynthLib.K5000
         // The offsets are relative to that (unlike the K5000 MIDI spec).
         public DumpHeader(byte[] data)
         {
-            this._channel = data[0] + 1;  // adjust channel to 1~16
+            System.Console.WriteLine("Parsing dump header...");
+
+            this._tone = new PatchNumber();
+            this._toneMap = new ToneMap();
+            this._instrument = new InstrumentNumber();
+
+            // channel byte ("3rd" in spec)
+            // gets adjusted to 1~16
+            this._channel = new MIDIChannel(data[0]);
+            System.Console.WriteLine($"Channel = {this.Channel} (data[0] = {data[0]:X2})");
+
+            // cardinality ("4th" in spec)
             this._cardinality = (Cardinality)data[1];
-            this._bankIdentifier = (BankIdentifier)data[5];
-            this._patchKind = (PatchKind)data[4];
-            this.SubBytes = new List<byte>();
+            System.Console.WriteLine($"Cardinality = {this.Cardinality} (data[1] = {data[1]:X2})");
 
-            var bytes = new List<byte>(data);
-            var index = 0;
             bool valid = true;
-            foreach (var b in bytes)
+            valid = (data[2] == 0x00) && (data[3] == 0x0A);
+
+            this._patchKind = (PatchKind)data[4];
+            System.Console.WriteLine($"Kind = {this.Kind} (data[4] = {data[4]:X2})");
+
+            this._bankIdentifier = BankIdentifier.None;
+
+            // For single drum instrument or combi, save the instrument number.
+            if (this.Cardinality == Cardinality.One)
             {
-                if (index == 0)  // channel byte, save and continue
-                {
-                    this._channel = b + 1;  // adjust channel to 1~16
-                    index += 1;
-                    continue;
+                switch (this._patchKind) {
+                case PatchKind.DrumInstrument:
+                case PatchKind.Combi:
+                    this._instrument = new InstrumentNumber(data[5]);
+                    this._bankIdentifier = BankIdentifier.None;
+                    break;
+                case PatchKind.DrumKit:
+                    this._bankIdentifier = BankIdentifier.None;
+                    break;
+                default:
+                    this._bankIdentifier = (BankIdentifier) data[5];
+                    break;
                 }
-
-                switch (index)
-                {
-                    case 0:  // channel byte ("3rd" in spec)
-                        this._channel = b + 1;  // adjust channel to 1~16
-                        break;
-
-                    case 1:  // cardinality ("4th" in spec)
-                        this._cardinality = (Cardinality) b;
-                        break;
-
-                    case 2:  // "5th" in spec, always 0x00
-                        if (b != 0x00)
-                        {
-                            valid = false;
-                        }
-                        break;
-
-                    case 3: // "6th" in spec, always 0x0A
-                        if (b != 0x0A)
-                        {
-                            valid = false;
-                        }
-                        break;
-
-                    case 4:  // patch kind ("7th" in spec)
-                        this._patchKind = (PatchKind) b;
-                        break;
-
-                    case 5:  // bank ID ("8th" in spec)
-                        this._bankIdentifier = (BankIdentifier) b;
-                        break;
-
-                    default:
-                        break;
-                }
-
-                index += 1;
             }
+            else  // must be a block
+            {
+                // For all others except block drum instrument or combi, save the bank identifier
+                switch (this._patchKind)
+                {
+                case PatchKind.DrumInstrument:
+                case PatchKind.Combi:
+                    this._bankIdentifier = BankIdentifier.None;
+                    break;
+
+                default:
+                    this._bankIdentifier = (BankIdentifier) data[5];
+                    break;
+                }
+                // No need to save anything for block drum instrument or block combi, they have only data left
+            }
+
+            System.Console.WriteLine($"Bank = {this.Bank} (data[5] = {data[5]:X2})");
+            System.Console.WriteLine($"Instrument = {this.Instrument} (data[5] = {data[5]:X2})");
 
             if (!valid)
             {
                 throw new ArgumentException("Dump header data not recognized");
             }
 
+            // Now we should have filled the dump header fields common to all dump types.
+            // Collect the rest of the dump header data as necessary.
+
             if (this.Cardinality == Cardinality.One)
             {
+                // All dumps of one single have a tone number...
                 if (this.Kind == PatchKind.Single)
                 {
-                    this.SubBytes.Add(data[6]);  // sub1 of single for all banks
+                    this._tone = new PatchNumber(data[6]);  // note the index
                 }
-                else if (this.Kind == PatchKind.Combi)
+                // ...while the dumps of one drum instrument or combi have an instrument number...
+                else if (this.Kind == PatchKind.Combi || this.Kind == PatchKind.DrumInstrument)
                 {
-                    this.SubBytes.Add(data[5]);  // sub1 of combi/multi
+                    this._instrument = new InstrumentNumber(data[5]);  // also note the index
                 }
-                // No sub-bytes for drum kit or drum instrument
+                // ...but one drum kit doesn't have either one of those.
             }
             else if (this.Cardinality == Cardinality.Block)
             {
                 if (this.Kind == PatchKind.Single)
                 {
-                    if (this.Bank != BankIdentifier.B)  // not for PCM bank
+                    if (this.Bank != BankIdentifier.B)  // PCM bank has no tone map
                     {
                         // Get the tone map
                         var tempBytes = new List<byte>(data);
                         var toneMapBytes = tempBytes.GetRange(6, ToneMap.DataSize);
-                        this.SubBytes.AddRange(toneMapBytes);
+                        this._toneMap = new ToneMap(toneMapBytes.ToArray());
                     }
                 }
                 // No sub-bytes for block combi/multi or drum instrument
@@ -197,20 +216,33 @@ namespace KSynthLib.K5000
                     this._bankIdentifier = BankIdentifier.None;
                 }
             }
+
+            System.Console.WriteLine($"Tone = {this.Tone} (data[6] = {data[6]:X2})");
+
+            bool hasToneMap = this.Cardinality == Cardinality.Block && this.Kind == PatchKind.Single && this.Bank != BankIdentifier.B;
+            if (hasToneMap)
+            {
+                System.Console.WriteLine($"Tone map = '{this.ToneMap}' (data[6..])");
+            }
         }
 
         public DumpHeader(
-            int channel,
+            MIDIChannel channel,
             Cardinality cardinality,
             BankIdentifier bankIdentifier,
             PatchKind patchKind,
-            byte[] subBytes)
+            PatchNumber tone,
+            ToneMap toneMap,
+            InstrumentNumber instrument
+        )
         {
             this._channel = channel;
             this._cardinality = cardinality;
             this._bankIdentifier = bankIdentifier;
             this._patchKind = patchKind;
-            this.SubBytes = new List<byte>(subBytes);
+            this._tone = tone;
+            this._toneMap = toneMap;
+            this._instrument = instrument;
         }
 
         public override bool Equals(object obj) => this.Equals(obj as DumpHeader);
@@ -242,7 +274,9 @@ namespace KSynthLib.K5000
                 (Cardinality == p.Cardinality) &&
                 (Kind == p.Kind) &&
                 (Bank == p.Bank) &&
-                SubBytes.Equals(p.SubBytes);
+                (ToneMap == p.ToneMap) &&
+                (Tone == p.Tone) &&
+                (Instrument == p.Instrument);
         }
 
         public override int GetHashCode() => (Channel, Cardinality, Kind, Bank).GetHashCode();
@@ -250,7 +284,8 @@ namespace KSynthLib.K5000
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append($"Channel={Channel}, {Cardinality}, {Kind}, ");
+            sb.Append($"Channel={Channel} Cardinality={Cardinality} ");
+
             if (Bank != BankIdentifier.None)
             {
                 sb.Append($"Bank={Bank}");
@@ -259,8 +294,70 @@ namespace KSynthLib.K5000
             {
                 sb.Append("Bank=N/A");
             }
-            sb.Append($", Sub-bytes: {SubBytes.Count}");
+
+            sb.Append($" Kind={Kind} Tone={Tone} Tone map={ToneMap} Instrument={Instrument}");
+
             return sb.ToString();
+        }
+
+        private List<byte> CollectData()
+        {
+            var data = new List<byte>();
+
+            data.Add(this.Channel.ToByte()); // adjusts to 0~15 for SysEx
+            data.Add((byte)this.Cardinality);
+            data.Add(0x00);
+            data.Add(0x0a);
+            data.Add((byte)this.Kind);
+
+            switch (this.Kind)
+            {
+            case PatchKind.Single:  // either one or block, singles have a bank ID
+                data.Add((byte)this.Bank);
+                break;
+            case PatchKind.DrumInstrument:
+            case PatchKind.Combi:
+                // Only single drum instrument and combi have an instrument number
+                if (this.Cardinality == Cardinality.One)
+                {
+                    data.Add(this.Instrument.ToByte());
+                }
+                break;
+            default:  // nothing for drum kit
+                break;
+            }
+
+            if (this.Cardinality == Cardinality.One)
+            {
+                // Emit tone number for one single, nothing for others
+                if (this.Kind == PatchKind.Single)
+                {
+                    data.Add(this.Tone.ToByte());
+                }
+            }
+
+            // All block single banks except PCM Bank B have a tone map
+            if (this.Cardinality == Cardinality.Block)
+            {
+                if (this.Kind == PatchKind.Single)
+                {
+                    if (this.Bank != BankIdentifier.B)
+                    {
+                        data.AddRange(this.ToneMap.Data);
+                    }
+                }
+            }
+
+            // Nothing emitted for block drum instrument or combi
+
+            System.Console.Write("Dump header bytes: ");
+            foreach (var b in data)
+            {
+                System.Console.Write($"{b:X2} ");
+            }
+            System.Console.WriteLine($" ({data.Count} bytes)");
+
+            return data;
         }
 
         //
@@ -271,49 +368,7 @@ namespace KSynthLib.K5000
         {
             get
             {
-                var data = new List<byte>();
-
-                data.Add((byte)(this.Channel - 1));
-
-                switch (this._cardinality)
-                {
-                    case Cardinality.Block:
-                        switch (this._bankIdentifier)
-                        {
-                            case BankIdentifier.A:
-                                data.Add((byte)SystemExclusiveFunction.AllBlockDump);
-                                data.Add(0x00);
-                                data.Add(0x0a);
-                                data.Add(0x00);
-                                data.Add(0x00);
-                                break;
-
-                            default:
-                                break;
-                        }
-                        break;
-
-                    case Cardinality.One:
-                        switch (this._bankIdentifier)
-                        {
-                            case BankIdentifier.A:
-                                data.Add((byte)SystemExclusiveFunction.OneBlockDump);
-                                data.Add(0x00);
-                                data.Add(0x0a);
-                                data.Add(0x00);
-                                data.Add(0x00);
-                                break;
-
-                            default:
-                                break;
-                        }
-
-                        break;
-                }
-
-                data.AddRange(this.SubBytes);
-
-                return data;
+                return this.CollectData();
             }
         }
 
@@ -321,7 +376,7 @@ namespace KSynthLib.K5000
         {
             get
             {
-                return 4 + this.SubBytes.Count;
+                return this.CollectData().Count;
             }
         }
     }
