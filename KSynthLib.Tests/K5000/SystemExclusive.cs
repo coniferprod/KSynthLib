@@ -39,7 +39,6 @@ namespace KSynthLib.Tests.K5000
         [Fact]
         public void DumpHeader_BlockA_IsCorrectlyParsed()
         {
-            System.Console.WriteLine("Test DumpHeader_BlockA_IsCorrectlyParsed starting");
             var headerData = new byte[]
             {
                 0x00,  // channel
@@ -74,9 +73,6 @@ namespace KSynthLib.Tests.K5000
                 new ToneMap(include),
                 new InstrumentNumber()  // don't care
             );
-
-            System.Console.WriteLine(header);
-            System.Console.WriteLine(actual);
 
             Assert.Equal(header, actual);
         }

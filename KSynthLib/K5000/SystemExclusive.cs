@@ -116,8 +116,6 @@ namespace KSynthLib.K5000
         // The offsets are relative to that (unlike the K5000 MIDI spec).
         public DumpHeader(byte[] data)
         {
-            System.Console.WriteLine("Parsing dump header...");
-
             this._tone = new PatchNumber();
             this._toneMap = new ToneMap();
             this._instrument = new InstrumentNumber();
@@ -125,18 +123,14 @@ namespace KSynthLib.K5000
             // channel byte ("3rd" in spec)
             // gets adjusted to 1~16
             this._channel = new MIDIChannel(data[0]);
-            System.Console.WriteLine($"Channel = {this.Channel} (data[0] = {data[0]:X2})");
 
             // cardinality ("4th" in spec)
             this._cardinality = (Cardinality)data[1];
-            System.Console.WriteLine($"Cardinality = {this.Cardinality} (data[1] = {data[1]:X2})");
 
             bool valid = true;
             valid = (data[2] == 0x00) && (data[3] == 0x0A);
 
             this._patchKind = (PatchKind)data[4];
-            System.Console.WriteLine($"Kind = {this.Kind} (data[4] = {data[4]:X2})");
-
             this._bankIdentifier = BankIdentifier.None;
 
             // For single drum instrument or combi, save the instrument number.
@@ -173,9 +167,6 @@ namespace KSynthLib.K5000
                 // No need to save anything for block drum instrument or block combi, they have only data left
             }
 
-            System.Console.WriteLine($"Bank = {this.Bank} (data[5] = {data[5]:X2})");
-            System.Console.WriteLine($"Instrument = {this.Instrument} (data[5] = {data[5]:X2})");
-
             if (!valid)
             {
                 throw new ArgumentException("Dump header data not recognized");
@@ -189,7 +180,6 @@ namespace KSynthLib.K5000
                 // All dumps of one single have a tone number...
                 if (this.Kind == PatchKind.Single)
                 {
-                    System.Console.WriteLine("One single, getting tone number");
                     this._tone = new PatchNumber(data[6]);  // note the index
                 }
                 // ...while the dumps of one drum instrument or combi have an instrument number...
@@ -203,35 +193,22 @@ namespace KSynthLib.K5000
             {
                 if (this.Kind == PatchKind.Single)
                 {
-                    System.Console.WriteLine("Block single");
                     if (this.Bank != BankIdentifier.B)  // PCM bank has no tone map
                     {
-                        System.Console.WriteLine("Constructing a tone map");
                         // Get the tone map
                         var tempBytes = new List<byte>(data);
                         var toneMapBytes = tempBytes.GetRange(6, ToneMap.DataSize);
                         this._toneMap = new ToneMap(toneMapBytes.ToArray());
                     }
-                    else
-                    {
-                        System.Console.WriteLine("PCM Bank B, no tone map");
-                    }
                 }
                 // No other bytes for block combi/multi or drum instrument
                 else
                 {
-                    System.Console.WriteLine("Not block single");
                     this._bankIdentifier = BankIdentifier.None;
                 }
             }
 
-            System.Console.WriteLine($"Tone = {this.Tone} (data[6] = {data[6]:X2})");
-
             bool hasToneMap = this.Cardinality == Cardinality.Block && this.Kind == PatchKind.Single && this.Bank != BankIdentifier.B;
-            if (hasToneMap)
-            {
-                System.Console.WriteLine($"Tone map = '{this.ToneMap}' (data[6..])");
-            }
         }
 
         public DumpHeader(

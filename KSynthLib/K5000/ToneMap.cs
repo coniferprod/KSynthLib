@@ -24,9 +24,9 @@ namespace KSynthLib.K5000
 
         public ToneMap(byte[] data)
         {
-            if (data.Length < ToneMap.DataSize)
+            if (data.Length != ToneMap.DataSize)
             {
-                throw new ArgumentException("Not enough data for tone map");
+                throw new ArgumentException("Invalid tone map size");
             }
 
             this._include = new bool[ToneCount];
@@ -47,29 +47,22 @@ namespace KSynthLib.K5000
             var bitString = buf.ToString().Substring(0, ToneCount);
             for (var i = 0; i < bitString.Length; i++)
             {
-                this._include[i] = bitString[i] == '1' ? true : false;
+                this._include[i] = bitString[i] == '1';
             }
         }
 
         public ToneMap(bool[] incl)
         {
-            if (incl.Length < ToneMap.DataSize)
+            if (incl.Length != ToneMap.ToneCount)
             {
-                throw new ArgumentException("Not enough data for tone map");
+                throw new ArgumentException("Invalid tone map data size");
             }
 
-            this._include = new bool[ToneCount];
-            for (var i = 0; i < incl.Length; i++)
-            {
-                this._include[i] = incl[i];
-            }
+            this._include = (bool[])incl.Clone();
         }
 
         // Indexer to return the status of the given patch number (0~127).
-        public bool this[int i]
-        {
-            get { return this._include[i]; }
-        }
+        public bool this[int i] => this._include[i];
 
         // Returns a string representation of this tone map.
         public override string ToString()
@@ -88,19 +81,7 @@ namespace KSynthLib.K5000
         }
 
         // Returns the count of patches included in this tone map.
-        public int Count {
-            get {
-                var count = 0;
-                for (var i = 0; i < ToneMap.ToneCount; i++)
-                {
-                    if (this[i])
-                    {
-                        count += 1;
-                    }
-                }
-                return count;
-            }
-        }
+        public int Count => this._include.Count(item => item);
 
         public override bool Equals(object obj) => this.Equals(obj as ToneMap);
 
