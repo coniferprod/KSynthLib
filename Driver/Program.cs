@@ -121,13 +121,12 @@ namespace Driver
                 if (dumpHeader.Kind == PatchKind.Single)  // one single
                 {
                     // Sub-byte #1 is the patch number
-                    var patchNumber = dumpHeader.SubBytes[0];
+                    var patchNumber = dumpHeader.Instrument;
 
                     // The message payload is the single patch data
                     KSynthLib.K5000.SinglePatch patch = new KSynthLib.K5000.SinglePatch(message.Payload.ToArray());
 
-                    Console.WriteLine($"Patch: {patchNumber}  Name: {patch.SingleCommon.Name}");
-
+                    Console.WriteLine($"Patch: {patchNumber.Value}  Name: {patch.SingleCommon.Name}");
                 }
                 else  // one combi/multi
                 {
@@ -140,10 +139,8 @@ namespace Driver
             {
                 if (dumpHeader.Kind == PatchKind.Single)
                 {
-                    var tonemapBytes = dumpHeader.SubBytes;
-                    var headerToneMap = new ToneMap(tonemapBytes.ToArray());
-                    var patchCount = headerToneMap.Count;
-                    Console.WriteLine($"Patches included: {headerToneMap} ({patchCount})");
+                    var patchCount = dumpHeader.ToneMap.Count;
+                    Console.WriteLine($"Patches included: {dumpHeader.ToneMap} ({patchCount})");
 
                     var offset = 0;
 
@@ -251,8 +248,8 @@ namespace Driver
                 Included = IncludeOptions.Offset | IncludeOptions.PrintableCharacters | IncludeOptions.MiddleGap
             };
             var dumpOutput = hexDump.ToString();
-            Console.WriteLine(dumpOutput);
-            Console.WriteLine($"hex dump length = {dumpOutput.Length} characters");
+            //Console.WriteLine(dumpOutput);
+            //Console.WriteLine($"hex dump length = {dumpOutput.Length} characters");
         }
     }
 }
