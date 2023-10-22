@@ -109,12 +109,13 @@ namespace Driver
             }
 
             var dumpHeaderBytes = message.Payload.GetRange(0, 32).ToArray(); // should be enough to get the dump header
-            Console.Error.WriteLine("Dump header:");
+            Console.WriteLine("Dump header:");
             hexDump.Data = dumpHeaderBytes.ToList();
-            Console.Error.WriteLine(hexDump);
+            Console.WriteLine(hexDump);
 
             var dumpHeader = new DumpHeader(dumpHeaderBytes);
             Console.WriteLine(dumpHeader);
+            Console.WriteLine($"{dumpHeader.DataLength} bytes");
 
             if (dumpHeader.Cardinality == KSynthLib.K5000.Cardinality.One)
             {
@@ -132,51 +133,37 @@ namespace Driver
                 {
 
                 }
-
-
             }
             else  // we have a block of singles or multis
             {
                 if (dumpHeader.Kind == PatchKind.Single)
                 {
                     var patchCount = dumpHeader.ToneMap.Count;
-                    Console.WriteLine($"Patches included: {dumpHeader.ToneMap} ({patchCount})");
-
-                    var offset = 0;
+                    Console.WriteLine($"{patchCount} patches");
 
                     var bytesLeft = message.Payload.Count - dumpHeader.DataLength;
                     Console.WriteLine($"Will use {bytesLeft} bytes of patch data starting at {dumpHeader.DataLength}");
-                    var patchData = message.Payload.GetRange(dumpHeader.DataLength, bytesLeft);
-                    Console.WriteLine($"Patch data = {patchData.Count} bytes");
+                    var allData = message.Payload.GetRange(dumpHeader.DataLength, bytesLeft);
+                    Console.WriteLine($"All patch data = {allData.Count} bytes");
 
-                    // Whatever the first patch is, it must be at least this many bytes (always has at least two sources)
-                    var minimumPatchSize = SingleCommonSettings.DataSize + 2 * KSynthLib.K5000.Source.DataSize;
-                    Console.Error.WriteLine($"Minimum patch size is {minimumPatchSize} (= two PCM sources)");
+                    var offset = 0;
 
-                    var totalPatchSize = 0;  // the total size of all the single patches
-
-                    List<byte> singleData = new List<byte>();
-                    var singlePatches = new List<KSynthLib.K5000.SinglePatch>();
-                    for (var i = 0; i < patchCount; i++)
+                    var patches = new List<KSynthLib.K5000.SinglePatch>();
+                    for (int i = 0; i < patchCount; i++)
                     {
-                        var startOffset = offset;  // save the current offset because we need to copy more bytes later
+                        byte checksum = allData[offset];
+                        Console.WriteLine($"Checksum = {checksum:X2}");
+                        offset += 1;
 
-                        // We don't know yet how many bytes the patch is, but it is at least the minimum size.
-                        // That will include the source common settings.
-                        // Read in as much, but skip the checksum (so start at offset + 1).
-                        var commonData = new List<byte>();
-                        commonData.AddRange(patchData.GetRange(offset + 1, minimumPatchSize));
+                        bytesLeft = allData.Count - offset;
+                        var patchData = allData.GetRange(offset, bytesLeft);
+                        Console.WriteLine($"Patch data is from {offset} to {offset + bytesLeft} ({patchData.Count} bytes)");
 
-                        Console.Error.WriteLine($"Copied {minimumPatchSize} bytes from offset {offset} to commonData");
-                        //Console.Error.WriteLine(Util.HexDump(buffer));
-                        //Console.Error.WriteLine($"single patch checksum = {singleData[0]:X2}H");
+                        hexDump.Data = patchData.GetRange(0, 32);
+                        Console.WriteLine(hexDump);
+                        var patch = new KSynthLib.K5000.SinglePatch(patchData.ToArray());
+                        patches.Append(patch);
 
-                        var common = new KSynthLib.K5000.SingleCommonSettings(commonData.ToArray());
-                        var count = common.SourceCount;
-
-                        offset += SingleCommonSettings.DataSize;  // skip past common settings, to the sources
-
-/*
                         // Find out how many PCM and ADD sources
                         var pcmCount = 0;
                         var addCount = 0;
@@ -192,33 +179,9 @@ namespace Driver
                             }
                         }
 
-                        // Figure out the total size of the single patch based on the counts
-                        var patchSize = 1 + SingleCommonSettings.DataSize  // includes the checksum
-                            + patch.Sources.Length * KSynthLib.K5000.Source.DataSize  // all sources have this part
-                            + addCount * AdditiveKit.DataSize;
-                        Console.WriteLine($"{pcmCount}PCM {addCount}ADD size={patchSize} bytes");
+                        Console.WriteLine($"{patch.SingleCommon.Name}: {addCount}ADD {pcmCount}PCM, length = {patch.DataLength}");
 
-                        offset = startOffset;  // back up to the start of the patch data
-                        // Read the whole patch now that we know its size
-                        Console.WriteLine($"About to read {patchSize} bytes starting from offset {offset:X4}h");
-                        (buffer, offset) = Util.GetNextBytes(fileData, offset, patchSize);
-
-                        totalPatchSize += patchSize;
-
-                        singlePatches.Add(patch);
-                        Console.WriteLine(patch);
-                        Console.WriteLine($"{patch.SingleCommon.Name}");
-                        Console.WriteLine("------------");
-*/
-
-/*
-                        string jsonString = JsonConvert.SerializeObject(
-                                patch,
-                                Newtonsoft.Json.Formatting.Indented,
-                                new Newtonsoft.Json.Converters.StringEnumConverter()
-                            );
-                        Console.WriteLine(jsonString);
-*/
+                        offset += patch.DataLength;
                     }
                 }
                 else  // block of combi/multi

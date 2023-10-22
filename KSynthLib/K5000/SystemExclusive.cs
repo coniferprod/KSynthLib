@@ -337,13 +337,6 @@ namespace KSynthLib.K5000
 
             // Nothing emitted for block drum instrument or combi
 
-            System.Console.Write("Dump header bytes: ");
-            foreach (var b in data)
-            {
-                System.Console.Write($"{b:X2} ");
-            }
-            System.Console.WriteLine($" ({data.Count} bytes)");
-
             return data;
         }
 
