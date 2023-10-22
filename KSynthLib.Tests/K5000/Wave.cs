@@ -35,5 +35,14 @@ namespace KSynthLib.Tests.K5000
             var number = Wave.NumberFrom(0x03, 0x1b);
             Assert.Equal(411, number);
         }
+
+/*
+        [Fact]
+        public void WaveSelect_OutOfBounds()
+        {
+            var number = Wave.NumberFrom(0x0B, 0x1B);
+            Assert.True(number <= 512);
+        }
+*/
     }
 }

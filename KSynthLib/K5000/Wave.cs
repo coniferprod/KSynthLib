@@ -37,6 +37,9 @@ namespace KSynthLib.K5000
         public Wave(byte high, byte low)
         {
             ushort number = Wave.NumberFrom(high, low);
+
+            System.Console.WriteLine("Wave high = {0:X2} low = {1:X2} number = {2}", high, low, number);
+
             this._number = number;
             if (number == 512)
             {
@@ -72,6 +75,7 @@ namespace KSynthLib.K5000
             var waveMSBString = Convert.ToString(msb, 2).PadLeft(3, '0');
             var waveLSBString = Convert.ToString(lsb, 2).PadLeft(7, '0');
             var waveString = waveMSBString + waveLSBString;
+            Console.WriteLine($"msb = {msb:X2} lsb = {lsb:X2} {waveMSBString}|{waveLSBString}");
             return (ushort)(Convert.ToUInt16(waveString, 2));
         }
 
