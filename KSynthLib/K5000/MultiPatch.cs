@@ -31,6 +31,8 @@ namespace KSynthLib.K5000
         /// </summary>
         public MultiPatch(byte[] data) : base()
         {
+            this.Sections = new MultiSection[SectionCount];
+
             using (MemoryStream memory = new MemoryStream(data, false))
 	        {
                 using (BinaryReader reader = new BinaryReader(memory))
