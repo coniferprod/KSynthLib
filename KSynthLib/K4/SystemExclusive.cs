@@ -58,24 +58,43 @@ namespace KSynthLib.K4
 
 	    public SystemExclusiveFunction Function;
 
-        public byte Group;
-        public byte MachineID;
+        private byte Group = 0x00;
+        private byte MachineID = 0x04;
+
 	    public byte Substatus1;
 	    public byte Substatus2;
 
-        public SystemExclusiveHeader(byte channel)
+        public SystemExclusiveHeader(int channel)
         {
             this.Channel = new Channel(channel);
+            this.Function = SystemExclusiveFunction.ProgramChange;
+            this.Substatus1 = 0x00;  // INT
+            this.Substatus2 = 0x00;  // actually Program Change has no substatus2
         }
 
         public SystemExclusiveHeader(byte[] data)
         {
-            this.Channel = new Channel(data[0]);
+            this.Channel = new Channel(data[0]);  // byte adjusts to 1~16
             this.Function = (SystemExclusiveFunction)data[1];
             this.Group = data[2];
             this.MachineID = data[3];
-            this.Substatus1 = data[4];
-            this.Substatus2 = data[5];
+
+            switch (this.Function) {
+            case SystemExclusiveFunction.WriteComplete:
+            case SystemExclusiveFunction.WriteError:
+            case SystemExclusiveFunction.WriteErrorNoCard:
+            case SystemExclusiveFunction.WriteErrorProtect:
+                break;  // no substatus1 or substatus2
+
+            case SystemExclusiveFunction.ProgramChange:
+                this.Substatus1 = data[4];  // only substatus1
+                break;
+
+            default:
+                this.Substatus1 = data[4];
+                this.Substatus2 = data[5];
+                break;
+            }
         }
 
         public override bool Equals(object obj) => this.Equals(obj as SystemExclusiveHeader);
@@ -128,29 +147,59 @@ namespace KSynthLib.K4
             {
                 var data = new List<byte>();
 
-                data.Add(this.Channel.ToByte());
+                data.Add(this.Channel.ToByte());  // adjusts to 0~15
                 data.Add((byte)this.Function);
                 data.Add(this.Group);
                 data.Add(this.MachineID);
-                data.Add(this.Substatus1);
-                data.Add(this.Substatus2);
+
+                switch (this.Function) {
+                case SystemExclusiveFunction.WriteComplete:
+                case SystemExclusiveFunction.WriteError:
+                case SystemExclusiveFunction.WriteErrorNoCard:
+                case SystemExclusiveFunction.WriteErrorProtect:
+                    break;  // no substatus1 or substatus2
+
+                case SystemExclusiveFunction.ProgramChange:
+                    data.Add(this.Substatus1);
+                    break;
+
+                default:
+                    data.Add(this.Substatus1);
+                    data.Add(this.Substatus2);
+                    break;
+                }
 
                 return data;
             }
         }
 
-        public int DataLength => 6;
+        public int DataLength => this.Data.Count;
 
         public override string ToString()
         {
             var sb = new StringBuilder();
 
-            sb.AppendLine($"Channel: {Channel}");
+            sb.AppendLine($"Channel: {this.Channel.Value}");
             sb.AppendLine($"Function: {SystemExclusiveFunctionExtensions.Name(this.Function)}");
             sb.AppendLine(string.Format("Group: {0:X2}h", this.Group));
             sb.AppendLine(string.Format("MachineID: {0:X2}h", this.MachineID));
-            sb.AppendLine(string.Format("Sub status 1: {0:X2}h", this.Substatus1));
-            sb.AppendLine(string.Format("Sub status 2: {0:X2}h", this.Substatus2));
+
+            switch (this.Function) {
+            case SystemExclusiveFunction.WriteComplete:
+            case SystemExclusiveFunction.WriteError:
+            case SystemExclusiveFunction.WriteErrorNoCard:
+            case SystemExclusiveFunction.WriteErrorProtect:
+                break;  // no substatus1 or substatus2
+
+            case SystemExclusiveFunction.ProgramChange:
+                sb.AppendLine(string.Format("Sub status 1: {0:X2}h", this.Substatus1));
+                break;
+
+            default:
+                sb.AppendLine(string.Format("Sub status 1: {0:X2}h", this.Substatus1));
+                sb.AppendLine(string.Format("Sub status 2: {0:X2}h", this.Substatus2));
+                break;
+            }
 
             return sb.ToString();
         }
