@@ -1,5 +1,3 @@
-using Xunit;
-
 using KSynthLib.K5000;
 
 
@@ -11,7 +9,7 @@ namespace KSynthLib.Tests.K5000
         {
         }
 
-        [Fact]
+        [Test]
         public void Empty()
         {
             bool[] include = new bool[ToneMap.ToneCount];
@@ -21,10 +19,10 @@ namespace KSynthLib.Tests.K5000
             }
 
             var map = new ToneMap(include);
-            Assert.Equal(0, map.Count);
+            Assert.That(0, Is.EqualTo(map.Count));
         }
 
-        [Fact]
+        [Test]
         public void Full()
         {
             bool[] include = new bool[ToneMap.ToneCount];
@@ -34,10 +32,10 @@ namespace KSynthLib.Tests.K5000
             }
 
             var map = new ToneMap(include);
-            Assert.Equal(ToneMap.ToneCount, map.Count);
+            Assert.That(ToneMap.ToneCount, Is.EqualTo(map.Count));
         }
 
-        [Fact]
+        [Test]
         public void Some()
         {
             // In a tone map, only the bottom seven bits of each byte are used.
@@ -68,10 +66,10 @@ namespace KSynthLib.Tests.K5000
             }
 
             var map = new ToneMap(include);
-            Assert.Equal(101, map.Count);
+            Assert.That(101, Is.EqualTo(map.Count));
         }
 
-        [Fact]
+        [Test]
         public void Some_Bytes()
         {
             var data = new byte[]
@@ -85,7 +83,7 @@ namespace KSynthLib.Tests.K5000
             };
 
             var map = new ToneMap(data);
-            Assert.Equal(101, map.Count);
+            Assert.That(101, Is.EqualTo(map.Count));
         }
     }
 }

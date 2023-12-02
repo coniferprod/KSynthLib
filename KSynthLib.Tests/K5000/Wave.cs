@@ -1,48 +1,36 @@
-using System;
-using Xunit;
 using KSynthLib.K5000;
 
-namespace KSynthLib.Tests.K5000
+namespace KSynthLib.Tests.K5000;
+
+public class WaveTests
 {
-    public class WaveTests
+    [Test]
+    public void Number_IsCorrectlySet()
     {
-        [Fact]
-        public void Number_IsCorrectlySet()
-        {
-            var wave = new Wave(411);
-            Assert.Equal(411, wave.Number);
-        }
+        var wave = new Wave(411);
+        Assert.That(411, Is.EqualTo(wave.Number));
+    }
 
-        [Fact]
-        public void Name_IsCorrectlySet()
-        {
-            var wave = new Wave(411);
-            Assert.Equal("Syn Saw1 Cyc", wave.Name);
-        }
+    [Test]
+    public void Name_IsCorrectlySet()
+    {
+        var wave = new Wave(411);
+        Assert.That("Syn Saw1 Cyc", Is.EqualTo(wave.Name));
+    }
 
-        [Fact]
-        public void NumberFrom_IsCorrect()
-        {
-            var wave = new Wave(411);
-            var (high, low) = wave.WaveSelect;
-            Assert.Equal(0x03, high);
-            Assert.Equal(0x1b, low);
-        }
+    [Test]
+    public void NumberFrom_IsCorrect()
+    {
+        var wave = new Wave(411);
+        var (high, low) = wave.WaveSelect;
+        Assert.That(0x03, Is.EqualTo(high));
+        Assert.That(0x1b, Is.EqualTo(low));
+    }
 
-        [Fact]
-        public void WaveSelect_IsCorrect()
-        {
-            var number = Wave.NumberFrom(0x03, 0x1b);
-            Assert.Equal(411, number);
-        }
-
-/*
-        [Fact]
-        public void WaveSelect_OutOfBounds()
-        {
-            var number = Wave.NumberFrom(0x0B, 0x1B);
-            Assert.True(number <= 512);
-        }
-*/
+    [Test]
+    public void WaveSelect_IsCorrect()
+    {
+        var number = Wave.NumberFrom(0x03, 0x1b);
+        Assert.That(411, Is.EqualTo(number));
     }
 }

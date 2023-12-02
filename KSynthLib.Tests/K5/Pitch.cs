@@ -1,67 +1,63 @@
 using System;
 
-using Xunit;
-
 using KSynthLib.K5;
 
 
-namespace KSynthLib.Tests.K5
+namespace KSynthLib.Tests.K5;
+
+public class PitchSettingsTests
 {
-    public class PitchSettingsTests
+    private PitchSettings settings;
+
+    public PitchSettingsTests()
     {
-        private PitchSettings settings;
-
-        public PitchSettingsTests()
-        {
-            settings = new PitchSettings();
-            Console.Error.WriteLine(settings);
-        }
-
-        [Fact]
-        public void Coarse_IsCorrectlySet()
-        {
-            settings.Coarse = new Coarse(-24);
-            Assert.Equal(-24, settings.Coarse.Value);
-        }
-
-        [Fact]
-        public void HasEnvelope()
-        {
-            Assert.NotNull(settings.Envelope);
-        }
+        settings = new PitchSettings();
+        Console.Error.WriteLine(settings);
     }
 
-    public class PitchEnvelopeTests
+    [Test]
+    public void Coarse_IsCorrectlySet()
     {
-        private PitchEnvelope envelope;
-
-        public PitchEnvelopeTests()
-        {
-            envelope = new PitchEnvelope();
-        }
-
-        [Fact]
-        public void HasCorrectSegmentCount()
-        {
-            Assert.Equal(PitchEnvelope.SegmentCount, envelope.Segments.Length);
-        }
+        settings.Coarse = new Coarse(-24);
+        Assert.That(-24, Is.EqualTo(settings.Coarse.Value));
     }
 
-    public class PitchEnvelopeSegmentTests
+    [Test]
+    public void HasEnvelope()
     {
-        private PitchEnvelopeSegment segment;
-
-        public PitchEnvelopeSegmentTests()
-        {
-            segment = new PitchEnvelopeSegment();
-        }
-
-        [Fact]
-        public void Rate_IsSetCorrectly()
-        {
-            segment.Rate = new PositiveDepth(20);
-            Assert.Equal(20, segment.Rate.Value);
-        }
+        Assert.NotNull(settings.Envelope);
     }
 }
 
+public class PitchEnvelopeTests
+{
+    private PitchEnvelope envelope;
+
+    public PitchEnvelopeTests()
+    {
+        envelope = new PitchEnvelope();
+    }
+
+    [Test]
+    public void HasCorrectSegmentCount()
+    {
+        Assert.That(PitchEnvelope.SegmentCount, Is.EqualTo(envelope.Segments.Length));
+    }
+}
+
+public class PitchEnvelopeSegmentTests
+{
+    private PitchEnvelopeSegment segment;
+
+    public PitchEnvelopeSegmentTests()
+    {
+        segment = new PitchEnvelopeSegment();
+    }
+
+    [Test]
+    public void Rate_IsSetCorrectly()
+    {
+        segment.Rate = new PositiveDepth(20);
+        Assert.That(20, Is.EqualTo(segment.Rate.Value));
+    }
+}

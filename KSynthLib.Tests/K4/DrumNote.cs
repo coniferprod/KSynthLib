@@ -1,16 +1,13 @@
-using System;
-using Xunit;
 using KSynthLib.K4;
 
-namespace KSynthLib.Tests.K4
-{
-    public class DrumNoteTests
-    {
-        DrumNote note;
+namespace KSynthLib.Tests.K4;
 
-        public DrumNoteTests()
-        {
-            note = new DrumNote();
-        }
+public class DrumNoteTests
+{
+    DrumNote note;
+
+    public DrumNoteTests()
+    {
+        note = new DrumNote();
     }
 }

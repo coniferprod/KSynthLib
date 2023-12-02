@@ -1,29 +1,26 @@
-using System;
-using Xunit;
 using KSynthLib.K4;
 
-namespace KSynthLib.Tests.K4
+namespace KSynthLib.Tests.K4;
+
+public class EffectPatchTests
 {
-    public class EffectPatchTests
+    EffectPatch patch;
+
+    public EffectPatchTests()
     {
-        EffectPatch patch;
+        patch = new EffectPatch();
+    }
 
-        public EffectPatchTests()
-        {
-            patch = new EffectPatch();
-        }
+    [Test]
+    public void HasCorrectNumberOfSubmixes()
+    {
+        Assert.That(EffectPatch.SubmixCount, Is.EqualTo(patch.Submixes.Length));
+    }
 
-        [Fact]
-        public void HasCorrectNumberOfSubmixes()
-        {
-            Assert.Equal(EffectPatch.SubmixCount, patch.Submixes.Length);
-        }
-
-        [Fact]
-        public void Data_IsCorrectSize()
-        {
-            byte[] data = patch.ToData().ToArray();
-            Assert.Equal(EffectPatch.DataSize, data.Length);
-        }
+    [Test]
+    public void Data_IsCorrectSize()
+    {
+        byte[] data = patch.ToData().ToArray();
+        Assert.That(EffectPatch.DataSize, Is.EqualTo(data.Length));
     }
 }

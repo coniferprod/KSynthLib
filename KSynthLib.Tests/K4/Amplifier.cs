@@ -1,46 +1,40 @@
-using Xunit;
 using KSynthLib.K4;
 
-namespace KSynthLib.Tests.K4
+namespace KSynthLib.Tests.K4;
+
+public class AmplifierTests
 {
-    public class AmplifierTests
+    [Test]
+    public void Init_Successful()
     {
-        public AmplifierTests()
-        {
-        }
+        Amplifier amp = new();
+        Assert.NotNull(amp);
+    }
 
-        [Fact]
-        public void Init_Successful()
-        {
-            Amplifier amp = new Amplifier();
-            Assert.NotNull(amp);
-        }
+    [Test]
+    public void InitFromData_Successful()
+    {
+        byte[] data = new byte[] {
+            1, 2, 3, 4,
+            1, 2, 3, 4,
+            1, 2, 3, 4,
+            1, 2, 3, 4,
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0, 0
+        };
+        Amplifier amp = new(data);
+        Assert.NotNull(amp);
+    }
 
-        [Fact]
-        public void InitFromData_Successful()
-        {
-            byte[] data = new byte[] {
-                1, 2, 3, 4,
-                1, 2, 3, 4,
-                1, 2, 3, 4,
-                1, 2, 3, 4,
-                0, 0, 0, 0,
-                0, 0, 0, 0,
-                0, 0, 0, 0,
-                0, 0, 0, 0,
-                0, 0, 0, 0
-            };
-            Amplifier amp = new Amplifier(data);
-            Assert.NotNull(amp);
-        }
-
-        [Fact]
-        public void InitEnvelopeSuccessful()
-        {
-            Amplifier amp = new Amplifier();
-            AmplifierEnvelope env = new AmplifierEnvelope(0, 0, 0, 0);
-            amp.Env = env;
-            Assert.NotNull(amp.Env);
-        }
+    [Test]
+    public void InitEnvelopeSuccessful()
+    {
+        Amplifier amp = new();
+        AmplifierEnvelope env = new(0, 0, 0, 0);
+        amp.Env = env;
+        Assert.NotNull(amp.Env);
     }
 }

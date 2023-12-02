@@ -1,66 +1,63 @@
 using System;
 
-using Xunit;
-
 using KSynthLib.K5;
 
 
-namespace KSynthLib.Tests.K5
+namespace KSynthLib.Tests.K5;
+
+public class HarmonicEnvelopeSegmentTests
 {
-    public class HarmonicEnvelopeSegmentTests
+    private HarmonicEnvelopeSegment segment;
+
+    public HarmonicEnvelopeSegmentTests()
     {
-        private HarmonicEnvelopeSegment segment;
-
-        public HarmonicEnvelopeSegmentTests()
-        {
-            segment = new HarmonicEnvelopeSegment();
-        }
-
-        [Fact]
-        public void Level_IsSetCorrectly()
-        {
-            segment.Level = new PositiveDepth(20);
-            Assert.Equal(20, segment.Level.Value);
-        }
+        segment = new HarmonicEnvelopeSegment();
     }
 
-    public class HarmonicEnvelopeTests
+    [Test]
+    public void Level_IsSetCorrectly()
     {
-        private HarmonicEnvelope envelope;
+        segment.Level = new PositiveDepth(20);
+        Assert.That(20, Is.EqualTo(segment.Level.Value));
+    }
+}
 
-        public HarmonicEnvelopeTests()
-        {
-            envelope = new HarmonicEnvelope();
-        }
+public class HarmonicEnvelopeTests
+{
+    private HarmonicEnvelope envelope;
 
-        [Fact]
-        public void HasCorrectNumberOfSegments()
-        {
-            Assert.Equal(HarmonicEnvelope.SegmentCount, envelope.Segments.Length);
-        }
-
-        [Fact]
-        public void Effect_IsSetCorrectly()
-        {
-            envelope.Effect = new PositiveDepth(20);
-            Assert.Equal(20, envelope.Effect.Value);
-        }
+    public HarmonicEnvelopeTests()
+    {
+        envelope = new HarmonicEnvelope();
     }
 
-    public class HarmonicSettingsTests
+    [Test]
+    public void HasCorrectNumberOfSegments()
     {
-        private HarmonicSettings settings;
+        Assert.That(HarmonicEnvelope.SegmentCount, Is.EqualTo(envelope.Segments.Length));
+    }
 
-        public HarmonicSettingsTests()
-        {
-            settings = new HarmonicSettings();
-            Console.Error.WriteLine(settings);
-        }
+    [Test]
+    public void Effect_IsSetCorrectly()
+    {
+        envelope.Effect = new PositiveDepth(20);
+        Assert.That(20, Is.EqualTo(envelope.Effect.Value));
+    }
+}
 
-        [Fact]
-        public void HasCorrectNumberOfEnvelopes()
-        {
-            Assert.Equal(HarmonicSettings.HarmonicEnvelopeCount, settings.Envelopes.Length);
-        }
+public class HarmonicSettingsTests
+{
+    private HarmonicSettings settings;
+
+    public HarmonicSettingsTests()
+    {
+        settings = new HarmonicSettings();
+        Console.Error.WriteLine(settings);
+    }
+
+    [Test]
+    public void HasCorrectNumberOfEnvelopes()
+    {
+        Assert.That(HarmonicSettings.HarmonicEnvelopeCount, Is.EqualTo(settings.Envelopes.Length));
     }
 }
