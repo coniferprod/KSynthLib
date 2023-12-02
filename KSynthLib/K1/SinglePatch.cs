@@ -262,7 +262,7 @@ namespace KSynthLib.K1
             {
                 allSourceData.Add(new List<byte>(source.ToData()));
             }
-            buf.AddRange(Util.InterleaveBytes(allSourceData));
+            buf.AddRange(allSourceData.Interleave());
 
             byte checksum = ComputeChecksum(buf.ToArray());
             buf.Add(checksum);

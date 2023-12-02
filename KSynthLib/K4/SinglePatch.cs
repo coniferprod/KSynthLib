@@ -383,7 +383,7 @@ namespace KSynthLib.K4
             {
                 allSourceData.Add(new List<byte>(source.Data));
             }
-            data.AddRange(Util.InterleaveBytes(allSourceData));
+            data.AddRange(allSourceData.Interleave());
 
             // Similarly for amp data:
             var allAmplifierData = new List<List<byte>>();
@@ -391,15 +391,10 @@ namespace KSynthLib.K4
             {
                 allAmplifierData.Add(amplifier.Data);
             }
-            data.AddRange(Util.InterleaveBytes(allAmplifierData));
+            data.AddRange(allAmplifierData.Interleave());
 
             // And finally for filters:
-            data.AddRange(
-                Util.InterleaveBytes(
-                    new List<byte>(Filter1.Data),
-                    new List<byte>(Filter2.Data)
-                )
-            );
+            data.AddRange(Filter1.Data.Interleave(Filter2.Data));
 
             return data;
         }
