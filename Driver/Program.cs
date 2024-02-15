@@ -195,7 +195,7 @@ namespace Driver
                     {
                         var patch = bank.Patches[i];
                         var name = patch.Common.Name;
-                        Console.WriteLine($"{i + 1}: {name}");
+                        Console.WriteLine($"Multi {i + 1}\n{patch}");
                     }
 
                 }
