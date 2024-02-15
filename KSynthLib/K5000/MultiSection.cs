@@ -13,7 +13,7 @@ namespace KSynthLib.K5000
     /// </summary>
     public class MultiSection : ISystemExclusiveData
     {
-        public static readonly int DataSize = 12;  // See "3.1.6.2 Section Data"
+        public const int DataSize = 12;  // See "3.1.6.2 Section Data"
 
         // 0~127: General MIDI
         // 128~255: B

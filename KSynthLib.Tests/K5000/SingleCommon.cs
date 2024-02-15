@@ -12,7 +12,10 @@ public class SingleCommonTests
     private readonly SingleCommonSettings singleCommon;
 
     // Common data from WizooIni.syx:
-    private string testData = "000002020D410A1000583369221D004A0000002400043A04382A000C0C6300424140403F3E410057697A6F6F496E697300000201000201400103400000000000000000000040404040404040400000000000";
+    private string testData =
+        "000002020D410A1000583369221D004A0000002400043A04382A000C0C630042414040" +
+        "3F3E410057697A6F6F496E697300000201000201400103400000000000000000000040" +
+        "404040404040400000000000";
 
     public SingleCommonTests()
     {
@@ -49,5 +52,4 @@ public class SingleCommonTests
     {
         Assert.NotNull(singleCommon.Name);
     }
-
 }

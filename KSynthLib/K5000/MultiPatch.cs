@@ -4,6 +4,7 @@ using System.IO;
 
 using SyxPack;
 using KSynthLib.Common;
+using System;
 
 namespace KSynthLib.K5000
 {
@@ -17,6 +18,8 @@ namespace KSynthLib.K5000
         public MultiCommon Common;
         public MultiSection[] Sections;
 
+        public const int DataSize = 1 + MultiCommon.DataSize + SectionCount * MultiSection.DataSize;
+
         /// <summary>
         /// Constructs a multi patch with default values.
         /// </summary>
@@ -29,9 +32,9 @@ namespace KSynthLib.K5000
         /// <summary>
         /// Constructs a multi patch from System Exclusive data.
         /// </summary>
-        public MultiPatch(byte[] data) : base()
+        public MultiPatch(byte[] data) : this()
         {
-            this.Sections = new MultiSection[SectionCount];
+            Console.WriteLine($"In MultiPatch(byte[]) constructor, have {data.Length} bytes");
 
             using (MemoryStream memory = new MemoryStream(data, false))
 	        {
@@ -39,6 +42,7 @@ namespace KSynthLib.K5000
                 {
                     var checksum = reader.ReadByte();
 
+                    // Read the rest of the multi data (we are already past the checksum)
                     byte[] commonData = reader.ReadBytes(MultiCommon.DataSize);
                     this.Common = new MultiCommon(commonData);
 
@@ -95,13 +99,8 @@ namespace KSynthLib.K5000
             }
         }
 
-        public int DataLength
-        {
-            get
-            {
-                return 1 + this.Common.DataLength + SectionCount * MultiSection.DataSize;
-            }
-        }
+        public int DataLength => DataSize;
+
 #endregion
 
 #region Implementation of the IPatch interface for MultiPatch
@@ -123,10 +122,7 @@ namespace KSynthLib.K5000
 
         public string Name
         {
-            get
-            {
-                return this.Common.Name.Value;
-            }
+            get => this.Common.Name.Value;
 
             set
             {

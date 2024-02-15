@@ -4,6 +4,7 @@ using System.IO;
 
 using SyxPack;
 using KSynthLib.Common;
+using System;
 
 namespace KSynthLib.K5000
 {
@@ -12,7 +13,7 @@ namespace KSynthLib.K5000
     /// </summary>
     public class MultiCommon : ISystemExclusiveData
     {
-        public static readonly int DataSize = 54;
+        public const int DataSize = 54;
 
         public EffectAlgorithm EffectAlgorithm; // 1~4 (in SysEx 0~3)
         public ReverbSettings Reverb;
@@ -43,45 +44,75 @@ namespace KSynthLib.K5000
 
         public MultiCommon(byte[] data)
         {
+            int offset = 0;
+
             using (MemoryStream memory = new MemoryStream(data, false))
 	        {
                 using (BinaryReader reader = new BinaryReader(memory))
                 {
+                    Console.WriteLine($"{offset}: effect algorithm");
+                    offset += 1;
                     byte effectAlgorithm = reader.ReadByte();
                     // Seems like the K5000 might set the top bits of this, so mask them off
                     this.EffectAlgorithm = (EffectAlgorithm)(effectAlgorithm & 0x03);
 
+                    Console.WriteLine($"{offset}: reverb");
+                    offset += ReverbSettings.DataSize;
                     byte[] reverbData = reader.ReadBytes(ReverbSettings.DataSize);
                     this.Reverb = new ReverbSettings(reverbData);
 
+                    Console.WriteLine($"{offset}: effect 1 settings");
+                    offset += EffectSettings.DataSize;
                     byte[] effect1Data = reader.ReadBytes(EffectSettings.DataSize);
                     this.Effect1 = new EffectSettings(effect1Data);
 
+                    Console.WriteLine($"{offset}: effect 2 settings");
+                    offset += EffectSettings.DataSize;
                     byte[] effect2Data = reader.ReadBytes(EffectSettings.DataSize);
                     this.Effect2 = new EffectSettings(effect2Data);
 
+                    Console.WriteLine($"{offset}: effect 3 settings");
+                    offset += EffectSettings.DataSize;
                     byte[] effect3Data = reader.ReadBytes(EffectSettings.DataSize);
                     this.Effect3 = new EffectSettings(effect3Data);
 
+                    Console.WriteLine($"{offset}: effect 4 settings");
+                    offset += EffectSettings.DataSize;
                     byte[] effect4Data = reader.ReadBytes(EffectSettings.DataSize);
                     this.Effect4 = new EffectSettings(effect4Data);
 
+                    Console.WriteLine($"{offset}: GEQ settings");
+                    offset += GEQSettings.DataSize;
                     byte[] geqData = reader.ReadBytes(GEQSettings.DataSize);
                     this.GEQ = new GEQSettings(geqData);
 
-                    byte[] nameData = new byte[PatchName.Length];
+                    Console.WriteLine($"{offset}: name");
+                    offset += PatchName.Length;
+                    byte[] nameData = reader.ReadBytes(PatchName.Length);
                     this.Name = new PatchName(nameData);
+                    Console.WriteLine($"(by the way, the name is '{this.Name}')");
 
+                    Console.WriteLine($"{offset}: volume");
+                    offset += 1;
                     this.Volume = new PositiveLevel(reader.ReadByte());
 
+                    Console.WriteLine($"{offset}: mute");
+                    offset += 1;
                     // TODO: Parse the mute byte
                     var muteByte = reader.ReadByte();
 
+                    Console.WriteLine($"{offset}: effect control 1 data");
+                    offset += 3;
                     byte[] ec1Data = reader.ReadBytes(3);
                     this.EffectControl1 = new EffectControl(ec1Data);
 
+                    Console.WriteLine($"{offset}: effect control 2 data");
+                    offset += 3;
                     byte[] ec2Data = reader.ReadBytes(3);
+                    Console.WriteLine($"ec2Data length = {ec2Data.Length}");
                     this.EffectControl2 = new EffectControl(ec2Data);
+
+                    Console.WriteLine($"{offset}: no more multi data");
                 }
             }
         }

@@ -84,38 +84,34 @@ namespace Driver
 
         static void DoK5000(string fileName)
         {
-            var hexDump = new HexDump();
-
             byte[] fileData = File.ReadAllBytes(fileName);
 
-            Message msg = Message.Create(fileData);
-            ManufacturerSpecificMessage message;
-            if (msg is ManufacturerSpecificMessage)
-            {
-                message = (ManufacturerSpecificMessage) msg;
-            }
-            else
+            Message m = Message.Create(fileData);
+            if (m is not ManufacturerSpecificMessage message)
             {
                 Console.WriteLine("Unable to construct a message from file data");
                 return;
             }
 
-            Console.WriteLine($"Message payload length is {message.Payload.Count} bytes");
+            // Now `message` is in scope, so we can use it to examine.
 
+            Console.WriteLine($"Message payload length is {message.Payload.Count} bytes");
             if (message.Payload.Count < 32)  // what about parameter messages (in the future?)
             {
                 Console.WriteLine("Not enough data!");
                 return;
             }
 
-            var dumpHeaderBytes = message.Payload.GetRange(0, 32).ToArray(); // should be enough to get the dump header
-            Console.WriteLine("Dump header:");
+            // Get enough data for the dump header:
+            var dumpHeaderBytes = message.Payload.GetRange(0, 32).ToArray();
+            Console.WriteLine($"\nDump header raw data:");
+            var hexDump = new HexDump();
             hexDump.Data = dumpHeaderBytes.ToList();
             Console.WriteLine(hexDump);
 
             var dumpHeader = new DumpHeader(dumpHeaderBytes);
+            Console.WriteLine($"\nDump header (length {dumpHeader.DataLength} bytes):");
             Console.WriteLine(dumpHeader);
-            Console.WriteLine($"{dumpHeader.DataLength} bytes");
 
             if (dumpHeader.Cardinality == KSynthLib.K5000.Cardinality.One)
             {
@@ -139,12 +135,11 @@ namespace Driver
                 if (dumpHeader.Kind == PatchKind.Single)
                 {
                     var patchCount = dumpHeader.ToneMap.Count;
-                    Console.WriteLine($"{patchCount} patches");
+                    Console.WriteLine($"Contains {patchCount} patches");
 
                     var bytesLeft = message.Payload.Count - dumpHeader.DataLength;
-                    Console.WriteLine($"Will use {bytesLeft} bytes of patch data starting at {dumpHeader.DataLength}");
+                    Console.WriteLine($"Will use {bytesLeft} bytes of patch data starting at offset {dumpHeader.DataLength}");
                     var allData = message.Payload.GetRange(dumpHeader.DataLength, bytesLeft);
-                    Console.WriteLine($"All patch data = {allData.Count} bytes");
 
                     var offset = 0;
 
@@ -160,6 +155,7 @@ namespace Driver
                         Console.WriteLine($"Patch data is from {offset} to {offset + bytesLeft} ({patchData.Count} bytes)");
 
                         hexDump.Data = patchData.GetRange(0, 32);
+                        Console.WriteLine($"First 32 bytes of patch data:");
                         Console.WriteLine(hexDump);
                         var patch = new KSynthLib.K5000.SinglePatch(patchData.ToArray());
                         patches.Append(patch);
@@ -186,7 +182,21 @@ namespace Driver
                 }
                 else  // block of combi/multi
                 {
+                    var bytesLeft = message.Payload.Count - dumpHeader.DataLength;
+                    Console.WriteLine($"Will use {bytesLeft} bytes of patch data starting at offset {dumpHeader.DataLength}");
+                    var allData = message.Payload.GetRange(dumpHeader.DataLength, bytesLeft);
+
                     // No tone map present, go straight to processing the multis
+
+                    var offset = 0;
+
+                    var bank = new MultiBank(allData.ToArray());
+                    for (int i = 0; i < MultiBank.PatchCount; i++)
+                    {
+                        var patch = bank.Patches[i];
+                        var name = patch.Common.Name;
+                        Console.WriteLine($"{i + 1}: {name}");
+                    }
 
                 }
 
