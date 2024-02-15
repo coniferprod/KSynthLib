@@ -38,8 +38,16 @@ namespace KSynthLib.K5000
         public MultiCommon()
         {
             this.Name = new PatchName("NewMulti");
-
-
+            this.Volume = new PositiveLevel(115);
+            this.EffectControl1 = new EffectControl();
+            this.EffectControl2 = new EffectControl();
+            this.EffectAlgorithm = EffectAlgorithm.Algorithm1;
+            this.Reverb = new ReverbSettings();
+            this.Effect1 = new EffectSettings();
+            this.Effect2 = new EffectSettings();
+            this.Effect3 = new EffectSettings();
+            this.Effect4 = new EffectSettings();
+            this.IsSectionMuted = new bool[] { false, false, false, false };
         }
 
         public MultiCommon(byte[] data)
@@ -116,6 +124,25 @@ namespace KSynthLib.K5000
                 }
             }
         }
+
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+
+            builder.AppendLine(this.Name.ToString());
+            builder.AppendLine($"Volume: {this.Volume.Value}");
+            builder.AppendLine($"Effect algorithm: {this.EffectAlgorithm}");
+            builder.AppendLine($"\nEffect 1: {this.Effect1}");
+            builder.AppendLine($"\nEffect 2: {this.Effect2}");
+            builder.AppendLine($"\nEffect 3: {this.Effect3}");
+            builder.AppendLine($"\nEffect 4: {this.Effect4}");
+            builder.AppendLine($"GEQ: {this.GEQ}");
+            builder.AppendLine($"Effect control 1: {this.EffectControl1}");
+            builder.AppendLine($"Effect control 2: {this.EffectControl2}");
+
+            return builder.ToString();
+        }
+
 
 #region ISystemExclusiveData implementation for MultiCommon
 

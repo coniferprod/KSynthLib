@@ -43,17 +43,33 @@ namespace KSynthLib.K5000
                     byte lsb = reader.ReadByte();
                     var (msbString, lsbString) = (Convert.ToString(msb, 2).PadLeft(2, '0'), Convert.ToString(lsb, 2).PadLeft(7, '0'));
                     var instrumentNumberString = msbString + lsbString;
-                    this.InstrumentNumber = (ushort)(Convert.ToUInt16(instrumentNumberString, 2));
+                    this.InstrumentNumber = Convert.ToUInt16(instrumentNumberString, 2);
 
                     Volume = new PositiveLevel(reader.ReadByte());
                     Pan = new PositiveLevel(reader.ReadByte());
-                    EffectPath = (EffectPath) (reader.ReadByte());  // straight from byte to enum
+                    EffectPath = (EffectPath) reader.ReadByte();  // straight from byte to enum
                     Transpose = new Transpose(reader.ReadByte());  // use byte so that the value can be adjusted from SysEx
                     Tune = new SignedLevel(reader.ReadByte());     // ditto ^
                     Zone = new Zone(reader.ReadByte(), reader.ReadByte());
                     ReceiveChannel = new Channel(reader.ReadByte());
                 }
             }
+        }
+
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+
+            builder.AppendLine($"Instrument number: {this.InstrumentNumber}");
+            builder.AppendLine($"Volume: {this.Volume.Value}");
+            builder.AppendLine($"Pan: {this.Pan.Value}");
+            builder.AppendLine($"Effect path: {this.EffectPath}");
+            builder.AppendLine($"Transpose: {this.Transpose.Value}");
+            builder.AppendLine($"Tune: {this.Tune.Value}");
+            builder.AppendLine($"Zone: {this.Zone}");
+            builder.AppendLine($"Receive channel: {this.ReceiveChannel.Value}");
+
+            return builder.ToString();
         }
 
 #region ISystemExclusiveData implementation for MultiSection

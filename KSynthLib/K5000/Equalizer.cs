@@ -48,10 +48,10 @@ namespace KSynthLib.K5000
             var builder = new StringBuilder();
             foreach (var freq in Frequencies)
             {
-                builder.Append($"{freq.Value}");
+                builder.Append(freq.Value.ToString("+#;-#;0"));
+                builder.Append(' ');
             }
-            builder.Append("\n");
-            // TODO: Add the sign, like "+6" or "-6"
+            builder.Append('\n');
             return builder.ToString();
         }
 

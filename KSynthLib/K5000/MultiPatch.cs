@@ -65,7 +65,13 @@ namespace KSynthLib.K5000
         {
             var builder = new StringBuilder();
 
-            // TODO: generate string representation
+            builder.AppendLine(this.Common.ToString());
+
+            for (int i = 0; i < SectionCount; i++)
+            {
+                builder.AppendLine($"Section {i + 1}");
+                builder.AppendLine(this.Sections[i].ToString());
+            }
 
             return builder.ToString();
         }

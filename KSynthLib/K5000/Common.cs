@@ -358,6 +358,11 @@ namespace KSynthLib.K5000
             High = new Key(high);
         }
 
+        public override string ToString()
+        {
+            return $"{this.Low.Value} to {this.High.Value}";
+        }
+
         //
         // ISystemExclusiveData implementation
         //
@@ -387,6 +392,18 @@ namespace KSynthLib.K5000
         {
             Key = new Key(key);
             IsOn = key != 0x00;
+        }
+
+        public override string ToString()
+        {
+            if (this.IsOn)
+            {
+                return $"{this.Key.Value}";
+            }
+            else
+            {
+                return "OFF";
+            }
         }
     }
 }
